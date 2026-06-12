@@ -57,3 +57,22 @@ func (h *ArticleHandler) Get(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, article)
 }
+
+func (h *ArticleHandler) MyFeed(c *gin.Context) {
+	userID := c.GetString("user_id")
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if limit > 100 {
+		limit = 100
+	}
+
+	articles, err := h.articleRepo.GetByUserSubscriptions(c.Request.Context(), userID, limit, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch articles"})
+		return
+	}
+	if articles == nil {
+		articles = []*model.Article{}
+	}
+	c.JSON(http.StatusOK, gin.H{"articles": articles})
+}

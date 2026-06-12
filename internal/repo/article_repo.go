@@ -108,3 +108,9 @@ func (r *ArticleRepo) GetArticlesSince(ctx context.Context, journalID string, si
 	defer rows.Close()
 	return scanArticles(rows)
 }
+
+func (r *ArticleRepo) CountAll(ctx context.Context) (int, error) {
+	var count int
+	err := r.pool.QueryRow(ctx, `SELECT COUNT(*) FROM articles`).Scan(&count)
+	return count, err
+}

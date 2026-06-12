@@ -136,3 +136,41 @@ func (r *JournalRepo) UpdateRequestStatus(ctx context.Context, reqID, status str
 	}
 	return nil
 }
+
+func (r *JournalRepo) Update(ctx context.Context, id string, j *model.Journal) error {
+	query := `UPDATE journals SET name=$1, slug=$2, source_type=$3, source_url=$4, is_active=$5 WHERE id=$6`
+	_, err := r.pool.Exec(ctx, query, j.Name, j.Slug, j.SourceType, j.SourceURL, j.IsActive, id)
+	return err
+}
+
+func (r *JournalRepo) Delete(ctx context.Context, id string) error {
+	_, err := r.pool.Exec(ctx, `DELETE FROM journals WHERE id=$1`, id)
+	return err
+}
+
+func (r *JournalRepo) GetAllRequests(ctx context.Context) ([]*model.JournalRequest, error) {
+	query := `SELECT id, user_id, journal_name, source_url, status, created_at, reviewed_at
+		FROM journal_requests ORDER BY created_at DESC`
+	rows, err := r.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reqs []*model.JournalRequest
+	for rows.Next() {
+		req := &model.JournalRequest{}
+		if err := rows.Scan(&req.ID, &req.UserID, &req.JournalName, &req.SourceURL,
+			&req.Status, &req.CreatedAt, &req.ReviewedAt); err != nil {
+			return nil, err
+		}
+		reqs = append(reqs, req)
+	}
+	return reqs, nil
+}
+
+func (r *JournalRepo) CountPendingRequests(ctx context.Context) (int, error) {
+	var count int
+	err := r.pool.QueryRow(ctx, `SELECT COUNT(*) FROM journal_requests WHERE status='pending'`).Scan(&count)
+	return count, err
+}

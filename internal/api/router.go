@@ -17,6 +17,18 @@ func SetupRouter(pool *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) *gin
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	// Public routes (no auth required)
+	journalRepo := repo.NewJournalRepo(pool)
+	articleRepo := repo.NewArticleRepo(pool)
+
+	jh := NewJournalHandler(journalRepo)
+	r.GET("/api/v1/journals", jh.List)
+	r.GET("/api/v1/journals/:id", jh.Get)
+
+	ah := NewArticleHandler(articleRepo)
+	r.GET("/api/v1/articles", ah.List)
+	r.GET("/api/v1/articles/:id", ah.Get)
+
 	// Auth (no middleware)
 	userRepo := repo.NewUserRepo(pool)
 	authHandler := NewAuthHandler(userRepo, cfg.JWT, cfg.WeChat)
@@ -28,22 +40,12 @@ func SetupRouter(pool *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) *gin
 		auth.POST("/wechat", authHandler.WeChatLogin)
 	}
 
-	// Protected routes
+	// Protected routes (require JWT)
 	protected := r.Group("/api/v1")
 	protected.Use(AuthMiddleware(cfg.JWT))
 	{
-		journalRepo := repo.NewJournalRepo(pool)
-		articleRepo := repo.NewArticleRepo(pool)
 		subRepo := repo.NewSubscriptionRepo(pool)
 		notifRepo := repo.NewNotificationRepo(pool)
-
-		jh := NewJournalHandler(journalRepo)
-		protected.GET("/journals", jh.List)
-		protected.GET("/journals/:id", jh.Get)
-
-		ah := NewArticleHandler(articleRepo)
-		protected.GET("/articles", ah.List)
-		protected.GET("/articles/:id", ah.Get)
 
 		sh := NewSubscriptionHandler(subRepo, journalRepo)
 		protected.GET("/subscriptions/journals", sh.ListJournals)
@@ -63,6 +65,24 @@ func SetupRouter(pool *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) *gin
 		rh := NewRequestHandler(journalRepo)
 		protected.POST("/journals/requests", rh.Create)
 		protected.GET("/journals/requests", rh.List)
+
+		// My feed (articles from user's subscribed journals)
+		protected.GET("/my/feed", ah.MyFeed)
+
+		// Admin routes
+		admin := r.Group("/api/v1/admin")
+		admin.Use(AuthMiddleware(cfg.JWT))
+		{
+			adm := NewAdminHandler(journalRepo, userRepo, articleRepo)
+			admin.GET("/stats", adm.Stats)
+			admin.GET("/journals", adm.ListJournals)
+			admin.POST("/journals", adm.CreateJournal)
+			admin.PUT("/journals/:id", adm.UpdateJournal)
+			admin.DELETE("/journals/:id", adm.DeleteJournal)
+			admin.GET("/requests", adm.ListRequests)
+			admin.PUT("/requests/:id", adm.ReviewRequest)
+			admin.GET("/users", adm.ListUsers)
+		}
 	}
 
 	return r
