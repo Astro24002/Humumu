@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go mod *)",
+      "Read(//usr/local/go/**)",
+      "Read(//usr/lib/**)",
+      "Bash(go get *)",
+      "Bash(go build *)",
+      "Bash(go version *)",
+      "Bash(go vm *)",
+      "Bash(go graph *)",
+      "Bash(go vet *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(echo \"---EXIT:$?---\")",
+      "Bash(docker build *)",
+      "Bash(sudo docker build -t journal-monitor .)",
+      "Bash(go test *)",
+      "Bash(git remote *)",
+      "Bash(git tag *)",
+      "Bash(git push *)",
+      "Bash(gh auth *)",
+      "Bash(gh repo *)"
+    ]
+  }
+}
