@@ -1,1 +1,50 @@
-<template><div /></template>
+<template>
+  <n-card title="登录" style="max-width: 400px; margin: 80px auto;">
+    <n-form :model="form" :rules="rules" @submit.prevent="handleLogin">
+      <n-form-item label="邮箱" path="email">
+        <n-input v-model:value="form.email" placeholder="user@example.com" />
+      </n-form-item>
+      <n-form-item label="密码" path="password">
+        <n-input v-model:value="form.password" type="password" show-password-on="click" />
+      </n-form-item>
+      <n-button type="primary" block :loading="loading" attr-type="submit">登录</n-button>
+    </n-form>
+    <p style="margin-top: 12px; text-align: center; color: #888;">
+      还没有账号？<router-link to="/register">注册</router-link>
+    </p>
+  </n-card>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useMessage } from 'naive-ui'
+import { NCard, NForm, NFormItem, NInput, NButton } from 'naive-ui'
+
+const router = useRouter()
+const route = useRoute()
+const auth = useAuthStore()
+const message = useMessage()
+const loading = ref(false)
+
+const form = reactive({ email: '', password: '' })
+const rules = {
+  email: { required: true, type: 'email' as const, message: '请输入有效邮箱' },
+  password: { required: true, message: '请输入密码' },
+}
+
+async function handleLogin() {
+  loading.value = true
+  try {
+    await auth.login(form.email, form.password)
+    message.success('登录成功')
+    const redirect = (route.query.redirect as string) || '/'
+    router.push(redirect)
+  } catch (e: any) {
+    message.error(e.message || '登录失败')
+  } finally {
+    loading.value = false
+  }
+}
+</script>
