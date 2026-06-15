@@ -1,0 +1,247 @@
+# API 参考文档
+
+所有 API 通过 `http://localhost:8080` 访问（可配置 `SERVER_PORT` 环境变量）。
+
+## 认证
+
+### 邮箱注册
+
+```
+POST /api/v1/auth/register
+```
+
+```json
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "name": "用户名"
+}
+```
+
+**响应** `201 Created`:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "name": "用户名",
+    "push_frequency": "realtime",
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
+  }
+}
+```
+
+### 邮箱登录
+
+```
+POST /api/v1/auth/login
+```
+
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**响应** `200 OK`: 同注册格式。
+
+### 微信登录
+
+```
+POST /api/v1/auth/wechat
+```
+
+```json
+{
+  "code": "微信小程序 wx.login() 返回的 code"
+}
+```
+
+**响应** `200 OK`: 同注册格式。首次微信登录自动创建账号。
+
+---
+
+## 期刊
+
+所有期刊接口需要 `Authorization: Bearer <token>` 头。
+
+### 获取期刊列表
+
+```
+GET /api/v1/journals
+```
+
+**响应** `200 OK`:
+```json
+{
+  "journals": [
+    {
+      "id": "uuid",
+      "name": "American Economic Review",
+      "slug": "aer",
+      "source_type": "rss",
+      "source_url": "https://...",
+      "is_active": true,
+      "created_at": "..."
+    }
+  ]
+}
+```
+
+### 获取期刊详情
+
+```
+GET /api/v1/journals/:id
+```
+
+### 申请新增期刊
+
+```
+POST /api/v1/journals/requests
+```
+
+```json
+{
+  "journal_name": "新期刊名称",
+  "source_url": "https://journal-rss-url"
+}
+```
+
+### 查看申请记录
+
+```
+GET /api/v1/journals/requests
+```
+
+---
+
+## 订阅
+
+### 期刊订阅
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/subscriptions/journals | 已关注期刊列表 |
+| POST | /api/v1/subscriptions/journals/:id | 关注期刊 |
+| DELETE | /api/v1/subscriptions/journals/:id | 取消关注 |
+
+### 作者追踪
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/subscriptions/authors | 追踪的作者列表 |
+| POST | /api/v1/subscriptions/authors | 添加作者追踪 |
+| DELETE | /api/v1/subscriptions/authors/:id | 取消追踪 |
+
+**添加作者:**
+```json
+{
+  "author_name": "John Smith"
+}
+```
+
+### 关键词订阅
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/subscriptions/keywords | 关键词列表 |
+| POST | /api/v1/subscriptions/keywords | 添加关键词 |
+| DELETE | /api/v1/subscriptions/keywords/:id | 删除关键词 |
+
+```json
+{
+  "keyword": "machine learning"
+}
+```
+
+---
+
+## 文章
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/articles | 文章列表（已订阅期刊的文章） |
+| GET | /api/v1/articles/:id | 文章详情 |
+
+**查询参数:**
+- `journal_id` — 按期刊过滤
+- `limit` — 每页数量（默认 20，最大 100）
+- `offset` — 偏移量
+
+**响应:**
+```json
+{
+  "articles": [
+    {
+      "id": "uuid",
+      "doi": "10.1234/example",
+      "title": "论文标题",
+      "authors": ["Author A", "Author B"],
+      "abstract": "摘要内容...",
+      "journal_id": "uuid",
+      "publish_date": "2026-01-15",
+      "url": "https://doi.org/10.1234/example"
+    }
+  ]
+}
+```
+
+---
+
+## 通知
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/notifications | 通知历史 |
+
+**查询参数:** `limit`（默认 20，最大 100），`offset`
+
+**响应:**
+```json
+{
+  "notifications": [
+    {
+      "id": "uuid",
+      "user_id": "uuid",
+      "article_id": "uuid",
+      "channel": "email",
+      "status": "sent",
+      "created_at": "...",
+      "sent_at": "..."
+    }
+  ]
+}
+```
+
+---
+
+## 设置
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| PUT | /api/v1/settings/push-frequency | 更新推送频率 |
+
+```json
+{
+  "push_frequency": "daily"
+}
+```
+
+可选值: `realtime`（实时推送）、`daily`（每日汇总）
+
+---
+
+## 健康检查
+
+```
+GET /health
+```
+
+```json
+{
+  "status": "ok"
+}
+```
