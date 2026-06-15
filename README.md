@@ -24,7 +24,7 @@ docker compose up -d
 
 ### 本地开发（后端）
 
-前置条件: Go 1.22+, PostgreSQL 16, Redis 7
+前置条件: Go 1.25+, PostgreSQL 16, Redis 7
 
 ```bash
 # 启动 PostgreSQL 和 Redis
@@ -141,7 +141,7 @@ make build
 
 ## 技术栈
 
-- **后端**: Go 1.22+ / Gin / pgx / JWT
+- **后端**: Go 1.25+ / Gin / pgx / JWT
 - **数据库**: PostgreSQL 16 / Redis 7
 - **前端**: Vue 3 / Vite / TypeScript / Naive UI / Pinia / Vue Router 4
 - **推送**: SMTP (Email) / 微信订阅消息
