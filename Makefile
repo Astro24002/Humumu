@@ -1,17 +1,21 @@
-.PHONY: build run migrate test
+.PHONY: build run migrate test docker-build frontend
 
-build:
+frontend:
+	cd web && npm run build
+
+build: frontend
 	go build -o bin/server ./cmd/server
 
 run:
 	go run ./cmd/server
 
 migrate:
-	psql "$$DB_DSN" -f migrations/001_users.sql
-	psql "$$DB_DSN" -f migrations/002_journals.sql
-	psql "$$DB_DSN" -f migrations/003_articles.sql
-	psql "$$DB_DSN" -f migrations/004_subscriptions.sql
-	psql "$$DB_DSN" -f migrations/005_notifications.sql
+	@echo "Running migrations..."
+	go run ./cmd/server migrate
+	@echo "Migrations complete."
+
+docker-build:
+	docker build -t journal-monitor .
 
 test:
 	go test ./... -v
