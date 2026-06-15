@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/humumu/journal-monitor/internal/config"
@@ -15,8 +16,11 @@ import (
 )
 
 type WeChatNotifier struct {
-	cfg    config.WeChatConfig
-	client *http.Client
+	cfg         config.WeChatConfig
+	client      *http.Client
+	tokenCache  string
+	tokenExpiry time.Time
+	mu          sync.Mutex
 }
 
 func NewWeChatNotifier(cfg config.WeChatConfig) *WeChatNotifier {
@@ -93,6 +97,14 @@ type accessTokenResponse struct {
 }
 
 func (n *WeChatNotifier) getAccessToken(ctx context.Context) (string, error) {
+	n.mu.Lock()
+	if n.tokenCache != "" && time.Now().Before(n.tokenExpiry) {
+		token := n.tokenCache
+		n.mu.Unlock()
+		return token, nil
+	}
+	n.mu.Unlock()
+
 	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
 		n.cfg.AppID, n.cfg.Secret)
 
@@ -110,6 +122,17 @@ func (n *WeChatNotifier) getAccessToken(ctx context.Context) (string, error) {
 	if result.AccessToken == "" {
 		return "", fmt.Errorf("failed to get wechat access token")
 	}
+
+	// Cache the token for slightly less than its lifetime to avoid edge cases
+	expiry := time.Duration(result.ExpiresIn) * time.Second
+	if expiry > 60*time.Second {
+		expiry -= 60 * time.Second
+	}
+
+	n.mu.Lock()
+	n.tokenCache = result.AccessToken
+	n.tokenExpiry = time.Now().Add(expiry)
+	n.mu.Unlock()
 
 	return result.AccessToken, nil
 }
