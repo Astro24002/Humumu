@@ -39,8 +39,10 @@ type SMTPConfig struct {
 }
 
 type WeChatConfig struct {
-	AppID  string
-	Secret string
+	AppID              string
+	Secret             string
+	TemplateIDRealtime string // subscribe message template for realtime
+	TemplateIDDaily    string // subscribe message template for daily summary
 }
 
 type JWTConfig struct {
@@ -70,8 +72,10 @@ func Load() *Config {
 			From:     getEnv("SMTP_FROM", ""),
 		},
 		WeChat: WeChatConfig{
-			AppID:  getEnv("WECHAT_APPID", ""),
-			Secret: getEnv("WECHAT_SECRET", ""),
+			AppID:              getEnv("WECHAT_APPID", ""),
+			Secret:             getEnv("WECHAT_SECRET", ""),
+			TemplateIDRealtime: getEnv("WECHAT_TEMPLATE_REALTIME", ""),
+			TemplateIDDaily:    getEnv("WECHAT_TEMPLATE_DAILY", ""),
 		},
 		JWT: JWTConfig{
 			Secret: getEnv("JWT_SECRET", "change-me-to-something-secure"),

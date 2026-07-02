@@ -93,6 +93,29 @@ func (r *UserRepo) LinkWeChat(ctx context.Context, userID string, openID string)
 	return nil
 }
 
+func (r *UserRepo) GetTemplateSetting(ctx context.Context, userID string) (bool, error) {
+	var subscribed bool
+	err := r.pool.QueryRow(ctx,
+		`SELECT wechat_template_subscribed FROM users WHERE id = $1`, userID,
+	).Scan(&subscribed)
+	if err == pgx.ErrNoRows {
+		return false, nil
+	}
+	return subscribed, err
+}
+
+func (r *UserRepo) UpdateTemplateSetting(ctx context.Context, userID string, subscribed bool) error {
+	query := `UPDATE users SET wechat_template_subscribed = $1, updated_at = NOW() WHERE id = $2`
+	ct, err := r.pool.Exec(ctx, query, subscribed, userID)
+	if err != nil {
+		return err
+	}
+	if ct.RowsAffected() == 0 {
+		return pgx.ErrNoRows
+	}
+	return nil
+}
+
 func (r *UserRepo) GetAll(ctx context.Context) ([]*model.User, error) {
 	query := `SELECT id, email, password_hash, name, COALESCE(wechat_openid, ''),
 		push_frequency, wechat_template_subscribed, created_at, updated_at FROM users`
