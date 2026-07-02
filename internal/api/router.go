@@ -11,6 +11,8 @@ import (
 func SetupRouter(pool *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) *gin.Engine {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
+	r.RedirectTrailingSlash = false
+	r.RedirectFixedPath = false
 
 	// Health
 	r.GET("/health", func(c *gin.Context) {
@@ -38,6 +40,7 @@ func SetupRouter(pool *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) *gin
 		auth.POST("/register", authHandler.Register)
 		auth.POST("/login", authHandler.Login)
 		auth.POST("/wechat", authHandler.WeChatLogin)
+		auth.POST("/bind-account", authHandler.BindAccount)
 	}
 
 	// Protected routes (require JWT)
@@ -68,6 +71,11 @@ func SetupRouter(pool *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) *gin
 
 		// My feed (articles from user's subscribed journals)
 		protected.GET("/my/feed", ah.MyFeed)
+
+		// User self-service: add RSS subscriptions
+		ujh := NewUserJournalHandler(journalRepo, subRepo)
+		protected.POST("/my/journals/preview", ujh.Preview)
+		protected.POST("/my/journals", ujh.Create)
 
 		// Admin routes
 		admin := r.Group("/api/v1/admin")

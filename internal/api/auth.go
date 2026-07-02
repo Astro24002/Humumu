@@ -4,6 +4,7 @@ package api
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -137,6 +138,54 @@ func (h *AuthHandler) WeChatLogin(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 			return
 		}
+	}
+
+	token, err := h.generateToken(user.ID, user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token":      token,
+		"user":       user,
+		"has_email":  user.Email != "" && !strings.HasSuffix(user.Email, "@wechat.user"),
+	})
+}
+
+type BindAccountRequest struct {
+	Code     string `json:"code" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+func (h *AuthHandler) BindAccount(c *gin.Context) {
+	var req BindAccountRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	openID, err := weChatCodeToOpenID(req.Code, h.weChatCfg.Secret)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"error": "wechat login failed"})
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	user, err := h.userRepo.BindWeChatAccount(c.Request.Context(), req.Email, string(hash), openID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+	if user == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
+		return
 	}
 
 	token, err := h.generateToken(user.ID, user.Email)
