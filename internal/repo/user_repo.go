@@ -139,3 +139,25 @@ func (r *UserRepo) GetAll(ctx context.Context) ([]*model.User, error) {
 	}
 	return users, nil
 }
+
+func (r *UserRepo) GetDailySummaryUsers(ctx context.Context) ([]*model.User, error) {
+	query := `SELECT id, email, password_hash, name, COALESCE(wechat_openid, ''),
+		push_frequency, wechat_template_subscribed, created_at, updated_at
+		FROM users WHERE push_frequency = 'daily'
+		AND wechat_openid != '' AND wechat_template_subscribed = true`
+	rows, err := r.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var users []*model.User
+	for rows.Next() {
+		u := &model.User{}
+		if err := rows.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.WeChatOpenID,
+			&u.PushFrequency, &u.WeChatTemplateSubscribed, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, rows.Err()
+}

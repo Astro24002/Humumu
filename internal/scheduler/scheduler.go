@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -83,6 +84,7 @@ func (s *Scheduler) Start(ctx context.Context) {
 			}
 		}
 	}()
+	s.startDailySummary(ctx)
 	log.Printf("scheduler started with interval %v", s.interval)
 }
 
@@ -133,6 +135,15 @@ func (s *Scheduler) processArticle(ctx context.Context, journalID string, raw fe
 		log.Printf("scheduler: dedup error [%s/%s]: %v", journalID, raw.DOI, err)
 		return
 	}
+	if raw.DOI == "" {
+		// Fall back to URL-based dedup for sources without DOIs (e.g., CNKI)
+		var urlErr error
+		isDup, urlErr = s.dedupCache.IsDuplicateByURL(ctx, journalID, raw.URL)
+		if urlErr != nil {
+			log.Printf("scheduler: dedup url error [%s/%s]: %v", journalID, raw.URL, urlErr)
+			return
+		}
+	}
 	if isDup {
 		return
 	}
@@ -153,6 +164,16 @@ func (s *Scheduler) processArticle(ctx context.Context, journalID string, raw fe
 		JournalID:   journalID,
 		PublishDate: publishDate,
 		URL:         raw.URL,
+	}
+	if article.Authors == nil {
+		article.Authors = []string{}
+	}
+	if article.Abstract == "" && raw.Abstract != "" {
+		// Try to extract abstract from RSS description (arXiv format: "arXiv:... Announce Type: ... \nAbstract: ...")
+		parts := strings.Split(raw.Abstract, "Abstract:")
+		if len(parts) > 1 {
+			article.Abstract = strings.TrimSpace(parts[len(parts)-1])
+		}
 	}
 	if err := s.articles.Create(ctx, article); err != nil {
 		log.Printf("scheduler: save article error [%s]: %v", raw.DOI, err)
@@ -212,6 +233,77 @@ func (s *Scheduler) sendPendingNotifications(ctx context.Context) {
 			s.notifRepo.MarkFailed(ctx, n.ID, sendErr.Error())
 		} else {
 			s.notifRepo.MarkSent(ctx, n.ID)
+		}
+	}
+}
+
+func (s *Scheduler) startDailySummary(ctx context.Context) {
+	s.wg.Add(1)
+	go func() {
+		defer s.wg.Done()
+		for {
+			now := time.Now()
+			next := time.Date(now.Year(), now.Month(), now.Day(), 8, 0, 0, 0, now.Location())
+			if now.After(next) {
+				next = next.Add(24 * time.Hour)
+			}
+			delay := time.Until(next)
+			log.Printf("daily summary: next run at %s (in %v)", next.Format("2006-01-02 15:04"), delay)
+
+			select {
+			case <-time.After(delay):
+				s.sendDailySummary(ctx)
+			case <-s.stopCh:
+				return
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+}
+
+func (s *Scheduler) sendDailySummary(ctx context.Context) {
+	log.Println("daily summary: starting")
+
+	users, err := s.userRepo.GetDailySummaryUsers(ctx)
+	if err != nil {
+		log.Printf("daily summary: failed to get users: %v", err)
+		return
+	}
+
+	yesterday := time.Now().Add(-24 * time.Hour)
+	for _, user := range users {
+		articles, err := s.articles.GetByUserSubscriptionsSince(ctx, user.ID, yesterday)
+		if err != nil {
+			log.Printf("daily summary: failed to get articles for user %s: %v", user.ID, err)
+			continue
+		}
+		if len(articles) == 0 {
+			continue
+		}
+
+		var awjList []*model.ArticleWithJournal
+		for _, a := range articles {
+			awjList = append(awjList, &model.ArticleWithJournal{
+				Article:     *a,
+				JournalName: a.JournalName,
+			})
+		}
+
+		if err := s.wechatNtfr.SendSummary(ctx, user, awjList); err != nil {
+			log.Printf("daily summary: send error for user %s: %v", user.ID, err)
+		}
+
+		for _, a := range articles {
+			notif := &model.Notification{
+				UserID:    user.ID,
+				ArticleID: a.ID,
+				Channel:   "wechat",
+				Status:    "sent",
+			}
+			if err := s.notifRepo.Create(ctx, notif); err != nil {
+				log.Printf("daily summary: create notification error: %v", err)
+			}
 		}
 	}
 }
