@@ -21,19 +21,19 @@ func NewUserRepo(pool *pgxpool.Pool) *UserRepo {
 func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 	query := `INSERT INTO users (email, password_hash, name, wechat_openid, push_frequency)
 		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id, created_at, updated_at`
+		RETURNING id, wechat_template_subscribed, created_at, updated_at`
 	return r.pool.QueryRow(ctx, query,
 		user.Email, user.PasswordHash, user.Name, user.WeChatOpenID, user.PushFrequency,
-	).Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
+	).Scan(&user.ID, &user.WeChatTemplateSubscribed, &user.CreatedAt, &user.UpdatedAt)
 }
 
 func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*model.User, error) {
 	query := `SELECT id, email, password_hash, name, COALESCE(wechat_openid, ''),
-		push_frequency, created_at, updated_at FROM users WHERE email = $1`
+		push_frequency, wechat_template_subscribed, created_at, updated_at FROM users WHERE email = $1`
 	u := &model.User{}
 	err := r.pool.QueryRow(ctx, query, email).Scan(
 		&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.WeChatOpenID,
-		&u.PushFrequency, &u.CreatedAt, &u.UpdatedAt,
+		&u.PushFrequency, &u.WeChatTemplateSubscribed, &u.CreatedAt, &u.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, nil
@@ -43,11 +43,11 @@ func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*model.User, e
 
 func (r *UserRepo) GetByWeChatOpenID(ctx context.Context, openID string) (*model.User, error) {
 	query := `SELECT id, email, password_hash, name, COALESCE(wechat_openid, ''),
-		push_frequency, created_at, updated_at FROM users WHERE wechat_openid = $1`
+		push_frequency, wechat_template_subscribed, created_at, updated_at FROM users WHERE wechat_openid = $1`
 	u := &model.User{}
 	err := r.pool.QueryRow(ctx, query, openID).Scan(
 		&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.WeChatOpenID,
-		&u.PushFrequency, &u.CreatedAt, &u.UpdatedAt,
+		&u.PushFrequency, &u.WeChatTemplateSubscribed, &u.CreatedAt, &u.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, nil
@@ -57,11 +57,11 @@ func (r *UserRepo) GetByWeChatOpenID(ctx context.Context, openID string) (*model
 
 func (r *UserRepo) GetByID(ctx context.Context, id string) (*model.User, error) {
 	query := `SELECT id, email, password_hash, name, COALESCE(wechat_openid, ''),
-		push_frequency, created_at, updated_at FROM users WHERE id = $1`
+		push_frequency, wechat_template_subscribed, created_at, updated_at FROM users WHERE id = $1`
 	u := &model.User{}
 	err := r.pool.QueryRow(ctx, query, id).Scan(
 		&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.WeChatOpenID,
-		&u.PushFrequency, &u.CreatedAt, &u.UpdatedAt,
+		&u.PushFrequency, &u.WeChatTemplateSubscribed, &u.CreatedAt, &u.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, nil
@@ -95,7 +95,7 @@ func (r *UserRepo) LinkWeChat(ctx context.Context, userID string, openID string)
 
 func (r *UserRepo) GetAll(ctx context.Context) ([]*model.User, error) {
 	query := `SELECT id, email, password_hash, name, COALESCE(wechat_openid, ''),
-		push_frequency, created_at, updated_at FROM users`
+		push_frequency, wechat_template_subscribed, created_at, updated_at FROM users`
 	rows, err := r.pool.Query(ctx, query)
 	if err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func (r *UserRepo) GetAll(ctx context.Context) ([]*model.User, error) {
 	for rows.Next() {
 		u := &model.User{}
 		if err := rows.Scan(&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.WeChatOpenID,
-			&u.PushFrequency, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			&u.PushFrequency, &u.WeChatTemplateSubscribed, &u.CreatedAt, &u.UpdatedAt); err != nil {
 			return nil, err
 		}
 		users = append(users, u)
