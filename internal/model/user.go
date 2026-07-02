@@ -8,10 +8,10 @@ type User struct {
 	PasswordHash  string    `json:"-"`
 	Name          string    `json:"name"`
 	WeChatOpenID  string    `json:"wechat_openid,omitempty"`
-	PushFrequency            string    `json:"push_frequency"` // "realtime" | "daily"
+	PushFrequency             string    `json:"push_frequency"` // "realtime" | "daily"
 	WeChatTemplateSubscribed bool      `json:"wechat_template_subscribed"`
 	CreatedAt                time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	UpdatedAt                time.Time `json:"updated_at"`
 }
 
 type RegisterRequest struct {
