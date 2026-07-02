@@ -53,7 +53,7 @@ func (n *WeChatNotifier) Send(ctx context.Context, user *model.User, article *mo
 
 	msg := wechatTemplateMsg{
 		ToUser:     user.WeChatOpenID,
-		TemplateID: "",
+		TemplateID: n.cfg.TemplateIDRealtime,
 		Data: map[string]struct {
 			Value string `json:"value"`
 			Color string `json:"color"`
@@ -88,6 +88,64 @@ func (n *WeChatNotifier) Send(ctx context.Context, user *model.User, article *mo
 	}
 
 	log.Printf("wechat message sent to %s for article %s", user.WeChatOpenID, article.DOI)
+	return nil
+}
+
+func (n *WeChatNotifier) SendSummary(ctx context.Context, user *model.User, articles []*model.ArticleWithJournal) error {
+	if user.WeChatOpenID == "" || n.cfg.AppID == "" {
+		return fmt.Errorf("wechat not configured or user has no wechat openid")
+	}
+	if n.cfg.TemplateIDDaily == "" {
+		return fmt.Errorf("daily summary template ID not configured")
+	}
+
+	token, err := n.getAccessToken(ctx)
+	if err != nil {
+		return fmt.Errorf("get access token: %w", err)
+	}
+
+	// Build summary text: list article titles with journal names
+	var summaryLines []string
+	for i, a := range articles {
+		if i >= 5 { // max 5 articles in summary
+			summaryLines = append(summaryLines, fmt.Sprintf("...还有 %d 篇", len(articles)-5))
+			break
+		}
+		summaryLines = append(summaryLines, fmt.Sprintf("《%s》— %s", a.JournalName, truncate(a.Title, 60)))
+	}
+
+	msg := wechatTemplateMsg{
+		ToUser:     user.WeChatOpenID,
+		TemplateID: n.cfg.TemplateIDDaily,
+		Data: map[string]struct {
+			Value string `json:"value"`
+			Color string `json:"color"`
+		}{
+			"date":    {Value: time.Now().Format("2006-01-02"), Color: "#2c3e50"},
+			"summary": {Value: strings.Join(summaryLines, "\n"), Color: "#000000"},
+			"count":   {Value: fmt.Sprintf("%d 篇", len(articles)), Color: "#3498db"},
+		},
+	}
+
+	body, _ := json.Marshal(msg)
+	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=%s", token)
+
+	resp, err := n.client.Post(url, "application/json", bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("wechat api request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var result struct {
+		Errcode int    `json:"errcode"`
+		Errmsg  string `json:"errmsg"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return fmt.Errorf("wechat decode: %w", err)
+	}
+	if result.Errcode != 0 {
+		return fmt.Errorf("wechat api error: %d %s", result.Errcode, result.Errmsg)
+	}
 	return nil
 }
 
