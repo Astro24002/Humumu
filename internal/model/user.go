@@ -29,7 +29,14 @@ type WeChatLoginRequest struct {
 	Code string `json:"code" binding:"required"`
 }
 
+type BindAccountRequest struct {
+	Code     string `json:"code" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
 type AuthResponse struct {
-	Token string `json:"token"`
-	User  User   `json:"user"`
+	Token    string `json:"token"`
+	User     User   `json:"user"`
+	HasEmail bool   `json:"has_email"`
 }

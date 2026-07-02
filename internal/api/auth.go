@@ -71,7 +71,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, model.AuthResponse{Token: token, User: *user})
+	c.JSON(http.StatusCreated, model.AuthResponse{Token: token, User: *user, HasEmail: true})
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -102,7 +102,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, model.AuthResponse{Token: token, User: *user})
+	c.JSON(http.StatusOK, model.AuthResponse{Token: token, User: *user, HasEmail: true})
 }
 
 func (h *AuthHandler) WeChatLogin(c *gin.Context) {
@@ -146,21 +146,15 @@ func (h *AuthHandler) WeChatLogin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"token":      token,
-		"user":       user,
-		"has_email":  user.Email != "" && !strings.HasSuffix(user.Email, "@wechat.user"),
+	c.JSON(http.StatusOK, model.AuthResponse{
+		Token:    token,
+		User:     *user,
+		HasEmail: user.Email != "" && !strings.HasSuffix(user.Email, "@wechat.user"),
 	})
 }
 
-type BindAccountRequest struct {
-	Code     string `json:"code" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-}
-
 func (h *AuthHandler) BindAccount(c *gin.Context) {
-	var req BindAccountRequest
+	var req model.BindAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -172,13 +166,8 @@ func (h *AuthHandler) BindAccount(c *gin.Context) {
 		return
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
-
-	user, err := h.userRepo.BindWeChatAccount(c.Request.Context(), req.Email, string(hash), openID)
+	// Fetch user by email, verify password, then link WeChat
+	user, err := h.userRepo.GetByEmail(c.Request.Context(), req.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
 		return
@@ -188,13 +177,34 @@ func (h *AuthHandler) BindAccount(c *gin.Context) {
 		return
 	}
 
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
+		return
+	}
+
+	if err := h.userRepo.LinkWeChat(c.Request.Context(), user.ID, openID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	// Re-fetch user with updated openid
+	user, err = h.userRepo.GetByID(c.Request.Context(), user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
 	token, err := h.generateToken(user.ID, user.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate token"})
 		return
 	}
 
-	c.JSON(http.StatusOK, model.AuthResponse{Token: token, User: *user})
+	c.JSON(http.StatusOK, model.AuthResponse{
+		Token:    token,
+		User:     *user,
+		HasEmail: true,
+	})
 }
 
 // weChatCodeToOpenID calls the WeChat API to exchange a login code for an openid.

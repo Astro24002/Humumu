@@ -93,21 +93,6 @@ func (r *UserRepo) LinkWeChat(ctx context.Context, userID string, openID string)
 	return nil
 }
 
-func (r *UserRepo) BindWeChatAccount(ctx context.Context, email, passwordHash, openID string) (*model.User, error) {
-	query := `UPDATE users SET wechat_openid = $1, updated_at = NOW() WHERE email = $2 AND password_hash = $3
-		RETURNING id, email, password_hash, name, COALESCE(wechat_openid, ''),
-		push_frequency, wechat_template_subscribed, created_at, updated_at`
-	u := &model.User{}
-	err := r.pool.QueryRow(ctx, query, openID, email, passwordHash).Scan(
-		&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.WeChatOpenID,
-		&u.PushFrequency, &u.WeChatTemplateSubscribed, &u.CreatedAt, &u.UpdatedAt,
-	)
-	if err == pgx.ErrNoRows {
-		return nil, nil
-	}
-	return u, err
-}
-
 func (r *UserRepo) GetAll(ctx context.Context) ([]*model.User, error) {
 	query := `SELECT id, email, password_hash, name, COALESCE(wechat_openid, ''),
 		push_frequency, wechat_template_subscribed, created_at, updated_at FROM users`
