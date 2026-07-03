@@ -23,6 +23,15 @@ type WeChatNotifier struct {
 	mu          sync.Mutex
 }
 
+type wechatTemplateMsg struct {
+	ToUser     string `json:"touser"`
+	TemplateID string `json:"template_id"`
+	Data       map[string]struct {
+		Value string `json:"value"`
+		Color string `json:"color"`
+	} `json:"data"`
+}
+
 func NewWeChatNotifier(cfg config.WeChatConfig) *WeChatNotifier {
 	return &WeChatNotifier{
 		cfg:    cfg,
@@ -40,15 +49,6 @@ func (n *WeChatNotifier) Send(ctx context.Context, user *model.User, article *mo
 	token, err := n.getAccessToken(ctx)
 	if err != nil {
 		return fmt.Errorf("get access token: %w", err)
-	}
-
-	type wechatTemplateMsg struct {
-		ToUser     string `json:"touser"`
-		TemplateID string `json:"template_id"`
-		Data       map[string]struct {
-			Value string `json:"value"`
-			Color string `json:"color"`
-		} `json:"data"`
 	}
 
 	msg := wechatTemplateMsg{
