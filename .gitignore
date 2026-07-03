@@ -4,3 +4,9 @@ bin/
 *.swo
 *~
 .DS_Store
+server
+.gopath/
+.go/
+.superpowers/
+.claude/worktrees/
+.claude/settings.local.json
