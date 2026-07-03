@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -29,12 +30,16 @@ func (h *ArticleHandler) List(c *gin.Context) {
 	var articles []*model.Article
 	var err error
 
-	if journalID != "" {
+	switch {
+	case journalID != "":
 		articles, err = h.articleRepo.GetByJournal(c.Request.Context(), journalID, limit, offset)
-	} else {
+	case userID != "":
 		articles, err = h.articleRepo.GetByUserSubscriptions(c.Request.Context(), userID, limit, offset)
+	default:
+		articles, err = h.articleRepo.GetAll(c.Request.Context(), limit, offset)
 	}
 	if err != nil {
+		log.Printf("articles.List error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch articles"})
 		return
 	}

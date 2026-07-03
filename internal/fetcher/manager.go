@@ -98,10 +98,8 @@ func (m *Manager) fetchOne(ctx context.Context, j *model.Journal) FetchResult {
 
 func (m *Manager) createSource(j *model.Journal) Source {
 	switch j.SourceType {
-	case "rss":
+	case "rss", "cnki":
 		return NewRSSSource(j.Name, j.SourceURL)
-	case "arxiv":
-		return NewArxivSource(j.Name, j.SourceURL)
 	default:
 		return nil
 	}

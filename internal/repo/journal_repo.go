@@ -19,38 +19,38 @@ func NewJournalRepo(pool *pgxpool.Pool) *JournalRepo {
 }
 
 func (r *JournalRepo) GetAllActive(ctx context.Context) ([]*model.Journal, error) {
-	query := `SELECT id, name, slug, source_type, source_url,
-		fetch_interval, is_active, created_by, created_at
-		FROM journals WHERE is_active = true ORDER BY name`
+	query := `SELECT j.id, j.name, j.slug, j.source_type, j.source_url,
+		COALESCE(j.description, ''), j.fetch_interval, j.is_active, j.created_by, j.created_at,
+		COALESCE(jstats.article_count, 0), jstats.last_article_date
+		FROM journals j
+		LEFT JOIN LATERAL (
+			SELECT COUNT(*) AS article_count, MAX(publish_date) AS last_article_date
+			FROM articles WHERE journal_id = j.id
+		) jstats ON true
+		WHERE j.is_active = true ORDER BY j.name`
 	rows, err := r.pool.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
-	var journals []*model.Journal
-	for rows.Next() {
-		j := &model.Journal{}
-		if err := rows.Scan(&j.ID, &j.Name, &j.Slug, &j.SourceType, &j.SourceURL,
-			&j.FetchInterval, &j.IsActive, &j.CreatedBy, &j.CreatedAt); err != nil {
-			return nil, err
-		}
-		journals = append(journals, j)
-	}
-	if rows.Err() != nil {
-		return nil, rows.Err()
-	}
-	return journals, nil
+	return scanJournals(rows)
 }
 
 func (r *JournalRepo) GetByID(ctx context.Context, id string) (*model.Journal, error) {
-	query := `SELECT id, name, slug, source_type, source_url,
-		fetch_interval, is_active, created_by, created_at
-		FROM journals WHERE id = $1`
+	query := `SELECT j.id, j.name, j.slug, j.source_type, j.source_url,
+		COALESCE(j.description, ''), j.fetch_interval, j.is_active, j.created_by, j.created_at,
+		COALESCE(jstats.article_count, 0), jstats.last_article_date
+		FROM journals j
+		LEFT JOIN LATERAL (
+			SELECT COUNT(*) AS article_count, MAX(publish_date) AS last_article_date
+			FROM articles WHERE journal_id = j.id
+		) jstats ON true
+		WHERE j.id = $1`
 	j := &model.Journal{}
 	err := r.pool.QueryRow(ctx, query, id).Scan(
 		&j.ID, &j.Name, &j.Slug, &j.SourceType, &j.SourceURL,
-		&j.FetchInterval, &j.IsActive, &j.CreatedBy, &j.CreatedAt,
+		&j.Description, &j.FetchInterval, &j.IsActive, &j.CreatedBy, &j.CreatedAt,
+		&j.ArticleCount, &j.LastArticleDate,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, nil
@@ -59,29 +59,63 @@ func (r *JournalRepo) GetByID(ctx context.Context, id string) (*model.Journal, e
 }
 
 func (r *JournalRepo) Create(ctx context.Context, j *model.Journal) error {
-	query := `INSERT INTO journals (name, slug, source_type, source_url, fetch_interval, created_by)
-		VALUES ($1, $2, $3, $4, $5, $6)
+	query := `INSERT INTO journals (name, slug, source_type, source_url, description, fetch_interval, created_by)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at`
 	return r.pool.QueryRow(ctx, query,
-		j.Name, j.Slug, j.SourceType, j.SourceURL, j.FetchInterval, j.CreatedBy,
+		j.Name, j.Slug, j.SourceType, j.SourceURL, j.Description, j.FetchInterval, j.CreatedBy,
 	).Scan(&j.ID, &j.CreatedAt)
 }
 
+func (r *JournalRepo) FindByURL(ctx context.Context, sourceURL string) (*model.Journal, error) {
+	query := `SELECT j.id, j.name, j.slug, j.source_type, j.source_url,
+		COALESCE(j.description, ''), j.fetch_interval, j.is_active, j.created_by, j.created_at,
+		COALESCE(jstats.article_count, 0), jstats.last_article_date
+		FROM journals j
+		LEFT JOIN LATERAL (
+			SELECT COUNT(*) AS article_count, MAX(publish_date) AS last_article_date
+			FROM articles WHERE journal_id = j.id
+		) jstats ON true
+		WHERE j.source_url = $1
+		LIMIT 1`
+	j := &model.Journal{}
+	err := r.pool.QueryRow(ctx, query, sourceURL).Scan(
+		&j.ID, &j.Name, &j.Slug, &j.SourceType, &j.SourceURL,
+		&j.Description, &j.FetchInterval, &j.IsActive, &j.CreatedBy, &j.CreatedAt,
+		&j.ArticleCount, &j.LastArticleDate,
+	)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	return j, err
+}
+
 func (r *JournalRepo) GetAll(ctx context.Context) ([]*model.Journal, error) {
-	query := `SELECT id, name, slug, source_type, source_url,
-		fetch_interval, is_active, created_by, created_at
-		FROM journals ORDER BY name`
+	query := `SELECT j.id, j.name, j.slug, j.source_type, j.source_url,
+		COALESCE(j.description, ''), j.fetch_interval, j.is_active, j.created_by, j.created_at,
+		COALESCE(jstats.article_count, 0), jstats.last_article_date
+		FROM journals j
+		LEFT JOIN LATERAL (
+			SELECT COUNT(*) AS article_count, MAX(publish_date) AS last_article_date
+			FROM articles WHERE journal_id = j.id
+		) jstats ON true
+		ORDER BY j.name`
 	rows, err := r.pool.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+	return scanJournals(rows)
+}
 
+// helper to scan journal rows with stats
+func scanJournals(rows pgx.Rows) ([]*model.Journal, error) {
 	var journals []*model.Journal
 	for rows.Next() {
 		j := &model.Journal{}
 		if err := rows.Scan(&j.ID, &j.Name, &j.Slug, &j.SourceType, &j.SourceURL,
-			&j.FetchInterval, &j.IsActive, &j.CreatedBy, &j.CreatedAt); err != nil {
+			&j.Description, &j.FetchInterval, &j.IsActive, &j.CreatedBy, &j.CreatedAt,
+			&j.ArticleCount, &j.LastArticleDate); err != nil {
 			return nil, err
 		}
 		journals = append(journals, j)
@@ -138,8 +172,8 @@ func (r *JournalRepo) UpdateRequestStatus(ctx context.Context, reqID, status str
 }
 
 func (r *JournalRepo) Update(ctx context.Context, id string, j *model.Journal) error {
-	query := `UPDATE journals SET name=$1, slug=$2, source_type=$3, source_url=$4, is_active=$5 WHERE id=$6`
-	_, err := r.pool.Exec(ctx, query, j.Name, j.Slug, j.SourceType, j.SourceURL, j.IsActive, id)
+	query := `UPDATE journals SET name=$1, slug=$2, source_type=$3, source_url=$4, description=$5, is_active=$6 WHERE id=$7`
+	_, err := r.pool.Exec(ctx, query, j.Name, j.Slug, j.SourceType, j.SourceURL, j.Description, j.IsActive, id)
 	return err
 }
 

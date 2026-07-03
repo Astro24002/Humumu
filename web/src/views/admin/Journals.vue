@@ -12,9 +12,10 @@
         <n-form-item label="名称"><n-input v-model:value="form.name" /></n-form-item>
         <n-form-item label="标识"><n-input v-model:value="form.slug" /></n-form-item>
         <n-form-item label="源类型">
-          <n-select v-model:value="form.source_type" :options="[{ label: 'RSS', value: 'rss' }, { label: 'arXiv', value: 'arxiv' }]" />
+          <n-select v-model:value="form.source_type" :options="[{ label: 'RSS', value: 'rss' }, { label: 'arXiv', value: 'arxiv' }, { label: '知网 CNKI', value: 'cnki' }]" />
         </n-form-item>
         <n-form-item label="源 URL"><n-input v-model:value="form.source_url" /></n-form-item>
+        <n-form-item label="介绍"><n-input v-model:value="form.description" type="textarea" :rows="2" /></n-form-item>
         <n-form-item label="启用">
           <n-switch v-model:value="form.is_active" />
         </n-form-item>

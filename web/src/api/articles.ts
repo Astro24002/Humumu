@@ -7,6 +7,8 @@ export interface Article {
   authors: string[]
   abstract: string
   journal_id: string
+  journal_name: string
+  journal_source_type: string
   publish_date: string | null
   url: string
   fetched_at: string

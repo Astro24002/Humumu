@@ -24,7 +24,19 @@ func (d *DedupCache) IsDuplicate(ctx context.Context, journalID, doi string) (bo
 	if doi == "" {
 		return false, nil
 	}
-	key := fmt.Sprintf("dedup:%s:%s", journalID, doi)
+	return d.isDuplicate(ctx, fmt.Sprintf("dedup:%s:%s", journalID, doi))
+}
+
+// IsDuplicateByURL checks dedup using the article URL as a fallback key.
+// Used for sources like CNKI that don't provide DOIs.
+func (d *DedupCache) IsDuplicateByURL(ctx context.Context, journalID, url string) (bool, error) {
+	if url == "" {
+		return false, nil
+	}
+	return d.isDuplicate(ctx, fmt.Sprintf("dedup:%s:url:%s", journalID, url))
+}
+
+func (d *DedupCache) isDuplicate(ctx context.Context, key string) (bool, error) {
 	exists, err := d.client.Exists(ctx, key).Result()
 	if err != nil {
 		return false, err
@@ -40,6 +52,15 @@ func (d *DedupCache) MarkSeen(ctx context.Context, journalID, doi string) error 
 		return nil
 	}
 	key := fmt.Sprintf("dedup:%s:%s", journalID, doi)
+	return d.client.Set(ctx, key, "1", d.ttl).Err()
+}
+
+// MarkSeenByURL marks an article URL as seen in the dedup cache.
+func (d *DedupCache) MarkSeenByURL(ctx context.Context, journalID, url string) error {
+	if url == "" {
+		return nil
+	}
+	key := fmt.Sprintf("dedup:%s:url:%s", journalID, url)
 	return d.client.Set(ctx, key, "1", d.ttl).Err()
 }
 

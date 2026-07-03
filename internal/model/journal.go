@@ -3,15 +3,18 @@ package model
 import "time"
 
 type Journal struct {
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	Slug          string    `json:"slug"`
-	SourceType    string    `json:"source_type"` // "rss" | "arxiv" | "crossref"
-	SourceURL     string    `json:"source_url"`
-	FetchInterval time.Duration `json:"fetch_interval"`
-	IsActive      bool      `json:"is_active"`
-	CreatedBy     *string   `json:"created_by,omitempty"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID              string        `json:"id"`
+	Name            string        `json:"name"`
+	Slug            string        `json:"slug"`
+	SourceType      string        `json:"source_type"` // "rss" | "cnki" | "arxiv" | "crossref"
+	SourceURL       string        `json:"source_url"`
+	Description     string        `json:"description"`
+	FetchInterval   time.Duration `json:"fetch_interval"`
+	IsActive        bool          `json:"is_active"`
+	CreatedBy       *string       `json:"created_by,omitempty"`
+	CreatedAt       time.Time     `json:"created_at"`
+	ArticleCount    int           `json:"article_count,omitempty"`
+	LastArticleDate *time.Time    `json:"last_article_date,omitempty"`
 }
 
 type JournalRequest struct {
