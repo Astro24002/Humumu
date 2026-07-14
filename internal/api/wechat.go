@@ -4,15 +4,23 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/humumu/journal-monitor/internal/config"
 	"github.com/humumu/journal-monitor/internal/repo"
 )
 
 type WeChatHandler struct {
 	userRepo *repo.UserRepo
+	cfg      config.WeChatConfig
 }
 
-func NewWeChatHandler(userRepo *repo.UserRepo) *WeChatHandler {
-	return &WeChatHandler{userRepo: userRepo}
+func NewWeChatHandler(userRepo *repo.UserRepo, cfg config.WeChatConfig) *WeChatHandler {
+	return &WeChatHandler{userRepo: userRepo, cfg: cfg}
+}
+
+func (h *WeChatHandler) GetTemplateIDs(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"template_ids": []string{h.cfg.TemplateIDRealtime, h.cfg.TemplateIDDaily},
+	})
 }
 
 type UpdateTemplateSettingRequest struct {

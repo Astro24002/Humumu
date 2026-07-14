@@ -2,6 +2,17 @@ import { useAuthStore } from '@/stores/auth'
 
 const BASE_URL = 'http://localhost:8080/api/v1'
 
+// Mini program doesn't support URLSearchParams
+export function buildQuery(params: Record<string, string | number | undefined>): string {
+  const parts: string[] = []
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== '') {
+      parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+    }
+  }
+  return parts.length ? '?' + parts.join('&') : ''
+}
+
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
   data?: any

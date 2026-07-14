@@ -69,9 +69,10 @@ func SetupRouter(pool *pgxpool.Pool, rdb *redis.Client, cfg *config.Config) *gin
 		protected.POST("/journals/requests", rh.Create)
 		protected.GET("/journals/requests", rh.List)
 
-		wh := NewWeChatHandler(userRepo)
+		wh := NewWeChatHandler(userRepo, cfg.WeChat)
 		protected.GET("/wechat/template-setting", wh.GetTemplateSetting)
 		protected.PUT("/wechat/template-setting", wh.UpdateTemplateSetting)
+			protected.GET("/wechat/template-ids", wh.GetTemplateIDs)
 
 		// My feed (articles from user's subscribed journals)
 		protected.GET("/my/feed", ah.MyFeed)

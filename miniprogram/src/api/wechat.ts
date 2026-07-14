@@ -7,3 +7,7 @@ export function getTemplateSetting(): Promise<{ subscribed: boolean }> {
 export function updateTemplateSetting(subscribed: boolean): Promise<{ subscribed: boolean }> {
   return put('/wechat/template-setting', { subscribed })
 }
+
+export function getTemplateIds(): Promise<{ template_ids: string[] }> {
+  return get('/wechat/template-ids')
+}

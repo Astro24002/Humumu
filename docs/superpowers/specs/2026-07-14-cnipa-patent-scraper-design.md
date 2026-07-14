@@ -2,6 +2,7 @@
 
 > 日期：2026-07-14
 > 状态：草案，待用户审阅
+> 项目根目录：`/home/zhipu/Humumu-Foraging`（独立 Git 仓库，与 Humumu 主项目无关）
 
 ## 1. 目标
 
@@ -60,13 +61,14 @@
   └────────┘ └────────┘ └──────────┘ └──────────┘
 ```
 
-### 3.2 目录结构
+### 3.2 目录结构（项目根：`/home/zhipu/Humumu-Foraging`）
 
 ```
-cnipa_scraper/
-├── pyproject.toml
+Humumu-Foraging/                       # 项目根
+├── .gitignore
 ├── .env.example
 ├── README.md
+├── pyproject.toml
 ├── src/cnipa_scraper/
 │   ├── __init__.py
 │   ├── __main__.py        # python -m cnipa_scraper

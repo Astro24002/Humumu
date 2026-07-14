@@ -1,4 +1,4 @@
-import { get } from './client'
+import { get, buildQuery } from './client'
 
 export interface Notification {
   id: string
@@ -12,9 +12,6 @@ export interface Notification {
 }
 
 export function getNotifications(params: { limit?: number; offset?: number } = {}): Promise<{ notifications: Notification[] }> {
-  const query = new URLSearchParams()
-  if (params.limit) query.set('limit', String(params.limit))
-  if (params.offset) query.set('offset', String(params.offset))
-  const qs = query.toString()
-  return get(`/notifications${qs ? '?' + qs : ''}`)
+  const qs = buildQuery(params as Record<string, string | number | undefined>)
+  return get(`/notifications${qs}`)
 }

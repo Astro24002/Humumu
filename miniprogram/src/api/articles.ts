@@ -1,4 +1,4 @@
-import { get } from './client'
+import { get, buildQuery } from './client'
 
 export interface Article {
   id: string
@@ -20,12 +20,8 @@ export interface ArticlesResponse {
 }
 
 export function getArticles(params: { limit?: number; offset?: number; journal_id?: string } = {}): Promise<ArticlesResponse> {
-  const query = new URLSearchParams()
-  if (params.limit) query.set('limit', String(params.limit))
-  if (params.offset) query.set('offset', String(params.offset))
-  if (params.journal_id) query.set('journal_id', params.journal_id)
-  const qs = query.toString()
-  return get(`/articles${qs ? '?' + qs : ''}`)
+  const qs = buildQuery(params as Record<string, string | number | undefined>)
+  return get(`/articles${qs}`)
 }
 
 export function getArticle(id: string): Promise<{ article: Article }> {
@@ -33,9 +29,6 @@ export function getArticle(id: string): Promise<{ article: Article }> {
 }
 
 export function getMyFeed(params: { limit?: number; offset?: number } = {}): Promise<ArticlesResponse> {
-  const query = new URLSearchParams()
-  if (params.limit) query.set('limit', String(params.limit))
-  if (params.offset) query.set('offset', String(params.offset))
-  const qs = query.toString()
-  return get(`/my/feed${qs ? '?' + qs : ''}`)
+  const qs = buildQuery(params as Record<string, string | number | undefined>)
+  return get(`/my/feed${qs}`)
 }

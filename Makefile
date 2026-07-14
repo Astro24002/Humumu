@@ -4,7 +4,7 @@ frontend:
 	cd web && npm run build
 
 build: frontend
-	go build -o bin/server ./cmd/server
+	GOROOT= go build -o bin/server ./cmd/server
 
 run:
 	go run ./cmd/server

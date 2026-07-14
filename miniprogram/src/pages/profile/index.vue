@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { getTemplateSetting, updateTemplateSetting } from '@/api/wechat'
+import { getTemplateSetting, updateTemplateSetting, getTemplateIds } from '@/api/wechat'
 
 const auth = useAuthStore()
 const templateSubscribed = ref(false)
@@ -88,8 +88,14 @@ async function onTemplateChange(e: any) {
   const val = e.detail.value as boolean
   if (val) {
     try {
+      const { template_ids } = await getTemplateIds()
+      const nonEmpty = template_ids.filter(Boolean)
+      if (nonEmpty.length === 0) {
+        uni.showToast({ title: '未配置模板消息', icon: 'none' })
+        return
+      }
       const { errMsg } = await uni.requestSubscribeMessage({
-        tmplIds: []
+        tmplIds: nonEmpty,
       })
       if (errMsg !== 'requestSubscribeMessage:ok') {
         uni.showToast({ title: '授权失败', icon: 'none' })

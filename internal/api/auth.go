@@ -2,8 +2,12 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -113,7 +117,7 @@ func (h *AuthHandler) WeChatLogin(c *gin.Context) {
 	}
 
 	// Call WeChat API with code to get openid
-	openID, err := weChatCodeToOpenID(req.Code, h.weChatCfg.Secret)
+	openID, err := weChatCodeToOpenID(h.weChatCfg.AppID, req.Code, h.weChatCfg.Secret)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "wechat login failed"})
 		return
@@ -160,7 +164,7 @@ func (h *AuthHandler) BindAccount(c *gin.Context) {
 		return
 	}
 
-	openID, err := weChatCodeToOpenID(req.Code, h.weChatCfg.Secret)
+	openID, err := weChatCodeToOpenID(h.weChatCfg.AppID, req.Code, h.weChatCfg.Secret)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": "wechat login failed"})
 		return
@@ -207,16 +211,53 @@ func (h *AuthHandler) BindAccount(c *gin.Context) {
 	})
 }
 
-// weChatCodeToOpenID calls the WeChat API to exchange a login code for an openid.
-// For MVP, returns a placeholder; replace with actual HTTP call when WeChat credentials are set.
-func weChatCodeToOpenID(code, secret string) (string, error) {
+// weChatCodeToOpenID exchanges a login code for a WeChat openid via jscode2session.
+func weChatCodeToOpenID(appID, code, secret string) (string, error) {
+	if appID == "" || secret == "" {
+		return "", errors.New("wechat appid or secret not configured")
+	}
 	if code == "" {
 		return "", errors.New("empty code")
 	}
-	// TODO: actual HTTP call to https://api.weixin.qq.com/sns/jscode2session
-	// WeChat API returns: { openid, session_key, unionid }
-	// For now, use code as a stand-in to allow development without WeChat credentials
-	return "mock_openid_" + code, nil
+
+	v := url.Values{}
+	v.Set("appid", appID)
+	v.Set("secret", secret)
+	v.Set("js_code", code)
+	v.Set("grant_type", "authorization_code")
+
+	u := "https://api.weixin.qq.com/sns/jscode2session?" + v.Encode()
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get(u)
+	if err != nil {
+		return "", fmt.Errorf("wechat jscode2session request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("wechat jscode2session read: %w", err)
+	}
+
+	var result struct {
+		OpenID     string `json:"openid"`
+		SessionKey string `json:"session_key"`
+		Errcode    int    `json:"errcode"`
+		Errmsg     string `json:"errmsg"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return "", fmt.Errorf("wechat jscode2session decode: %w", err)
+	}
+
+	if result.Errcode != 0 {
+		return "", fmt.Errorf("wechat jscode2session error: %d %s", result.Errcode, result.Errmsg)
+	}
+	if result.OpenID == "" {
+		return "", errors.New("wechat jscode2session returned empty openid")
+	}
+
+	return result.OpenID, nil
 }
 
 func (h *AuthHandler) generateToken(userID, email string) (string, error) {
