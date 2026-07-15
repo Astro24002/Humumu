@@ -1,0 +1,19 @@
+{
+  "name": "期刊监控",
+  "appid": "wx85a05cb1011fb7bc",
+  "description": "监控已收藏期刊的最新发文",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "wx85a05cb1011fb7bc",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true,
+    "permission": {}
+  }
+}
