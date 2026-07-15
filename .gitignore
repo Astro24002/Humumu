@@ -10,3 +10,5 @@ server
 .superpowers/
 .claude/worktrees/
 .claude/settings.local.json
+miniprogram/dist/
+miniprogram/node_modules/
