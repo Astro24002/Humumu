@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.db import dispose_engine, init_engine
 from app.errors import error_response
-from app.routers import articles, auth, health, journals
+from app.routers import articles, auth, health, journals, notifications, settings, subscriptions
 
 
 @asynccontextmanager
@@ -58,3 +58,6 @@ app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(journals.router)
 app.include_router(articles.router)
+app.include_router(subscriptions.router)
+app.include_router(settings.router)
+app.include_router(notifications.router)
