@@ -2,15 +2,15 @@
 
 ## 整体架构
 
-Journal Monitor 是一个 Go 单体服务，同时提供 HTTP API 和后台定时抓取-推送管道。
+Journal Monitor 是一个 Python/FastAPI 单体服务，同时提供 HTTP API 和后台定时抓取-推送管道。
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                    Go 单体服务                     │
+│              FastAPI 单体服务                      │
 │                                                   │
 │  ┌──────────┐ ┌──────────┐ ┌──────────────────┐  │
 │  │ HTTP API │ │ Scheduler │ │  Fetcher Engine  │  │
-│  │ (Gin)    │ │ (定时)    │ │  (goroutine池)   │  │
+│  │(FastAPI) │ │(APSched.) │ │  (async tasks)   │  │
 │  └────┬─────┘ └────┬─────┘ └────────┬─────────┘  │
 │       │            │                │            │
 │  ┌────┴────────────┴────────────────┴─────────┐  │
@@ -20,6 +20,7 @@ Journal Monitor 是一个 Go 单体服务，同时提供 HTTP API 和后台定�
 │                       │                         │
 │  ┌────────────────────┴───────────────────────┐  │
 │  │              Data Access Layer              │  │
+│  │         (SQLAlchemy async / Redis)          │  │
 │  └────┬───────────────────────────────────┬────┘  │
 │       │                                   │      │
 │  ┌────┴────┐                        ┌────┴────┐  │
@@ -37,30 +38,30 @@ Journal Monitor 是一个 Go 单体服务，同时提供 HTTP API 和后台定�
 
 | 模块 | 职责 |
 |------|------|
-| `api/` | HTTP 处理器 — 认证、期刊、文章、订阅、通知 |
-| `fetcher/` | 抓取引擎 — 支持 RSS 和 arXiv 源 |
-| `matcher/` | 订阅匹配 — 期刊订阅 / 作者追踪 / 关键词 |
-| `notifier/` | 推送渠道 — Email (SMTP) / 微信订阅消息 |
-| `scheduler/` | 定时调度 — 周期性抓取→推送管道 |
-| `repo/` | 数据访问层 — PostgreSQL 查询 |
-| `cache/` | Redis 去重缓存 — 防止重复抓取 |
-| `config/` | 环境变量配置加载 |
-| `model/` | 数据结构定义 |
+| `app/routers/` | HTTP 路由 — 认证、期刊、文章、订阅、通知、管理 |
+| `app/services/` | 业务逻辑 — 抓取、匹配、推送、用户/期刊 CRUD |
+| `app/jobs/` | 定时调度 — APScheduler 抓取→推送管道 |
+| `app/models/` | SQLAlchemy ORM 模型 |
+| `app/schemas/` | Pydantic 请求/响应模型 |
+| `app/config.py` | 环境变量配置（pydantic-settings） |
+| `app/db.py` | 异步引擎与会话 |
+| `app/redis_client.py` | Redis 客户端（去重等） |
+| `scripts/migrate.py` | 数据库迁移（同步 psycopg2） |
 
 ## 核心数据流
 
 ### 文章抓取 → 推送完整流程
 
 ```
-定时器触发（按 journal.fetch_interval）
+定时器触发（APScheduler，间隔 FETCH_INTERVAL_MINUTES）
   │
-  ├─ 调用 Source.Fetch()
-  │   ├─ RSS: HTTP GET → XML 解析
-  │   └─ arXiv: API 请求 → JSON 解析
+  ├─ 调用 fetcher 拉取源
+  │   ├─ RSS: HTTP GET → XML 解析（feedparser）
+  │   └─ arXiv: API 请求 → 解析
   │
-  ├─ 标准化为 Article 结构体
+  ├─ 标准化为 Article
   │
-  ├─ Redis SISMEMBER 去重（基于 DOI + journalID）
+  ├─ Redis 去重（基于 DOI + journalID）
   │   └─ 未命中 → 继续；已存在 → 跳过
   │
   ├─ 写入 articles 表
@@ -72,27 +73,33 @@ Journal Monitor 是一个 Go 单体服务，同时提供 HTTP API 和后台定�
   │
   ├─ 生成 notifications 记录（status = pending）
   │
-  └─ 异步推送（goroutine）
+  └─ 异步推送
       ├─ Email: SMTP 发送
       └─ 微信: REST API 调用
 ```
 
+调度器由环境变量 `HUMUMU_ENABLE_SCHEDULER=1` 开启（应用代码默认关闭，便于测试；Docker `entrypoint.sh` 默认导出为 `1`）。
+
 ## 并发模型
 
-- **抓取**: goroutine 池，每期刊一个 goroutine，`sync.WaitGroup` 同步
-- **推送**: 每轮抓取完成后异步启动推送 goroutine
-- **去重**: Redis key `dedup:{journalID}:{doi}`，7 天 TTL
-- **调度**: `time.NewTicker` + select 多路复用
+- **HTTP**: uvicorn / asyncio 事件循环
+- **抓取管道**: 异步任务（httpx + SQLAlchemy async）
+- **调度**: APScheduler（进程内）
+- **去重**: Redis key，带 TTL
+- **迁移**: 同步 `psycopg2`（`DB_DSN_SYNC`），与 API 的 async 连接分离
 
 ## 技术选型
 
 | 组件 | 选择 | 理由 |
 |------|------|------|
-| 后端语言 | Go 1.25+ | 并发模型适合抓取管道，单二进制部署 |
-| Web 框架 | Gin | 轻量高性能，社区最大 |
-| 数据库 | PostgreSQL 16 | JSONB 数组、GIN 索引 |
-| 缓存/去重 | Redis 7 | SISMEMBER 快速去重 |
-| 数据库驱动 | pgx v5 | 纯 Go，连接池支持 |
+| 后端语言 | Python 3.12+ | 与数据抓取/科学计算生态一致，迁移灵活 |
+| Web 框架 | FastAPI | 异步、类型提示、OpenAPI |
+| ORM | SQLAlchemy 2 async | 统一模型 + asyncpg |
+| 数据库驱动 | asyncpg / psycopg2 | API 异步；迁移同步 |
+| 数据库 | PostgreSQL 16 | JSONB、GIN 索引 |
+| 缓存/去重 | Redis 7 | 快速去重 |
+| 调度 | APScheduler | 进程内定时任务 |
 | 认证 | JWT (HS256) | 无状态认证 |
-| 邮件 | net/smtp | 标准协议，无需额外服务 |
+| 邮件 | SMTP | 标准协议 |
 | 微信 | 微信 REST API | 订阅消息推送 |
+| 前端 | Vue 3 + Vite | SPA，由 FastAPI 静态托管 |

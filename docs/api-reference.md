@@ -1,6 +1,6 @@
 # API 参考文档
 
-所有 API 通过 `http://localhost:8080` 访问（可配置 `SERVER_PORT` 环境变量）。
+所有 API 通过 `http://localhost:8080` 访问（可配置 `SERVER_PORT` 环境变量）。后端为 FastAPI；浏览器可访问 `/docs` 查看交互式 OpenAPI（若未关闭）。
 
 ## 认证
 
