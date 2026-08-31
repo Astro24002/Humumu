@@ -22,6 +22,7 @@ from app.routers import (
     user_journals,
     wechat,
 )
+from app.static_spa import mount_spa
 
 
 @asynccontextmanager
@@ -85,3 +86,6 @@ app.include_router(settings.router)
 app.include_router(notifications.router)
 app.include_router(wechat.router)
 app.include_router(admin.router)
+
+# SPA last so /api/* and /health are not overridden by the catch-all
+mount_spa(app, get_settings().web_dist)
