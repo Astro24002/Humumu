@@ -7,7 +7,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.db import dispose_engine, init_engine
 from app.errors import error_response
-from app.routers import articles, auth, health, journals, notifications, settings, subscriptions
+from app.routers import (
+    articles,
+    auth,
+    health,
+    journals,
+    notifications,
+    requests,
+    settings,
+    subscriptions,
+    user_journals,
+)
 
 
 @asynccontextmanager
@@ -56,6 +66,9 @@ async def validation_exc_handler(request: Request, exc: RequestValidationError):
 
 app.include_router(health.router)
 app.include_router(auth.router)
+# Static /journals/requests before journals /{journal_id}
+app.include_router(requests.router)
+app.include_router(user_journals.router)
 app.include_router(journals.router)
 app.include_router(articles.router)
 app.include_router(subscriptions.router)

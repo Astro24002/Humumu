@@ -82,7 +82,8 @@ class JournalRequestsResponse(BaseModel):
 
 
 class PreviewRequest(BaseModel):
-    source_url: str
+    # Optional so missing/invalid URLs yield the Go-compatible error message in the router.
+    source_url: str = ""
 
 
 class PreviewResponse(BaseModel):
@@ -91,8 +92,9 @@ class PreviewResponse(BaseModel):
 
 
 class CreateUserJournalRequest(BaseModel):
-    source_url: str
-    name: str
+    # Optional so missing fields yield the Go-compatible error message in the router.
+    source_url: str = ""
+    name: str = ""
 
 
 class CreateUserJournalResponse(BaseModel):
