@@ -24,6 +24,11 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
+def get_session_factory() -> async_sessionmaker[AsyncSession] | None:
+    """Return the process-wide session factory, or None if not initialized."""
+    return _session_factory
+
+
 async def dispose_engine() -> None:
     global _engine, _session_factory
     if _engine is not None:

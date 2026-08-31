@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.db import dispose_engine, init_engine
 from app.errors import error_response
+from app.jobs.scheduler import shutdown_scheduler, start_scheduler
+from app.redis_client import dispose_redis, init_redis
 from app.routers import (
     admin,
     articles,
@@ -26,9 +28,14 @@ from app.routers import (
 async def lifespan(app: FastAPI):
     settings = get_settings()
     init_engine(settings.db_dsn)
+    await init_redis(settings.redis_addr)
+    # Scheduler gated by HUMUMU_ENABLE_SCHEDULER=1 (default off for tests)
+    start_scheduler(settings)
     try:
         yield
     finally:
+        shutdown_scheduler()
+        await dispose_redis()
         await dispose_engine()
 
 
