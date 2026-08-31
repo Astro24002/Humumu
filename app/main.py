@@ -17,6 +17,7 @@ from app.routers import (
     settings,
     subscriptions,
     user_journals,
+    wechat,
 )
 
 
@@ -74,3 +75,4 @@ app.include_router(articles.router)
 app.include_router(subscriptions.router)
 app.include_router(settings.router)
 app.include_router(notifications.router)
+app.include_router(wechat.router)

@@ -19,20 +19,73 @@ async def get_by_id(session: AsyncSession, user_id: UUID | str) -> User | None:
     return result.scalar_one_or_none()
 
 
+async def get_by_wechat_openid(session: AsyncSession, openid: str) -> User | None:
+    result = await session.execute(select(User).where(User.wechat_openid == openid))
+    return result.scalar_one_or_none()
+
+
 async def create_user(
     session: AsyncSession,
     email: str,
     password_hash: str,
     name: str = "",
+    *,
+    wechat_openid: str | None = None,
+    push_frequency: str = "realtime",
 ) -> User:
     user = User(
         email=email,
         password_hash=password_hash,
         name=name or "",
+        wechat_openid=wechat_openid,
+        push_frequency=push_frequency,
     )
     session.add(user)
     await session.flush()
     return user
+
+
+async def link_wechat(
+    session: AsyncSession,
+    user_id: UUID | str,
+    openid: str,
+) -> bool:
+    """Link a WeChat openid to an existing user. Returns True if a row was updated."""
+    result = await session.execute(
+        update(User)
+        .where(User.id == user_id)
+        .values(
+            wechat_openid=openid,
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
+    return bool(result.rowcount)
+
+
+async def get_template_setting(session: AsyncSession, user_id: UUID | str) -> bool:
+    """Return wechat_template_subscribed for user; False if user missing."""
+    result = await session.execute(
+        select(User.wechat_template_subscribed).where(User.id == user_id)
+    )
+    value = result.scalar_one_or_none()
+    return bool(value) if value is not None else False
+
+
+async def update_template_setting(
+    session: AsyncSession,
+    user_id: UUID | str,
+    subscribed: bool,
+) -> bool:
+    """Update wechat_template_subscribed. Returns True if a row was updated."""
+    result = await session.execute(
+        update(User)
+        .where(User.id == user_id)
+        .values(
+            wechat_template_subscribed=subscribed,
+            updated_at=datetime.now(timezone.utc),
+        )
+    )
+    return bool(result.rowcount)
 
 
 async def update_push_frequency(
