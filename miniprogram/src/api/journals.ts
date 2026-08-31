@@ -19,14 +19,10 @@ export interface JournalsResponse {
   journals: Journal[]
 }
 
-export interface JournalResponse {
-  journal: Journal
-}
-
 export function getJournals(): Promise<JournalsResponse> {
   return get('/journals')
 }
 
-export function getJournal(id: string): Promise<JournalResponse> {
+export function getJournal(id: string): Promise<Journal> {
   return get(`/journals/${id}`)
 }

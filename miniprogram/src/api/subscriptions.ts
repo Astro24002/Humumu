@@ -1,4 +1,4 @@
-import { get, post, del } from './client'
+import { get, post, put, del } from './client'
 import type { Journal } from './journals'
 
 export interface AuthorTracking {
@@ -49,4 +49,8 @@ export function addKeyword(keyword: string): Promise<void> {
 
 export function removeKeyword(id: string): Promise<void> {
   return del(`/subscriptions/keywords/${id}`)
+}
+
+export function updatePushFrequency(freq: string): Promise<void> {
+  return put('/settings/push-frequency', { push_frequency: freq })
 }

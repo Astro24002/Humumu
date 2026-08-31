@@ -43,8 +43,7 @@ onMounted(async () => {
   if (!id) return
 
   try {
-    const res = await getArticle(id)
-    article.value = res.article
+    article.value = await getArticle(id)
   } finally {
     loading.value = false
   }

@@ -24,7 +24,7 @@ export function getArticles(params: { limit?: number; offset?: number; journal_i
   return get(`/articles${qs}`)
 }
 
-export function getArticle(id: string): Promise<{ article: Article }> {
+export function getArticle(id: string): Promise<Article> {
   return get(`/articles/${id}`)
 }
 

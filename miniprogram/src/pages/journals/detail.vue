@@ -47,7 +47,7 @@ onMounted(async () => {
       getArticles({ journal_id: journalId, limit: 50 }),
       auth.isLoggedIn ? getSubscribedJournals() : Promise.resolve(null),
     ])
-    journal.value = jr.journal
+    journal.value = jr
     articles.value = ar.articles
     if (subRes) {
       isSubscribed.value = subRes.journals.some(j => j.id === journalId)

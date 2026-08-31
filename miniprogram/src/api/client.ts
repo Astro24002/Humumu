@@ -1,6 +1,10 @@
 import { useAuthStore } from '@/stores/auth'
 
-const BASE_URL = 'http://localhost:8080/api/v1'
+// Override at build time if needed. Default local dev API.
+// Production should use build env / deployed host (e.g. VITE_API_BASE).
+const BASE_URL =
+  (typeof process !== 'undefined' && (process as any).env?.VITE_API_BASE) ||
+  'http://localhost:8080/api/v1'
 
 // Mini program doesn't support URLSearchParams
 export function buildQuery(params: Record<string, string | number | undefined>): string {
