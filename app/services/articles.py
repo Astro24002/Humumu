@@ -6,7 +6,7 @@ import uuid
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.article import Article
@@ -142,3 +142,8 @@ async def list_feed_for_user(
     )
     result = await session.execute(stmt)
     return _rows_to_articles(list(result.all()))
+
+
+async def count_articles(session: AsyncSession) -> int:
+    result = await session.execute(select(func.count()).select_from(Article))
+    return int(result.scalar_one() or 0)

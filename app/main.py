@@ -8,6 +8,7 @@ from app.config import get_settings
 from app.db import dispose_engine, init_engine
 from app.errors import error_response
 from app.routers import (
+    admin,
     articles,
     auth,
     health,
@@ -76,3 +77,4 @@ app.include_router(subscriptions.router)
 app.include_router(settings.router)
 app.include_router(notifications.router)
 app.include_router(wechat.router)
+app.include_router(admin.router)

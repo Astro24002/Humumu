@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import re
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.article import Article
@@ -151,8 +151,9 @@ async def create_journal(
     description: str = "",
     fetch_interval: timedelta | None = None,
     slug: str | None = None,
+    is_active: bool = True,
 ) -> JournalOut:
-    """Create a user/self-service journal and return JournalOut (no stats yet)."""
+    """Create a journal and return JournalOut (no stats yet)."""
     uid = _parse_uuid(created_by) if created_by is not None else None
     journal = Journal(
         name=name,
@@ -161,13 +162,100 @@ async def create_journal(
         source_url=source_url,
         description=description or "",
         fetch_interval=fetch_interval if fetch_interval is not None else timedelta(minutes=30),
-        is_active=True,
+        is_active=is_active,
         created_by=uid,
     )
     session.add(journal)
     await session.flush()
     await session.refresh(journal)
     return _journal_out(journal, article_count=0, last_article_date=None)
+
+
+async def count_journals(session: AsyncSession) -> int:
+    result = await session.execute(select(func.count()).select_from(Journal))
+    return int(result.scalar_one() or 0)
+
+
+async def count_pending_requests(session: AsyncSession) -> int:
+    result = await session.execute(
+        select(func.count())
+        .select_from(JournalRequest)
+        .where(JournalRequest.status == "pending")
+    )
+    return int(result.scalar_one() or 0)
+
+
+async def list_all_journal_requests(session: AsyncSession) -> list[JournalRequestOut]:
+    stmt = select(JournalRequest).order_by(JournalRequest.created_at.desc())
+    result = await session.execute(stmt)
+    return [_request_out(row) for row in result.scalars().all()]
+
+
+async def update_journal(
+    session: AsyncSession,
+    journal_id: str | UUID,
+    *,
+    name: str | None = None,
+    slug: str | None = None,
+    source_type: str | None = None,
+    source_url: str | None = None,
+    description: str | None = None,
+    fetch_interval: timedelta | None = None,
+    is_active: bool | None = None,
+) -> bool:
+    """Partial-update a journal. Returns True if a row was updated."""
+    uid = _parse_uuid(journal_id)
+    if uid is None:
+        return False
+
+    values: dict[str, Any] = {}
+    if name is not None:
+        values["name"] = name
+    if slug is not None:
+        values["slug"] = slug
+    if source_type is not None:
+        values["source_type"] = source_type
+    if source_url is not None:
+        values["source_url"] = source_url
+    if description is not None:
+        values["description"] = description
+    if fetch_interval is not None:
+        values["fetch_interval"] = fetch_interval
+    if is_active is not None:
+        values["is_active"] = is_active
+    if not values:
+        return False
+
+    result = await session.execute(update(Journal).where(Journal.id == uid).values(**values))
+    return bool(result.rowcount)
+
+
+async def delete_journal(session: AsyncSession, journal_id: str | UUID) -> bool:
+    """Delete a journal by id. Returns True if a row was deleted."""
+    uid = _parse_uuid(journal_id)
+    if uid is None:
+        return False
+
+    result = await session.execute(delete(Journal).where(Journal.id == uid))
+    return bool(result.rowcount)
+
+
+async def update_request_status(
+    session: AsyncSession,
+    request_id: str | UUID,
+    status: str,
+) -> bool:
+    """Set journal request status and reviewed_at. Returns True if updated."""
+    uid = _parse_uuid(request_id)
+    if uid is None:
+        return False
+
+    result = await session.execute(
+        update(JournalRequest)
+        .where(JournalRequest.id == uid)
+        .values(status=status, reviewed_at=datetime.now(timezone.utc))
+    )
+    return bool(result.rowcount)
 
 
 async def create_journal_request(

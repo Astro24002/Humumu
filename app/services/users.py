@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
@@ -103,3 +103,13 @@ async def update_push_frequency(
         )
     )
     return bool(result.rowcount)
+
+
+async def count_users(session: AsyncSession) -> int:
+    result = await session.execute(select(func.count()).select_from(User))
+    return int(result.scalar_one() or 0)
+
+
+async def list_all_users(session: AsyncSession) -> list[User]:
+    result = await session.execute(select(User).order_by(User.created_at.desc()))
+    return list(result.scalars().all())
