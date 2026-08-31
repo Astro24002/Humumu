@@ -16,3 +16,4 @@ miniprogram/node_modules/
 __pycache__/
 .pytest_cache/
 *.pyc
+.local-e2e/
