@@ -1,0 +1,98 @@
+[
+  {
+    "name": "arXiv cs.AI",
+    "slug": "arxiv-cs-ai",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.AI",
+    "description": "Artificial Intelligence — arXiv cs.AI",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.LG",
+    "slug": "arxiv-cs-lg",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.LG",
+    "description": "Machine Learning — arXiv cs.LG",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.CL",
+    "slug": "arxiv-cs-cl",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.CL",
+    "description": "Computation and Language (NLP) — arXiv cs.CL",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.CV",
+    "slug": "arxiv-cs-cv",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.CV",
+    "description": "Computer Vision and Pattern Recognition — arXiv cs.CV",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.SE",
+    "slug": "arxiv-cs-se",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.SE",
+    "description": "Software Engineering — arXiv cs.SE",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "arXiv stat.ML",
+    "slug": "arxiv-stat-ml",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/stat.ML",
+    "description": "Machine Learning (Statistics) — arXiv stat.ML",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "PLOS ONE",
+    "slug": "plos-one",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/plosone/feed/atom",
+    "description": "PLOS ONE multidisciplinary open-access journal",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "PLOS Computational Biology",
+    "slug": "plos-computational-biology",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/ploscompbiol/feed/atom",
+    "description": "PLOS Computational Biology",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "Nature News",
+    "slug": "nature-news",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/nature.rss",
+    "description": "Nature journal news / highlights feed",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "Science Magazine News",
+    "slug": "science-magazine-news",
+    "source_type": "rss",
+    "source_url": "https://www.science.org/rss/news_current.xml",
+    "description": "Science magazine current news RSS",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "ACM Queue",
+    "slug": "acm-queue",
+    "source_type": "rss",
+    "source_url": "https://queue.acm.org/rss/rss.cfm",
+    "description": "ACM Queue — practitioner-oriented computing",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Communications of the ACM",
+    "slug": "cacm",
+    "source_type": "rss",
+    "source_url": "https://cacm.acm.org/feed/",
+    "description": "Communications of the ACM",
+    "fetch_interval_minutes": 360
+  }
+]

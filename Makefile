@@ -1,4 +1,4 @@
-.PHONY: install run migrate test frontend docker-build
+.PHONY: install run migrate seed test frontend docker-build
 
 install:
 	python -m venv .venv && .venv/bin/pip install -r requirements.txt
@@ -11,6 +11,9 @@ run:
 
 migrate:
 	.venv/bin/python -m scripts.migrate
+
+seed:
+	.venv/bin/python -m scripts.seed_journals
 
 test:
 	.venv/bin/pytest -v

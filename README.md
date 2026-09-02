@@ -39,6 +39,9 @@ cp .env.example .env
 # 运行数据库迁移
 make migrate
 
+# （可选）导入内置常用期刊 RSS（幂等，可重复执行）
+make seed
+
 # 启动 FastAPI（uvicorn :8080，热重载）
 make run
 ```
@@ -49,6 +52,9 @@ make run
 export HUMUMU_ENABLE_SCHEDULER=1
 make run
 ```
+
+内置期刊列表见 `data/journals_seed.json`（arXiv 分类、PLOS、Nature/Science 新闻流、ACM 等公开 RSS）。  
+Docker 部署可在环境变量中设 `HUMUMU_SEED_JOURNALS=1`，entrypoint 会在迁移后自动 seed。
 
 ### 本地开发（前端）
 
@@ -89,7 +95,8 @@ make docker-build
 │   ├── jobs/            # APScheduler 定时任务
 │   ├── models/          # ORM 模型
 │   └── schemas/         # Pydantic 请求/响应模型
-├── scripts/             # 运维脚本（migrate 等）
+├── scripts/             # 运维脚本（migrate / seed_journals 等）
+├── data/                # 内置数据（journals_seed.json）
 ├── web/                 # Vue 3 前端
 │   ├── src/
 │   │   ├── api/         # API 客户端
@@ -149,6 +156,7 @@ make docker-build
 | `JWT_SECRET` | JWT 签名密钥 | `change-me-to-something-secure` |
 | `FETCH_INTERVAL_MINUTES` | 抓取间隔（分钟） | `30` |
 | `HUMUMU_ENABLE_SCHEDULER` | 是否启用后台调度器（`1`=开） | 代码默认关；Docker entrypoint 默认开 |
+| `HUMUMU_SEED_JOURNALS` | 启动时是否 upsert 内置期刊（`1`=开） | `0` |
 | `WEB_DIST` | 前端静态资源目录 | `web/dist` |
 
 **DSN 注意：** API 使用 `postgresql+asyncpg://...`。不要在 async DSN 上使用 `postgres://` 或 `?sslmode=...`（asyncpg 不接受该查询参数）。迁移使用 `DB_DSN_SYNC`（`postgresql://...`）。

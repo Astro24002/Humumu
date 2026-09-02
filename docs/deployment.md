@@ -59,6 +59,10 @@ cp .env.example .env
 # 运行迁移
 make migrate
 
+# （可选）导入内置常用期刊（幂等 upsert，按 slug / source_url）
+make seed
+# 或: .venv/bin/python -m scripts.seed_journals
+
 # 生产启动（开启调度器）
 export HUMUMU_ENABLE_SCHEDULER=1
 .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8080
@@ -68,8 +72,17 @@ export HUMUMU_ENABLE_SCHEDULER=1
 
 ```bash
 make docker-build
-docker run --env-file .env -p 8080:8080 journal-monitor
+# 首次或需要刷新内置期刊时：
+docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 journal-monitor
 ```
+
+### 内置期刊（seed）
+
+- 数据文件：`data/journals_seed.json`
+- 脚本：`python -m scripts.seed_journals`（可传自定义 JSON 路径）
+- 行为：按 `slug` 或 `source_url` 命中则更新名称/URL/间隔/描述；否则插入
+- **不会**删除 seed 文件中已移除的行（管理员手工期刊不受影响）
+- Docker entrypoint：仅当 `HUMUMU_SEED_JOURNALS=1` 时在 migrate 之后自动执行
 
 ## 环境变量
 

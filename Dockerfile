@@ -13,9 +13,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 COPY scripts ./scripts
 COPY migrations ./migrations
+COPY data ./data
 COPY --from=web-builder /web/dist ./web/dist
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENV SERVER_PORT=8080
+# Set HUMUMU_SEED_JOURNALS=1 to upsert data/journals_seed.json after migrate.
+ENV HUMUMU_SEED_JOURNALS=0
 EXPOSE 8080
 ENTRYPOINT ["/entrypoint.sh"]
