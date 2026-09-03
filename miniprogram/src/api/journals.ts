@@ -16,6 +16,10 @@ export interface Journal {
   content_type?: string
   directory_status?: string
   homepage_url?: string
+  consecutive_failures?: number
+  last_error?: string | null
+  last_success_at?: string | null
+  health_status?: string | null
 }
 
 export interface JournalsResponse {

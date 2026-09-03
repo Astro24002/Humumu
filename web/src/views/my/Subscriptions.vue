@@ -10,11 +10,24 @@
       <n-empty v-else-if="!journals.length" description="尚未关注任何期刊" />
       <n-list v-else>
         <n-list-item v-for="j in journals" :key="j.id">
-          <n-thing :title="j.name">
+          <n-thing>
+            <template #header>
+              <router-link :to="`/journals/${j.id}`" style="color: inherit; text-decoration: none;">
+                {{ j.name }}
+              </router-link>
+            </template>
             <template #description>
               <n-space size="small" style="margin-top: 4px;">
                 <n-tag size="tiny" :bordered="false">{{ j.source_type }}</n-tag>
                 <n-tag v-if="j.content_type === 'preprint'" size="tiny" type="info" :bordered="false">预印本</n-tag>
+                <n-tag
+                  v-if="j.directory_status && j.directory_status !== 'public'"
+                  size="tiny"
+                  :type="dirStatusType(j.directory_status)"
+                  :bordered="false"
+                >
+                  {{ dirStatusLabel(j.directory_status) }}
+                </n-tag>
                 <n-tag size="tiny" type="warning" :bordered="false">{{ freqLabel(j.push_frequency) }}</n-tag>
               </n-space>
             </template>
@@ -189,6 +202,23 @@ function freqLabel(f?: string): string {
   if (f === 'realtime') return '实时'
   if (f === 'daily') return '每日'
   return '跟随全局'
+}
+
+function dirStatusLabel(s?: string): string {
+  const map: Record<string, string> = {
+    private: '私有',
+    pending_review: '待审公开',
+    rejected: '公开未通过',
+    hidden: '已下架',
+  }
+  return map[s || ''] || s || ''
+}
+
+function dirStatusType(s?: string): 'default' | 'warning' | 'error' | 'info' {
+  if (s === 'pending_review') return 'warning'
+  if (s === 'rejected' || s === 'hidden') return 'error'
+  if (s === 'private') return 'info'
+  return 'default'
 }
 
 function resetAddModal() {

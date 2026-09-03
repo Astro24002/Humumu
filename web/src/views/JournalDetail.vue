@@ -9,6 +9,23 @@
       <n-tag :type="journal.source_type === 'arxiv' ? 'info' : 'success'" size="small">
         {{ journal.source_type }}
       </n-tag>
+      <n-tag
+        v-if="journal.directory_status && journal.directory_status !== 'public'"
+        :type="dirStatusType(journal.directory_status)"
+        size="small"
+        :bordered="false"
+      >
+        {{ dirStatusLabel(journal.directory_status) }}
+      </n-tag>
+      <n-tag
+        v-if="journal.health_status === 'paused'"
+        type="error"
+        size="small"
+        :bordered="false"
+        :title="journal.last_error || '抓取已暂停'"
+      >
+        抓取暂停
+      </n-tag>
     </div>
 
     <n-descriptions label-placement="left" :column="3" size="small" bordered style="margin-bottom: 16px;">
@@ -102,6 +119,23 @@ const subBusy = ref(false)
 
 function formatDate(d: string): string {
   return d.slice(0, 10)
+}
+
+function dirStatusLabel(s?: string): string {
+  const map: Record<string, string> = {
+    private: '私有',
+    pending_review: '待审公开',
+    rejected: '公开未通过',
+    hidden: '已下架',
+  }
+  return map[s || ''] || s || ''
+}
+
+function dirStatusType(s?: string): 'default' | 'warning' | 'error' | 'info' {
+  if (s === 'pending_review') return 'warning'
+  if (s === 'rejected' || s === 'hidden') return 'error'
+  if (s === 'private') return 'info'
+  return 'default'
 }
 
 async function handleSubscribe() {

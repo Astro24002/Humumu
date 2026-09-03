@@ -38,9 +38,14 @@
         <view v-else class="list">
           <view v-for="j in journals" :key="j.id" class="list-item-block">
             <view class="list-item">
-              <view class="item-main">
+              <view class="item-main" @click="goJournal(j.id)">
                 <text class="item-name">{{ j.name }}</text>
-                <text class="item-meta">{{ j.source_type }} · {{ freqLabel(j.push_frequency) }}</text>
+                <text class="item-meta">
+                  {{ j.source_type }}
+                  <text v-if="j.content_type === 'preprint'"> · 预印本</text>
+                  <text v-if="j.directory_status && j.directory_status !== 'public'"> · {{ dirStatusLabel(j.directory_status) }}</text>
+                  · {{ freqLabel(j.push_frequency) }}
+                </text>
               </view>
               <text class="btn-prefs" @click="cycleFreq(j)">频率</text>
               <text class="btn-unsub" @click="unsubscribe(j.id)">取消</text>
@@ -123,6 +128,20 @@ function freqLabel(f?: string): string {
   if (f === 'realtime') return '实时'
   if (f === 'daily') return '每日'
   return '跟随全局'
+}
+
+function dirStatusLabel(s?: string): string {
+  const map: Record<string, string> = {
+    private: '私有',
+    pending_review: '待审公开',
+    rejected: '公开未通过',
+    hidden: '已下架',
+  }
+  return map[s || ''] || s || ''
+}
+
+function goJournal(id: string) {
+  uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
 }
 
 onMounted(() => {

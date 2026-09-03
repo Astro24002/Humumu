@@ -6,6 +6,11 @@
         <text class="name">{{ journal.name }}</text>
         <text class="tag">{{ journal.source_type }}</text>
         <text v-if="journal.content_type === 'preprint'" class="tag preprint">预印本</text>
+        <text
+          v-if="journal.directory_status && journal.directory_status !== 'public'"
+          :class="['tag', 'dir', dirClass(journal.directory_status)]"
+        >{{ dirStatusLabel(journal.directory_status) }}</text>
+        <text v-if="journal.health_status === 'paused'" class="tag paused">抓取暂停</text>
       </view>
       <text v-if="journal.description" class="desc">{{ journal.description }}</text>
       <view v-if="journal.homepage_url" class="home-row" @click="openHome">
@@ -39,7 +44,22 @@ const articles = ref<Article[]>([])
 const loading = ref(true)
 const isSubscribed = ref(false)
 
-const id = ''
+function dirStatusLabel(s?: string): string {
+  const map: Record<string, string> = {
+    private: '私有',
+    pending_review: '待审公开',
+    rejected: '公开未通过',
+    hidden: '已下架',
+  }
+  return map[s || ''] || s || ''
+}
+
+function dirClass(s?: string): string {
+  if (s === 'pending_review') return 'warn'
+  if (s === 'rejected' || s === 'hidden') return 'err'
+  return 'info'
+}
+
 onMounted(async () => {
   const pages = getCurrentPages()
   const page = pages[pages.length - 1] as any
@@ -105,6 +125,10 @@ async function unsubscribe() {
 .name { font-size: 36rpx; font-weight: 600; }
 .tag { font-size: 22rpx; color: #3cc51f; background: #e8f8e0; padding: 4rpx 12rpx; border-radius: 8rpx; }
 .tag.preprint { color: #2080f0; background: #e8f3ff; }
+.tag.dir.info { color: #2080f0; background: #e8f3ff; }
+.tag.dir.warn { color: #f0a020; background: #fff7e8; }
+.tag.dir.err { color: #d03050; background: #fdecef; }
+.tag.paused { color: #d03050; background: #fdecef; }
 .home-row { padding: 0 30rpx 16rpx; display: flex; gap: 12rpx; align-items: flex-start; }
 .home-label { font-size: 24rpx; color: #999; flex-shrink: 0; }
 .home-link { font-size: 24rpx; color: #2080f0; word-break: break-all; }
