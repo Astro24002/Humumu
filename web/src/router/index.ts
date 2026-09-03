@@ -20,6 +20,7 @@ const router = createRouter({
         { path: 'my/subscriptions', name: 'MySubscriptions', component: () => import('@/views/my/Subscriptions.vue'), meta: { requiresAuth: true } },
         { path: 'my/notifications', name: 'MyNotifications', component: () => import('@/views/my/Notifications.vue'), meta: { requiresAuth: true } },
         { path: 'settings', name: 'Settings', component: () => import('@/views/Settings.vue'), meta: { requiresAuth: true } },
+        { path: ':pathMatch(.*)*', name: 'NotFound', component: () => import('@/views/NotFound.vue') },
       ],
     },
     {

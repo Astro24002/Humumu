@@ -14,8 +14,9 @@
     </view>
     <view v-if="loading" class="loading"><text>加载中...</text></view>
     <view v-else-if="journals.length === 0" class="empty">
-      <text>暂无期刊</text>
-      <button size="mini" class="btn-empty" @click="goSubscriptions">去添加源</button>
+      <text>{{ emptyHint }}</text>
+      <button v-if="hasActiveFilters" size="mini" class="btn-empty" @click="clearFilters">清除筛选</button>
+      <button v-else size="mini" class="btn-empty" @click="goSubscriptions">去添加源</button>
     </view>
     <scroll-view v-else scroll-y class="scroll-view">
       <JournalCard v-for="j in journals" :key="j.id" :journal="j" />
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getJournals, type Journal } from '@/api/journals'
 import JournalCard from '@/components/JournalCard.vue'
 
@@ -33,8 +34,19 @@ const loading = ref(true)
 const search = ref('')
 const contentType = ref('')
 
+const hasActiveFilters = computed(() => Boolean(search.value.trim() || contentType.value))
+const emptyHint = computed(() =>
+  hasActiveFilters.value ? '当前筛选下暂无期刊' : '暂无期刊',
+)
+
 function setType(t: string) {
   contentType.value = t
+  reload()
+}
+
+function clearFilters() {
+  search.value = ''
+  contentType.value = ''
   reload()
 }
 
