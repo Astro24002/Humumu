@@ -1,15 +1,19 @@
-# Journal Monitor
+# Humumu
 
-学术期刊订阅聚合平台。用户订阅期刊、追踪作者、订阅关键词，系统自动抓取新论文并通过 Email / 微信推送。
+学术论文发现与订阅平台（v1）。用户订阅期刊/预印本源、追踪作者与关键词；系统抓取新论文，按订阅偏好入队通知，并通过 Email / 微信推送。支持公开目录、私有源、CAS 分区筛选、阅读状态与通知重试。
+
+设计说明见 `docs/superpowers/specs/2026-09-02-humumu-product-v1-design.md`。
 
 ## 功能
 
-- **期刊订阅** — 关注期刊，获取最新论文推送
-- **作者追踪** — 追踪特定作者的新论文
-- **关键词订阅** — 按关键词匹配新论文
-- **推送渠道** — Email + 微信订阅消息
-- **期刊申请** — 用户可申请添加新期刊
-- **管理后台** — 期刊 CRUD、申请审核、用户管理
+- **期刊 / 预印本订阅** — 公开目录 + 用户私有 RSS；可申请公开
+- **CAS 分区筛选** — 大类/小类/分区/Top 过滤公开期刊
+- **作者追踪 / 关键词订阅** — 命中原因写入通知 outbox
+- **推送偏好** — 用户默认频率 + 按期刊覆盖（realtime/daily）与渠道开关
+- **阅读状态** — 已读 / 星标 / 稍后再看 / 原文点击
+- **My Updates** — 个性化更新流（命中原因 + 状态）
+- **通知 outbox** — 抓取只入队；调度器重试发送（指数退避）
+- **管理后台** — RBAC 管理员、目录状态、CAS 挂载、源健康
 
 ## 快速开始
 
@@ -53,8 +57,12 @@ export HUMUMU_ENABLE_SCHEDULER=1
 make run
 ```
 
-内置期刊列表见 `data/journals_seed.json`（arXiv 分类、PLOS、Nature/Science 新闻流、ACM 等公开 RSS）。  
+内置期刊列表见 `data/journals_seed.json`（arXiv / bioRxiv / medRxiv 预印本，PLOS、eLife、Nature、Science、ACM、Frontiers、PeerJ 等公开 RSS）。  
+seed 会写入 `content_type`、`directory_status=public`、`normalized_source_url`。  
 Docker 部署可在环境变量中设 `HUMUMU_SEED_JOURNALS=1`，entrypoint 会在迁移后自动 seed。
+
+**新用户默认推送频率**为 `daily`（migration 013 仅改 default，不改已有用户）。  
+调度器默认关闭；开启后会跑：抓取 pipeline、notify dispatch（约 2 分钟）、每日摘要。
 
 ### 本地开发（前端）
 
@@ -182,3 +190,11 @@ make docker-build
 - 更多数据源（Crossref / PubMed）
 - 更多推送渠道（Telegram / 企业微信）
 - 更多学科扩展
+
+## Product v1 notes
+
+- Spec: `docs/superpowers/specs/2026-09-02-humumu-product-v1-design.md`
+- Plan: `docs/superpowers/plans/2026-09-02-humumu-product-v1-implementation.md`
+- Migrations 009–015 cover admin RBAC, journal v1 fields, CAS, subscription notify prefs, reading status, notify retry.
+- Outbound feed fetch is SSRF-safe (`app/services/url_safety.py`).
+- Fetch pipeline enqueues notifications only; `app/jobs/notify_dispatch.py` sends with retry.

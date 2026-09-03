@@ -74,6 +74,13 @@ POST /api/v1/auth/wechat
 GET /api/v1/journals
 ```
 
+公开目录默认只返回 `directory_status=public`。
+
+**查询参数:**
+- `q` — 名称/描述搜索
+- `content_type` — `journal` | `preprint`
+- `major` / `minor` / `zone` / `top` / `year` — CAS 分区筛选
+
 **响应** `200 OK`:
 ```json
 {
@@ -84,6 +91,8 @@ GET /api/v1/journals
       "slug": "aer",
       "source_type": "rss",
       "source_url": "https://...",
+      "content_type": "journal",
+      "directory_status": "public",
       "is_active": true,
       "created_at": "..."
     }
@@ -97,7 +106,32 @@ GET /api/v1/journals
 GET /api/v1/journals/:id
 ```
 
-### 申请新增期刊
+### 用户自建源（私有 / 申请公开）
+
+```
+POST /api/v1/my/journals
+```
+
+```json
+{
+  "source_url": "https://example.org/feed.xml",
+  "name": "My Lab Feed",
+  "visibility": "private"
+}
+```
+
+`visibility`: `private`（默认）| `apply_public`（→ `pending_review`）。  
+URL 经 SSRF 校验与 normalize；已存在同源则订阅调用者且不泄露创建者。
+
+### RSS 预览
+
+```
+POST /api/v1/my/journals/preview
+```
+
+返回 `name`、`source_type`、最多 5 条 `items[{title,url,published}]`。
+
+### 申请新增期刊（管理审核队列，兼容旧路径）
 
 ```
 POST /api/v1/journals/requests
@@ -116,6 +150,14 @@ POST /api/v1/journals/requests
 GET /api/v1/journals/requests
 ```
 
+### CAS 分类
+
+```
+GET /api/v1/categories/cas
+```
+
+返回大类 / 小类树，供目录筛选 UI 使用。
+
 ---
 
 ## 订阅
@@ -126,7 +168,19 @@ GET /api/v1/journals/requests
 |------|------|------|
 | GET | /api/v1/subscriptions/journals | 已关注期刊列表 |
 | POST | /api/v1/subscriptions/journals/:id | 关注期刊 |
+| PATCH | /api/v1/subscriptions/journals/:id | 更新推送偏好 |
 | DELETE | /api/v1/subscriptions/journals/:id | 取消关注 |
+
+**PATCH 推送偏好:**
+```json
+{
+  "push_frequency": "realtime",
+  "email_enabled": true,
+  "wechat_enabled": false
+}
+```
+
+`push_frequency`: `default`（跟用户设置）| `realtime` | `daily`。
 
 ### 作者追踪
 
@@ -245,3 +299,42 @@ GET /health
   "status": "ok"
 }
 ```
+
+---
+
+## My Updates / 阅读状态（Product v1）
+
+### 个性化更新流
+
+```
+GET /api/v1/my/updates
+```
+
+合并：已订阅期刊新文 + 通知命中文章。可见性规则与公开目录一致（私有源仅本人）。
+
+**查询参数（常用）:** `limit` / `offset` / `starred` / `later` / `unread`
+
+### 阅读状态
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/my/articles/{id}/status | 获取已读/星标/稍后再看 |
+| PUT | /api/v1/my/articles/{id}/status | 更新状态字段 |
+| POST | /api/v1/my/articles/{id}/original-click | 记录原文点击 |
+
+```json
+{
+  "is_read": true,
+  "is_starred": false,
+  "is_later": true
+}
+```
+
+### 管理端（需 is_admin）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | /api/v1/admin/journals/{id}/directory_status | 设置 public/private/pending_review/rejected/hidden |
+| POST | /api/v1/admin/categories/... | CAS 大类/小类创建与期刊挂载 |
+
+通知发送与抓取解耦：pipeline 只写 `notifications(status=pending, match_reasons=...)`；`notify_dispatch` 定时重试发送。

@@ -78,11 +78,50 @@ docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 journal-monito
 
 ### 内置期刊（seed）
 
-- 数据文件：`data/journals_seed.json`
+- 数据文件：`data/journals_seed.json`（arXiv / bioRxiv / medRxiv 预印本 + PLOS / eLife / Nature / Science / ACM 等；完整 200–300 目录为后续运维扩展）
 - 脚本：`python -m scripts.seed_journals`（可传自定义 JSON 路径）
-- 行为：按 `slug` 或 `source_url` 命中则更新名称/URL/间隔/描述；否则插入
+- 行为：按 `slug` / `source_url` / `normalized_source_url` 命中则更新；否则插入
+- 写入字段：`content_type`、`directory_status=public`、`homepage_url`、`normalized_source_url`
 - **不会**删除 seed 文件中已移除的行（管理员手工期刊不受影响）
 - Docker entrypoint：仅当 `HUMUMU_SEED_JOURNALS=1` 时在 migrate 之后自动执行
+
+### Product v1 迁移与管理员
+
+迁移目录 `migrations/` 按文件名顺序执行（`make migrate`）。v1 相关：
+
+| 文件 | 内容 |
+|------|------|
+| `009_users_is_admin.sql` | `users.is_admin` |
+| `010_journals_v1_fields.sql` | `content_type`、`directory_status`、健康字段、`normalized_source_url` 等 |
+| `011_articles_guid_unique.sql` | `articles.guid` + 部分唯一索引 |
+| `012_cas_categories.sql` | CAS 大类/小类与期刊挂载 |
+| `013_journal_subscriptions_notify.sql` | 订阅级推送频率/渠道；新用户默认 `push_frequency=daily` |
+| `014_user_article_status.sql` | 已读/星标/稍后再看 |
+| `015_notifications_retry.sql` | 通知重试字段 + `match_reasons` |
+
+**设置管理员**（SQL，迁移后）：
+
+```sql
+UPDATE users SET is_admin = true WHERE email = 'you@example.com';
+```
+
+管理 API 走 `require_admin`（JWT + `is_admin`），不再依赖硬编码邮箱列表。
+
+### 调度器任务
+
+`HUMUMU_ENABLE_SCHEDULER=1` 时 APScheduler 会跑：
+
+1. **fetch pipeline** — 抓取 → 多键去重 → 匹配 → **仅入队** `notifications`（pending）
+2. **notify dispatch** — 约每 2 分钟认领 pending/可重试行，发送 Email/微信，失败指数退避（最多 5 次）
+3. **daily digest** — 按用户日汇总偏好发送
+
+出站抓取经 SSRF 校验（`app/services/url_safety.py`）：仅公网 HTTP(S)，拒绝内网/元数据地址。
+
+### 可见性与目录
+
+- 公开目录 API 只返回 `directory_status=public` 的期刊
+- 用户自建源默认 `private`；`visibility=apply_public` → `pending_review`，管理员可改为 `public` / `rejected` / `hidden`
+- 私有源仅创建者可订阅/抓取可见，不泄露其他创建者身份
 
 ## 环境变量
 

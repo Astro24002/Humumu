@@ -2,7 +2,7 @@
 
 ## 整体架构
 
-Journal Monitor 是一个 Python/FastAPI 单体服务，同时提供 HTTP API 和后台定时抓取-推送管道。
+Humumu（原 Journal Monitor）是一个 Python/FastAPI 单体服务，同时提供 HTTP API 和后台定时抓取-推送管道。产品 v1 在单体上增加：公开/私有源可见性、CAS 展示筛选、订阅级推送偏好、阅读状态、通知 outbox 重试。
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -38,44 +38,36 @@ Journal Monitor 是一个 Python/FastAPI 单体服务，同时提供 HTTP API �
 
 | 模块 | 职责 |
 |------|------|
-| `app/routers/` | HTTP 路由 — 认证、期刊、文章、订阅、通知、管理 |
-| `app/services/` | 业务逻辑 — 抓取、匹配、推送、用户/期刊 CRUD |
-| `app/jobs/` | 定时调度 — APScheduler 抓取→推送管道 |
+| `app/routers/` | HTTP 路由 — 认证、期刊、文章、订阅、阅读状态、My Updates、CAS、通知、管理 |
+| `app/services/` | 业务逻辑 — 抓取、SSRF、去重、匹配、阅读状态、用户/期刊 CRUD |
+| `app/jobs/` | 定时调度 — fetch pipeline（只入队）、notify_dispatch（重试发送）、daily digest |
 | `app/models/` | SQLAlchemy ORM 模型 |
 | `app/schemas/` | Pydantic 请求/响应模型 |
 | `app/config.py` | 环境变量配置（pydantic-settings） |
 | `app/db.py` | 异步引擎与会话 |
 | `app/redis_client.py` | Redis 客户端（去重等） |
 | `scripts/migrate.py` | 数据库迁移（同步 psycopg2） |
+| `scripts/seed_journals.py` | 内置公开源幂等 seed |
 
 ## 核心数据流
 
 ### 文章抓取 → 推送完整流程
 
 ```
-定时器触发（APScheduler，间隔 FETCH_INTERVAL_MINUTES）
+定时器触发（APScheduler）
   │
-  ├─ 调用 fetcher 拉取源
-  │   ├─ RSS: HTTP GET → XML 解析（feedparser）
-  │   └─ arXiv: API 请求 → 解析
+  ├─ fetch pipeline（FETCH_INTERVAL_MINUTES）
+  │   ├─ 拉取源（SSRF-safe HTTP；RSS/Atom/arXiv）
+  │   ├─ 多键去重：DOI > guid > url（Redis + DB 部分唯一索引）
+  │   ├─ 写入 articles
+  │   ├─ 匹配订阅（期刊 realtime 门控 + 作者/关键词；记录 match_reasons）
+  │   ├─ expand_channels（订阅级 email/wechat 开关 + 用户 openid/email）
+  │   └─ 仅 INSERT notifications status=pending（不在线发送）
   │
-  ├─ 标准化为 Article
-  │
-  ├─ Redis 去重（基于 DOI + journalID）
-  │   └─ 未命中 → 继续；已存在 → 跳过
-  │
-  ├─ 写入 articles 表
-  │
-  ├─ 匹配订阅
-  │   ├─ 期刊订阅：查询 journal_subscriptions → 订阅用户列表
-  │   ├─ 作者追踪：articles.authors 匹配 author_tracking
-  │   └─ 关键词订阅：title/abstract ILIKE '%keyword%'
-  │
-  ├─ 生成 notifications 记录（status = pending）
-  │
-  └─ 异步推送
-      ├─ Email: SMTP 发送
-      └─ 微信: REST API 调用
+  └─ notify_dispatch（约 2 分钟）
+      ├─ FOR UPDATE SKIP LOCKED 认领可发送行
+      ├─ Email SMTP / 微信订阅消息
+      └─ 失败：attempts++、指数退避；成功：status=sent
 ```
 
 调度器由环境变量 `HUMUMU_ENABLE_SCHEDULER=1` 开启（应用代码默认关闭，便于测试；Docker `entrypoint.sh` 默认导出为 `1`）。
