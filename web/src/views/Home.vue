@@ -1,6 +1,6 @@
 <template>
   <div>
-    <n-h2>最新论文</n-h2>
+    <n-h2>公开广场</n-h2>
     <n-alert v-if="auth.isLoggedIn" type="info" style="margin-bottom: 16px;" :bordered="false">
       已登录用户可在
       <n-button text type="primary" @click="router.push('/my')">我的更新</n-button>

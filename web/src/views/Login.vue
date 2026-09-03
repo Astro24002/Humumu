@@ -39,7 +39,7 @@ async function handleLogin() {
   try {
     await auth.login(form.email, form.password)
     message.success('登录成功')
-    const redirect = (route.query.redirect as string) || '/'
+    const redirect = (route.query.redirect as string) || '/my'
     router.push(redirect)
   } catch (e: any) {
     message.error(e.message || '登录失败')

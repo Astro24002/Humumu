@@ -21,7 +21,7 @@
     "borderStyle": "black",
     "backgroundColor": "#ffffff",
     "list": [
-      {"pagePath": "pages/index/index", "text": "最新", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-active.png"},
+      {"pagePath": "pages/index/index", "text": "更新", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-active.png"},
       {"pagePath": "pages/journals/index", "text": "期刊", "iconPath": "static/tab/journals.png", "selectedIconPath": "static/tab/journals-active.png"},
       {"pagePath": "pages/subscriptions/index", "text": "订阅", "iconPath": "static/tab/sub.png", "selectedIconPath": "static/tab/sub-active.png"},
       {"pagePath": "pages/profile/index", "text": "我的", "iconPath": "static/tab/profile.png", "selectedIconPath": "static/tab/profile-active.png"}

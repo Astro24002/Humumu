@@ -42,7 +42,7 @@ async function handleRegister() {
   try {
     await auth.register(form.email, form.password, form.name)
     message.success('注册成功')
-    const redirect = (route.query.redirect as string) || '/'
+    const redirect = (route.query.redirect as string) || '/my'
     router.push(redirect)
   } catch (e: any) {
     message.error(e.message || '注册失败')

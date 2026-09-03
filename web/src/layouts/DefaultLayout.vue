@@ -1,8 +1,9 @@
 <template>
   <n-layout position="absolute" style="height: 100%">
     <n-layout-header bordered style="padding: 0 24px; display: flex; align-items: center; height: 56px;">
-      <n-h3 style="margin: 0; cursor: pointer" @click="router.push('/')">📓 Humumu</n-h3>
+      <n-h3 style="margin: 0; cursor: pointer" @click="goHome">📓 Humumu</n-h3>
       <div style="flex: 1" />
+      <n-button quaternary @click="router.push('/')">广场</n-button>
       <n-button quaternary @click="router.push('/journals')">期刊</n-button>
       <template v-if="auth.isLoggedIn">
         <n-button quaternary @click="router.push('/my')">我的更新</n-button>
@@ -34,6 +35,10 @@ import {
 
 const router = useRouter()
 const auth = useAuthStore()
+
+function goHome() {
+  router.push(auth.isLoggedIn ? '/my' : '/')
+}
 
 const userMenuOptions = computed(() => {
   const opts = [
