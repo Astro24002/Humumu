@@ -184,7 +184,7 @@ const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 const auth = useAuthStore()
-const isLoggedIn = auth.isLoggedIn
+const isLoggedIn = computed(() => auth.isLoggedIn)
 const journals = ref<Journal[]>([])
 const loading = ref(true)
 const q = ref('')

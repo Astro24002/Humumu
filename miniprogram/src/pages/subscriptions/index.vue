@@ -70,7 +70,13 @@
 
       <view v-if="tab === 'authors'">
         <view class="add-bar">
-          <input v-model="newAuthor" placeholder="作者姓名" class="add-input" />
+          <input
+            v-model="newAuthor"
+            placeholder="作者姓名"
+            class="add-input"
+            confirm-type="done"
+            @confirm="addAuthor"
+          />
           <button @click="addAuthor" :disabled="!newAuthor.trim()" class="btn-add">添加</button>
         </view>
         <view v-if="authors.length === 0" class="empty"><text>尚未追踪任何作者</text><text class="hint">在上方输入姓名后添加</text></view>
@@ -84,7 +90,13 @@
 
       <view v-if="tab === 'keywords'">
         <view class="add-bar">
-          <input v-model="newKeyword" placeholder="关键词" class="add-input" />
+          <input
+            v-model="newKeyword"
+            placeholder="关键词"
+            class="add-input"
+            confirm-type="done"
+            @confirm="addKeyword"
+          />
           <button @click="addKeyword" :disabled="!newKeyword.trim()" class="btn-add">添加</button>
         </view>
         <view v-if="keywords.length === 0" class="empty"><text>尚未订阅任何关键词</text><text class="hint">在上方输入关键词后添加</text></view>

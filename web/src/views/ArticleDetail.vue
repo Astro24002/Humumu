@@ -47,10 +47,27 @@
     <p v-else style="color: #999; line-height: 1.8;">暂无摘要</p>
 
     <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px;">
-      <n-button type="primary" tag="a" :href="article.url" target="_blank" rel="noopener noreferrer" @click="onOriginalClick">
+      <n-button
+        v-if="article.url"
+        type="primary"
+        tag="a"
+        :href="article.url"
+        target="_blank"
+        rel="noopener noreferrer"
+        @click="onOriginalClick"
+      >
         查看原文
       </n-button>
-      <n-button v-if="article.doi" quaternary tag="a" :href="doiUrl(article.doi)" target="_blank" rel="noopener noreferrer" @click="onOriginalClick">
+      <n-button
+        v-if="article.doi"
+        :type="article.url ? 'default' : 'primary'"
+        :quaternary="!!article.url"
+        tag="a"
+        :href="doiUrl(article.doi)"
+        target="_blank"
+        rel="noopener noreferrer"
+        @click="onOriginalClick"
+      >
         DOI 原文
       </n-button>
       <n-button v-if="article.doi || article.url" quaternary @click="copyLink">

@@ -57,7 +57,7 @@
 
     <n-tab-pane name="authors" tab="作者">
       <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-        <n-input v-model:value="newAuthor" placeholder="作者姓名" />
+        <n-input v-model:value="newAuthor" placeholder="作者姓名" @keyup.enter="addAuthor" />
         <n-button @click="addAuthor" :disabled="!newAuthor.trim()">添加</n-button>
       </div>
       <n-empty v-if="!authors.length" description="尚未追踪任何作者">
@@ -72,7 +72,7 @@
 
     <n-tab-pane name="keywords" tab="关键词">
       <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-        <n-input v-model:value="newKeyword" placeholder="关键词" />
+        <n-input v-model:value="newKeyword" placeholder="关键词" @keyup.enter="addKeyword" />
         <n-button @click="addKeyword" :disabled="!newKeyword.trim()">添加</n-button>
       </div>
       <n-empty v-if="!keywords.length" description="尚未订阅任何关键词">
