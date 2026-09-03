@@ -25,7 +25,19 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers })
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText })) as ApiError
-    throw new ApiClientError(res.status, body.error || 'request failed')
+    // Drop stale session on unauthorized so guards bounce to login.
+    if (res.status === 401 && token && !path.startsWith('/auth/login') && !path.startsWith('/auth/register')) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      // Soft reload of auth store if pinia is already up (avoid hard circular import).
+      try {
+        const { useAuthStore } = await import('@/stores/auth')
+        useAuthStore().logout()
+      } catch {
+        // ignore — localStorage already cleared
+      }
+    }
+    throw new ApiClientError(res.status, body.error || (res.status === 401 ? '登录已过期' : 'request failed'))
   }
   if (res.status === 204 || res.headers.get('content-length') === '0') {
     return {} as T
