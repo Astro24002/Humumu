@@ -2478,5 +2478,255 @@
     "content_type": "journal",
     "fetch_interval_minutes": 120,
     "homepage_url": "https://journals.aps.org/prxenergy/"
+  },
+  {
+    "name": "Animal Behavior and Cognition",
+    "slug": "biorxiv-animal-behavior",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=animal_behavior_and_cognition",
+    "description": "Animal Behavior and Cognition — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/animal_behavior_and_cognition"
+  },
+  {
+    "name": "Biochemistry",
+    "slug": "biorxiv-biochemistry",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=biochemistry",
+    "description": "Biochemistry — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/biochemistry"
+  },
+  {
+    "name": "Bioengineering",
+    "slug": "biorxiv-bioengineering",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=bioengineering",
+    "description": "Bioengineering — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/bioengineering"
+  },
+  {
+    "name": "Clinical Trials",
+    "slug": "biorxiv-clinical-trials",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=clinical_trials",
+    "description": "Clinical Trials — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/clinical_trials"
+  },
+  {
+    "name": "Genetics",
+    "slug": "biorxiv-genetics",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=genetics",
+    "description": "Genetics — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/genetics"
+  },
+  {
+    "name": "Pathology",
+    "slug": "biorxiv-pathology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=pathology",
+    "description": "Pathology — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/pathology"
+  },
+  {
+    "name": "Pharmacology and Toxicology",
+    "slug": "biorxiv-pharmacology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=pharmacology_and_toxicology",
+    "description": "Pharmacology and Toxicology — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/pharmacology_and_toxicology"
+  },
+  {
+    "name": "Physiology",
+    "slug": "biorxiv-physiology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=physiology",
+    "description": "Physiology — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/physiology"
+  },
+  {
+    "name": "Plant Biology",
+    "slug": "biorxiv-plant-biology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=plant_biology",
+    "description": "Plant Biology — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/plant_biology"
+  },
+  {
+    "name": "Scientific Communication",
+    "slug": "biorxiv-sci-comm",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=scientific_communication_and_education",
+    "description": "Scientific Communication — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/scientific_communication_and_education"
+  },
+  {
+    "name": "Synthetic Biology",
+    "slug": "biorxiv-synthetic-biology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=synthetic_biology",
+    "description": "Synthetic Biology — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/synthetic_biology"
+  },
+  {
+    "name": "Zoology",
+    "slug": "biorxiv-zoology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=zoology",
+    "description": "Zoology — bioRxiv",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/zoology"
+  },
+  {
+    "name": "medRxiv Addiction Medicine",
+    "slug": "medrxiv-addiction",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=addiction_medicine",
+    "description": "medRxiv Addiction Medicine",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/addiction_medicine"
+  },
+  {
+    "name": "medRxiv Cardiology",
+    "slug": "medrxiv-cardiology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=cardiovascular_medicine",
+    "description": "medRxiv Cardiology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/cardiovascular_medicine"
+  },
+  {
+    "name": "medRxiv Dermatology",
+    "slug": "medrxiv-dermatology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=dermatology",
+    "description": "medRxiv Dermatology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/dermatology"
+  },
+  {
+    "name": "medRxiv Emergency Medicine",
+    "slug": "medrxiv-emergency",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=emergency_medicine",
+    "description": "medRxiv Emergency Medicine",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/emergency_medicine"
+  },
+  {
+    "name": "medRxiv Endocrinology",
+    "slug": "medrxiv-endocrinology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=endocrinology",
+    "description": "medRxiv Endocrinology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/endocrinology"
+  },
+  {
+    "name": "medRxiv Gastroenterology",
+    "slug": "medrxiv-gastro",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=gastroenterology",
+    "description": "medRxiv Gastroenterology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/gastroenterology"
+  },
+  {
+    "name": "medRxiv Hematology",
+    "slug": "medrxiv-hematology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=hematology",
+    "description": "medRxiv Hematology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/hematology"
+  },
+  {
+    "name": "medRxiv Neurology",
+    "slug": "medrxiv-neurology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=neurology",
+    "description": "medRxiv Neurology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/neurology"
+  },
+  {
+    "name": "medRxiv Oncology",
+    "slug": "medrxiv-oncology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=oncology",
+    "description": "medRxiv Oncology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/oncology"
+  },
+  {
+    "name": "medRxiv Pediatrics",
+    "slug": "medrxiv-pediatrics",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=pediatrics",
+    "description": "medRxiv Pediatrics",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/pediatrics"
+  },
+  {
+    "name": "medRxiv Psychiatry",
+    "slug": "medrxiv-psychiatry",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=psychiatry_and_clinical_psychology",
+    "description": "medRxiv Psychiatry",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/psychiatry_and_clinical_psychology"
+  },
+  {
+    "name": "medRxiv Radiology",
+    "slug": "medrxiv-radiology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=radiology_and_imaging",
+    "description": "medRxiv Radiology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/radiology_and_imaging"
+  },
+  {
+    "name": "medRxiv Surgery",
+    "slug": "medrxiv-surgery",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=surgery",
+    "description": "medRxiv Surgery",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/surgery"
   }
 ]
