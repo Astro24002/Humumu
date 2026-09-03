@@ -121,10 +121,13 @@
         </n-card>
       </n-gi>
     </n-grid>
-    <n-empty v-if="!journals.length && !loading" description="暂无可浏览的期刊">
+    <n-empty v-if="!journals.length && !loading" :description="emptyDescription">
       <template #extra>
-        <n-button v-if="isLoggedIn" @click="router.push('/my/subscriptions')">添加 RSS 源</n-button>
-        <n-button v-else @click="router.push('/login')">登录后添加源</n-button>
+        <n-button v-if="hasActiveFilters" @click="clearFilters">清除筛选</n-button>
+        <template v-else>
+          <n-button v-if="isLoggedIn" @click="router.push('/my/subscriptions')">添加 RSS 源</n-button>
+          <n-button v-else @click="router.push('/login')">登录后添加源</n-button>
+        </template>
       </template>
     </n-empty>
   </div>
@@ -161,6 +164,24 @@ const topOnly = ref(false)
 const categories = ref<CasCategory[]>([])
 const subscribedIds = ref<Set<string>>(new Set())
 const busyId = ref<string | null>(null)
+
+const hasActiveFilters = computed(() =>
+  Boolean(q.value.trim() || contentType.value || major.value || minor.value || zone.value || topOnly.value),
+)
+
+const emptyDescription = computed(() =>
+  hasActiveFilters.value ? '当前筛选下暂无期刊' : '暂无可浏览的期刊',
+)
+
+function clearFilters() {
+  q.value = ''
+  contentType.value = ''
+  major.value = null
+  minor.value = null
+  zone.value = null
+  topOnly.value = false
+  reload()
+}
 
 const majorOptions = computed(() => {
   const set = new Set(categories.value.map(c => c.major).filter(Boolean))

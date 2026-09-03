@@ -18,9 +18,10 @@
     </div>
 
     <div v-if="loading"><n-spin /></div>
-    <n-empty v-else-if="!articles.length" description="暂无文章">
+    <n-empty v-else-if="!articles.length" :description="emptyDescription">
       <template #extra>
-        <n-button @click="router.push('/journals')">浏览期刊</n-button>
+        <n-button v-if="filterJournalId || filterContentType" @click="clearFilters">清除筛选</n-button>
+        <n-button v-else @click="router.push('/journals')">浏览期刊</n-button>
       </template>
     </n-empty>
 
@@ -97,6 +98,18 @@ const pageCount = computed(() => Math.ceil(total.value / limit) || 1)
 const journalOptions = computed(() =>
   journals.value.map(j => ({ label: `${j.name} (${j.article_count}篇)`, value: j.id }))
 )
+
+const emptyDescription = computed(() => {
+  if (filterJournalId.value || filterContentType.value) return '当前筛选下暂无文章'
+  return '暂无文章'
+})
+
+function clearFilters() {
+  filterJournalId.value = null
+  filterContentType.value = ''
+  page.value = 1
+  loadArticles()
+}
 
 function doiUrl(doi: string): string {
   if (doi.startsWith('http')) return doi
