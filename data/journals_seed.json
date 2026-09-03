@@ -1088,5 +1088,75 @@
     "content_type": "journal",
     "homepage_url": "https://www.frontiersin.org/journals/microbiology",
     "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Nature Physics",
+    "slug": "nature-physics",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/nphys.rss",
+    "description": "Nature Physics — condensed matter, quantum, optics",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.nature.com/nphys"
+  },
+  {
+    "name": "Nature Chemistry",
+    "slug": "nature-chemistry",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/nchem.rss",
+    "description": "Nature Chemistry",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.nature.com/nchem"
+  },
+  {
+    "name": "Nature Materials",
+    "slug": "nature-materials",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/nmat.rss",
+    "description": "Nature Materials",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.nature.com/nmat"
+  },
+  {
+    "name": "Nature Nanotechnology",
+    "slug": "nature-nanotech",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/nnano.rss",
+    "description": "Nature Nanotechnology",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.nature.com/nnano"
+  },
+  {
+    "name": "Cell Reports",
+    "slug": "cell-reports",
+    "source_type": "rss",
+    "source_url": "https://www.cell.com/cell-reports/current.rss",
+    "description": "Cell Reports — life sciences",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.cell.com/cell-reports"
+  },
+  {
+    "name": "bioRxiv Immunology",
+    "slug": "biorxiv-immunology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=immunology",
+    "description": "bioRxiv immunology preprints",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/immunology"
+  },
+  {
+    "name": "Communications Chemistry",
+    "slug": "communications-chemistry",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/commschem.rss",
+    "description": "Communications Chemistry",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.nature.com/commschem"
   }
 ]

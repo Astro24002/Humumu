@@ -12,7 +12,12 @@
         <template #header>
           <div>
             <div v-if="n.article_title" style="font-weight: 500; margin-bottom: 6px;">
-              {{ n.article_title }}
+              <router-link
+                v-if="n.article_id"
+                :to="`/articles/${n.article_id}`"
+                style="text-decoration: none; color: inherit;"
+              >{{ n.article_title }}</router-link>
+              <template v-else>{{ n.article_title }}</template>
             </div>
             <n-space size="small" align="center">
               <n-tag :type="n.channel === 'email' ? 'primary' : 'success'" size="small">
