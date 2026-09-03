@@ -7,7 +7,11 @@
   <n-tabs v-model:value="activeTab" style="margin-top: 16px;">
     <n-tab-pane name="journals" tab="期刊">
       <div v-if="loadingJournals"><n-spin /></div>
-      <n-empty v-else-if="!journals.length" description="尚未关注任何期刊" />
+      <n-empty v-else-if="!journals.length" description="尚未关注任何期刊">
+        <template #extra>
+          <n-button @click="router.push('/journals')">浏览期刊广场</n-button>
+        </template>
+      </n-empty>
       <n-list v-else>
         <n-list-item v-for="j in journals" :key="j.id">
           <n-thing>
@@ -155,6 +159,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import {
   getSubscribedJournals,
@@ -176,6 +181,7 @@ import {
   NModal, NCard, NForm, NFormItem, NAlert, NSpace, NRadio, NRadioGroup, NCheckbox,
 } from 'naive-ui'
 
+const router = useRouter()
 const message = useMessage()
 const activeTab = ref('journals')
 

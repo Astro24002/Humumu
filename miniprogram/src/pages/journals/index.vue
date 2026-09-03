@@ -9,7 +9,10 @@
       </view>
     </view>
     <view v-if="loading" class="loading"><text>加载中...</text></view>
-    <view v-else-if="journals.length === 0" class="empty"><text>暂无期刊</text></view>
+    <view v-else-if="journals.length === 0" class="empty">
+      <text>暂无期刊</text>
+      <button size="mini" class="btn-empty" @click="goSubscriptions">去添加源</button>
+    </view>
     <scroll-view v-else scroll-y class="scroll-view">
       <JournalCard v-for="j in journals" :key="j.id" :journal="j" />
     </scroll-view>
@@ -45,6 +48,10 @@ async function reload() {
   }
 }
 
+function goSubscriptions() {
+  uni.switchTab({ url: '/pages/subscriptions/index' })
+}
+
 onMounted(reload)
 </script>
 
@@ -64,6 +71,7 @@ onMounted(reload)
   background: #fff; color: #666; border: 1rpx solid #eee;
 }
 .chip.on { background: #e8f8e0; color: #3cc51f; border-color: #3cc51f; }
-.loading, .empty { text-align: center; padding: 100rpx; color: #999; }
+.loading, .empty { text-align: center; padding: 100rpx 40rpx; color: #999; }
+.btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
 .scroll-view { height: calc(100vh - 180rpx); }
 </style>

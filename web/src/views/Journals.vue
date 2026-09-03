@@ -115,7 +115,12 @@
         </n-card>
       </n-gi>
     </n-grid>
-    <n-empty v-if="!journals.length && !loading" description="暂无可浏览的期刊" />
+    <n-empty v-if="!journals.length && !loading" description="暂无可浏览的期刊">
+      <template #extra>
+        <n-button v-if="isLoggedIn" @click="router.push('/my/subscriptions')">添加 RSS 源</n-button>
+        <n-button v-else @click="router.push('/login')">登录后添加源</n-button>
+      </template>
+    </n-empty>
   </div>
 </template>
 

@@ -18,7 +18,11 @@
     </div>
 
     <div v-if="loading"><n-spin /></div>
-    <n-empty v-else-if="!articles.length" description="暂无文章" />
+    <n-empty v-else-if="!articles.length" description="暂无文章">
+      <template #extra>
+        <n-button @click="router.push('/journals')">浏览期刊</n-button>
+      </template>
+    </n-empty>
 
     <n-list v-else>
       <n-list-item v-for="a in articles" :key="a.id">
