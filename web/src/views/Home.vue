@@ -27,7 +27,12 @@
 
     <n-list v-else>
       <n-list-item v-for="a in articles" :key="a.id">
-        <n-thing :title="a.title">
+        <n-thing>
+          <template #header>
+            <router-link :to="`/articles/${a.id}`" style="text-decoration: none; color: inherit;">
+              {{ a.title }}
+            </router-link>
+          </template>
           <template #description>
             <div style="margin-bottom: 6px;">
               <router-link
