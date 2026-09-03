@@ -36,11 +36,21 @@ services:
       DB_DSN: "postgresql+asyncpg://postgres:postgres@postgres:5432/journal_monitor"
       DB_DSN_SYNC: "postgresql://postgres:postgres@postgres:5432/journal_monitor"
       REDIS_ADDR: "redis:6379"
-      JWT_SECRET: "change-me-in-production"
-      FETCH_INTERVAL_MINUTES: "30"
-      HUMUMU_ENABLE_SCHEDULER: "1"
+      JWT_SECRET: "${JWT_SECRET:-change-me-in-production}"
+      FETCH_INTERVAL_MINUTES: "${FETCH_INTERVAL_MINUTES:-30}"
+      HUMUMU_ENABLE_SCHEDULER: "${HUMUMU_ENABLE_SCHEDULER:-1}"
       # Set to "1" to upsert data/journals_seed.json after migrate.
-      HUMUMU_SEED_JOURNALS: "0"
+      HUMUMU_SEED_JOURNALS: "${HUMUMU_SEED_JOURNALS:-0}"
+      # Optional mail / WeChat — pass through from host .env when present.
+      SMTP_HOST: "${SMTP_HOST:-}"
+      SMTP_PORT: "${SMTP_PORT:-}"
+      SMTP_USER: "${SMTP_USER:-}"
+      SMTP_PASS: "${SMTP_PASS:-}"
+      SMTP_FROM: "${SMTP_FROM:-}"
+      WECHAT_APPID: "${WECHAT_APPID:-}"
+      WECHAT_SECRET: "${WECHAT_SECRET:-}"
+      WECHAT_TEMPLATE_REALTIME: "${WECHAT_TEMPLATE_REALTIME:-}"
+      WECHAT_TEMPLATE_DAILY: "${WECHAT_TEMPLATE_DAILY:-}"
     depends_on:
       postgres:
         condition: service_healthy

@@ -38,10 +38,12 @@ DB_DSN_SYNC: "postgresql://postgres:postgres@postgres:5432/journal_monitor"
 REDIS_ADDR: "redis:6379"
 JWT_SECRET: "change-me-in-production"
 HUMUMU_ENABLE_SCHEDULER: "1"
+# 可选：SMTP_* / WECHAT_* 会从宿主机环境 / .env 透传进 app 容器
 ```
 
 - `DB_DSN`：FastAPI / SQLAlchemy async（**不要**加 `?sslmode=`）
 - `DB_DSN_SYNC`：迁移脚本用的同步连接（psycopg2）
+- Compose 默认透传 `JWT_SECRET`、`SMTP_*`、`WECHAT_*`、`HUMUMU_SEED_JOURNALS` 等（见 `docker-compose.yml`）
 
 健康检查：
 
