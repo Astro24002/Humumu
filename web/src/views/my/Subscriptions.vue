@@ -328,6 +328,7 @@ async function removeAuthor(id: string) {
   try {
     await removeAuthorApi(id)
     authors.value = authors.value.filter(a => a.id !== id)
+    message.success('已移除作者')
   } catch (e: any) {
     message.error(e.message)
   }
@@ -348,6 +349,7 @@ async function removeKeyword(id: string) {
   try {
     await removeKeywordApi(id)
     keywords.value = keywords.value.filter(k => k.id !== id)
+    message.success('已移除关键词')
   } catch (e: any) {
     message.error(e.message)
   }

@@ -8,4 +8,6 @@ async def test_health():
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         r = await client.get("/health")
         assert r.status_code == 200
-        assert r.json() == {"status": "ok"}
+        body = r.json()
+        assert body["status"] == "ok"
+        assert body.get("service") == "humumu"

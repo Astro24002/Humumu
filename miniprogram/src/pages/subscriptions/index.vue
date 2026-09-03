@@ -163,6 +163,8 @@ async function loadData() {
     journals.value = jr.journals
     authors.value = ar.authors
     keywords.value = kr.keywords
+  } catch (e: any) {
+    uni.showToast({ title: e.message || '加载订阅失败', icon: 'none' })
   } finally {
     loadingJournals.value = false
   }
@@ -268,6 +270,7 @@ async function removeAuthor(id: string) {
   try {
     await removeAuthorApi(id)
     authors.value = authors.value.filter(a => a.id !== id)
+    uni.showToast({ title: '已移除作者', icon: 'success' })
   } catch (e: any) {
     uni.showToast({ title: e.message || '操作失败', icon: 'none' })
   }
@@ -288,6 +291,7 @@ async function removeKeyword(id: string) {
   try {
     await removeKeywordApi(id)
     keywords.value = keywords.value.filter(k => k.id !== id)
+    uni.showToast({ title: '已移除关键词', icon: 'success' })
   } catch (e: any) {
     uni.showToast({ title: e.message || '操作失败', icon: 'none' })
   }
