@@ -13,9 +13,10 @@
   </n-space>
 
   <div v-if="loading && !updates.length"><n-spin /></div>
-  <n-empty v-else-if="!updates.length" description="暂无更新，去订阅期刊或关键词吧">
+  <n-empty v-else-if="!updates.length" :description="emptyDescription">
     <template #extra>
-      <n-button @click="router.push('/journals')">浏览期刊</n-button>
+      <n-button v-if="!filter" @click="router.push('/journals')">浏览期刊</n-button>
+      <n-button v-else @click="filter = ''; reload()">查看全部更新</n-button>
     </template>
   </n-empty>
   <n-list v-else>
@@ -87,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getMyUpdates, type MyUpdateItem } from '@/api/myUpdates'
 import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
@@ -105,6 +106,13 @@ const filter = ref('')
 const offset = ref(0)
 const limit = 20
 const hasMore = ref(false)
+
+const emptyDescription = computed(() => {
+  if (filter.value === 'unread') return '没有未读更新'
+  if (filter.value === 'starred') return '还没有星标论文'
+  if (filter.value === 'later') return '稍后再看列表为空'
+  return '暂无更新，去订阅期刊或关键词吧'
+})
 
 function reasonLabel(r: string): string {
   const map: Record<string, string> = {

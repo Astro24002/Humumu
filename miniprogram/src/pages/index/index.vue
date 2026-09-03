@@ -14,11 +14,17 @@
     <view v-else-if="!items.length" class="empty">
       <text>{{ emptyHint }}</text>
       <button
-        v-if="tab === 'updates' && auth.isLoggedIn"
+        v-if="tab === 'updates' && auth.isLoggedIn && !filter"
         size="mini"
         class="btn-empty"
         @click="goJournals"
       >去订阅期刊</button>
+      <button
+        v-else-if="tab === 'updates' && auth.isLoggedIn && filter"
+        size="mini"
+        class="btn-empty"
+        @click="clearFilter"
+      >查看全部更新</button>
     </view>
     <scroll-view v-else scroll-y @scrolltolower="loadMore" class="scroll-view">
       <view
@@ -77,7 +83,12 @@ const offset = ref(0)
 const limit = 20
 
 const emptyHint = computed(() => {
-  if (tab.value === 'updates') return '暂无更新，去订阅期刊或关键词吧'
+  if (tab.value === 'updates') {
+    if (filter.value === 'unread') return '没有未读更新'
+    if (filter.value === 'starred') return '还没有星标论文'
+    if (filter.value === 'later') return '稍后再看列表为空'
+    return '暂无更新，去订阅期刊或关键词吧'
+  }
   return '暂无论文'
 })
 
@@ -111,6 +122,11 @@ function switchTab(t: 'all' | 'updates') {
 
 function setFilter(f: string) {
   filter.value = filter.value === f ? '' : f
+  resetAndFetch()
+}
+
+function clearFilter() {
+  filter.value = ''
   resetAndFetch()
 }
 
