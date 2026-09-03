@@ -84,6 +84,11 @@ async def test_admin_stats_200_for_admin(client):
             new_callable=AsyncMock,
             return_value=0,
         ),
+        patch(
+            "app.routers.admin.journal_service.count_pending_directory_reviews",
+            new_callable=AsyncMock,
+            return_value=0,
+        ),
     ):
         r = await client.get("/api/v1/admin/stats")
     assert r.status_code == 200

@@ -127,6 +127,11 @@ async def test_admin_stats_shape(client, authed_user_id):
             new_callable=AsyncMock,
             return_value=1,
         ),
+        patch(
+            "app.routers.admin.journal_service.count_pending_directory_reviews",
+            new_callable=AsyncMock,
+            return_value=3,
+        ),
     ):
         r = await client.get("/api/v1/admin/stats")
     assert r.status_code == 200
@@ -135,6 +140,7 @@ async def test_admin_stats_shape(client, authed_user_id):
         "article_count": 10,
         "user_count": 5,
         "pending_requests": 1,
+        "pending_directory_reviews": 3,
     }
 
 

@@ -259,6 +259,16 @@ async def count_pending_requests(session: AsyncSession) -> int:
     return int(result.scalar_one() or 0)
 
 
+async def count_pending_directory_reviews(session: AsyncSession) -> int:
+    """Count journals awaiting public-directory review (apply_public path)."""
+    result = await session.execute(
+        select(func.count())
+        .select_from(Journal)
+        .where(Journal.directory_status == "pending_review")
+    )
+    return int(result.scalar_one() or 0)
+
+
 async def list_all_journal_requests(session: AsyncSession) -> list[JournalRequestOut]:
     stmt = select(JournalRequest).order_by(JournalRequest.created_at.desc())
     result = await session.execute(stmt)

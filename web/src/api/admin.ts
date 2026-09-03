@@ -6,6 +6,7 @@ export interface AdminStats {
   article_count: number
   user_count: number
   pending_requests: number
+  pending_directory_reviews?: number
 }
 
 export interface JournalRequest {

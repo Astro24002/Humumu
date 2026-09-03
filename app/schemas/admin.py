@@ -18,6 +18,7 @@ class AdminStatsResponse(BaseModel):
     article_count: int
     user_count: int
     pending_requests: int
+    pending_directory_reviews: int = 0
 
 
 class AdminUserOut(BaseModel):
