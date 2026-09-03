@@ -63,7 +63,7 @@
         </view>
         <text class="title" :class="{ unread: a.unread }">{{ a.title }}</text>
         <text class="authors" v-if="a.authors?.length">
-          {{ a.authors.slice(0, 3).join(', ') }}{{ a.authors.length > 3 ? ' 等' : '' }}
+          {{ formatAuthors(a.authors) }}
         </text>
         <text class="date" v-if="a.publish_date">{{ formatDate(a.publish_date) }}</text>
         <text class="snippet" v-if="a.abstract">{{ truncateAbstract(a.abstract) }}</text>
@@ -80,7 +80,7 @@ import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
 import { truncateAbstract } from '@/utils/abstract'
-import { formatDate, reasonLabel } from '@/utils/format'
+import { formatDate, reasonLabel, formatAuthors } from '@/utils/format'
 
 interface FeedItem {
   id: string

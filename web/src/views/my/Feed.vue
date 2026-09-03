@@ -45,7 +45,7 @@
             <span style="color: #888; font-size: 12px;">{{ formatDate(u.publish_date) }}</span>
           </n-space>
           <div style="color: #666; font-size: 13px; margin-top: 4px;">
-            {{ u.authors?.slice(0, 4).join(', ') }}{{ (u.authors?.length || 0) > 4 ? ' 等' : '' }}
+            {{ formatAuthors(u.authors, 4) }}
           </div>
           <p
             v-if="u.abstract"
@@ -97,7 +97,7 @@ import { getMyUpdates, type MyUpdateItem } from '@/api/myUpdates'
 import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
-import { reasonLabel } from '@/utils/labels'
+import { reasonLabel, formatAuthors } from '@/utils/labels'
 import {
   NH2, NSpin, NEmpty, NButton, NList, NListItem, NThing, NTag, NSpace,
   NRadioGroup, NRadioButton, useMessage,

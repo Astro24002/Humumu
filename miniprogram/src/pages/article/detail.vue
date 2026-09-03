@@ -65,7 +65,7 @@ import {
   type ArticleStatus,
 } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
-import { formatDate, doiUrl } from '@/utils/format'
+import { formatDate, doiUrl, formatAuthors } from '@/utils/format'
 import { cleanAbstract } from '@/utils/abstract'
 
 const auth = useAuthStore()
@@ -81,12 +81,7 @@ const status = ref<ArticleStatus>({
   original_clicked_at: null,
 })
 
-const authorsLabel = computed(() => {
-  const authors = article.value?.authors || []
-  if (!authors.length) return ''
-  const head = authors.slice(0, 8).join(', ')
-  return authors.length > 8 ? `${head} 等 ${authors.length} 人` : head
-})
+const authorsLabel = computed(() => formatAuthors(article.value?.authors || [], 8))
 
 function goLogin() {
   uni.navigateTo({ url: '/pages/login/index' })

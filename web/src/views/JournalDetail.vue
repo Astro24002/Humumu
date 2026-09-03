@@ -106,7 +106,7 @@
             <n-tag v-if="a.content_type === 'preprint'" type="info" size="tiny" :bordered="false" style="margin-right: 6px;">
               预印本
             </n-tag>
-            <span style="color: #888; font-size: 13px;">作者：{{ a.authors?.slice(0, 3).join(', ') }}{{ a.authors?.length > 3 ? ' 等' : '' }}</span>
+            <span style="color: #888; font-size: 13px;">作者：{{ formatAuthors(a.authors) }}</span>
             <br>
             <span style="color: #aaa; font-size: 12px;">{{ formatDate(a.publish_date) }}</span>
             <p
@@ -146,6 +146,7 @@ import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { shortUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
+import { formatAuthors } from '@/utils/labels'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty, NResult,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,

@@ -25,17 +25,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Article } from '@/api/articles'
-import { formatDate } from '@/utils/format'
+import { formatDate, formatAuthors } from '@/utils/format'
 import { cleanAbstract } from '@/utils/abstract'
 
 const props = defineProps<{ article: Article }>()
 
-const authorsLabel = computed(() => {
-  const authors = props.article.authors || []
-  if (!authors.length) return ''
-  const head = authors.slice(0, 3).join(', ')
-  return authors.length > 3 ? `${head} 等` : head
-})
+const authorsLabel = computed(() => formatAuthors(props.article.authors || []))
 
 function goDetail() {
   uni.navigateTo({ url: `/pages/article/detail?id=${props.article.id}` })

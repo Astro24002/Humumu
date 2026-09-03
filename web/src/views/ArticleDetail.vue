@@ -104,6 +104,7 @@ import { useAuthStore } from '@/stores/auth'
 import { cleanAbstract } from '@/utils/abstract'
 import { shortUrl, doiUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
+import { formatAuthors } from '@/utils/labels'
 import {
   NH2, NH4, NButton, NSpin, NTag, NResult,
   NDescriptions, NDescriptionsItem, useMessage,
@@ -122,12 +123,7 @@ function goBack() {
 }
 
 const article = ref<Article | null>(null)
-const authorsLabel = computed(() => {
-  const authors = article.value?.authors || []
-  if (!authors.length) return '未知'
-  const head = authors.slice(0, 8).join(', ')
-  return authors.length > 8 ? `${head} 等 ${authors.length} 人` : head
-})
+const authorsLabel = computed(() => formatAuthors(article.value?.authors || [], 8))
 const loading = ref(true)
 const loadError = ref('')
 const statusSaving = ref(false)
