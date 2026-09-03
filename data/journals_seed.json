@@ -838,5 +838,255 @@
     "content_type": "journal",
     "homepage_url": "https://www.frontiersin.org/journals/digital-health",
     "fetch_interval_minutes": 360
+  },
+  {
+    "name": "arXiv cs.AR",
+    "slug": "arxiv-cs-ar",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.AR",
+    "description": "arXiv Hardware Architecture",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.AR/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.ET",
+    "slug": "arxiv-cs-et",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.ET",
+    "description": "arXiv Emerging Technologies",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.ET/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.GR",
+    "slug": "arxiv-cs-gr",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.GR",
+    "description": "arXiv Graphics",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.GR/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.MA",
+    "slug": "arxiv-cs-ma",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.MA",
+    "description": "arXiv Multiagent Systems",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.MA/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.SC",
+    "slug": "arxiv-cs-sc",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.SC",
+    "description": "arXiv Symbolic Computation",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.SC/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.SD",
+    "slug": "arxiv-cs-sd",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.SD",
+    "description": "arXiv Sound",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.SD/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.SY",
+    "slug": "arxiv-cs-sy",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.SY",
+    "description": "arXiv Systems and Control",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.SY/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv eess.AS",
+    "slug": "arxiv-eess-as",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/eess.AS",
+    "description": "arXiv Audio and Speech Processing",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/eess.AS/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv eess.IV",
+    "slug": "arxiv-eess-iv",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/eess.IV",
+    "description": "arXiv Image and Video Processing",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/eess.IV/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv q-bio.NC",
+    "slug": "arxiv-q-bio-nc",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.NC",
+    "description": "arXiv Neurons and Cognition",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/q-bio.NC/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv q-bio.MN",
+    "slug": "arxiv-q-bio-mn",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.MN",
+    "description": "arXiv Molecular Networks",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/q-bio.MN/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv q-bio.PE",
+    "slug": "arxiv-q-bio-pe",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.PE",
+    "description": "arXiv Populations and Evolution",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/q-bio.PE/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv physics.comp-ph",
+    "slug": "arxiv-physics-comp-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.comp-ph",
+    "description": "arXiv Computational Physics",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/physics.comp-ph/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv stat.CO",
+    "slug": "arxiv-stat-co",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/stat.CO",
+    "description": "arXiv Computation (Statistics)",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/stat.CO/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "bioRxiv Ecology",
+    "slug": "biorxiv-ecology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=ecology",
+    "description": "bioRxiv Ecology",
+    "content_type": "preprint",
+    "homepage_url": "https://www.biorxiv.org/collection/ecology",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "bioRxiv Evolutionary Biology",
+    "slug": "biorxiv-evolutionary-biology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=evolutionary_biology",
+    "description": "bioRxiv Evolutionary Biology",
+    "content_type": "preprint",
+    "homepage_url": "https://www.biorxiv.org/collection/evolutionary-biology",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "medRxiv Public and Global Health",
+    "slug": "medrxiv-public-global-health",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=public_and_global_health",
+    "description": "medRxiv Public and Global Health",
+    "content_type": "preprint",
+    "homepage_url": "https://www.medrxiv.org/collection/public-and-global-health",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "PLOS Climate",
+    "slug": "plos-climate",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/climate/feed/atom",
+    "description": "PLOS Climate Atom",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/climate/",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "PLOS Water",
+    "slug": "plos-water",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/water/feed/atom",
+    "description": "PLOS Water Atom",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/water/",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Nature Computational Science",
+    "slug": "nature-computational-science",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/natcomputsci.rss",
+    "description": "Nature Computational Science RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/natcomputsci",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Communications Biology",
+    "slug": "communications-biology",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/commsbio.rss",
+    "description": "Communications Biology RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/commsbio",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Communications Physics",
+    "slug": "communications-physics",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/commsphys.rss",
+    "description": "Communications Physics RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/commsphys",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Genetics",
+    "slug": "frontiers-genetics",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/genetics/rss",
+    "description": "Frontiers in Genetics RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/genetics",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Immunology",
+    "slug": "frontiers-immunology",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/immunology/rss",
+    "description": "Frontiers in Immunology RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/immunology",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Microbiology",
+    "slug": "frontiers-microbiology",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/microbiology/rss",
+    "description": "Frontiers in Microbiology RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/microbiology",
+    "fetch_interval_minutes": 360
   }
 ]
