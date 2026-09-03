@@ -16,6 +16,7 @@ import { ref, h, computed, onMounted } from 'vue'
 import { NTag, NDataTable, NH2, NButton, NSpace, NInput, useMessage } from 'naive-ui'
 import { getUsers, setUserAdmin, type User } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
+import { formatDateTime } from '@/utils/datetime'
 
 const message = useMessage()
 const auth = useAuthStore()
@@ -49,7 +50,11 @@ const columns = [
       default: () => row.is_admin ? '管理员' : '用户',
     }),
   },
-  { title: '注册时间', key: 'created_at' },
+  {
+    title: '注册时间',
+    key: 'created_at',
+    render: (row: User) => formatDateTime(row.created_at),
+  },
   {
     title: '操作',
     key: 'actions',

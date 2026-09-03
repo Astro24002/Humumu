@@ -174,6 +174,7 @@ import {
 } from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
 import { shortUrl } from '@/utils/url'
+import { formatDate } from '@/utils/datetime'
 import {
   NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace, NSpin,
   NRadioGroup, NRadioButton, NSelect, NCheckbox, NPagination, useMessage,
@@ -270,10 +271,6 @@ const zoneOptions = [
   { label: '3 区', value: '3' },
   { label: '4 区', value: '4' },
 ]
-
-function formatDate(d: string): string {
-  return d.slice(0, 10)
-}
 
 function onMajorChange() {
   minor.value = null

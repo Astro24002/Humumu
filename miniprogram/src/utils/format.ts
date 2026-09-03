@@ -3,6 +3,24 @@ export function formatDate(d: string): string {
   return d.slice(0, 10)
 }
 
+/** Compact local datetime: YYYY-MM-DD HH:mm */
+export function formatDateTime(d?: string | null): string {
+  if (!d) return ''
+  const s = String(d).trim()
+  if (!s) return ''
+  const t = Date.parse(s)
+  if (!Number.isNaN(t)) {
+    const dt = new Date(t)
+    const y = dt.getFullYear()
+    const m = String(dt.getMonth() + 1).padStart(2, '0')
+    const day = String(dt.getDate()).padStart(2, '0')
+    const hh = String(dt.getHours()).padStart(2, '0')
+    const mm = String(dt.getMinutes()).padStart(2, '0')
+    return `${y}-${m}-${day} ${hh}:${mm}`
+  }
+  return s.replace('T', ' ').replace(/\.\d+/, '').replace(/Z$/, '').slice(0, 16)
+}
+
 /** Compact host+path label for display; keeps full URL for actions. */
 export function shortUrl(url: string, max = 40): string {
   if (!url) return ''

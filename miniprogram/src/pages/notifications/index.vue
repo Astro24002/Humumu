@@ -34,7 +34,7 @@
             <text v-for="r in (n.match_reasons || [])" :key="r" class="reason">{{ reasonLabel(r) }}</text>
           </view>
           <text v-if="n.error_message" class="error">{{ n.error_message }}</text>
-          <text class="time">{{ formatDate(n.created_at) }}</text>
+          <text class="time">{{ formatDateTime(n.created_at) }}</text>
         </view>
         <view class="loading-more" v-if="hasMore"><text>加载更多...</text></view>
       </scroll-view>
@@ -46,7 +46,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { getNotifications, type Notification } from '@/api/notifications'
-import { formatDate } from '@/utils/format'
+import { formatDateTime } from '@/utils/format'
 
 const auth = useAuthStore()
 const notifications = ref<Notification[]>([])

@@ -58,7 +58,7 @@
           </div>
         </template>
         <template #description>
-          <span style="color: #888; font-size: 12px;">{{ n.created_at }}</span>
+          <span style="color: #888; font-size: 12px;">{{ formatDateTime(n.created_at) }}</span>
           <span v-if="n.error_message" style="color: red; margin-left: 8px;">{{ n.error_message }}</span>
         </template>
         <template #footer>
@@ -78,6 +78,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getNotifications, type Notification } from '@/api/notifications'
+import { formatDateTime } from '@/utils/datetime'
 import {
   NH2, NSpin, NEmpty, NList, NListItem, NThing, NTag, NSpace, NButton,
   NRadioGroup, NRadioButton, useMessage,

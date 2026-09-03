@@ -141,6 +141,7 @@ import {
 import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { shortUrl } from '@/utils/url'
+import { formatDate } from '@/utils/datetime'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty, NResult,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,
@@ -163,10 +164,6 @@ const articlesLimit = 20
 const articlesPageCount = computed(() => Math.ceil(articlesTotal.value / articlesLimit) || 1)
 const isSubscribed = ref(false)
 const subBusy = ref(false)
-
-function formatDate(d: string): string {
-  return d.slice(0, 10)
-}
 
 function dirStatusLabel(s?: string): string {
   const map: Record<string, string> = {

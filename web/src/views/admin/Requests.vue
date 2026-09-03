@@ -23,6 +23,7 @@ import {
   NButton, NSpace, NTag, NDataTable, NH2, NRadioGroup, NRadioButton, NEmpty,
 } from 'naive-ui'
 import { getRequests, reviewRequest, type JournalRequest } from '@/api/admin'
+import { formatDateTime } from '@/utils/datetime'
 
 const message = useMessage()
 const dialog = useDialog()
@@ -48,7 +49,11 @@ const columns = [
       }, { default: () => map[row.status] || row.status })
     },
   },
-  { title: '申请时间', key: 'created_at' },
+  {
+    title: '申请时间',
+    key: 'created_at',
+    render: (row: JournalRequest) => formatDateTime(row.created_at),
+  },
   {
     title: '操作', key: 'actions',
     render: (row: JournalRequest) => row.status === 'pending' ? h(NSpace, null, {
