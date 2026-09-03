@@ -29,7 +29,7 @@ class FakeUser:
         self.password_hash = password_hash
         self.name = name or ""
         self.wechat_openid = None
-        self.push_frequency = "realtime"
+        self.push_frequency = "daily"
         self.wechat_template_subscribed = False
         self.created_at = now
         self.updated_at = now
@@ -81,7 +81,7 @@ class FakeSession:
         if getattr(user, "updated_at", None) is None:
             user.updated_at = now
         if getattr(user, "push_frequency", None) is None:
-            user.push_frequency = "realtime"
+            user.push_frequency = "daily"
         if getattr(user, "wechat_template_subscribed", None) is None:
             user.wechat_template_subscribed = False
         if getattr(user, "wechat_openid", None) is None:

@@ -26,7 +26,7 @@ POST /api/v1/auth/register
     "id": "uuid",
     "email": "user@example.com",
     "name": "用户名",
-    "push_frequency": "realtime",
+    "push_frequency": "daily",
     "created_at": "2026-01-01T00:00:00Z",
     "updated_at": "2026-01-01T00:00:00Z"
   }
@@ -174,7 +174,7 @@ GET /api/v1/categories/cas
 **PATCH 推送偏好:**
 ```json
 {
-  "push_frequency": "realtime",
+  "push_frequency": "daily",
   "email_enabled": true,
   "wechat_enabled": false
 }
@@ -312,7 +312,7 @@ GET /api/v1/my/updates
 
 合并：已订阅期刊新文 + 通知命中文章。可见性规则与公开目录一致（私有源仅本人）。
 
-**查询参数（常用）:** `limit` / `offset` / `starred` / `later` / `unread`
+**查询参数:** `limit` / `offset` / `filter`（`unread` | `starred` | `later`）
 
 ### 阅读状态
 

@@ -19,7 +19,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False, server_default="")
     wechat_openid: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     push_frequency: Mapped[str] = mapped_column(
-        String(20), nullable=False, server_default="realtime"
+        String(20), nullable=False, server_default="daily"
     )
     wechat_template_subscribed: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false"

@@ -94,7 +94,7 @@ async def wechat_login(
                 password_hash="",
                 name="WeChat User",
                 wechat_openid=openid,
-                push_frequency="realtime",
+                push_frequency="daily",
             )
             await session.commit()
             await session.refresh(user)

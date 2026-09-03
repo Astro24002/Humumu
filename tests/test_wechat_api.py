@@ -27,7 +27,7 @@ class FakeUser:
         user_id: uuid.UUID | None = None,
         wechat_openid: str | None = None,
         wechat_template_subscribed: bool = False,
-        push_frequency: str = "realtime",
+        push_frequency: str = "daily",
     ):
         now = datetime.now(timezone.utc)
         self.id = user_id or uuid.uuid4()
@@ -134,7 +134,7 @@ async def test_wechat_login_new_user_has_email_false(client, wechat_settings):
     assert kwargs["email"] == f"{openid}@wechat.user"
     assert kwargs["password_hash"] == ""
     assert kwargs["wechat_openid"] == openid
-    assert kwargs["push_frequency"] == "realtime"
+    assert kwargs["push_frequency"] == "daily"
 
 
 @pytest.mark.asyncio

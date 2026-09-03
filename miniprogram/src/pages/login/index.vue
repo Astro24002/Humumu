@@ -1,7 +1,7 @@
 <template>
   <view class="login-container">
     <view class="logo">
-      <text class="logo-text">期刊监控</text>
+      <text class="logo-text">Humumu</text>
       <text class="logo-desc">关注最新学术动态</text>
     </view>
 

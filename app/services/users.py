@@ -31,7 +31,7 @@ async def create_user(
     name: str = "",
     *,
     wechat_openid: str | None = None,
-    push_frequency: str = "realtime",
+    push_frequency: str = "daily",
 ) -> User:
     user = User(
         email=email,
