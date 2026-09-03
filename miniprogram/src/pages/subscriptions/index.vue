@@ -36,13 +36,25 @@
         <view v-if="loadingJournals" class="loading"><text>加载中...</text></view>
         <view v-else-if="journals.length === 0" class="empty"><text>尚未关注任何期刊</text></view>
         <view v-else class="list">
-          <view v-for="j in journals" :key="j.id" class="list-item">
-            <view class="item-main">
-              <text class="item-name">{{ j.name }}</text>
-              <text class="item-meta">{{ j.source_type }} · {{ freqLabel(j.push_frequency) }}</text>
+          <view v-for="j in journals" :key="j.id" class="list-item-block">
+            <view class="list-item">
+              <view class="item-main">
+                <text class="item-name">{{ j.name }}</text>
+                <text class="item-meta">{{ j.source_type }} · {{ freqLabel(j.push_frequency) }}</text>
+              </view>
+              <text class="btn-prefs" @click="cycleFreq(j)">频率</text>
+              <text class="btn-unsub" @click="unsubscribe(j.id)">取消</text>
             </view>
-            <text class="btn-prefs" @click="cycleFreq(j)">频率</text>
-            <text class="btn-unsub" @click="unsubscribe(j.id)">取消</text>
+            <view class="channel-row">
+              <text
+                :class="['chip', j.email_enabled !== false && 'on']"
+                @click="toggleChannel(j, 'email_enabled')"
+              >邮件</text>
+              <text
+                :class="['chip', j.wechat_enabled !== false && 'on']"
+                @click="toggleChannel(j, 'wechat_enabled')"
+              >微信</text>
+            </view>
           </view>
         </view>
       </view>
@@ -148,6 +160,22 @@ async function cycleFreq(j: SubscribedJournal) {
   }
 }
 
+async function toggleChannel(j: SubscribedJournal, field: 'email_enabled' | 'wechat_enabled') {
+  const cur = j[field] !== false
+  const next = !cur
+  try {
+    const updated = await updateJournalSubscriptionPrefs(j.id, { [field]: next })
+    j.email_enabled = updated.email_enabled
+    j.wechat_enabled = updated.wechat_enabled
+    uni.showToast({
+      title: `${field === 'email_enabled' ? '邮件' : '微信'} → ${next ? '开' : '关'}`,
+      icon: 'none',
+    })
+  } catch (e: any) {
+    uni.showToast({ title: e.message || '更新失败', icon: 'none' })
+  }
+}
+
 async function unsubscribe(id: string) {
   try {
     await unsubscribeJournal(id)
@@ -239,12 +267,19 @@ async function removeKeyword(id: string) {
 .login-prompt { text-align: center; padding: 200rpx 40rpx; color: #999; font-size: 28rpx; }
 .btn-login { margin-top: 30rpx; background: #3cc51f; color: #fff; border: none; border-radius: 12rpx; padding: 20rpx 60rpx; }
 .loading, .empty { text-align: center; padding: 80rpx; color: #999; font-size: 28rpx; }
-.list-item { display: flex; align-items: center; padding: 24rpx 30rpx; background: #fff; border-bottom: 1rpx solid #f0f0f0; gap: 16rpx; }
+.list-item-block { background: #fff; border-bottom: 1rpx solid #f0f0f0; }
+.list-item { display: flex; align-items: center; padding: 24rpx 30rpx 8rpx; gap: 16rpx; }
 .item-main { flex: 1; min-width: 0; }
 .item-name { font-size: 28rpx; display: block; }
 .item-meta { font-size: 22rpx; color: #999; margin-top: 4rpx; display: block; }
 .btn-prefs { color: #3a7bd5; font-size: 26rpx; }
 .btn-unsub { color: #e74c3c; font-size: 26rpx; }
+.channel-row { display: flex; gap: 16rpx; padding: 0 30rpx 20rpx; }
+.chip {
+  font-size: 22rpx; padding: 6rpx 16rpx; border-radius: 8rpx;
+  background: #f5f5f5; color: #999;
+}
+.chip.on { background: #e8f8e0; color: #3cc51f; }
 .add-bar { display: flex; gap: 16rpx; padding: 20rpx 30rpx; background: #fff; }
 .add-input { flex: 1; border: 1rpx solid #ddd; border-radius: 8rpx; padding: 16rpx 20rpx; font-size: 28rpx; margin-bottom: 12rpx; width: 100%; box-sizing: border-box; }
 .btn-add { background: #3cc51f; color: #fff; border: none; border-radius: 8rpx; padding: 16rpx 30rpx; font-size: 28rpx; }

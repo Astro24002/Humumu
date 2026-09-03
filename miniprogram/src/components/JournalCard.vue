@@ -2,7 +2,10 @@
   <view class="card" @click="goDetail">
     <view class="header">
       <text class="name">{{ journal.name }}</text>
-      <text class="tag">{{ journal.source_type }}</text>
+      <view class="tags">
+        <text v-if="journal.content_type === 'preprint'" class="tag preprint">预印本</text>
+        <text class="tag">{{ journal.source_type }}</text>
+      </view>
     </view>
     <view class="stats">
       <text>论文 {{ journal.article_count }}</text>
@@ -31,9 +34,11 @@ function goDetail() {
   margin: 16rpx 30rpx;
   box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
 }
-.header { display: flex; justify-content: space-between; align-items: center; }
-.name { font-size: 32rpx; font-weight: 500; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 12rpx; }
+.name { font-size: 32rpx; font-weight: 500; flex: 1; min-width: 0; }
+.tags { display: flex; gap: 8rpx; flex-shrink: 0; }
 .tag { font-size: 22rpx; color: #3cc51f; background: #e8f8e0; padding: 4rpx 12rpx; border-radius: 8rpx; }
+.tag.preprint { color: #2080f0; background: #e8f3ff; }
 .stats { display: flex; gap: 30rpx; font-size: 26rpx; color: #999; margin-top: 16rpx; }
 .desc { font-size: 26rpx; color: #666; margin-top: 12rpx; display: block; line-height: 1.5; overflow: hidden; }
 </style>
