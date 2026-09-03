@@ -2258,5 +2258,225 @@
     "content_type": "journal",
     "fetch_interval_minutes": 180,
     "homepage_url": "https://journals.aps.org/rmp/"
+  },
+  {
+    "name": "Copernicus ACP",
+    "slug": "acp",
+    "source_type": "rss",
+    "source_url": "https://acp.copernicus.org/xml/rss2_0.xml",
+    "description": "Atmospheric Chemistry and Physics",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.atmospheric-chemistry-and-physics.net/"
+  },
+  {
+    "name": "Copernicus HESS",
+    "slug": "hess",
+    "source_type": "rss",
+    "source_url": "https://hess.copernicus.org/xml/rss2_0.xml",
+    "description": "Hydrology and Earth System Sciences",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.hydrology-and-earth-system-sciences.net/"
+  },
+  {
+    "name": "Copernicus BG",
+    "slug": "bg-copernicus",
+    "source_type": "rss",
+    "source_url": "https://bg.copernicus.org/xml/rss2_0.xml",
+    "description": "Biogeosciences",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.biogeosciences.net/"
+  },
+  {
+    "name": "Copernicus GMD",
+    "slug": "gmd",
+    "source_type": "rss",
+    "source_url": "https://gmd.copernicus.org/xml/rss2_0.xml",
+    "description": "Geoscientific Model Development",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.geoscientific-model-development.net/"
+  },
+  {
+    "name": "Copernicus ESD",
+    "slug": "esd",
+    "source_type": "rss",
+    "source_url": "https://esd.copernicus.org/xml/rss2_0.xml",
+    "description": "Earth System Dynamics",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.earth-system-dynamics.net/"
+  },
+  {
+    "name": "Copernicus OS",
+    "slug": "ocean-science",
+    "source_type": "rss",
+    "source_url": "https://os.copernicus.org/xml/rss2_0.xml",
+    "description": "Ocean Science",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.ocean-science.net/"
+  },
+  {
+    "name": "Copernicus TC",
+    "slug": "the-cryosphere",
+    "source_type": "rss",
+    "source_url": "https://tc.copernicus.org/xml/rss2_0.xml",
+    "description": "The Cryosphere",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.the-cryosphere.net/"
+  },
+  {
+    "name": "Copernicus NHESS",
+    "slug": "nhess",
+    "source_type": "rss",
+    "source_url": "https://nhess.copernicus.org/xml/rss2_0.xml",
+    "description": "Natural Hazards and Earth System Sciences",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.natural-hazards-and-earth-system-sciences.net/"
+  },
+  {
+    "name": "Copernicus SE",
+    "slug": "solid-earth",
+    "source_type": "rss",
+    "source_url": "https://se.copernicus.org/xml/rss2_0.xml",
+    "description": "Solid Earth",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.solid-earth.net/"
+  },
+  {
+    "name": "Copernicus AMT",
+    "slug": "amt",
+    "source_type": "rss",
+    "source_url": "https://amt.copernicus.org/xml/rss2_0.xml",
+    "description": "Atmospheric Measurement Techniques",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.atmospheric-measurement-techniques.net/"
+  },
+  {
+    "name": "Copernicus WCD",
+    "slug": "wcd",
+    "source_type": "rss",
+    "source_url": "https://wcd.copernicus.org/xml/rss2_0.xml",
+    "description": "Weather and Climate Dynamics",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.weather-and-climate-dynamics.net/"
+  },
+  {
+    "name": "Copernicus ESSD",
+    "slug": "essd",
+    "source_type": "rss",
+    "source_url": "https://essd.copernicus.org/xml/rss2_0.xml",
+    "description": "Earth System Science Data",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.earth-system-science-data.net/"
+  },
+  {
+    "name": "Copernicus CP",
+    "slug": "climate-of-the-past",
+    "source_type": "rss",
+    "source_url": "https://cp.copernicus.org/xml/rss2_0.xml",
+    "description": "Climate of the Past",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.climate-of-the-past.net/"
+  },
+  {
+    "name": "Copernicus SOIL",
+    "slug": "soil",
+    "source_type": "rss",
+    "source_url": "https://soil.copernicus.org/xml/rss2_0.xml",
+    "description": "SOIL",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.soil-journal.net/"
+  },
+  {
+    "name": "Physical Review A",
+    "slug": "pra",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/pra.xml",
+    "description": "Physical Review A",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/pra/"
+  },
+  {
+    "name": "Physical Review C",
+    "slug": "prc",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prc.xml",
+    "description": "Physical Review C",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prc/"
+  },
+  {
+    "name": "Physical Review D",
+    "slug": "prd",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prd.xml",
+    "description": "Physical Review D",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prd/"
+  },
+  {
+    "name": "Physical Review Applied",
+    "slug": "prapplied",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prapplied.xml",
+    "description": "Physical Review Applied",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prapplied/"
+  },
+  {
+    "name": "Physical Review Materials",
+    "slug": "prmaterials",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prmaterials.xml",
+    "description": "Physical Review Materials",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prmaterials/"
+  },
+  {
+    "name": "Physical Review Fluids",
+    "slug": "prfluids",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prfluids.xml",
+    "description": "Physical Review Fluids",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prfluids/"
+  },
+  {
+    "name": "PRX Life",
+    "slug": "prx-life",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prxlife.xml",
+    "description": "PRX Life",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prxlife/"
+  },
+  {
+    "name": "PRX Energy",
+    "slug": "prx-energy",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prxenergy.xml",
+    "description": "PRX Energy",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prxenergy/"
   }
 ]

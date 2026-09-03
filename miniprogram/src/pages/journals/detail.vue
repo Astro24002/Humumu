@@ -31,11 +31,14 @@
       </view>
 
       <view class="section-title"><text>最新论文</text></view>
-      <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
-      <view v-if="articles.length === 0" class="empty"><text>{{ journal.health_status === 'paused' ? '暂无论文（抓取已暂停）' : '暂无论文' }}</text></view>
-      <view v-if="hasMore" class="more-wrap">
-        <button class="btn-more" size="mini" :loading="loadingMore" @click="loadMore">加载更多</button>
-      </view>
+      <view v-if="articlesLoading && !articles.length" class="loading"><text>加载论文...</text></view>
+      <template v-else>
+        <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
+        <view v-if="articles.length === 0" class="empty"><text>{{ journal.health_status === 'paused' ? '暂无论文（抓取已暂停）' : '暂无论文' }}</text></view>
+        <view v-if="hasMore" class="more-wrap">
+          <button class="btn-more" size="mini" :loading="loadingMore" @click="loadMore">加载更多</button>
+        </view>
+      </template>
     </template>
   </view>
 </template>
@@ -53,6 +56,7 @@ const journal = ref<Journal | null>(null)
 const articles = ref<Article[]>([])
 const loading = ref(true)
 const loadingMore = ref(false)
+const articlesLoading = ref(false)
 const loadError = ref('')
 const isSubscribed = ref(false)
 const journalId = ref('')
@@ -85,6 +89,7 @@ async function loadArticles(reset: boolean) {
   if (reset) {
     offset.value = 0
     articles.value = []
+    articlesLoading.value = true
   } else {
     loadingMore.value = true
   }
@@ -98,8 +103,13 @@ async function loadArticles(reset: boolean) {
     offset.value += ar.articles.length
     const total = ar.total ?? offset.value
     hasMore.value = offset.value < total && ar.articles.length >= limit
+  } catch (e: any) {
+    if (reset && !articles.value.length) {
+      uni.showToast({ title: e?.message || '加载论文失败', icon: 'none' })
+    }
   } finally {
     loadingMore.value = false
+    articlesLoading.value = false
   }
 }
 
