@@ -14,7 +14,11 @@ from app.models.notification import Notification
 from app.models.subscription import AuthorTracking, JournalSubscription, KeywordSubscription
 from app.schemas.journal import JournalOut
 from app.schemas.notification import NotificationOut
-from app.schemas.subscription import AuthorTrackingOut, KeywordSubscriptionOut
+from app.schemas.subscription import (
+    AuthorTrackingOut,
+    KeywordSubscriptionOut,
+    SubscribedJournalOut,
+)
 from app.services.journals import _journal_out
 
 
@@ -38,22 +42,32 @@ def _clamp_limit(limit: int) -> int:
 async def list_subscribed_journals(
     session: AsyncSession,
     user_id: str | UUID,
-) -> list[JournalOut]:
-    """Active journals the user is subscribed to, ordered by name."""
+) -> list[SubscribedJournalOut]:
+    """Active journals the user is subscribed to, with notify prefs, ordered by name."""
     uid = _parse_uuid(user_id)
     if uid is None:
         return []
 
     stmt = (
-        select(Journal)
+        select(Journal, JournalSubscription)
         .join(JournalSubscription, Journal.id == JournalSubscription.journal_id)
         .where(JournalSubscription.user_id == uid, Journal.is_active.is_(True))
         .order_by(Journal.name)
     )
     result = await session.execute(stmt)
-    journals = list(result.scalars().all())
-    # Go list omits stats; JournalOut allows optional null/0.
-    return [_journal_out(j, article_count=0, last_article_date=None) for j in journals]
+    rows = result.all()
+    out: list[SubscribedJournalOut] = []
+    for journal, sub in rows:
+        base = _journal_out(journal, article_count=0, last_article_date=None)
+        out.append(
+            SubscribedJournalOut(
+                **base.model_dump(),
+                push_frequency=(sub.push_frequency or "default"),
+                email_enabled=bool(sub.email_enabled if sub.email_enabled is not None else True),
+                wechat_enabled=bool(sub.wechat_enabled if sub.wechat_enabled is not None else True),
+            )
+        )
+    return out
 
 
 async def journal_exists(session: AsyncSession, journal_id: str | UUID) -> bool:

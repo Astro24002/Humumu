@@ -46,6 +46,10 @@ export function deleteJournal(id: string): Promise<void> {
   return del(`/admin/journals/${id}`)
 }
 
+export function setDirectoryStatus(id: string, directoryStatus: string): Promise<{ message: string }> {
+  return post(`/admin/journals/${id}/directory_status`, { directory_status: directoryStatus })
+}
+
 export function getRequests(): Promise<{ requests: JournalRequest[] }> {
   return get('/admin/requests')
 }

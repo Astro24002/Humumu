@@ -1,13 +1,68 @@
 <template>
   <div>
     <n-h2>期刊广场</n-h2>
+
+    <n-space vertical style="margin-bottom: 16px;">
+      <n-input
+        v-model:value="q"
+        clearable
+        placeholder="搜索期刊名称 / 描述"
+        style="max-width: 360px;"
+        @keyup.enter="reload"
+        @clear="reload"
+      >
+        <template #suffix>
+          <n-button text type="primary" @click="reload">搜索</n-button>
+        </template>
+      </n-input>
+      <n-space align="center">
+        <n-radio-group v-model:value="contentType" size="small" @update:value="reload">
+          <n-radio-button value="">全部</n-radio-button>
+          <n-radio-button value="journal">期刊</n-radio-button>
+          <n-radio-button value="preprint">预印本</n-radio-button>
+        </n-radio-group>
+        <n-select
+          v-model:value="major"
+          clearable
+          placeholder="CAS 大类"
+          :options="majorOptions"
+          style="width: 160px;"
+          size="small"
+          @update:value="onMajorChange"
+        />
+        <n-select
+          v-model:value="minor"
+          clearable
+          placeholder="CAS 小类"
+          :options="minorOptions"
+          style="width: 160px;"
+          size="small"
+          :disabled="!major"
+          @update:value="reload"
+        />
+        <n-select
+          v-model:value="zone"
+          clearable
+          placeholder="分区"
+          :options="zoneOptions"
+          style="width: 100px;"
+          size="small"
+          @update:value="reload"
+        />
+        <n-checkbox v-model:checked="topOnly" @update:checked="reload">仅 Top</n-checkbox>
+      </n-space>
+    </n-space>
+
     <n-grid :cols="2" :y-gap="16" :x-gap="16">
       <n-gi v-for="j in journals" :key="j.id">
         <n-card :title="j.name" hoverable @click="router.push(`/journals/${j.id}`)">
           <template #header-extra>
-            <n-tag :type="j.source_type === 'arxiv' ? 'info' : 'success'" size="small">
-              {{ j.source_type }}
-            </n-tag>
+            <n-space size="small">
+              <n-tag v-if="j.content_type === 'preprint'" type="info" size="small" :bordered="false">预印本</n-tag>
+              <n-tag :type="j.source_type === 'arxiv' ? 'info' : 'success'" size="small">
+                {{ j.source_type }}
+              </n-tag>
+            </n-space>
           </template>
 
           <div style="display: flex; gap: 16px; margin-bottom: 8px;">
@@ -38,12 +93,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getJournals, type Journal } from '@/api/journals'
+import { getCasCategories, type CasCategory } from '@/api/categories'
 import { subscribeJournal } from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
-import { NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, useMessage } from 'naive-ui'
+import {
+  NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace,
+  NRadioGroup, NRadioButton, NSelect, NCheckbox, useMessage,
+} from 'naive-ui'
 
 const router = useRouter()
 const message = useMessage()
@@ -51,9 +110,41 @@ const auth = useAuthStore()
 const isLoggedIn = auth.isLoggedIn
 const journals = ref<Journal[]>([])
 const loading = ref(true)
+const q = ref('')
+const contentType = ref('')
+const major = ref<string | null>(null)
+const minor = ref<string | null>(null)
+const zone = ref<string | null>(null)
+const topOnly = ref(false)
+const categories = ref<CasCategory[]>([])
+
+const majorOptions = computed(() => {
+  const set = new Set(categories.value.map(c => c.major).filter(Boolean))
+  return [...set].sort().map(m => ({ label: m, value: m }))
+})
+
+const minorOptions = computed(() => {
+  if (!major.value) return []
+  const set = new Set(
+    categories.value.filter(c => c.major === major.value).map(c => c.minor).filter(Boolean),
+  )
+  return [...set].sort().map(m => ({ label: m, value: m }))
+})
+
+const zoneOptions = [
+  { label: '1 区', value: '1' },
+  { label: '2 区', value: '2' },
+  { label: '3 区', value: '3' },
+  { label: '4 区', value: '4' },
+]
 
 function formatDate(d: string): string {
   return d.slice(0, 10)
+}
+
+function onMajorChange() {
+  minor.value = null
+  reload()
 }
 
 async function handleSubscribe(j: Journal) {
@@ -61,15 +152,36 @@ async function handleSubscribe(j: Journal) {
     await subscribeJournal(j.id)
     message.success(`已订阅「${j.name}」`)
   } catch (e: any) {
-    message.error(e?.response?.data?.error || '订阅失败')
+    message.error(e.message || '订阅失败')
+  }
+}
+
+async function reload() {
+  loading.value = true
+  try {
+    const res = await getJournals({
+      q: q.value.trim() || undefined,
+      content_type: contentType.value || undefined,
+      major: major.value || undefined,
+      minor: minor.value || undefined,
+      zone: zone.value || undefined,
+      top: topOnly.value ? 'true' : undefined,
+    })
+    journals.value = res.journals
+  } catch (e: any) {
+    message.error(e.message || '加载失败')
+  } finally {
+    loading.value = false
   }
 }
 
 onMounted(async () => {
   try {
-    journals.value = (await getJournals()).journals
-  } finally {
-    loading.value = false
+    const cas = await getCasCategories()
+    categories.value = cas.categories
+  } catch {
+    // CAS optional
   }
+  await reload()
 })
 </script>

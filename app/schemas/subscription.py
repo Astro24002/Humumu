@@ -68,8 +68,16 @@ class UpdatePushFrequencyRequest(BaseModel):
     push_frequency: str
 
 
+class SubscribedJournalOut(JournalOut):
+    """Journal row plus the caller's per-subscription notify prefs."""
+
+    push_frequency: str = "default"
+    email_enabled: bool = True
+    wechat_enabled: bool = True
+
+
 class SubscribedJournalsResponse(BaseModel):
-    journals: list[JournalOut]
+    journals: list[SubscribedJournalOut]
 
 
 class AuthorsResponse(BaseModel):

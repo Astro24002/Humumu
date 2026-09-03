@@ -12,7 +12,20 @@
         <n-form-item label="名称"><n-input v-model:value="form.name" /></n-form-item>
         <n-form-item label="标识"><n-input v-model:value="form.slug" /></n-form-item>
         <n-form-item label="源类型">
-          <n-select v-model:value="form.source_type" :options="[{ label: 'RSS', value: 'rss' }, { label: 'arXiv', value: 'arxiv' }, { label: '知网 CNKI', value: 'cnki' }]" />
+          <n-select v-model:value="form.source_type" :options="[
+            { label: 'RSS', value: 'rss' },
+            { label: 'arXiv', value: 'arxiv' },
+            { label: '知网 CNKI', value: 'cnki' },
+          ]" />
+        </n-form-item>
+        <n-form-item label="内容类型">
+          <n-select v-model:value="form.content_type" :options="[
+            { label: '期刊', value: 'journal' },
+            { label: '预印本', value: 'preprint' },
+          ]" />
+        </n-form-item>
+        <n-form-item label="目录状态">
+          <n-select v-model:value="form.directory_status" :options="directoryOptions" />
         </n-form-item>
         <n-form-item label="源 URL"><n-input v-model:value="form.source_url" /></n-form-item>
         <n-form-item label="介绍"><n-input v-model:value="form.description" type="textarea" :rows="2" /></n-form-item>
@@ -31,8 +44,11 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue'
 import { useMessage } from 'naive-ui'
-import { NButton, NTag, NSpace, NPopconfirm, NDataTable, NModal, NCard, NForm, NFormItem, NInput, NSelect, NSwitch, NH2 } from 'naive-ui'
-import { getAllJournals, createJournal, updateJournal, deleteJournal } from '@/api/admin'
+import {
+  NButton, NTag, NSpace, NPopconfirm, NDataTable, NModal, NCard, NForm, NFormItem,
+  NInput, NSelect, NSwitch, NH2, NDropdown,
+} from 'naive-ui'
+import { getAllJournals, createJournal, updateJournal, deleteJournal, setDirectoryStatus } from '@/api/admin'
 import type { Journal } from '@/api/journals'
 
 const message = useMessage()
@@ -42,18 +58,84 @@ const showModal = ref(false)
 const editingId = ref<string | null>(null)
 const saving = ref(false)
 
-const form = ref<Partial<Journal>>({ name: '', slug: '', source_type: 'rss', source_url: '', is_active: true })
+const directoryOptions = [
+  { label: '公开 public', value: 'public' },
+  { label: '私有 private', value: 'private' },
+  { label: '待审 pending_review', value: 'pending_review' },
+  { label: '拒绝 rejected', value: 'rejected' },
+  { label: '隐藏 hidden', value: 'hidden' },
+]
+
+const form = ref<Partial<Journal>>({
+  name: '',
+  slug: '',
+  source_type: 'rss',
+  source_url: '',
+  content_type: 'journal',
+  directory_status: 'public',
+  is_active: true,
+})
+
+const statusMenu = [
+  { label: '设为公开', key: 'public' },
+  { label: '设为私有', key: 'private' },
+  { label: '待审', key: 'pending_review' },
+  { label: '拒绝', key: 'rejected' },
+  { label: '隐藏', key: 'hidden' },
+]
+
+function statusType(s?: string): 'success' | 'warning' | 'error' | 'info' | 'default' {
+  if (s === 'public') return 'success'
+  if (s === 'pending_review') return 'warning'
+  if (s === 'rejected' || s === 'hidden') return 'error'
+  if (s === 'private') return 'info'
+  return 'default'
+}
 
 const columns = [
   { title: '名称', key: 'name' },
   { title: '标识', key: 'slug' },
-  { title: '类型', key: 'source_type', render: (row: Journal) => h(NTag, { size: 'small' }, { default: () => row.source_type }) },
+  {
+    title: '类型',
+    key: 'source_type',
+    render: (row: Journal) => h(NSpace, { size: 'small' }, {
+      default: () => [
+        h(NTag, { size: 'small' }, { default: () => row.source_type }),
+        row.content_type === 'preprint'
+          ? h(NTag, { size: 'small', type: 'info' }, { default: () => 'preprint' })
+          : null,
+      ],
+    }),
+  },
+  {
+    title: '目录',
+    key: 'directory_status',
+    render: (row: Journal) => h(NTag, { size: 'small', type: statusType(row.directory_status) }, {
+      default: () => row.directory_status || 'public',
+    }),
+  },
+  {
+    title: '健康',
+    key: 'health',
+    render: (row: Journal) => {
+      const fails = row.consecutive_failures || 0
+      if (fails > 0) return `${fails} 失败`
+      return row.is_active ? '正常' : '停用'
+    },
+  },
   { title: '状态', key: 'is_active', render: (row: Journal) => row.is_active ? '启用' : '禁用' },
   {
-    title: '操作', key: 'actions',
+    title: '操作',
+    key: 'actions',
     render: (row: Journal) => h(NSpace, null, {
       default: () => [
         h(NButton, { size: 'small', onClick: () => edit(row) }, { default: () => '编辑' }),
+        h(NDropdown, {
+          options: statusMenu,
+          onSelect: (key: string) => changeStatus(row.id, key),
+        }, {
+          default: () => h(NButton, { size: 'small', ghost: true }, { default: () => '目录状态' }),
+        }),
         h(NPopconfirm, { onPositiveClick: () => remove(row.id) }, {
           default: () => '确认删除？',
           trigger: () => h(NButton, { size: 'small', type: 'error', ghost: true }, { default: () => '删除' }),
@@ -65,7 +147,15 @@ const columns = [
 
 function openAdd() {
   editingId.value = null
-  form.value = { name: '', slug: '', source_type: 'rss', source_url: '', is_active: true }
+  form.value = {
+    name: '',
+    slug: '',
+    source_type: 'rss',
+    source_url: '',
+    content_type: 'journal',
+    directory_status: 'public',
+    is_active: true,
+  }
   showModal.value = true
 }
 
@@ -75,11 +165,24 @@ function edit(row: Journal) {
   showModal.value = true
 }
 
+async function changeStatus(id: string, status: string) {
+  try {
+    await setDirectoryStatus(id, status)
+    message.success(`目录状态 → ${status}`)
+    load()
+  } catch (e: any) {
+    message.error(e.message)
+  }
+}
+
 async function save() {
   saving.value = true
   try {
     if (editingId.value) {
       await updateJournal(editingId.value, form.value as Journal)
+      if (form.value.directory_status) {
+        await setDirectoryStatus(editingId.value, form.value.directory_status)
+      }
       message.success('已更新')
     } else {
       await createJournal(form.value as Journal)

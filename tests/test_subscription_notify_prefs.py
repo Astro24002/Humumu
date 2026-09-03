@@ -147,3 +147,35 @@ async def test_patch_without_auth_401(client):
         json={"email_enabled": False},
     )
     assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_list_subscribed_includes_prefs_shape(client, authed_user_id):
+    from app.schemas.subscription import SubscribedJournalOut
+
+    j = SubscribedJournalOut(
+        id=str(uuid.uuid4()),
+        name="Nature",
+        slug="nature",
+        source_type="rss",
+        source_url="https://example.com/n.rss",
+        description="",
+        is_active=True,
+        created_at=datetime.now(timezone.utc),
+        content_type="journal",
+        directory_status="public",
+        push_frequency="realtime",
+        email_enabled=True,
+        wechat_enabled=False,
+    )
+    with patch(
+        "app.routers.subscriptions.sub_service.list_subscribed_journals",
+        new_callable=AsyncMock,
+        return_value=[j],
+    ):
+        r = await client.get("/api/v1/subscriptions/journals")
+    assert r.status_code == 200
+    body = r.json()["journals"][0]
+    assert body["push_frequency"] == "realtime"
+    assert body["email_enabled"] is True
+    assert body["wechat_enabled"] is False

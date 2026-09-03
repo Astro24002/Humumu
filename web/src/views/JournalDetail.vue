@@ -3,8 +3,9 @@
 
   <div v-if="loading"><n-spin /></div>
   <template v-else-if="journal">
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
       <n-h2 style="margin-bottom: 0;">{{ journal.name }}</n-h2>
+      <n-tag v-if="journal.content_type === 'preprint'" type="info" size="small" :bordered="false">预印本</n-tag>
       <n-tag :type="journal.source_type === 'arxiv' ? 'info' : 'success'" size="small">
         {{ journal.source_type }}
       </n-tag>
