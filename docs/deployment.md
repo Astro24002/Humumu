@@ -73,7 +73,7 @@ export HUMUMU_ENABLE_SCHEDULER=1
 ```bash
 make docker-build
 # 首次或需要刷新内置期刊时：
-docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 journal-monitor
+docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 humumu
 ```
 
 ### 内置期刊（seed）

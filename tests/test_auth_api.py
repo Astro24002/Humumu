@@ -31,6 +31,7 @@ class FakeUser:
         self.wechat_openid = None
         self.push_frequency = "daily"
         self.wechat_template_subscribed = False
+        self.is_admin = False
         self.created_at = now
         self.updated_at = now
 
@@ -88,6 +89,8 @@ class FakeSession:
             user.wechat_openid = None
         if getattr(user, "name", None) is None:
             user.name = ""
+        if getattr(user, "is_admin", None) is None:
+            user.is_admin = False
         self._pending = user
 
     async def flush(self) -> None:
@@ -151,6 +154,7 @@ async def test_register_success(client, user_store):
     assert body["has_email"] is True
     assert body["user"]["email"] == "new@example.com"
     assert body["user"]["name"] == "New User"
+    assert body["user"]["is_admin"] is False
     assert "password_hash" not in body["user"]
     assert "new@example.com" in user_store
     assert verify_password("secret1", user_store["new@example.com"].password_hash)
@@ -187,7 +191,25 @@ async def test_login_success(client, user_store):
     assert body["token"]
     assert body["has_email"] is True
     assert body["user"]["email"] == "login@example.com"
+    assert body["user"]["is_admin"] is False
     assert "password_hash" not in body["user"]
+
+
+@pytest.mark.asyncio
+async def test_login_returns_is_admin_true_for_admin(client, user_store):
+    admin = FakeUser(
+        email="admin@example.com",
+        password_hash=hash_password("secret1"),
+        name="Admin",
+    )
+    admin.is_admin = True
+    user_store["admin@example.com"] = admin
+    r = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "admin@example.com", "password": "secret1"},
+    )
+    assert r.status_code == 200
+    assert r.json()["user"]["is_admin"] is True
 
 
 @pytest.mark.asyncio

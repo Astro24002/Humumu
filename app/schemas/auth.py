@@ -28,6 +28,7 @@ class AuthUser(BaseModel):
     wechat_openid: str | None = None
     push_frequency: str = "daily"
     wechat_template_subscribed: bool = False
+    is_admin: bool = False
     created_at: datetime
     updated_at: datetime | None = None
 

@@ -180,6 +180,36 @@ async def test_admin_create_journal_201_bare(client, authed_user_id):
     assert kwargs["name"] == "Science"
     assert kwargs["fetch_interval"].total_seconds() == 3600
     assert kwargs["slug"] is None  # omitted → service slugifies
+    assert kwargs["content_type"] == "journal"
+    assert kwargs["directory_status"] == "public"
+    assert kwargs["homepage_url"] == ""
+
+
+@pytest.mark.asyncio
+async def test_admin_create_journal_passes_content_type_and_directory_status(
+    client, authed_user_id
+):
+    j = _sample_journal(name="bioRxiv", slug="biorxiv")
+    with patch(
+        "app.routers.admin.journal_service.create_journal",
+        new_callable=AsyncMock,
+        return_value=j,
+    ) as mock_create:
+        r = await client.post(
+            "/api/v1/admin/journals",
+            json={
+                "name": "bioRxiv",
+                "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=all",
+                "content_type": "preprint",
+                "directory_status": "pending_review",
+                "homepage_url": "https://www.biorxiv.org/",
+            },
+        )
+    assert r.status_code == 201
+    kwargs = mock_create.await_args.kwargs
+    assert kwargs["content_type"] == "preprint"
+    assert kwargs["directory_status"] == "pending_review"
+    assert kwargs["homepage_url"] == "https://www.biorxiv.org/"
 
 
 @pytest.mark.asyncio
@@ -193,6 +223,29 @@ async def test_admin_update_journal_message(client, authed_user_id):
         r = await client.put(f"/api/v1/admin/journals/{jid}", json={"name": "Renamed"})
     assert r.status_code == 200
     assert r.json() == {"message": "updated"}
+
+
+@pytest.mark.asyncio
+async def test_admin_update_journal_passes_content_type(client, authed_user_id):
+    jid = str(uuid.uuid4())
+    with patch(
+        "app.routers.admin.journal_service.update_journal",
+        new_callable=AsyncMock,
+        return_value=True,
+    ) as mock_update:
+        r = await client.put(
+            f"/api/v1/admin/journals/{jid}",
+            json={
+                "content_type": "preprint",
+                "directory_status": "hidden",
+                "homepage_url": "https://example.org",
+            },
+        )
+    assert r.status_code == 200
+    kwargs = mock_update.await_args.kwargs
+    assert kwargs["content_type"] == "preprint"
+    assert kwargs["directory_status"] == "hidden"
+    assert kwargs["homepage_url"] == "https://example.org"
 
 
 @pytest.mark.asyncio

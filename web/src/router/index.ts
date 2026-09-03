@@ -25,11 +25,12 @@ const router = createRouter({
     {
       path: '/admin',
       component: AdminLayout,
+      meta: { requiresAuth: true, requiresAdmin: true },
       children: [
-        { path: '', name: 'AdminDashboard', component: () => import('@/views/admin/Dashboard.vue'), meta: { requiresAuth: true } },
-        { path: 'journals', name: 'AdminJournals', component: () => import('@/views/admin/Journals.vue'), meta: { requiresAuth: true } },
-        { path: 'requests', name: 'AdminRequests', component: () => import('@/views/admin/Requests.vue'), meta: { requiresAuth: true } },
-        { path: 'users', name: 'AdminUsers', component: () => import('@/views/admin/Users.vue'), meta: { requiresAuth: true } },
+        { path: '', name: 'AdminDashboard', component: () => import('@/views/admin/Dashboard.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
+        { path: 'journals', name: 'AdminJournals', component: () => import('@/views/admin/Journals.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
+        { path: 'requests', name: 'AdminRequests', component: () => import('@/views/admin/Requests.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
+        { path: 'users', name: 'AdminUsers', component: () => import('@/views/admin/Users.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
       ],
     },
   ],
@@ -39,6 +40,9 @@ router.beforeEach((to, _from) => {
   const auth = useAuthStore()
   if (to.meta.requiresAuth && !auth.isLoggedIn) {
     return { name: 'Login', query: { redirect: to.fullPath } }
+  }
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    return { name: 'Home' }
   }
 })
 

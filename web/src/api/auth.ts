@@ -8,6 +8,7 @@ export interface AuthResponse {
     name: string
     wechat_openid?: string
     push_frequency: string
+    is_admin?: boolean
     created_at: string
   }
 }

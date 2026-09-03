@@ -89,6 +89,9 @@ async def admin_create_journal(
             fetch_interval=fetch_interval,
             slug=slug,
             is_active=body.is_active,
+            content_type=body.content_type or "journal",
+            directory_status=body.directory_status or "public",
+            homepage_url=body.homepage_url or "",
         )
         await session.commit()
     except Exception as exc:

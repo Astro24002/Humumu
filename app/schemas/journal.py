@@ -128,6 +128,9 @@ class AdminJournalCreate(BaseModel):
         default=None, description="Fetch interval in seconds"
     )
     is_active: bool = True
+    content_type: str = "journal"
+    directory_status: str = "public"
+    homepage_url: str = ""
 
 
 class AdminJournalUpdate(BaseModel):
@@ -138,6 +141,9 @@ class AdminJournalUpdate(BaseModel):
     description: str | None = None
     fetch_interval: int | None = None
     is_active: bool | None = None
+    content_type: str | None = None
+    directory_status: str | None = None
+    homepage_url: str | None = None
 
     @model_validator(mode="after")
     def _at_least_one(self) -> "AdminJournalUpdate":

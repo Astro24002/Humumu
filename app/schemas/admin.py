@@ -29,6 +29,7 @@ class AdminUserOut(BaseModel):
     push_frequency: str
     wechat_openid: str | None = None
     wechat_template_subscribed: bool = False
+    is_admin: bool = False
     created_at: datetime
     updated_at: datetime | None = None
 

@@ -27,6 +27,7 @@ POST /api/v1/auth/register
     "email": "user@example.com",
     "name": "用户名",
     "push_frequency": "daily",
+    "is_admin": false,
     "created_at": "2026-01-01T00:00:00Z",
     "updated_at": "2026-01-01T00:00:00Z"
   }

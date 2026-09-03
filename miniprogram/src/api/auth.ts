@@ -7,6 +7,7 @@ export interface User {
   wechat_openid: string
   push_frequency: string
   wechat_template_subscribed: boolean
+  is_admin?: boolean
   created_at: string
   updated_at: string
 }

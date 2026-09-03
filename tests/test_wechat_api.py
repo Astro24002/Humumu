@@ -37,6 +37,7 @@ class FakeUser:
         self.wechat_openid = wechat_openid
         self.push_frequency = push_frequency
         self.wechat_template_subscribed = wechat_template_subscribed
+        self.is_admin = False
         self.created_at = now
         self.updated_at = now
 

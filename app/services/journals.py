@@ -276,7 +276,9 @@ async def update_journal(
     description: str | None = None,
     fetch_interval: timedelta | None = None,
     is_active: bool | None = None,
+    content_type: str | None = None,
     directory_status: str | None = None,
+    homepage_url: str | None = None,
 ) -> bool:
     """Partial-update a journal. Returns True if a row was updated."""
     uid = _parse_uuid(journal_id)
@@ -292,14 +294,21 @@ async def update_journal(
         values["source_type"] = source_type
     if source_url is not None:
         values["source_url"] = source_url
+        from app.services.feed_url import normalize_feed_url
+
+        values["normalized_source_url"] = normalize_feed_url(source_url) or None
     if description is not None:
         values["description"] = description
     if fetch_interval is not None:
         values["fetch_interval"] = fetch_interval
     if is_active is not None:
         values["is_active"] = is_active
+    if content_type is not None:
+        values["content_type"] = content_type
     if directory_status is not None:
         values["directory_status"] = directory_status
+    if homepage_url is not None:
+        values["homepage_url"] = homepage_url
     if not values:
         return False
 

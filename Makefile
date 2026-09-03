@@ -19,4 +19,4 @@ test:
 	.venv/bin/pytest -v
 
 docker-build:
-	docker build -t journal-monitor .
+	docker build -t humumu .
