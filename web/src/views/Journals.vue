@@ -1,6 +1,9 @@
 <template>
   <div>
-    <n-h2>期刊广场</n-h2>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+      <n-h2 style="margin: 0;">期刊广场</n-h2>
+      <n-tag v-if="!loading" size="small" :bordered="false">{{ journals.length }} 源</n-tag>
+    </div>
 
     <n-space vertical style="margin-bottom: 16px;">
       <n-input

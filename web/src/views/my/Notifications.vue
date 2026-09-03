@@ -1,7 +1,11 @@
 <template>
   <n-h2>通知历史</n-h2>
   <div v-if="loading && !notifs.length"><n-spin /></div>
-  <n-empty v-else-if="!notifs.length" description="暂无通知" />
+  <n-empty v-else-if="!notifs.length" description="暂无通知">
+    <template #extra>
+      <n-button @click="router.push('/my/subscriptions')">管理订阅</n-button>
+    </template>
+  </n-empty>
   <n-list v-else>
     <n-list-item v-for="n in notifs" :key="n.id">
       <n-thing>
@@ -46,9 +50,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { getNotifications, type Notification } from '@/api/notifications'
 import { NH2, NSpin, NEmpty, NList, NListItem, NThing, NTag, NSpace, NButton } from 'naive-ui'
 
+const router = useRouter()
 const notifs = ref<Notification[]>([])
 const loading = ref(true)
 const loadingMore = ref(false)
