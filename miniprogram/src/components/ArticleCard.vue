@@ -9,7 +9,7 @@
       {{ article.authors.join(', ') }}
     </text>
     <text class="abstract" v-if="article.abstract" line-clamp="2">
-      {{ article.abstract }}
+      {{ cleanAbstract(article.abstract) }}
     </text>
   </view>
 </template>
@@ -17,6 +17,11 @@
 <script setup lang="ts">
 import type { Article } from '@/api/articles'
 import { formatDate } from '@/utils/format'
+
+function cleanAbstract(text?: string): string {
+  if (!text) return ''
+  return text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
+}
 
 const props = defineProps<{ article: Article }>()
 
