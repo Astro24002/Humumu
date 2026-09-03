@@ -66,6 +66,7 @@
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import {
   NButton, NTag, NSpace, NPopconfirm, NDataTable, NModal, NCard, NForm, NFormItem,
@@ -74,13 +75,14 @@ import {
 import { getAllJournals, createJournal, updateJournal, deleteJournal, setDirectoryStatus } from '@/api/admin'
 import type { Journal } from '@/api/journals'
 
+const route = useRoute()
 const message = useMessage()
 const journals = ref<Journal[]>([])
 const loading = ref(true)
 const showModal = ref(false)
 const editingId = ref<string | null>(null)
 const saving = ref(false)
-const statusFilter = ref<string>('')
+const statusFilter = ref<string>(typeof route.query.status === 'string' ? route.query.status : '')
 const contentFilter = ref<string>('')
 
 const filteredJournals = computed(() => {

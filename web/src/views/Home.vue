@@ -1,6 +1,11 @@
 <template>
   <div>
     <n-h2>最新论文</n-h2>
+    <n-alert v-if="auth.isLoggedIn" type="info" style="margin-bottom: 16px;" :bordered="false">
+      已登录用户可在
+      <n-button text type="primary" @click="router.push('/my')">我的更新</n-button>
+      查看订阅命中与阅读状态。
+    </n-alert>
     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
       <n-select v-if="journals.length" v-model:value="filterJournalId" :options="journalOptions"
         placeholder="筛选期刊" clearable style="max-width: 300px;" />
@@ -51,9 +56,11 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getArticles, type Article } from '@/api/articles'
 import { getJournals, type Journal } from '@/api/journals'
-import { NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton } from 'naive-ui'
+import { useAuthStore } from '@/stores/auth'
+import { NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton, NAlert } from 'naive-ui'
 
 const router = useRouter()
+const auth = useAuthStore()
 const articles = ref<Article[]>([])
 const journals = ref<Journal[]>([])
 const total = ref(0)
