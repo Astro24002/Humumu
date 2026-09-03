@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useMessage } from 'naive-ui'
@@ -36,6 +36,13 @@ const rules = {
   email: { required: true, type: 'email' as const, message: '请输入有效邮箱' },
   password: { required: true, min: 6, message: '密码至少6位' },
 }
+
+onMounted(() => {
+  if (auth.isLoggedIn) {
+    const redirect = (route.query.redirect as string) || '/my'
+    router.replace(redirect)
+  }
+})
 
 async function handleRegister() {
   loading.value = true

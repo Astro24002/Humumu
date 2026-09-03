@@ -95,7 +95,14 @@
             {{ j.description }}
           </p>
 
-          <p style="color: #888; font-size: 12px; word-break: break-all;">{{ j.source_url }}</p>
+          <p style="color: #888; font-size: 12px; word-break: break-all;">
+            <a
+              :href="j.homepage_url || j.source_url"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click.stop
+            >{{ shortUrl(j.homepage_url || j.source_url) }}</a>
+          </p>
 
           <template #action>
             <template v-if="isLoggedIn">
@@ -265,6 +272,18 @@ const zoneOptions = [
 
 function formatDate(d: string): string {
   return d.slice(0, 10)
+}
+
+function shortUrl(url: string): string {
+  if (!url) return ''
+  try {
+    const u = new URL(url)
+    const path = u.pathname === '/' ? '' : u.pathname
+    const full = `${u.host}${path}`
+    return full.length > 48 ? `${full.slice(0, 48)}…` : full
+  } catch {
+    return url.length > 48 ? `${url.slice(0, 48)}…` : url
+  }
 }
 
 function onMajorChange() {
