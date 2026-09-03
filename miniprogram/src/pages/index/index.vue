@@ -117,6 +117,7 @@ async function fetchItems() {
         authors: a.authors || [],
         journal_name: a.journal_name,
         publish_date: a.publish_date,
+        content_type: a.content_type,
         reasons: [],
       }))
       items.value.push(...mapped)
