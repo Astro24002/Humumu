@@ -36,6 +36,12 @@
           <div style="color: #666; font-size: 13px; margin-top: 4px;">
             {{ u.authors?.slice(0, 4).join(', ') }}{{ (u.authors?.length || 0) > 4 ? ' 等' : '' }}
           </div>
+          <p
+            v-if="u.abstract"
+            style="color: #999; font-size: 12px; line-height: 1.6; margin: 6px 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+          >
+            {{ truncateAbstract(u.abstract) }}
+          </p>
         </template>
         <template #footer>
           <n-space>
@@ -100,6 +106,11 @@ function reasonLabel(r: string): string {
     keyword: '关键词',
   }
   return map[r] || r
+}
+
+function truncateAbstract(text: string): string {
+  const cleaned = text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
+  return cleaned.length > 220 ? cleaned.slice(0, 220) + '…' : cleaned
 }
 
 async function fetchPage(reset: boolean) {

@@ -10,7 +10,15 @@
     </view>
 
     <view v-if="loading" class="loading"><text>加载中...</text></view>
-    <view v-else-if="!items.length" class="empty"><text>暂无论文</text></view>
+    <view v-else-if="!items.length" class="empty">
+      <text>{{ emptyHint }}</text>
+      <button
+        v-if="tab === 'updates' && auth.isLoggedIn"
+        size="mini"
+        class="btn-empty"
+        @click="goJournals"
+      >去订阅期刊</button>
+    </view>
     <scroll-view v-else scroll-y @scrolltolower="loadMore" class="scroll-view">
       <view
         v-for="a in items"
@@ -26,6 +34,7 @@
         <text class="title" :class="{ unread: a.unread }">{{ a.title }}</text>
         <text class="authors" v-if="a.authors?.length">{{ a.authors.slice(0, 3).join(', ') }}</text>
         <text class="date" v-if="a.publish_date">{{ a.publish_date }}</text>
+        <text class="snippet" v-if="a.abstract">{{ truncateAbstract(a.abstract) }}</text>
       </view>
       <view class="loading-more" v-if="hasMore"><text>加载更多...</text></view>
     </scroll-view>
@@ -33,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
@@ -47,6 +56,7 @@ interface FeedItem {
   content_type?: string
   reasons: string[]
   unread?: boolean
+  abstract?: string
 }
 
 const auth = useAuthStore()
@@ -59,6 +69,11 @@ const hasMore = ref(true)
 const offset = ref(0)
 const limit = 20
 
+const emptyHint = computed(() => {
+  if (tab.value === 'updates') return '暂无更新，去订阅期刊或关键词吧'
+  return '暂无论文'
+})
+
 onMounted(() => {
   if (auth.isLoggedIn) tab.value = 'updates'
   fetchItems()
@@ -69,6 +84,15 @@ function reasonLabel(r: string): string {
   if (r === 'author') return '作者'
   if (r === 'keyword') return '关键词'
   return r
+}
+
+function truncateAbstract(text: string): string {
+  const cleaned = text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
+  return cleaned.length > 120 ? cleaned.slice(0, 120) + '…' : cleaned
+}
+
+function goJournals() {
+  uni.switchTab({ url: '/pages/journals/index' })
 }
 
 function switchTab(t: 'all' | 'updates') {
@@ -114,6 +138,7 @@ async function fetchItems() {
         content_type: u.content_type,
         reasons: u.reasons || [],
         unread: !u.status?.is_read,
+        abstract: u.abstract || '',
       }))
       items.value.push(...mapped)
       offset.value += limit
@@ -132,6 +157,7 @@ async function fetchItems() {
         publish_date: a.publish_date,
         content_type: a.content_type,
         reasons: [],
+        abstract: a.abstract || '',
       }))
       items.value.push(...mapped)
       offset.value += limit
@@ -158,7 +184,8 @@ function goDetail(id: string) {
 .tabs { display: flex; flex-wrap: wrap; padding: 20rpx 30rpx; gap: 24rpx; background: #f8f8f8; }
 .tab { font-size: 28rpx; color: #666; padding-bottom: 8rpx; }
 .tab.active { color: #3cc51f; font-weight: 500; border-bottom: 4rpx solid #3cc51f; }
-.loading, .empty { text-align: center; padding: 100rpx; color: #999; font-size: 28rpx; }
+.loading, .empty { text-align: center; padding: 100rpx 40rpx; color: #999; font-size: 28rpx; }
+.btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
 .scroll-view { height: calc(100vh - 100rpx); }
 .loading-more { text-align: center; padding: 20rpx; color: #999; font-size: 26rpx; }
 .card { background: #fff; padding: 28rpx 30rpx; border-bottom: 1rpx solid #f0f0f0; }
@@ -170,4 +197,5 @@ function goDetail(id: string) {
 .title.unread { font-weight: 600; }
 .authors { font-size: 24rpx; color: #888; margin-top: 8rpx; display: block; }
 .date { font-size: 22rpx; color: #aaa; margin-top: 6rpx; display: block; }
+.snippet { font-size: 24rpx; color: #999; margin-top: 10rpx; display: block; line-height: 1.5; }
 </style>
