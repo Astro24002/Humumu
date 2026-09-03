@@ -198,16 +198,21 @@ async def fetch_articles(source_url: str, source_type: str = "rss") -> list[RawA
     HTTP GET feed and parse into RawArticle list.
 
     ``source_type`` of ``rss`` and ``cnki`` both use RSS/Atom parsing.
+    Outbound requests go through SSRF-safe client.
     """
+    from app.services.url_safety import UnsafeURLError, safe_get_text
+
     st = (source_type or "rss").lower()
-    if st not in ("rss", "cnki", "atom", "rdf"):
+    if st not in ("rss", "cnki", "atom", "rdf", "arxiv"):
         logger.warning("unsupported source_type %s; attempting RSS parse", source_type)
 
-    headers = {"User-Agent": _USER_AGENT}
-    async with httpx.AsyncClient(timeout=_TIMEOUT, follow_redirects=True) as client:
-        resp = await client.get(source_url, headers=headers)
-        if resp.status_code != 200:
-            raise ValueError(f"feed status {resp.status_code} for {source_url}")
-        body = resp.content
+    try:
+        _final_url, body, _headers = await safe_get_text(
+            source_url,
+            timeout=_TIMEOUT,
+            headers={"User-Agent": _USER_AGENT},
+        )
+    except UnsafeURLError as exc:
+        raise ValueError(f"unsafe feed url: {exc}") from exc
 
     return parse_feed_body(body)

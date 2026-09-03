@@ -112,16 +112,19 @@ async def test_fetch_feed_meta_parses_rss_title():
     mock_client.__aenter__ = AsyncMock(return_value=mock_client)
     mock_client.__aexit__ = AsyncMock(return_value=None)
 
-    with patch("app.services.fetcher_meta.httpx.AsyncClient", return_value=mock_client):
+    with patch(
+        "app.services.fetcher_meta.safe_get_text",
+        new_callable=AsyncMock,
+        return_value=("https://example.com/feed.rss", SAMPLE_RSS_XML, {}),
+    ) as mock_get:
         meta = await fetch_feed_meta("https://example.com/feed.rss")
 
     assert meta["name"] == "Nature News"
     assert meta["title"] == "Nature News"
     assert meta["source_type"] == "rss"
-    mock_client.get.assert_awaited_once()
-    call_kwargs = mock_client.get.await_args
-    assert call_kwargs.args[0] == "https://example.com/feed.rss"
-    assert call_kwargs.kwargs["headers"]["User-Agent"] == "JournalMonitor/1.0"
+    assert "items" in meta
+    mock_get.assert_awaited_once()
+    assert mock_get.await_args.args[0] == "https://example.com/feed.rss"
 
 
 # --- preview ---
@@ -139,7 +142,10 @@ async def test_preview_success(client, authed_user_id):
             json={"source_url": "https://example.com/feed.rss"},
         )
     assert r.status_code == 200
-    assert r.json() == {"name": "Nature News", "source_type": "rss"}
+    body = r.json()
+    assert body["name"] == "Nature News"
+    assert body["source_type"] == "rss"
+    assert body.get("items") == []
     mock_fetch.assert_awaited_once_with("https://example.com/feed.rss")
 
 

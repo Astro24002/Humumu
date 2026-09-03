@@ -53,16 +53,19 @@ def _article_out(
     )
 
 
-def _base_article_select() -> Any:
-    return (
+def _base_article_select(*, public_only: bool = False) -> Any:
+    stmt = (
         select(
             Article,
             Journal.name.label("journal_name"),
             Journal.source_type.label("journal_source_type"),
         )
-        .outerjoin(Journal, Article.journal_id == Journal.id)
+        .join(Journal, Article.journal_id == Journal.id)
         .order_by(Article.publish_date.desc().nulls_last(), Article.fetched_at.desc())
     )
+    if public_only:
+        stmt = stmt.where(Journal.directory_status == "public")
+    return stmt
 
 
 def _rows_to_articles(rows: list[Any]) -> list[ArticleOut]:
@@ -78,13 +81,14 @@ async def list_articles(
     limit: int = 20,
     offset: int = 0,
     journal_id: str | UUID | None = None,
+    public_only: bool = True,
 ) -> list[ArticleOut]:
-    """Public article list: all articles or filtered by journal_id."""
+    """Public article list: articles from public journals, optional journal_id filter."""
     limit = _clamp_limit(limit)
     if offset < 0:
         offset = 0
 
-    stmt = _base_article_select()
+    stmt = _base_article_select(public_only=public_only)
 
     if journal_id is not None and str(journal_id) != "":
         uid = _parse_uuid(journal_id)
@@ -97,13 +101,18 @@ async def list_articles(
     return _rows_to_articles(list(result.all()))
 
 
-async def get_article(session: AsyncSession, article_id: str | UUID) -> ArticleOut | None:
+async def get_article(
+    session: AsyncSession,
+    article_id: str | UUID,
+    *,
+    public_only: bool = True,
+) -> ArticleOut | None:
     """Get one article by id with joined journal fields, or None."""
     uid = _parse_uuid(article_id)
     if uid is None:
         return None
 
-    stmt = _base_article_select().where(Article.id == uid)
+    stmt = _base_article_select(public_only=public_only).where(Article.id == uid)
     result = await session.execute(stmt)
     row = result.one_or_none()
     if row is None:

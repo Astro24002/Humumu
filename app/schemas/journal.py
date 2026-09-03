@@ -37,6 +37,13 @@ class JournalOut(BaseModel):
     created_at: datetime
     article_count: int | None = None
     last_article_date: datetime | None = None
+    content_type: str = "journal"
+    directory_status: str = "public"
+    homepage_url: str = ""
+    consecutive_failures: int = 0
+    last_error: str | None = None
+    last_success_at: datetime | None = None
+    health_status: str | None = None
 
     @field_validator("id", "created_by", mode="before")
     @classmethod
@@ -86,15 +93,24 @@ class PreviewRequest(BaseModel):
     source_url: str = ""
 
 
+class PreviewItem(BaseModel):
+    title: str = ""
+    url: str = ""
+    published: str = ""
+
+
 class PreviewResponse(BaseModel):
     name: str
     source_type: str
+    items: list[PreviewItem] = []
 
 
 class CreateUserJournalRequest(BaseModel):
     # Optional so missing fields yield the Go-compatible error message in the router.
     source_url: str = ""
     name: str = ""
+    # private (default) | apply_public
+    visibility: str = "private"
 
 
 class CreateUserJournalResponse(BaseModel):

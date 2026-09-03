@@ -56,7 +56,7 @@ async def admin_list_journals(
     session: AsyncSession = Depends(get_session),
 ) -> JournalsResponse:
     try:
-        journals = await journal_service.list_journals(session)
+        journals = await journal_service.list_journals(session, public_only=False)
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch journals") from exc
     return JournalsResponse(journals=journals)

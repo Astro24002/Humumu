@@ -2,7 +2,7 @@ import datetime as dt
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Interval, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Interval, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -30,6 +30,26 @@ class Journal(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+    content_type: Mapped[str] = mapped_column(
+        String(20), nullable=False, server_default="journal"
+    )
+    directory_status: Mapped[str] = mapped_column(
+        String(20), nullable=False, server_default="public"
+    )
+    homepage_url: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
+    normalized_source_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    etag: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_modified: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_fetched_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_success_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    consecutive_failures: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default="0"
+    )
+    last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class JournalRequest(Base):

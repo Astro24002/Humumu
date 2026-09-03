@@ -1,4 +1,4 @@
-"""Fetch feed title/metadata for journal preview (httpx + feedparser)."""
+"""Fetch feed title/metadata for journal preview (SSRF-safe httpx + feedparser)."""
 
 from __future__ import annotations
 
@@ -6,10 +6,11 @@ import re
 from xml.etree import ElementTree as ET
 
 import feedparser
-import httpx
 
-_USER_AGENT = "JournalMonitor/1.0"
-_TIMEOUT = 30.0
+from app.services.url_safety import UnsafeURLError, safe_get_text
+
+_TIMEOUT = 15.0
+_MAX_PREVIEW_ITEMS = 5
 
 
 def _strip_ns(tag: str) -> str:
@@ -41,7 +42,6 @@ def _title_from_xml(body: str) -> str | None:
                 t = _text(child)
                 if t:
                     return t
-        # nested search
         for el in root.iter():
             if _strip_ns(el.tag).lower() == "title":
                 t = _text(el)
@@ -57,7 +57,6 @@ def _title_from_xml(body: str) -> str | None:
                     if t:
                         return t
 
-    # Direct title on root channel-like docs
     for child in root:
         if _strip_ns(child.tag).lower() == "title":
             t = _text(child)
@@ -74,26 +73,57 @@ def _title_from_feedparser(body: str) -> str | None:
     return title or None
 
 
-async def fetch_feed_meta(url: str) -> dict[str, str]:
+def _preview_items(body: str, limit: int = _MAX_PREVIEW_ITEMS) -> list[dict[str, str]]:
+    parsed = feedparser.parse(body)
+    items: list[dict[str, str]] = []
+    for entry in getattr(parsed, "entries", []) or []:
+        title = ""
+        if hasattr(entry, "get"):
+            title = (entry.get("title") or "").strip()
+        if not title:
+            title = str(getattr(entry, "title", "") or "").strip()
+        link = ""
+        if hasattr(entry, "get"):
+            link = (entry.get("link") or "").strip()
+        if not link:
+            link = str(getattr(entry, "link", "") or "").strip()
+        published = ""
+        for key in ("published", "updated"):
+            raw = getattr(entry, key, None) or (entry.get(key) if hasattr(entry, "get") else None)
+            if raw:
+                published = str(raw).strip()
+                break
+        if not title and not link:
+            continue
+        items.append({"title": title, "url": link, "published": published})
+        if len(items) >= limit:
+            break
+    return items
+
+
+async def fetch_feed_meta(url: str) -> dict:
     """
     Fetch a feed URL and return metadata.
 
     Returns:
-        {"name": <title>, "title": <title>, "source_type": "rss"}
+        {"name": <title>, "title": <title>, "source_type": "rss", "items": [...]}
 
     Raises:
+        UnsafeURLError on SSRF rejection.
         Exception on network/HTTP/parse failure (caller maps to 400).
     """
-    headers = {"User-Agent": _USER_AGENT}
-    async with httpx.AsyncClient(timeout=_TIMEOUT, follow_redirects=True) as client:
-        resp = await client.get(url, headers=headers)
-        if resp.status_code != 200:
-            raise ValueError(f"feed meta status {resp.status_code}")
-        body = resp.text
+    try:
+        _final, body, _hdrs = await safe_get_text(url, timeout=_TIMEOUT)
+    except UnsafeURLError:
+        raise
+    except Exception as exc:
+        raise ValueError(f"feed meta fetch failed: {exc}") from exc
+
+    if not body:
+        raise ValueError(f"empty feed body from {url}")
 
     title = _title_from_feedparser(body) or _title_from_xml(body)
     if not title:
-        # last-ditch regex for <title>...</title> inside channel/feed
         m = re.search(
             r"<channel[^>]*>.*?<title[^>]*>(.*?)</title>",
             body,
@@ -111,4 +141,9 @@ async def fetch_feed_meta(url: str) -> dict[str, str]:
     if not title:
         raise ValueError(f"cannot determine feed title from {url}")
 
-    return {"name": title, "title": title, "source_type": "rss"}
+    return {
+        "name": title,
+        "title": title,
+        "source_type": "rss",
+        "items": _preview_items(body),
+    }

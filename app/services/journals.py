@@ -38,6 +38,13 @@ def slugify(name: str) -> str:
     return s
 
 
+def _health_status(journal: Journal) -> str:
+    failures = int(getattr(journal, "consecutive_failures", 0) or 0)
+    if not journal.is_active or failures >= 10:
+        return "paused"
+    return "ok"
+
+
 def _journal_out(
     journal: Journal,
     *,
@@ -58,6 +65,13 @@ def _journal_out(
             "created_at": journal.created_at,
             "article_count": int(article_count or 0),
             "last_article_date": last_article_date,
+            "content_type": getattr(journal, "content_type", None) or "journal",
+            "directory_status": getattr(journal, "directory_status", None) or "public",
+            "homepage_url": getattr(journal, "homepage_url", None) or "",
+            "consecutive_failures": int(getattr(journal, "consecutive_failures", 0) or 0),
+            "last_error": getattr(journal, "last_error", None),
+            "last_success_at": getattr(journal, "last_success_at", None),
+            "health_status": _health_status(journal),
         }
     )
 
@@ -78,8 +92,18 @@ def _stats_subquery() -> Any:
     )
 
 
-async def list_journals(session: AsyncSession) -> list[JournalOut]:
-    """List all journals ordered by name, with article_count and last_article_date."""
+async def list_journals(
+    session: AsyncSession,
+    *,
+    public_only: bool = True,
+    content_type: str | None = None,
+    q: str | None = None,
+) -> list[JournalOut]:
+    """List journals ordered by name, with article_count and last_article_date.
+
+    public_only=True (default) restricts to directory_status=public and is_active.
+    Admin callers should pass public_only=False.
+    """
     stats = _stats_subquery()
     stmt = (
         select(
@@ -88,8 +112,16 @@ async def list_journals(session: AsyncSession) -> list[JournalOut]:
             stats.c.last_article_date,
         )
         .outerjoin(stats, Journal.id == stats.c.journal_id)
-        .order_by(Journal.name)
     )
+    if public_only:
+        stmt = stmt.where(Journal.directory_status == "public").where(
+            Journal.is_active.is_(True)
+        )
+    if content_type:
+        stmt = stmt.where(Journal.content_type == content_type)
+    if q and q.strip():
+        stmt = stmt.where(Journal.name.ilike(f"%{q.strip()}%"))
+    stmt = stmt.order_by(Journal.name)
     result = await session.execute(stmt)
     rows = result.all()
     return [
@@ -98,7 +130,12 @@ async def list_journals(session: AsyncSession) -> list[JournalOut]:
     ]
 
 
-async def get_journal(session: AsyncSession, journal_id: str | UUID) -> JournalOut | None:
+async def get_journal(
+    session: AsyncSession,
+    journal_id: str | UUID,
+    *,
+    public_only: bool = True,
+) -> JournalOut | None:
     """Get one journal by id with article stats, or None if missing/invalid id."""
     uid = _parse_uuid(journal_id)
     if uid is None:
@@ -114,6 +151,8 @@ async def get_journal(session: AsyncSession, journal_id: str | UUID) -> JournalO
         .outerjoin(stats, Journal.id == stats.c.journal_id)
         .where(Journal.id == uid)
     )
+    if public_only:
+        stmt = stmt.where(Journal.directory_status == "public")
     result = await session.execute(stmt)
     row = result.one_or_none()
     if row is None:
@@ -122,7 +161,10 @@ async def get_journal(session: AsyncSession, journal_id: str | UUID) -> JournalO
 
 
 async def find_by_url(session: AsyncSession, source_url: str) -> JournalOut | None:
-    """Find journal by exact source_url (with article stats), or None."""
+    """Find journal by normalized or exact source_url (with article stats), or None."""
+    from app.services.feed_url import normalize_feed_url
+
+    normalized = normalize_feed_url(source_url) or source_url
     stats = _stats_subquery()
     stmt = (
         select(
@@ -131,7 +173,11 @@ async def find_by_url(session: AsyncSession, source_url: str) -> JournalOut | No
             stats.c.last_article_date,
         )
         .outerjoin(stats, Journal.id == stats.c.journal_id)
-        .where(Journal.source_url == source_url)
+        .where(
+            (Journal.normalized_source_url == normalized)
+            | (Journal.source_url == source_url)
+            | (Journal.source_url == normalized)
+        )
         .limit(1)
     )
     result = await session.execute(stmt)
@@ -152,9 +198,15 @@ async def create_journal(
     fetch_interval: timedelta | None = None,
     slug: str | None = None,
     is_active: bool = True,
+    content_type: str = "journal",
+    directory_status: str = "public",
+    homepage_url: str = "",
 ) -> JournalOut:
     """Create a journal and return JournalOut (no stats yet)."""
+    from app.services.feed_url import normalize_feed_url
+
     uid = _parse_uuid(created_by) if created_by is not None else None
+    normalized = normalize_feed_url(source_url) or None
     journal = Journal(
         name=name,
         slug=slug or slugify(name),
@@ -164,6 +216,10 @@ async def create_journal(
         fetch_interval=fetch_interval if fetch_interval is not None else timedelta(minutes=30),
         is_active=is_active,
         created_by=uid,
+        content_type=content_type or "journal",
+        directory_status=directory_status or "public",
+        homepage_url=homepage_url or "",
+        normalized_source_url=normalized,
     )
     session.add(journal)
     await session.flush()
