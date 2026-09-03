@@ -28,6 +28,15 @@
                 >
                   {{ dirStatusLabel(j.directory_status) }}
                 </n-tag>
+                <n-tag
+                  v-if="j.health_status === 'paused'"
+                  size="tiny"
+                  type="error"
+                  :bordered="false"
+                  :title="j.last_error || '抓取已暂停'"
+                >
+                  抓取暂停
+                </n-tag>
                 <n-tag size="tiny" type="warning" :bordered="false">{{ freqLabel(j.push_frequency) }}</n-tag>
               </n-space>
             </template>

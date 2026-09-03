@@ -44,6 +44,7 @@
                   {{ j.source_type }}
                   <text v-if="j.content_type === 'preprint'"> · 预印本</text>
                   <text v-if="j.directory_status && j.directory_status !== 'public'"> · {{ dirStatusLabel(j.directory_status) }}</text>
+                  <text v-if="j.health_status === 'paused'" class="meta-paused"> · 抓取暂停</text>
                   · {{ freqLabel(j.push_frequency) }}
                 </text>
               </view>
@@ -291,6 +292,7 @@ async function removeKeyword(id: string) {
 .item-main { flex: 1; min-width: 0; }
 .item-name { font-size: 28rpx; display: block; }
 .item-meta { font-size: 22rpx; color: #999; margin-top: 4rpx; display: block; }
+.meta-paused { color: #d03050; }
 .btn-prefs { color: #3a7bd5; font-size: 26rpx; }
 .btn-unsub { color: #e74c3c; font-size: 26rpx; }
 .channel-row { display: flex; gap: 16rpx; padding: 0 30rpx 20rpx; }
