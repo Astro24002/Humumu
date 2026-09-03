@@ -290,12 +290,15 @@ GET /api/v1/categories/cas
       "article_id": "uuid",
       "channel": "email",
       "status": "sent",
+      "match_reasons": ["journal", "keyword"],
       "created_at": "...",
       "sent_at": "..."
     }
   ]
 }
 ```
+
+`match_reasons` 来自匹配器命中类型（`journal` / `author` / `keyword`），与 My Updates 的 `reasons` 一致。
 
 ---
 

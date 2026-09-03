@@ -32,9 +32,20 @@
     </n-card>
 
     <div style="margin-bottom: 16px;">
-      <n-button v-if="isLoggedIn" type="primary" ghost @click="handleSubscribe">
-        订阅此期刊
-      </n-button>
+      <template v-if="isLoggedIn">
+        <n-button
+          v-if="isSubscribed"
+          type="error"
+          ghost
+          :loading="subBusy"
+          @click="handleUnsubscribe"
+        >
+          取消订阅
+        </n-button>
+        <n-button v-else type="primary" ghost :loading="subBusy" @click="handleSubscribe">
+          订阅此期刊
+        </n-button>
+      </template>
     </div>
 
     <n-divider />
@@ -45,6 +56,9 @@
       <n-list-item v-for="a in articles" :key="a.id">
         <n-thing :title="a.title">
           <template #description>
+            <n-tag v-if="a.content_type === 'preprint'" type="info" size="tiny" :bordered="false" style="margin-right: 6px;">
+              预印本
+            </n-tag>
             <span style="color: #888; font-size: 13px;">作者：{{ a.authors?.slice(0, 3).join(', ') }}{{ a.authors?.length > 3 ? ' 等' : '' }}</span>
             <br>
             <span style="color: #aaa; font-size: 12px;">{{ a.publish_date || '' }}</span>
@@ -59,26 +73,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getJournal, type Journal } from '@/api/journals'
 import { getArticles, type Article } from '@/api/articles'
-import { subscribeJournal } from '@/api/subscriptions'
+import {
+  subscribeJournal,
+  unsubscribeJournal,
+  getSubscribedJournals,
+} from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,
-  NNumberAnimation, useMessage
+  NNumberAnimation, useMessage,
 } from 'naive-ui'
 
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const auth = useAuthStore()
-const isLoggedIn = auth.isLoggedIn
+const isLoggedIn = computed(() => auth.isLoggedIn)
 const journal = ref<Journal | null>(null)
 const articles = ref<Article[]>([])
 const loading = ref(true)
+const isSubscribed = ref(false)
+const subBusy = ref(false)
 
 function formatDate(d: string): string {
   return d.slice(0, 10)
@@ -86,19 +106,45 @@ function formatDate(d: string): string {
 
 async function handleSubscribe() {
   if (!journal.value) return
+  subBusy.value = true
   try {
     await subscribeJournal(journal.value.id)
+    isSubscribed.value = true
     message.success(`已订阅「${journal.value.name}」`)
   } catch (e: any) {
-    message.error(e?.response?.data?.error || '订阅失败')
+    message.error(e?.message || e?.response?.data?.error || '订阅失败')
+  } finally {
+    subBusy.value = false
+  }
+}
+
+async function handleUnsubscribe() {
+  if (!journal.value) return
+  subBusy.value = true
+  try {
+    await unsubscribeJournal(journal.value.id)
+    isSubscribed.value = false
+    message.success('已取消订阅')
+  } catch (e: any) {
+    message.error(e?.message || '取消失败')
+  } finally {
+    subBusy.value = false
   }
 }
 
 onMounted(async () => {
+  const id = route.params.id as string
   try {
-    journal.value = await getJournal(route.params.id as string)
-    const res = await getArticles({ journal_id: route.params.id as string, limit: '50' })
-    articles.value = res.articles
+    const [jr, ar, subRes] = await Promise.all([
+      getJournal(id),
+      getArticles({ journal_id: id, limit: '50' }),
+      auth.isLoggedIn ? getSubscribedJournals().catch(() => null) : Promise.resolve(null),
+    ])
+    journal.value = jr
+    articles.value = ar.articles
+    if (subRes) {
+      isSubscribed.value = subRes.journals.some((j) => j.id === id)
+    }
   } finally {
     loading.value = false
   }

@@ -54,6 +54,7 @@ def _sample_notification(**overrides) -> NotificationOut:
         "channel": "email",
         "status": "sent",
         "error_message": None,
+        "match_reasons": "journal,keyword",
         "created_at": datetime(2026, 6, 1, tzinfo=timezone.utc),
         "sent_at": datetime(2026, 6, 1, 1, tzinfo=timezone.utc),
     }
@@ -301,6 +302,7 @@ async def test_notifications_list_shape(client, authed_user_id):
     assert len(body["notifications"]) == 1
     assert body["notifications"][0]["channel"] == "email"
     assert body["notifications"][0]["status"] == "sent"
+    assert body["notifications"][0]["match_reasons"] == ["journal", "keyword"]
     assert mock_list.await_args.args[1] == authed_user_id
     assert mock_list.await_args.kwargs["limit"] == 10
     assert mock_list.await_args.kwargs["offset"] == 2

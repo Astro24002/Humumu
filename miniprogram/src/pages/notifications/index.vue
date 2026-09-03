@@ -15,6 +15,7 @@
               {{ n.channel === 'wechat' ? '微信' : '邮件' }}
             </text>
             <text :class="['status', n.status]">{{ statusText(n.status) }}</text>
+            <text v-for="r in (n.match_reasons || [])" :key="r" class="reason">{{ reasonLabel(r) }}</text>
           </view>
           <text class="time">{{ formatDate(n.created_at) }}</text>
         </view>
@@ -70,6 +71,13 @@ function statusText(s: string) {
   }
 }
 
+function reasonLabel(r: string): string {
+  if (r === 'journal') return '期刊'
+  if (r === 'author') return '作者'
+  if (r === 'keyword') return '关键词'
+  return r
+}
+
 function goArticle(articleId: string) {
   uni.navigateTo({ url: `/pages/article/detail?id=${articleId}` })
 }
@@ -89,6 +97,7 @@ function goArticle(articleId: string) {
 .status { font-size: 24rpx; color: #999; }
 .status.sent { color: #3cc51f; }
 .status.failed { color: #e74c3c; }
+.reason { font-size: 22rpx; padding: 2rpx 10rpx; border-radius: 8rpx; background: #fff7e6; color: #d48806; }
 .time { font-size: 24rpx; color: #ccc; margin-top: 8rpx; display: block; }
 .loading-more { text-align: center; padding: 20rpx; color: #999; }
 </style>
