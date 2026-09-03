@@ -7,9 +7,11 @@ from app.schemas.common import MessageResponse
 from app.schemas.subscription import (
     AuthorTrackingRequest,
     AuthorsResponse,
+    JournalSubscriptionOut,
     KeywordSubscriptionRequest,
     KeywordsResponse,
     SubscribedJournalsResponse,
+    UpdateJournalSubscriptionRequest,
 )
 from app.services import subscriptions as sub_service
 
@@ -61,6 +63,43 @@ async def unsubscribe_journal(
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to unsubscribe") from exc
     return MessageResponse(message="unsubscribed")
+
+
+@router.patch("/journals/{journal_id}", response_model=JournalSubscriptionOut)
+async def update_journal_subscription_prefs(
+    journal_id: str,
+    body: UpdateJournalSubscriptionRequest,
+    user_id: str = Depends(get_current_user_id),
+    session: AsyncSession = Depends(get_session),
+) -> JournalSubscriptionOut:
+    if (
+        body.push_frequency is None
+        and body.email_enabled is None
+        and body.wechat_enabled is None
+    ):
+        raise HTTPException(status_code=400, detail="at least one preference field required")
+    try:
+        updated = await sub_service.update_journal_subscription(
+            session,
+            user_id,
+            journal_id,
+            push_frequency=body.push_frequency,
+            email_enabled=body.email_enabled,
+            wechat_enabled=body.wechat_enabled,
+        )
+        if not updated:
+            raise HTTPException(status_code=404, detail="subscription not found")
+        row = await sub_service.get_journal_subscription(session, user_id, journal_id)
+        await session.commit()
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="failed to update preferences") from exc
+    if row is None:
+        raise HTTPException(status_code=404, detail="subscription not found")
+    return JournalSubscriptionOut.model_validate(row)
 
 
 @router.get("/authors", response_model=AuthorsResponse)

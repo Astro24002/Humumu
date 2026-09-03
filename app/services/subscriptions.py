@@ -100,6 +100,69 @@ async def unsubscribe_journal(
     await session.execute(stmt)
 
 
+_VALID_SUB_FREQUENCIES = frozenset({"default", "realtime", "daily"})
+
+
+async def update_journal_subscription(
+    session: AsyncSession,
+    user_id: str | UUID,
+    journal_id: str | UUID,
+    *,
+    push_frequency: str | None = None,
+    email_enabled: bool | None = None,
+    wechat_enabled: bool | None = None,
+) -> bool:
+    """Update per-subscription notify prefs. Returns True if a row was updated."""
+    from sqlalchemy import update
+
+    uid = _parse_uuid(user_id)
+    jid = _parse_uuid(journal_id)
+    if uid is None or jid is None:
+        return False
+
+    values: dict = {}
+    if push_frequency is not None:
+        freq = push_frequency.strip().lower()
+        if freq not in _VALID_SUB_FREQUENCIES:
+            raise ValueError("push_frequency must be one of: default, realtime, daily")
+        values["push_frequency"] = freq
+    if email_enabled is not None:
+        values["email_enabled"] = bool(email_enabled)
+    if wechat_enabled is not None:
+        values["wechat_enabled"] = bool(wechat_enabled)
+    if not values:
+        return False
+
+    result = await session.execute(
+        update(JournalSubscription)
+        .where(
+            JournalSubscription.user_id == uid,
+            JournalSubscription.journal_id == jid,
+        )
+        .values(**values)
+    )
+    return bool(result.rowcount)
+
+
+async def get_journal_subscription(
+    session: AsyncSession,
+    user_id: str | UUID,
+    journal_id: str | UUID,
+):
+    """Return JournalSubscription row or None."""
+    uid = _parse_uuid(user_id)
+    jid = _parse_uuid(journal_id)
+    if uid is None or jid is None:
+        return None
+    result = await session.execute(
+        select(JournalSubscription).where(
+            JournalSubscription.user_id == uid,
+            JournalSubscription.journal_id == jid,
+        )
+    )
+    return result.scalar_one_or_none()
+
+
 async def list_authors(
     session: AsyncSession,
     user_id: str | UUID,

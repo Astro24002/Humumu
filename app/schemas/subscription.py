@@ -12,11 +12,20 @@ class JournalSubscriptionOut(BaseModel):
     user_id: str
     journal_id: str
     created_at: datetime
+    push_frequency: str = "default"
+    email_enabled: bool = True
+    wechat_enabled: bool = True
 
     @field_validator("user_id", "journal_id", mode="before")
     @classmethod
     def _uuid_to_str(cls, v: Any) -> Any:
         return str(v)
+
+
+class UpdateJournalSubscriptionRequest(BaseModel):
+    push_frequency: str | None = None  # default | realtime | daily
+    email_enabled: bool | None = None
+    wechat_enabled: bool | None = None
 
 
 class AuthorTrackingOut(BaseModel):
