@@ -2,7 +2,10 @@
   <view class="container">
     <view v-if="loading" class="loading"><text>加载中...</text></view>
     <template v-else-if="article">
-      <view class="journal-name">{{ article.journal_name }}</view>
+      <view class="journal-name">
+        {{ article.journal_name }}
+        <text v-if="article.content_type === 'preprint'" class="tag preprint">预印本</text>
+      </view>
       <text class="title">{{ article.title }}</text>
       <text class="authors" v-if="article.authors?.length">
         {{ article.authors.join(', ') }}
@@ -106,7 +109,9 @@ async function openOriginal(url: string) {
 
 <style scoped>
 .container { padding: 30rpx; }
-.journal-name { font-size: 26rpx; color: #3cc51f; }
+.journal-name { font-size: 26rpx; color: #3cc51f; display: flex; align-items: center; gap: 12rpx; flex-wrap: wrap; }
+.tag { font-size: 22rpx; color: #3cc51f; background: #e8f8e0; padding: 4rpx 12rpx; border-radius: 8rpx; }
+.tag.preprint { color: #2080f0; background: #e8f3ff; }
 .title { font-size: 36rpx; font-weight: 600; color: #333; line-height: 1.5; margin-top: 16rpx; display: block; }
 .authors { font-size: 28rpx; color: #666; margin-top: 12rpx; display: block; }
 .date { font-size: 26rpx; color: #999; margin-top: 8rpx; display: block; }

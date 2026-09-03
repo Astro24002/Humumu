@@ -15,6 +15,7 @@ class ArticleOut(BaseModel):
     journal_id: str
     journal_name: str | None = None
     journal_source_type: str | None = None
+    content_type: str = "journal"
     publish_date: date | datetime | None = None
     url: str = ""
     fetched_at: datetime

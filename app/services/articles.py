@@ -35,6 +35,7 @@ def _article_out(
     *,
     journal_name: str | None = None,
     journal_source_type: str | None = None,
+    content_type: str | None = None,
 ) -> ArticleOut:
     return ArticleOut.model_validate(
         {
@@ -46,6 +47,7 @@ def _article_out(
             "journal_id": article.journal_id,
             "journal_name": journal_name or "",
             "journal_source_type": journal_source_type or "",
+            "content_type": content_type or "journal",
             "publish_date": article.publish_date,
             "url": article.url or "",
             "fetched_at": article.fetched_at,
@@ -59,6 +61,7 @@ def _base_article_select(*, public_only: bool = False) -> Any:
             Article,
             Journal.name.label("journal_name"),
             Journal.source_type.label("journal_source_type"),
+            Journal.content_type.label("content_type"),
         )
         .join(Journal, Article.journal_id == Journal.id)
         .order_by(Article.publish_date.desc().nulls_last(), Article.fetched_at.desc())
@@ -70,7 +73,12 @@ def _base_article_select(*, public_only: bool = False) -> Any:
 
 def _rows_to_articles(rows: list[Any]) -> list[ArticleOut]:
     return [
-        _article_out(row[0], journal_name=row[1], journal_source_type=row[2])
+        _article_out(
+            row[0],
+            journal_name=row[1],
+            journal_source_type=row[2],
+            content_type=row[3],
+        )
         for row in rows
     ]
 
@@ -147,7 +155,12 @@ async def get_article(
     row = result.one_or_none()
     if row is None:
         return None
-    return _article_out(row[0], journal_name=row[1], journal_source_type=row[2])
+    return _article_out(
+        row[0],
+        journal_name=row[1],
+        journal_source_type=row[2],
+        content_type=row[3],
+    )
 
 
 async def list_feed_for_user(
@@ -171,6 +184,7 @@ async def list_feed_for_user(
             Article,
             Journal.name.label("journal_name"),
             Journal.source_type.label("journal_source_type"),
+            Journal.content_type.label("content_type"),
         )
         .join(JournalSubscription, Article.journal_id == JournalSubscription.journal_id)
         .outerjoin(Journal, Article.journal_id == Journal.id)

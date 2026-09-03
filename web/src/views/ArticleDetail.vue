@@ -6,6 +6,9 @@
       <router-link v-if="article.journal_name" :to="`/journals/${article.journal_id}`" style="text-decoration: none;">
         <n-tag :bordered="false" style="margin-right: 6px;">{{ article.journal_name }}</n-tag>
       </router-link>
+      <n-tag v-if="article.content_type === 'preprint'" type="info" size="small" :bordered="false" style="margin-right: 6px;">
+        预印本
+      </n-tag>
       <n-tag :type="article.journal_source_type === 'arxiv' ? 'info' : 'success'" size="small" :bordered="false">
         {{ article.journal_source_type }}
       </n-tag>

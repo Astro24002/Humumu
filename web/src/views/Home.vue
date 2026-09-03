@@ -23,6 +23,9 @@
               <n-tag v-if="a.journal_name" size="tiny" :bordered="false" style="margin-right: 6px;">
                 {{ a.journal_name }}
               </n-tag>
+              <n-tag v-if="a.content_type === 'preprint'" type="info" size="tiny" :bordered="false" style="margin-right: 6px;">
+                预印本
+              </n-tag>
               <n-tag :type="a.journal_source_type === 'arxiv' ? 'info' : 'success'" size="tiny" :bordered="false">
                 {{ a.journal_source_type }}
               </n-tag>

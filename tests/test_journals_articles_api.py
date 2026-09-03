@@ -44,6 +44,7 @@ def _sample_article(**overrides) -> ArticleOut:
         "journal_id": str(uuid.uuid4()),
         "journal_name": "Nature",
         "journal_source_type": "rss",
+        "content_type": "journal",
         "publish_date": date(2026, 5, 1),
         "url": "https://example.com/a",
         "fetched_at": datetime(2026, 5, 2, tzinfo=timezone.utc),
@@ -157,6 +158,7 @@ async def test_list_articles_shape(client):
     assert body["articles"][0]["title"] == "Sample Article"
     assert body["articles"][0]["journal_name"] == "Nature"
     assert body["articles"][0]["journal_source_type"] == "rss"
+    assert body["articles"][0]["content_type"] == "journal"
     kwargs = mock_list.await_args.kwargs
     assert kwargs["limit"] == 10
     assert kwargs["offset"] == 0
