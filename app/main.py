@@ -16,6 +16,7 @@ from app.routers import (
     health,
     journals,
     notifications,
+    reading,
     requests,
     settings,
     subscriptions,
@@ -84,6 +85,7 @@ app.include_router(articles.router)
 app.include_router(subscriptions.router)
 app.include_router(settings.router)
 app.include_router(notifications.router)
+app.include_router(reading.router)
 app.include_router(wechat.router)
 app.include_router(admin.router)
 
