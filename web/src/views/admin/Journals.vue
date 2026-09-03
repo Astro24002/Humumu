@@ -90,6 +90,7 @@ import {
 } from 'naive-ui'
 import { getAllJournals, createJournal, updateJournal, deleteJournal, setDirectoryStatus } from '@/api/admin'
 import type { Journal } from '@/api/journals'
+import { formatDateTime } from '@/utils/datetime'
 
 const route = useRoute()
 const message = useMessage()
@@ -191,9 +192,10 @@ const columns = [
       const hs = row.health_status || (fails >= 10 || !row.is_active ? 'paused' : 'ok')
       const label = fails > 0 ? `${fails} 失败` : (hs === 'paused' || !row.is_active ? '停用' : '正常')
       const type = fails > 0 || hs === 'paused' ? 'error' : 'success'
+      const lastOk = row.last_success_at ? formatDateTime(row.last_success_at) : ''
       const tip = row.last_error
-        ? `${label}${row.last_success_at ? ` · 上次成功 ${String(row.last_success_at).slice(0, 19)}` : ''}\n${row.last_error}`
-        : (row.last_success_at ? `上次成功 ${String(row.last_success_at).slice(0, 19)}` : label)
+        ? `${label}${lastOk ? ` · 上次成功 ${lastOk}` : ''}\n${row.last_error}`
+        : (lastOk ? `上次成功 ${lastOk}` : label)
       return h(NTag, { size: 'small', type, title: tip }, { default: () => label })
     },
   },

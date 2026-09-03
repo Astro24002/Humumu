@@ -131,8 +131,14 @@ async function onTemplateChange(e: any) {
 function handleLogout() {
   uni.showModal({
     title: '确认退出',
-    content: '退出登录后需要重新登录',
-    success: (res) => { if (res.confirm) auth.logout() },
+    content: '退出后需要重新登录才能管理订阅与阅读状态',
+    confirmText: '退出',
+    cancelText: '取消',
+    success: (res) => {
+      if (!res.confirm) return
+      auth.logout()
+      uni.showToast({ title: '已退出', icon: 'none' })
+    },
   })
 }
 </script>

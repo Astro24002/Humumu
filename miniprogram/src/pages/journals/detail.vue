@@ -187,14 +187,25 @@ function openHome() {
   // #endif
 }
 
-async function unsubscribe() {
-  try {
-    await unsubscribeJournal(journal.value!.id)
-    isSubscribed.value = false
-    uni.showToast({ title: '已取消订阅', icon: 'success' })
-  } catch (e: any) {
-    uni.showToast({ title: e.message || '操作失败', icon: 'none' })
-  }
+function unsubscribe() {
+  if (!journal.value) return
+  const name = journal.value.name
+  uni.showModal({
+    title: '取消订阅',
+    content: `确认取消订阅「${name}」？之后将不再收到该源的更新推送。`,
+    confirmText: '取消订阅',
+    cancelText: '返回',
+    success: async (res) => {
+      if (!res.confirm || !journal.value) return
+      try {
+        await unsubscribeJournal(journal.value.id)
+        isSubscribed.value = false
+        uni.showToast({ title: '已取消订阅', icon: 'success' })
+      } catch (e: any) {
+        uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+      }
+    },
+  })
 }
 </script>
 

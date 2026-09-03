@@ -149,12 +149,13 @@ import { formatDate } from '@/utils/datetime'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty, NResult,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,
-  NNumberAnimation, NPagination, useMessage,
+  NNumberAnimation, NPagination, useMessage, useDialog,
 } from 'naive-ui'
 
 const route = useRoute()
 const router = useRouter()
 const message = useMessage()
+const dialog = useDialog()
 const auth = useAuthStore()
 const isLoggedIn = computed(() => auth.isLoggedIn)
 const journal = ref<Journal | null>(null)
@@ -200,7 +201,19 @@ async function handleSubscribe() {
   }
 }
 
-async function handleUnsubscribe() {
+function handleUnsubscribe() {
+  if (!journal.value) return
+  const name = journal.value.name
+  dialog.warning({
+    title: '取消订阅',
+    content: `确认取消订阅「${name}」？之后将不再收到该源的更新推送。`,
+    positiveText: '取消订阅',
+    negativeText: '返回',
+    onPositiveClick: () => doUnsubscribe(),
+  })
+}
+
+async function doUnsubscribe() {
   if (!journal.value) return
   subBusy.value = true
   try {
