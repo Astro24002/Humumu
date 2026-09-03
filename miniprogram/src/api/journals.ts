@@ -35,6 +35,7 @@ export interface JournalListParams {
   zone?: string | number
   top?: string
   year?: string | number
+  sort?: string
   limit?: string | number
   offset?: string | number
 }

@@ -19,6 +19,11 @@ async def list_journals(
     zone: int | None = Query(default=None),
     top: bool | None = Query(default=None),
     year: int | None = Query(default=None),
+    sort: str | None = Query(
+        default=None,
+        description="name | articles | updated",
+        pattern="^(name|articles|updated)$",
+    ),
     limit: int | None = Query(default=None, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ) -> JournalsResponse:
@@ -32,6 +37,7 @@ async def list_journals(
             zone=zone,
             top=top,
             year=year,
+            sort=sort,
             limit=limit,
             offset=offset,
         )

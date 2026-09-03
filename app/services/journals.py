@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import delete, func, or_, select, update
+from sqlalchemy import desc, delete, func, nullslast, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.article import Article
@@ -113,14 +113,16 @@ async def list_journals(
     zone: int | None = None,
     top: bool | None = None,
     year: int | None = None,
+    sort: str | None = None,
     limit: int | None = None,
     offset: int = 0,
 ) -> tuple[list[JournalOut], int]:
-    """List journals ordered by name, with article_count and last_article_date.
+    """List journals with article_count and last_article_date.
 
     public_only=True (default) restricts to directory_status=public and is_active.
     Admin callers should pass public_only=False.
     Optional CAS filters: major/minor/zone/top/year.
+    sort: name (default) | articles | updated.
     Optional limit/offset for pagination (limit None = return all).
     Returns (journals, total_matching).
     """
@@ -167,7 +169,17 @@ async def list_journals(
     count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
     total = int((await session.execute(count_stmt)).scalar_one() or 0)
 
-    stmt = stmt.order_by(Journal.name)
+    sort_key = (sort or "name").strip().lower()
+    if sort_key == "articles":
+        stmt = stmt.order_by(
+            desc(func.coalesce(stats.c.article_count, 0)),
+            Journal.name,
+        )
+    elif sort_key == "updated":
+        # Journals with no articles sort last.
+        stmt = stmt.order_by(nullslast(desc(stats.c.last_article_date)), Journal.name)
+    else:
+        stmt = stmt.order_by(Journal.name)
     if limit is not None:
         stmt = stmt.limit(limit).offset(offset)
     result = await session.execute(stmt)

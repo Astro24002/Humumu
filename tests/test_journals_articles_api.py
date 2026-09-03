@@ -124,6 +124,30 @@ async def test_list_journals_pagination_params(client):
     assert kwargs.get("offset") == 10
 
 
+@pytest.mark.asyncio
+async def test_list_journals_sort_param(client):
+    j = _sample_journal()
+    with patch(
+        "app.routers.journals.journal_service.list_journals",
+        new_callable=AsyncMock,
+        return_value=([j], 3),
+    ) as mock_list:
+        r = await client.get("/api/v1/journals?sort=articles&limit=10&offset=0")
+    assert r.status_code == 200
+    kwargs = mock_list.await_args.kwargs
+    assert kwargs.get("sort") == "articles"
+    assert kwargs.get("limit") == 10
+
+    with patch(
+        "app.routers.journals.journal_service.list_journals",
+        new_callable=AsyncMock,
+        return_value=([j], 3),
+    ) as mock_list:
+        r = await client.get("/api/v1/journals?sort=nope")
+    # App maps RequestValidationError -> 400
+    assert r.status_code == 400
+
+
 
 @pytest.mark.asyncio
 async def test_get_journal_bare(client):

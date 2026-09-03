@@ -60,20 +60,14 @@ const emptyCtaLabel = computed(() =>
   auth.isLoggedIn ? '去添加源' : '登录后添加源',
 )
 
-function sortLocal(list: Journal[]) {
-  const out = [...list]
-  if (sortBy.value === 'articles') {
-    out.sort((a, b) => (b.article_count || 0) - (a.article_count || 0) || a.name.localeCompare(b.name))
-  } else if (sortBy.value === 'updated') {
-    out.sort((a, b) => {
-      const da = a.last_article_date || ''
-      const db = b.last_article_date || ''
-      return db.localeCompare(da) || a.name.localeCompare(b.name)
-    })
-  } else {
-    out.sort((a, b) => a.name.localeCompare(b.name))
+function listParams(extra: { limit?: number; offset?: number } = {}) {
+  return {
+    q: search.value.trim() || undefined,
+    content_type: contentType.value || undefined,
+    sort: sortBy.value,
+    limit: extra.limit ?? pageSize,
+    offset: extra.offset ?? 0,
   }
-  return out
 }
 
 function setType(t: string) {
@@ -89,17 +83,10 @@ function clearFilters() {
 
 async function loadMore() {
   if (!hasMore.value || loadingMore.value || loading.value) return
-  // Client sorts (articles/updated) load full set in reload; only name uses server pages.
-  if (sortBy.value !== 'name') return
   loadingMore.value = true
   try {
-    const res = await getJournals({
-      q: search.value.trim() || undefined,
-      content_type: contentType.value || undefined,
-      limit: pageSize,
-      offset: offset.value,
-    })
-    journals.value = sortLocal([...journals.value, ...res.journals])
+    const res = await getJournals(listParams({ offset: offset.value }))
+    journals.value = [...journals.value, ...res.journals]
     offset.value += res.journals.length
     total.value = typeof res.total === 'number' ? res.total : journals.value.length
   } catch (e: any) {
@@ -113,13 +100,8 @@ async function reload() {
   loading.value = true
   offset.value = 0
   try {
-    const useServerPage = sortBy.value === 'name'
-    const res = await getJournals({
-      q: search.value.trim() || undefined,
-      content_type: contentType.value || undefined,
-      ...(useServerPage ? { limit: pageSize, offset: 0 } : {}),
-    })
-    journals.value = sortLocal(res.journals)
+    const res = await getJournals(listParams({ offset: 0 }))
+    journals.value = res.journals
     offset.value = res.journals.length
     total.value = typeof res.total === 'number' ? res.total : res.journals.length
   } catch (e: any) {

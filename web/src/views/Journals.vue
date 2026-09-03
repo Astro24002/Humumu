@@ -2,7 +2,7 @@
   <div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
       <n-h2 style="margin: 0;">期刊广场</n-h2>
-      <n-tag v-if="!loading" size="small" :bordered="false">{{ serverPaging ? total : journals.length }} 源</n-tag>
+      <n-tag v-if="!loading" size="small" :bordered="false">{{ total }} 源</n-tag>
     </div>
 
     <n-space vertical style="margin-bottom: 16px;">
@@ -207,37 +207,11 @@ const sortOptions = [
 ]
 
 const total = ref(0)
-const serverPaging = computed(() => sortBy.value === 'name')
 
-const displayedJournals = computed(() => {
-  const list = [...journals.value]
-  if (sortBy.value === 'articles') {
-    list.sort((a, b) => (b.article_count || 0) - (a.article_count || 0) || a.name.localeCompare(b.name))
-  } else if (sortBy.value === 'updated') {
-    list.sort((a, b) => {
-      const da = a.last_article_date || ''
-      const db = b.last_article_date || ''
-      return db.localeCompare(da) || a.name.localeCompare(b.name)
-    })
-  } else {
-    // Server already orders by name when paginating
-    list.sort((a, b) => a.name.localeCompare(b.name))
-  }
-  return list
-})
+const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
 
-const pageCount = computed(() => {
-  const n = serverPaging.value
-    ? (typeof total.value === 'number' ? total.value : displayedJournals.value.length)
-    : displayedJournals.value.length
-  return Math.ceil(n / pageSize) || 1
-})
-
-const pageJournals = computed(() => {
-  if (serverPaging.value) return displayedJournals.value
-  const start = (page.value - 1) * pageSize
-  return displayedJournals.value.slice(start, start + pageSize)
-})
+/** Current page rows — server already sorted + sliced. */
+const pageJournals = computed(() => journals.value)
 
 const hasActiveFilters = computed(() =>
   Boolean(q.value.trim() || contentType.value || major.value || minor.value || zone.value || topOnly.value),
@@ -250,7 +224,7 @@ const emptyDescription = computed(() =>
 function onPageChange(p: number) {
   page.value = p
   window.scrollTo({ top: 0, behavior: 'smooth' })
-  if (serverPaging.value) fetchJournals()
+  fetchJournals()
 }
 
 function clearFilters() {
@@ -356,10 +330,9 @@ async function fetchJournals() {
       minor: minor.value || undefined,
       zone: zone.value || undefined,
       top: topOnly.value ? 'true' : undefined,
-    }
-    if (sortBy.value === 'name') {
-      params.limit = pageSize
-      params.offset = (page.value - 1) * pageSize
+      sort: sortBy.value,
+      limit: pageSize,
+      offset: (page.value - 1) * pageSize,
     }
     const res = await getJournals(params)
     journals.value = res.journals
