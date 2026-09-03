@@ -39,7 +39,7 @@
                   :bordered="false"
                   :title="j.last_error || '抓取已暂停'"
                 >
-                  抓取暂停
+                  {{ healthStatusLabel(j.health_status) }}
                 </n-tag>
                 <n-tag size="tiny" type="warning" :bordered="false">{{ freqLabel(j.push_frequency) }}</n-tag>
               </n-space>
@@ -184,7 +184,7 @@ import {
   type KeywordSubscription,
 } from '@/api/subscriptions'
 import { previewJournal, addMyJournal, type PreviewItem } from '@/api/journals'
-import { dirStatusLabel, dirStatusType, freqLabel, sourceTypeLabel, contentTypeLabel } from '@/utils/labels'
+import { dirStatusLabel, dirStatusType, freqLabel, sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/labels'
 import {
   NH2, NButton, NTabs, NTabPane, NSpin, NEmpty, NList, NListItem, NThing, NInput, NTag,
   NModal, NCard, NForm, NFormItem, NAlert, NSpace, NRadio, NRadioGroup, NCheckbox,

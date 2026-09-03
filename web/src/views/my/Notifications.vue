@@ -2,6 +2,7 @@
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">通知历史</n-h2>
     <n-space size="small" align="center" style="flex-wrap: wrap;">
+      <n-button size="small" :loading="loading && !!notifs.length" @click="reload">刷新</n-button>
       <n-radio-group v-model:value="channelFilter" size="small" @update:value="onFilterChange">
         <n-radio-button value="">全部渠道</n-radio-button>
         <n-radio-button value="email">邮件</n-radio-button>
@@ -129,6 +130,10 @@ async function fetchPage(reset: boolean) {
     loading.value = false
     loadingMore.value = false
   }
+}
+
+function reload() {
+  fetchPage(true)
 }
 
 function onFilterChange() {

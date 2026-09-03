@@ -30,7 +30,7 @@
         :bordered="false"
         :title="journal.last_error || '抓取已暂停'"
       >
-        抓取暂停
+        {{ healthStatusLabel(journal.health_status) }}
       </n-tag>
     </div>
 
@@ -146,7 +146,7 @@ import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { shortUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
-import { formatAuthors, dirStatusLabel, dirStatusType, sourceTypeLabel, contentTypeLabel } from '@/utils/labels'
+import { formatAuthors, dirStatusLabel, dirStatusType, sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/labels'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty, NResult,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,

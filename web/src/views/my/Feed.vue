@@ -1,6 +1,7 @@
 <template>
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">我的更新</n-h2>
+    <n-button size="small" :loading="loading && !!updates.length" @click="reload">刷新</n-button>
   </div>
 
   <n-space style="margin-bottom: 16px;">

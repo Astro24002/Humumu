@@ -5,7 +5,7 @@
       <view class="tags">
         <text v-if="journal.content_type === 'preprint'" class="tag preprint">{{ contentTypeLabel(journal.content_type) }}</text>
         <text class="tag">{{ sourceTypeLabel(journal.source_type) }}</text>
-        <text v-if="journal.health_status === 'paused'" class="tag paused">暂停</text>
+        <text v-if="journal.health_status === 'paused'" class="tag paused">{{ healthStatusLabel(journal.health_status) }}</text>
       </view>
     </view>
     <view class="stats">
@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Journal } from '@/api/journals'
-import { formatDate, shortUrl, sourceTypeLabel, contentTypeLabel } from '@/utils/format'
+import { formatDate, shortUrl, sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/format'
 
 const props = defineProps<{ journal: Journal }>()
 

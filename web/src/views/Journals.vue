@@ -81,7 +81,7 @@
                 :bordered="false"
                 :title="j.last_error || '抓取已暂停'"
               >
-                暂停
+                {{ healthStatusLabel(j.health_status) }}
               </n-tag>
             </n-space>
           </template>
@@ -173,7 +173,7 @@ import {
 } from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
 import { shortUrl } from '@/utils/url'
-import { sourceTypeLabel, contentTypeLabel } from '@/utils/labels'
+import { sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/labels'
 import { formatDate } from '@/utils/datetime'
 import {
   NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace, NSpin,

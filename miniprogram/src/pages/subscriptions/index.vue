@@ -47,7 +47,7 @@
                   {{ sourceTypeLabel(j.source_type) }}
                   <text v-if="j.content_type === 'preprint'"> · {{ contentTypeLabel(j.content_type) }}</text>
                   <text v-if="j.directory_status && j.directory_status !== 'public'"> · {{ dirStatusLabel(j.directory_status) }}</text>
-                  <text v-if="j.health_status === 'paused'" class="meta-paused"> · 抓取暂停</text>
+                  <text v-if="j.health_status === 'paused'" class="meta-paused"> · {{ healthStatusLabel(j.health_status) }}</text>
                   · {{ freqLabel(j.push_frequency) }}
                 </text>
               </view>
@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { dirStatusLabel, sourceTypeLabel, contentTypeLabel, freqLabel } from '@/utils/format'
+import { dirStatusLabel, sourceTypeLabel, contentTypeLabel, freqLabel, healthStatusLabel } from '@/utils/format'
 import { ref } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'

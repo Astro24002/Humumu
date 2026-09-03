@@ -113,3 +113,11 @@ export function sourceTypeLabel(t?: string | null): string {
   if (t === 'rss') return 'RSS'
   return t
 }
+
+/** Fetch health label for journals. */
+export function healthStatusLabel(s?: string | null): string {
+  if (s === 'paused') return '抓取暂停'
+  if (s === 'ok' || s === 'healthy') return '正常'
+  return s || ''
+}
+

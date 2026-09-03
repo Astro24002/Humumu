@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted } from 'vue'
-import { dirStatusLabel, dirStatusType, contentTypeLabel, sourceTypeLabel } from '@/utils/labels'
+import { dirStatusLabel, dirStatusType, contentTypeLabel, sourceTypeLabel, healthStatusLabel } from '@/utils/labels'
 import { useRoute } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
@@ -189,7 +189,7 @@ const columns = [
     render: (row: Journal) => {
       const fails = row.consecutive_failures || 0
       const hs = row.health_status || (fails >= 10 || !row.is_active ? 'paused' : 'ok')
-      const label = fails > 0 ? `${fails} 失败` : (hs === 'paused' || !row.is_active ? '停用' : '正常')
+      const label = fails > 0 ? `${fails} 失败` : (hs === 'paused' || !row.is_active ? (hs === 'paused' ? healthStatusLabel('paused') : '停用') : '正常')
       const type = fails > 0 || hs === 'paused' ? 'error' : 'success'
       const lastOk = row.last_success_at ? formatDateTime(row.last_success_at) : ''
       const tip = row.last_error

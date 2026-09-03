@@ -14,7 +14,7 @@
           v-if="journal.directory_status && journal.directory_status !== 'public'"
           :class="['tag', 'dir', dirClass(journal.directory_status)]"
         >{{ dirStatusLabel(journal.directory_status) }}</text>
-        <text v-if="journal.health_status === 'paused'" class="tag paused">抓取暂停</text>
+        <text v-if="journal.health_status === 'paused'" class="tag paused">{{ healthStatusLabel(journal.health_status) }}</text>
       </view>
       <text v-if="journal.description" class="desc">{{ journal.description }}</text>
       <view v-if="journal.homepage_url || journal.source_url" class="home-row" @click="openHome">
@@ -53,7 +53,7 @@ import { goLogin } from '@/utils/nav'
 import { getJournal, type Journal } from '@/api/journals'
 import { getArticles, type Article } from '@/api/articles'
 import { subscribeJournal, unsubscribeJournal, getSubscribedJournals } from '@/api/subscriptions'
-import { dirStatusLabel, shortUrl, sourceTypeLabel, contentTypeLabel } from '@/utils/format'
+import { dirStatusLabel, shortUrl, sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/format'
 import ArticleCard from '@/components/ArticleCard.vue'
 
 const auth = useAuthStore()
