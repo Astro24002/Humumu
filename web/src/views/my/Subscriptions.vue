@@ -184,6 +184,7 @@ import {
   type KeywordSubscription,
 } from '@/api/subscriptions'
 import { previewJournal, addMyJournal, type PreviewItem } from '@/api/journals'
+import { dirStatusLabel, dirStatusType } from '@/utils/labels'
 import {
   NH2, NButton, NTabs, NTabPane, NSpin, NEmpty, NList, NListItem, NThing, NInput, NTag,
   NModal, NCard, NForm, NFormItem, NAlert, NSpace, NRadio, NRadioGroup, NCheckbox,
@@ -228,22 +229,7 @@ function freqLabel(f?: string): string {
   return '跟随全局'
 }
 
-function dirStatusLabel(s?: string): string {
-  const map: Record<string, string> = {
-    private: '私有',
-    pending_review: '待审公开',
-    rejected: '公开未通过',
-    hidden: '已下架',
-  }
-  return map[s || ''] || s || ''
-}
 
-function dirStatusType(s?: string): 'default' | 'warning' | 'error' | 'info' {
-  if (s === 'pending_review') return 'warning'
-  if (s === 'rejected' || s === 'hidden') return 'error'
-  if (s === 'private') return 'info'
-  return 'default'
-}
 
 function resetAddModal() {
   addStep.value = 'url'

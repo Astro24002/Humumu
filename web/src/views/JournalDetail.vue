@@ -146,7 +146,7 @@ import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { shortUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
-import { formatAuthors } from '@/utils/labels'
+import { formatAuthors, dirStatusLabel, dirStatusType } from '@/utils/labels'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty, NResult,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,
@@ -176,22 +176,7 @@ const articlesPageCount = computed(() => Math.ceil(articlesTotal.value / article
 const isSubscribed = ref(false)
 const subBusy = ref(false)
 
-function dirStatusLabel(s?: string): string {
-  const map: Record<string, string> = {
-    private: '私有',
-    pending_review: '待审公开',
-    rejected: '公开未通过',
-    hidden: '已下架',
-  }
-  return map[s || ''] || s || ''
-}
 
-function dirStatusType(s?: string): 'default' | 'warning' | 'error' | 'info' {
-  if (s === 'pending_review') return 'warning'
-  if (s === 'rejected' || s === 'hidden') return 'error'
-  if (s === 'private') return 'info'
-  return 'default'
-}
 
 async function handleSubscribe() {
   if (!journal.value) return

@@ -43,7 +43,7 @@
                 :type="n.status === 'sent' ? 'success' : n.status === 'failed' ? 'error' : 'warning'"
                 size="small"
               >
-                {{ statusLabel(n.status) }}
+                {{ notifStatusLabel(n.status) }}
               </n-tag>
               <n-tag
                 v-for="r in (n.match_reasons || [])"
@@ -79,7 +79,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getNotifications, type Notification } from '@/api/notifications'
 import { formatDateTime } from '@/utils/datetime'
-import { reasonLabel } from '@/utils/labels'
+import { reasonLabel, notifStatusLabel } from '@/utils/labels'
 import {
   NH2, NSpin, NEmpty, NList, NListItem, NThing, NTag, NSpace, NButton,
   NRadioGroup, NRadioButton, useMessage,
@@ -103,12 +103,6 @@ const emptyDescription = computed(() => {
   return '暂无通知'
 })
 
-function statusLabel(s: string): string {
-  if (s === 'sent') return '已发送'
-  if (s === 'failed') return '失败'
-  if (s === 'pending') return '等待中'
-  return s
-}
 
 
 async function fetchPage(reset: boolean) {

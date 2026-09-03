@@ -73,3 +73,21 @@ export function timeAgo(d: string): string {
   const days = Math.floor(hours / 24)
   return `${days}天前`
 }
+
+/** Directory visibility label for journals. */
+export function dirStatusLabel(s?: string | null): string {
+  if (s === 'public') return '公开'
+  if (s === 'private') return '私有'
+  if (s === 'pending_review') return '待审公开'
+  if (s === 'rejected') return '公开未通过'
+  if (s === 'hidden') return '已下架'
+  return s || ''
+}
+
+/** Notification delivery status label. */
+export function notifStatusLabel(s?: string | null): string {
+  if (s === 'sent') return '已发送'
+  if (s === 'pending') return '等待中'
+  if (s === 'failed') return '失败'
+  return s || ''
+}

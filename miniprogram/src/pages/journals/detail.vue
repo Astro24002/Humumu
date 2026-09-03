@@ -52,7 +52,7 @@ import { useAuthStore } from '@/stores/auth'
 import { getJournal, type Journal } from '@/api/journals'
 import { getArticles, type Article } from '@/api/articles'
 import { subscribeJournal, unsubscribeJournal, getSubscribedJournals } from '@/api/subscriptions'
-import { shortUrl } from '@/utils/format'
+import { dirStatusLabel, shortUrl } from '@/utils/format'
 import ArticleCard from '@/components/ArticleCard.vue'
 
 const auth = useAuthStore()
@@ -76,15 +76,6 @@ function goBack() {
   uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/journals/index' }) })
 }
 
-function dirStatusLabel(s?: string): string {
-  const map: Record<string, string> = {
-    private: '私有',
-    pending_review: '待审公开',
-    rejected: '公开未通过',
-    hidden: '已下架',
-  }
-  return map[s || ''] || s || ''
-}
 
 function dirClass(s?: string): string {
   if (s === 'pending_review') return 'warn'

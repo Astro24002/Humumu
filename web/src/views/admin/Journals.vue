@@ -82,6 +82,7 @@
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted } from 'vue'
+import { dirStatusLabel, dirStatusType } from '@/utils/labels'
 import { useRoute } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
@@ -155,13 +156,6 @@ const statusMenu = [
   { label: '隐藏', key: 'hidden' },
 ]
 
-function statusType(s?: string): 'success' | 'warning' | 'error' | 'info' | 'default' {
-  if (s === 'public') return 'success'
-  if (s === 'pending_review') return 'warning'
-  if (s === 'rejected' || s === 'hidden') return 'error'
-  if (s === 'private') return 'info'
-  return 'default'
-}
 
 const columns = [
   { title: '名称', key: 'name' },
@@ -181,8 +175,8 @@ const columns = [
   {
     title: '目录',
     key: 'directory_status',
-    render: (row: Journal) => h(NTag, { size: 'small', type: statusType(row.directory_status) }, {
-      default: () => row.directory_status || 'public',
+    render: (row: Journal) => h(NTag, { size: 'small', type: dirStatusType(row.directory_status) }, {
+      default: () => dirStatusLabel(row.directory_status || 'public'),
     }),
   },
   {

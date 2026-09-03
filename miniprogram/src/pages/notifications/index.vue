@@ -30,7 +30,7 @@
             <text :class="['tag', n.channel === 'wechat' ? 'tag-wechat' : 'tag-email']">
               {{ n.channel === 'wechat' ? '微信' : '邮件' }}
             </text>
-            <text :class="['status', n.status]">{{ statusText(n.status) }}</text>
+            <text :class="['status', n.status]">{{ notifStatusLabel(n.status) }}</text>
             <text v-for="r in (n.match_reasons || [])" :key="r" class="reason">{{ reasonLabel(r) }}</text>
           </view>
           <text v-if="n.error_message" class="error">{{ n.error_message }}</text>
@@ -47,7 +47,7 @@ import { ref, computed, onMounted } from 'vue'
 import { onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getNotifications, type Notification } from '@/api/notifications'
-import { formatDateTime, reasonLabel } from '@/utils/format'
+import { formatDateTime, reasonLabel, notifStatusLabel } from '@/utils/format'
 
 const auth = useAuthStore()
 const notifications = ref<Notification[]>([])
@@ -152,14 +152,6 @@ async function fetchNotifications(reset = false) {
 
 function loadMore() { fetchNotifications(false) }
 
-function statusText(s: string) {
-  switch (s) {
-    case 'sent': return '已发送'
-    case 'pending': return '待发送'
-    case 'failed': return '发送失败'
-    default: return s
-  }
-}
 
 
 function goArticle(articleId: string) {

@@ -112,6 +112,7 @@
 </template>
 
 <script setup lang="ts">
+import { dirStatusLabel } from '@/utils/format'
 import { ref, onMounted } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
@@ -147,15 +148,6 @@ function freqLabel(f?: string): string {
   return '跟随全局'
 }
 
-function dirStatusLabel(s?: string): string {
-  const map: Record<string, string> = {
-    private: '私有',
-    pending_review: '待审公开',
-    rejected: '公开未通过',
-    hidden: '已下架',
-  }
-  return map[s || ''] || s || ''
-}
 
 function goJournal(id: string) {
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
