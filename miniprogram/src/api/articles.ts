@@ -27,8 +27,3 @@ export function getArticles(params: { limit?: number; offset?: number; journal_i
 export function getArticle(id: string): Promise<Article> {
   return get(`/articles/${id}`)
 }
-
-export function getMyFeed(params: { limit?: number; offset?: number } = {}): Promise<ArticlesResponse> {
-  const qs = buildQuery(params as Record<string, string | number | undefined>)
-  return get(`/my/feed${qs}`)
-}

@@ -23,6 +23,7 @@ export interface User {
   email: string
   name: string
   push_frequency: string
+  is_admin?: boolean
   created_at: string
 }
 

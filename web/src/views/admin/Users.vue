@@ -20,6 +20,13 @@ const columns = [
       default: () => row.push_frequency === 'realtime' ? '实时' : '每日',
     }),
   },
+  {
+    title: '角色',
+    key: 'is_admin',
+    render: (row: User) => h(NTag, { size: 'small', type: row.is_admin ? 'success' : 'default' }, {
+      default: () => row.is_admin ? '管理员' : '用户',
+    }),
+  },
   { title: '注册时间', key: 'created_at' },
 ]
 

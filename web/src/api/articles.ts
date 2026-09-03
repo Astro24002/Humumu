@@ -25,7 +25,3 @@ export function getArticles(params?: { journal_id?: string; limit?: string; offs
 export function getArticle(id: string): Promise<Article> {
   return get<Article>(`/articles/${id}`)
 }
-
-export function getMyFeed(params?: { limit?: string; offset?: string }): Promise<ArticlesResponse> {
-  return get<ArticlesResponse>('/my/feed', params as Record<string, string>)
-}
