@@ -20,6 +20,7 @@ class RawArticle(TypedDict):
     title: str
     url: str
     doi: str | None
+    guid: str | None
     authors: list[str]
     abstract: str
     publish_date: str  # "YYYY-MM-DD" or ""
@@ -130,6 +131,27 @@ def _entry_date(entry: Any) -> str:
     return ""
 
 
+def _entry_guid(entry: Any) -> str | None:
+    """Extract feed entry id/guid if present and not a DOI-looking value."""
+    raw = None
+    if hasattr(entry, "get"):
+        raw = entry.get("id") or entry.get("guid")
+    if not raw:
+        raw = getattr(entry, "id", None) or getattr(entry, "guid", None)
+    if raw is None:
+        return None
+    if isinstance(raw, dict):
+        raw = raw.get("value") or raw.get("content") or ""
+    s = str(raw).strip()
+    if not s:
+        return None
+    # Prefer storing non-DOI ids as guid; DOI handled separately
+    low = s.lower()
+    if low.startswith("doi:") or "doi.org/" in low:
+        return None
+    return s[:1000]
+
+
 def _entry_abstract(entry: Any) -> str:
     summary = ""
     if hasattr(entry, "get"):
@@ -173,6 +195,7 @@ def parse_feed_body(body: str | bytes) -> list[RawArticle]:
                 link = links[0].get("href") or ""
 
         doi = _entry_doi(entry, link)
+        guid = _entry_guid(entry)
         authors = _authors_from_entry(entry)
         abstract = _entry_abstract(entry)
         publish_date = _entry_date(entry)
@@ -185,6 +208,7 @@ def parse_feed_body(body: str | bytes) -> list[RawArticle]:
                 title=title,
                 url=link or "",
                 doi=doi,
+                guid=guid,
                 authors=authors,
                 abstract=abstract,
                 publish_date=publish_date,

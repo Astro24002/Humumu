@@ -15,6 +15,7 @@ class Article(Base):
         UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid()
     )
     doi: Mapped[str | None] = mapped_column(String(255), nullable=True, server_default=None)
+    guid: Mapped[str | None] = mapped_column(Text, nullable=True)
     title: Mapped[str] = mapped_column(Text, nullable=False)
     authors: Mapped[list[str]] = mapped_column(
         ARRAY(Text), nullable=False, server_default="{}"

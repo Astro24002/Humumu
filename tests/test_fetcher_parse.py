@@ -59,3 +59,11 @@ def test_parse_rss_publish_dates():
 def test_parse_empty_feed():
     body = """<?xml version="1.0"?><rss version="2.0"><channel><title>x</title></channel></rss>"""
     assert parse_feed_body(body) == []
+
+
+def test_parse_rss_guid_when_present():
+    body = FIXTURE.read_text(encoding="utf-8")
+    articles = parse_feed_body(body)
+    assert articles[1].get("guid") == "beta-guid-42"
+    # DOI items may omit guid or leave None
+    assert articles[0].get("guid") in (None, "")
