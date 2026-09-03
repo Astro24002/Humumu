@@ -39,6 +39,8 @@ services:
       JWT_SECRET: "change-me-in-production"
       FETCH_INTERVAL_MINUTES: "30"
       HUMUMU_ENABLE_SCHEDULER: "1"
+      # Set to "1" to upsert data/journals_seed.json after migrate.
+      HUMUMU_SEED_JOURNALS: "0"
     depends_on:
       postgres:
         condition: service_healthy

@@ -360,17 +360,53 @@ async def update_request_status(
     request_id: str | UUID,
     status: str,
 ) -> bool:
-    """Set journal request status and reviewed_at. Returns True if updated."""
+    """Review a journal request.
+
+    On ``approved``: create (or reuse) a public journal from the request URL and
+    subscribe the requester. On ``rejected``: only flip request status.
+    Returns True if the request row was updated.
+    """
     uid = _parse_uuid(request_id)
     if uid is None:
         return False
 
-    result = await session.execute(
-        update(JournalRequest)
-        .where(JournalRequest.id == uid)
-        .values(status=status, reviewed_at=datetime.now(timezone.utc))
-    )
-    return bool(result.rowcount)
+    status_s = (status or "").strip().lower()
+    result = await session.execute(select(JournalRequest).where(JournalRequest.id == uid))
+    req = result.scalar_one_or_none()
+    if req is None:
+        return False
+
+    if status_s == "approved":
+        existing = await find_by_url(session, req.source_url)
+        if existing is None:
+            journal = await create_journal(
+                session,
+                name=req.journal_name,
+                source_url=req.source_url,
+                created_by=req.user_id,
+                source_type="rss",
+                directory_status="public",
+                content_type="journal",
+            )
+            journal_id = journal.id
+        else:
+            # Ensure approved legacy requests land in the public directory.
+            if (existing.directory_status or "") != "public":
+                await set_directory_status(session, existing.id, "public")
+            journal_id = existing.id
+
+        # Best-effort subscribe requester so they immediately see the source.
+        try:
+            from app.services import subscriptions as sub_service
+
+            await sub_service.subscribe_journal(session, req.user_id, journal_id)
+        except Exception:
+            pass
+
+    req.status = status_s
+    req.reviewed_at = datetime.now(timezone.utc)
+    await session.flush()
+    return True
 
 
 async def create_journal_request(

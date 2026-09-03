@@ -377,3 +377,22 @@ async def test_admin_without_auth_401(client):
         json={"name": "X", "source_url": "https://example.com/x"},
     )
     assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_admin_review_approved_creates_or_reuses_via_service(client, authed_user_id):
+    """Router still delegates to update_request_status; approval path is service-owned."""
+    rid = str(uuid.uuid4())
+    with patch(
+        "app.routers.admin.journal_service.update_request_status",
+        new_callable=AsyncMock,
+        return_value=True,
+    ) as mock_upd:
+        r = await client.put(
+            f"/api/v1/admin/requests/{rid}",
+            json={"status": "approved"},
+        )
+    assert r.status_code == 200
+    mock_upd.assert_awaited_once()
+    # positional: session, request_id, status
+    assert mock_upd.await_args.args[2] == "approved"
