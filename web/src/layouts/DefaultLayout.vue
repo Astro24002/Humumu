@@ -52,7 +52,9 @@
 import { computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { NLayout, NLayoutHeader, NLayoutContent, NButton, NH3, NDropdown, NIcon } from 'naive-ui'
+import {
+  NLayout, NLayoutHeader, NLayoutContent, NButton, NH3, NDropdown, NIcon, useDialog, useMessage,
+} from 'naive-ui'
 import {
   SettingsOutline, LogOutOutline, ShieldOutline, NotificationsOutline,
 } from '@vicons/ionicons5'
@@ -60,6 +62,8 @@ import {
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const dialog = useDialog()
+const message = useMessage()
 
 function goHome() {
   router.push(auth.isLoggedIn ? '/my' : '/')
@@ -100,6 +104,18 @@ function onUserMenuSelect(key: string) {
   if (key === 'notifications') router.push('/my/notifications')
   if (key === 'settings') router.push('/settings')
   if (key === 'admin') router.push('/admin')
-  if (key === 'logout') { auth.logout(); router.push('/') }
+  if (key === 'logout') {
+    dialog.warning({
+      title: '确认退出',
+      content: '退出后需要重新登录才能管理订阅与阅读状态。',
+      positiveText: '退出',
+      negativeText: '取消',
+      onPositiveClick: () => {
+        auth.logout()
+        message.success('已退出')
+        router.push('/')
+      },
+    })
+  }
 }
 </script>

@@ -1,17 +1,24 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">通知历史</n-h2>
-    <n-radio-group v-model:value="statusFilter" size="small" @update:value="onStatusChange">
-      <n-radio-button value="">全部</n-radio-button>
-      <n-radio-button value="sent">已发送</n-radio-button>
-      <n-radio-button value="failed">失败</n-radio-button>
-      <n-radio-button value="pending">等待中</n-radio-button>
-    </n-radio-group>
+    <n-space size="small" align="center" style="flex-wrap: wrap;">
+      <n-radio-group v-model:value="channelFilter" size="small" @update:value="onFilterChange">
+        <n-radio-button value="">全部渠道</n-radio-button>
+        <n-radio-button value="email">邮件</n-radio-button>
+        <n-radio-button value="wechat">微信</n-radio-button>
+      </n-radio-group>
+      <n-radio-group v-model:value="statusFilter" size="small" @update:value="onFilterChange">
+        <n-radio-button value="">全部状态</n-radio-button>
+        <n-radio-button value="sent">已发送</n-radio-button>
+        <n-radio-button value="failed">失败</n-radio-button>
+        <n-radio-button value="pending">等待中</n-radio-button>
+      </n-radio-group>
+    </n-space>
   </div>
   <div v-if="loading && !notifs.length"><n-spin /></div>
   <n-empty v-else-if="!notifs.length" :description="emptyDescription">
     <template #extra>
-      <n-button v-if="statusFilter" @click="clearStatus">查看全部通知</n-button>
+      <n-button v-if="hasActiveFilters" @click="clearFilters">清除筛选</n-button>
       <n-button v-else @click="router.push('/my/subscriptions')">管理订阅</n-button>
     </template>
   </n-empty>
@@ -85,11 +92,12 @@ const offset = ref(0)
 const limit = 20
 const hasMore = ref(false)
 const statusFilter = ref('')
+const channelFilter = ref('')
+
+const hasActiveFilters = computed(() => Boolean(statusFilter.value || channelFilter.value))
 
 const emptyDescription = computed(() => {
-  if (statusFilter.value === 'failed') return '没有失败的通知'
-  if (statusFilter.value === 'pending') return '没有等待中的通知'
-  if (statusFilter.value === 'sent') return '没有已发送的通知'
+  if (hasActiveFilters.value) return '当前筛选下暂无通知'
   return '暂无通知'
 })
 
@@ -122,6 +130,7 @@ async function fetchPage(reset: boolean) {
       limit: String(limit),
       offset: String(offset.value),
       status: statusFilter.value || undefined,
+      channel: channelFilter.value || undefined,
     })
     notifs.value.push(...res.notifications)
     offset.value += res.notifications.length
@@ -134,12 +143,13 @@ async function fetchPage(reset: boolean) {
   }
 }
 
-function onStatusChange() {
+function onFilterChange() {
   fetchPage(true)
 }
 
-function clearStatus() {
+function clearFilters() {
   statusFilter.value = ''
+  channelFilter.value = ''
   fetchPage(true)
 }
 

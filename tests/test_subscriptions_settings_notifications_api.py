@@ -325,6 +325,19 @@ async def test_notifications_status_filter_forwarded(client, authed_user_id):
 
 
 @pytest.mark.asyncio
+async def test_notifications_channel_filter_forwarded(client, authed_user_id):
+    with patch(
+        "app.routers.notifications.sub_service.list_notifications",
+        new_callable=AsyncMock,
+        return_value=[],
+    ) as mock_list:
+        r = await client.get("/api/v1/notifications?channel=wechat&status=sent")
+    assert r.status_code == 200
+    assert mock_list.await_args.kwargs["channel"] == "wechat"
+    assert mock_list.await_args.kwargs["status"] == "sent"
+
+
+@pytest.mark.asyncio
 async def test_notifications_empty(client, authed_user_id):
     with patch(
         "app.routers.notifications.sub_service.list_notifications",

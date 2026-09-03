@@ -329,6 +329,7 @@ async def remove_keyword(
 
 
 _NOTIFICATION_STATUSES = frozenset({"pending", "sent", "failed"})
+_NOTIFICATION_CHANNELS = frozenset({"email", "wechat"})
 
 
 async def list_notifications(
@@ -338,6 +339,7 @@ async def list_notifications(
     limit: int = 20,
     offset: int = 0,
     status: str | None = None,
+    channel: str | None = None,
 ) -> list[NotificationOut]:
     limit = _clamp_limit(limit)
     if offset < 0:
@@ -351,9 +353,15 @@ async def list_notifications(
     if status_filter is not None and status_filter not in _NOTIFICATION_STATUSES:
         status_filter = None
 
+    channel_filter = (channel or "").strip().lower() or None
+    if channel_filter is not None and channel_filter not in _NOTIFICATION_CHANNELS:
+        channel_filter = None
+
     conditions = [Notification.user_id == uid]
     if status_filter is not None:
         conditions.append(Notification.status == status_filter)
+    if channel_filter is not None:
+        conditions.append(Notification.channel == channel_filter)
 
     stmt = (
         select(Notification, Article.title)

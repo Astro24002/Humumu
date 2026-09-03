@@ -15,7 +15,10 @@
   <div v-if="loading && !updates.length"><n-spin /></div>
   <n-empty v-else-if="!updates.length" :description="emptyDescription">
     <template #extra>
-      <n-button v-if="!filter" @click="router.push('/journals')">浏览期刊</n-button>
+      <n-space v-if="!filter">
+        <n-button type="primary" @click="router.push('/journals')">浏览期刊</n-button>
+        <n-button @click="router.push('/my/subscriptions')">管理订阅</n-button>
+      </n-space>
       <n-button v-else @click="filter = ''; reload()">查看全部更新</n-button>
     </template>
   </n-empty>
