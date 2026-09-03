@@ -7,7 +7,10 @@
 
     <template v-else>
       <view v-if="loading" class="loading"><text>加载中...</text></view>
-      <view v-else-if="notifications.length === 0" class="empty"><text>暂无通知</text></view>
+      <view v-else-if="notifications.length === 0" class="empty">
+        <text>暂无通知</text>
+        <button size="mini" class="btn-empty" @click="goSubscriptions">管理订阅</button>
+      </view>
       <scroll-view v-else scroll-y @scrolltolower="loadMore" class="scroll-view">
         <view v-for="n in notifications" :key="n.id" class="notif-item" @click="goArticle(n.article_id)">
           <view class="notif-header">
@@ -37,6 +40,10 @@ const loading = ref(true)
 const hasMore = ref(true)
 const offset = ref(0)
 const limit = 20
+
+function goSubscriptions() {
+  uni.switchTab({ url: '/pages/subscriptions/index' })
+}
 
 onMounted(() => {
   if (auth.isLoggedIn) fetchNotifications()
@@ -87,7 +94,8 @@ function goArticle(articleId: string) {
 .container { min-height: 100vh; }
 .login-prompt { text-align: center; padding: 200rpx 40rpx; color: #999; font-size: 28rpx; }
 .btn-login { margin-top: 30rpx; background: #3cc51f; color: #fff; border: none; border-radius: 12rpx; padding: 20rpx 60rpx; }
-.loading, .empty { text-align: center; padding: 80rpx; color: #999; }
+.loading, .empty { text-align: center; padding: 80rpx 40rpx; color: #999; }
+.btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
 .scroll-view { height: 100vh; }
 .notif-item { padding: 24rpx 30rpx; background: #fff; border-bottom: 1rpx solid #f0f0f0; }
 .notif-header { display: flex; align-items: center; gap: 12rpx; }

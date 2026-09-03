@@ -77,7 +77,10 @@
       <n-h3 style="margin: 0;">论文列表</n-h3>
       <n-tag v-if="articlesTotal > 0" size="small" :bordered="false">{{ articlesTotal }} 篇</n-tag>
     </div>
-    <n-empty v-if="!articles.length && !articlesLoading" description="暂无文章" />
+    <n-empty
+      v-if="!articles.length && !articlesLoading"
+      :description="journal.health_status === 'paused' ? '暂无文章（抓取已暂停）' : '暂无文章'"
+    />
     <n-list v-else>
       <n-list-item v-for="a in articles" :key="a.id">
         <n-thing :title="a.title">

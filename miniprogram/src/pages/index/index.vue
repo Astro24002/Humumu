@@ -7,6 +7,7 @@
       <text v-if="tab === 'all'" :class="['tab', contentType === 'preprint' && 'active']" @click="setContentType('preprint')">预印本</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'unread' && 'active']" @click="setFilter('unread')">未读</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'starred' && 'active']" @click="setFilter('starred')">星标</text>
+      <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'later' && 'active']" @click="setFilter('later')">稍后再看</text>
     </view>
 
     <view v-if="loading" class="loading"><text>加载中...</text></view>

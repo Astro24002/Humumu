@@ -20,7 +20,7 @@
 
       <view class="section" v-if="article.abstract">
         <text class="section-title">摘要</text>
-        <text class="abstract">{{ article.abstract }}</text>
+        <text class="abstract">{{ cleanAbstract(article.abstract) }}</text>
       </view>
 
       <view class="status-row" v-if="auth.isLoggedIn">
@@ -65,6 +65,11 @@ const status = ref<ArticleStatus>({
   is_later: false,
   original_clicked_at: null,
 })
+
+function cleanAbstract(text?: string): string {
+  if (!text) return ''
+  return text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
+}
 
 function goBack() {
   uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/index/index' }) })
