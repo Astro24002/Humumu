@@ -5,6 +5,12 @@
   </div>
 
   <n-space style="margin-bottom: 12px;" align="center">
+    <n-input
+      v-model:value="nameFilter"
+      clearable
+      placeholder="搜索名称 / slug / URL"
+      style="width: 240px"
+    />
     <n-select
       v-model:value="statusFilter"
       clearable
@@ -84,11 +90,17 @@ const editingId = ref<string | null>(null)
 const saving = ref(false)
 const statusFilter = ref<string>(typeof route.query.status === 'string' ? route.query.status : '')
 const contentFilter = ref<string>('')
+const nameFilter = ref('')
 
 const filteredJournals = computed(() => {
+  const q = nameFilter.value.trim().toLowerCase()
   return journals.value.filter((j) => {
     if (statusFilter.value && (j.directory_status || 'public') !== statusFilter.value) return false
     if (contentFilter.value && (j.content_type || 'journal') !== contentFilter.value) return false
+    if (q) {
+      const hay = `${j.name || ''} ${j.slug || ''} ${j.source_url || ''} ${j.homepage_url || ''}`.toLowerCase()
+      if (!hay.includes(q)) return false
+    }
     return true
   })
 })

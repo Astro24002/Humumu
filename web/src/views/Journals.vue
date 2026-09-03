@@ -77,10 +77,28 @@
           <p style="color: #888; font-size: 12px; word-break: break-all;">{{ j.source_url }}</p>
 
           <template #action>
-            <n-button v-if="isLoggedIn" size="small" type="primary" ghost
-              @click.stop="handleSubscribe(j)">
-              订阅
-            </n-button>
+            <template v-if="isLoggedIn">
+              <n-button
+                v-if="subscribedIds.has(j.id)"
+                size="small"
+                type="error"
+                ghost
+                :loading="busyId === j.id"
+                @click.stop="handleUnsubscribe(j)"
+              >
+                已订阅
+              </n-button>
+              <n-button
+                v-else
+                size="small"
+                type="primary"
+                ghost
+                :loading="busyId === j.id"
+                @click.stop="handleSubscribe(j)"
+              >
+                订阅
+              </n-button>
+            </template>
             <n-button size="small" quaternary @click.stop="router.push(`/journals/${j.id}`)">
               浏览论文
             </n-button>
@@ -97,7 +115,11 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getJournals, type Journal } from '@/api/journals'
 import { getCasCategories, type CasCategory } from '@/api/categories'
-import { subscribeJournal } from '@/api/subscriptions'
+import {
+  subscribeJournal,
+  unsubscribeJournal,
+  getSubscribedJournals,
+} from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
 import {
   NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace,
@@ -117,6 +139,8 @@ const minor = ref<string | null>(null)
 const zone = ref<string | null>(null)
 const topOnly = ref(false)
 const categories = ref<CasCategory[]>([])
+const subscribedIds = ref<Set<string>>(new Set())
+const busyId = ref<string | null>(null)
 
 const majorOptions = computed(() => {
   const set = new Set(categories.value.map(c => c.major).filter(Boolean))
@@ -147,12 +171,44 @@ function onMajorChange() {
   reload()
 }
 
+async function refreshSubscribed() {
+  if (!auth.isLoggedIn) {
+    subscribedIds.value = new Set()
+    return
+  }
+  try {
+    const res = await getSubscribedJournals()
+    subscribedIds.value = new Set(res.journals.map((j) => j.id))
+  } catch {
+    // non-blocking
+  }
+}
+
 async function handleSubscribe(j: Journal) {
+  busyId.value = j.id
   try {
     await subscribeJournal(j.id)
+    subscribedIds.value = new Set([...subscribedIds.value, j.id])
     message.success(`已订阅「${j.name}」`)
   } catch (e: any) {
     message.error(e.message || '订阅失败')
+  } finally {
+    busyId.value = null
+  }
+}
+
+async function handleUnsubscribe(j: Journal) {
+  busyId.value = j.id
+  try {
+    await unsubscribeJournal(j.id)
+    const next = new Set(subscribedIds.value)
+    next.delete(j.id)
+    subscribedIds.value = next
+    message.success(`已取消订阅「${j.name}」`)
+  } catch (e: any) {
+    message.error(e.message || '取消失败')
+  } finally {
+    busyId.value = null
   }
 }
 
@@ -182,6 +238,6 @@ onMounted(async () => {
   } catch {
     // CAS optional
   }
-  await reload()
+  await Promise.all([reload(), refreshSubscribed()])
 })
 </script>
