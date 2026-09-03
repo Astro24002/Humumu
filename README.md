@@ -145,8 +145,10 @@ make docker-build
 | `/settings` | 个人设置（账号 + 推送频率） | 登录 |
 | `/admin` | 管理后台概览 | 管理员 |
 | `/admin/journals` | 期刊管理 | 管理员 |
+| `/admin/categories` | CAS 分类管理 | 管理员 |
 | `/admin/requests` | 申请审核 | 管理员 |
 | `/admin/users` | 用户管理 | 管理员 |
+| 其他未知路径 | SPA 404 | 公开 |
 
 ## 配置
 
