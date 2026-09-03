@@ -2,10 +2,10 @@
   <n-card title="登录" style="max-width: 400px; margin: 80px auto;">
     <n-form :model="form" :rules="rules" @submit.prevent="handleLogin">
       <n-form-item label="邮箱" path="email">
-        <n-input v-model:value="form.email" placeholder="user@example.com" />
+        <n-input v-model:value="form.email" placeholder="user@example.com" autocomplete="username" />
       </n-form-item>
       <n-form-item label="密码" path="password">
-        <n-input v-model:value="form.password" type="password" show-password-on="click" />
+        <n-input v-model:value="form.password" type="password" show-password-on="click" autocomplete="current-password" />
       </n-form-item>
       <n-button type="primary" block :loading="loading" attr-type="submit">登录</n-button>
     </n-form>

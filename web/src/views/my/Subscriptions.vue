@@ -48,7 +48,7 @@
           <template #suffix>
             <n-space>
               <n-button size="small" ghost @click="openPrefs(j)">推送设置</n-button>
-              <n-button size="small" type="error" ghost @click="unsubscribe(j.id)">取消关注</n-button>
+              <n-button size="small" type="error" ghost @click="confirmUnsubscribe(j)">取消关注</n-button>
             </n-space>
           </template>
         </n-list-item>
@@ -168,7 +168,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useMessage } from 'naive-ui'
+import { useMessage, useDialog } from 'naive-ui'
 import {
   getSubscribedJournals,
   unsubscribeJournal,
@@ -191,6 +191,7 @@ import {
 
 const router = useRouter()
 const message = useMessage()
+const dialog = useDialog()
 const activeTab = ref('journals')
 
 const journals = ref<SubscribedJournal[]>([])
@@ -290,6 +291,16 @@ async function savePrefs() {
   } finally {
     prefsSaving.value = false
   }
+}
+
+function confirmUnsubscribe(j: { id: string; name: string }) {
+  dialog.warning({
+    title: '取消关注',
+    content: `确认取消关注「${j.name}」？`,
+    positiveText: '取消关注',
+    negativeText: '保留',
+    onPositiveClick: () => unsubscribe(j.id),
+  })
 }
 
 async function unsubscribe(id: string) {

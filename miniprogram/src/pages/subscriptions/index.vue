@@ -203,14 +203,22 @@ async function toggleChannel(j: SubscribedJournal, field: 'email_enabled' | 'wec
   }
 }
 
-async function unsubscribe(id: string) {
-  try {
-    await unsubscribeJournal(id)
-    journals.value = journals.value.filter(j => j.id !== id)
-    uni.showToast({ title: '已取消关注', icon: 'success' })
-  } catch (e: any) {
-    uni.showToast({ title: e.message || '操作失败', icon: 'none' })
-  }
+function unsubscribe(id: string) {
+  const j = journals.value.find((x) => x.id === id)
+  uni.showModal({
+    title: '取消关注',
+    content: j ? `确认取消关注「${j.name}」？` : '确认取消关注？',
+    success: async (res) => {
+      if (!res.confirm) return
+      try {
+        await unsubscribeJournal(id)
+        journals.value = journals.value.filter((x) => x.id !== id)
+        uni.showToast({ title: '已取消关注', icon: 'success' })
+      } catch (e: any) {
+        uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+      }
+    },
+  })
 }
 
 async function addFeed() {

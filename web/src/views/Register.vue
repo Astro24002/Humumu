@@ -2,13 +2,13 @@
   <n-card title="注册" style="max-width: 400px; margin: 80px auto;">
     <n-form :model="form" :rules="rules" @submit.prevent="handleRegister">
       <n-form-item label="邮箱" path="email">
-        <n-input v-model:value="form.email" placeholder="user@example.com" />
+        <n-input v-model:value="form.email" placeholder="user@example.com" autocomplete="username" />
       </n-form-item>
       <n-form-item label="密码" path="password">
-        <n-input v-model:value="form.password" type="password" show-password-on="click" />
+        <n-input v-model:value="form.password" type="password" show-password-on="click" autocomplete="new-password" />
       </n-form-item>
       <n-form-item label="昵称" path="name">
-        <n-input v-model:value="form.name" placeholder="可选" />
+        <n-input v-model:value="form.name" placeholder="可选" autocomplete="nickname" />
       </n-form-item>
       <n-button type="primary" block :loading="loading" attr-type="submit">注册</n-button>
     </n-form>
