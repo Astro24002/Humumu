@@ -16,14 +16,24 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => !!user.value?.is_admin)
 
-  function setUser(u: AuthUser) {
-    user.value = u
-    localStorage.setItem('user', JSON.stringify(u))
+  function withHasEmail(u: AuthUser, hasEmail?: boolean): AuthUser {
+    const derived =
+      typeof hasEmail === 'boolean'
+        ? hasEmail
+        : typeof u.has_email === 'boolean'
+          ? u.has_email
+          : !!(u.email && !u.email.endsWith('@wechat.user'))
+    return { ...u, has_email: derived }
+  }
+
+  function setUser(u: AuthUser, hasEmail?: boolean) {
+    user.value = withHasEmail(u, hasEmail)
+    localStorage.setItem('user', JSON.stringify(user.value))
   }
 
   function setAuth(res: AuthResponse) {
     token.value = res.token
-    setUser(res.user)
+    setUser(res.user, res.has_email)
     localStorage.setItem('token', res.token)
   }
 
@@ -54,7 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
     try {
       const res = await getMe()
-      setUser(res.user)
+      setUser(res.user, res.has_email)
     } catch {
       // Stale/invalid token — clear local session.
       logout()

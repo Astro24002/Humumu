@@ -8,6 +8,8 @@ export interface AuthUser {
   push_frequency: string
   is_admin?: boolean
   created_at: string
+  /** Client-side: true email (not synthetic @wechat.user). Set from /auth/me or login. */
+  has_email?: boolean
 }
 
 export interface AuthResponse {

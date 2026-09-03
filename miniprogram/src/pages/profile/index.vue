@@ -9,7 +9,8 @@
       <!-- User info -->
       <view class="user-card">
         <text class="user-name">{{ auth.user?.name || '用户' }}</text>
-        <text class="user-email">{{ auth.user?.email }}</text>
+        <text class="user-email">{{ accountEmailLabel }}</text>
+        <text v-if="auth.user?.wechat_openid" class="user-meta">微信已关联</text>
       </view>
 
       <!-- Settings -->
@@ -42,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { getTemplateSetting, updateTemplateSetting, getTemplateIds } from '@/api/wechat'
 
@@ -51,8 +52,19 @@ const templateSubscribed = ref(false)
 const freqOptions = ['每日汇总', '实时推送']
 const freqIndex = ref(0)
 
-onMounted(() => {
+const accountEmailLabel = computed(() => {
+  if (!auth.user) return ''
+  if (auth.hasEmail) return auth.user.email
+  return '未绑定邮箱（微信登录）'
+})
+
+onMounted(async () => {
   if (!auth.isLoggedIn) return
+  try {
+    await auth.refreshMe()
+  } catch {
+    // ignore
+  }
   // default daily (index 0); realtime is index 1
   freqIndex.value = auth.user?.push_frequency === 'realtime' ? 1 : 0
   loadTemplateSetting()
@@ -132,6 +144,7 @@ function handleLogout() {
 .user-card { background: #fff; padding: 40rpx 30rpx; margin-bottom: 16rpx; }
 .user-name { font-size: 36rpx; font-weight: 600; display: block; }
 .user-email { font-size: 26rpx; color: #999; margin-top: 8rpx; display: block; }
+.user-meta { font-size: 24rpx; color: #3cc51f; margin-top: 8rpx; display: block; }
 .section { background: #fff; margin-bottom: 16rpx; padding: 0 30rpx; }
 .section-title { font-size: 28rpx; color: #999; padding: 20rpx 0; border-bottom: 1rpx solid #f0f0f0; }
 .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 24rpx 0; border-bottom: 1rpx solid #f8f8f8; font-size: 28rpx; }
