@@ -49,6 +49,7 @@ import { useAuthStore } from '@/stores/auth'
 import { getJournal, type Journal } from '@/api/journals'
 import { getArticles, type Article } from '@/api/articles'
 import { subscribeJournal, unsubscribeJournal, getSubscribedJournals } from '@/api/subscriptions'
+import { shortUrl } from '@/utils/format'
 import ArticleCard from '@/components/ArticleCard.vue'
 
 const auth = useAuthStore()
@@ -164,18 +165,6 @@ async function subscribe() {
     uni.showToast({ title: '订阅成功', icon: 'success' })
   } catch (e: any) {
     uni.showToast({ title: e.message || '订阅失败', icon: 'none' })
-  }
-}
-
-function shortUrl(url?: string | null): string {
-  if (!url) return ''
-  try {
-    const u = new URL(url)
-    const path = u.pathname === '/' ? '' : u.pathname
-    const full = `${u.host}${path}`
-    return full.length > 40 ? `${full.slice(0, 40)}…` : full
-  } catch {
-    return url.length > 40 ? `${url.slice(0, 40)}…` : url
   }
 }
 

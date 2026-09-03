@@ -20,24 +20,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Journal } from '@/api/journals'
-import { formatDate } from '@/utils/format'
+import { formatDate, shortUrl } from '@/utils/format'
 
 const props = defineProps<{ journal: Journal }>()
 
 const linkUrl = computed(() => props.journal.homepage_url || props.journal.source_url || '')
 
-const linkLabel = computed(() => {
-  const url = linkUrl.value
-  if (!url) return ''
-  try {
-    const u = new URL(url)
-    const path = u.pathname === '/' ? '' : u.pathname
-    const full = `${u.host}${path}`
-    return full.length > 40 ? `${full.slice(0, 40)}…` : full
-  } catch {
-    return url.length > 40 ? `${url.slice(0, 40)}…` : url
-  }
-})
+const linkLabel = computed(() => shortUrl(linkUrl.value))
 
 function goDetail() {
   uni.navigateTo({ url: `/pages/journals/detail?id=${props.journal.id}` })

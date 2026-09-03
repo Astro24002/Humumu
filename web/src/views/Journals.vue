@@ -173,6 +173,7 @@ import {
   getSubscribedJournals,
 } from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
+import { shortUrl } from '@/utils/url'
 import {
   NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace, NSpin,
   NRadioGroup, NRadioButton, NSelect, NCheckbox, NPagination, useMessage,
@@ -272,18 +273,6 @@ const zoneOptions = [
 
 function formatDate(d: string): string {
   return d.slice(0, 10)
-}
-
-function shortUrl(url: string): string {
-  if (!url) return ''
-  try {
-    const u = new URL(url)
-    const path = u.pathname === '/' ? '' : u.pathname
-    const full = `${u.host}${path}`
-    return full.length > 48 ? `${full.slice(0, 48)}…` : full
-  } catch {
-    return url.length > 48 ? `${url.slice(0, 48)}…` : url
-  }
 }
 
 function onMajorChange() {

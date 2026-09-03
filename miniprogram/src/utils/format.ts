@@ -3,6 +3,19 @@ export function formatDate(d: string): string {
   return d.slice(0, 10)
 }
 
+/** Compact host+path label for display; keeps full URL for actions. */
+export function shortUrl(url: string, max = 40): string {
+  if (!url) return ''
+  try {
+    const u = new URL(url)
+    const path = u.pathname === '/' ? '' : u.pathname
+    const full = `${u.host}${path}`
+    return full.length > max ? `${full.slice(0, max)}…` : full
+  } catch {
+    return url.length > max ? `${url.slice(0, max)}…` : url
+  }
+}
+
 export function truncate(s: string, max: number): string {
   if (s.length <= max) return s
   return s.slice(0, max) + '...'

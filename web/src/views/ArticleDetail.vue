@@ -85,6 +85,7 @@ import { getArticle, type Article } from '@/api/articles'
 import { getArticleStatus, updateArticleStatus, recordOriginalClick, type ArticleStatus } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
 import { cleanAbstract } from '@/utils/abstract'
+import { shortUrl } from '@/utils/url'
 import {
   NH2, NH4, NButton, NSpin, NTag, NResult,
   NDescriptions, NDescriptionsItem, useMessage,
@@ -115,18 +116,6 @@ function doiUrl(doi: string): string {
 
 function formatDate(d: string): string {
   return d.slice(0, 10)
-}
-
-function shortUrl(url: string): string {
-  if (!url) return ''
-  try {
-    const u = new URL(url)
-    const path = u.pathname === '/' ? '' : u.pathname
-    const full = `${u.host}${path}`
-    return full.length > 48 ? `${full.slice(0, 48)}…` : full
-  } catch {
-    return url.length > 48 ? `${url.slice(0, 48)}…` : url
-  }
 }
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {

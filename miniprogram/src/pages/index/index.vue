@@ -20,6 +20,12 @@
         @click="goJournals"
       >去订阅期刊</button>
       <button
+        v-if="tab === 'updates' && auth.isLoggedIn && !filter"
+        size="mini"
+        class="btn-empty ghost"
+        @click="goSubscriptions"
+      >管理订阅</button>
+      <button
         v-else-if="tab === 'updates' && auth.isLoggedIn && filter"
         size="mini"
         class="btn-empty"
@@ -120,6 +126,10 @@ function reasonLabel(r: string): string {
 
 function goJournals() {
   uni.switchTab({ url: '/pages/journals/index' })
+}
+
+function goSubscriptions() {
+  uni.switchTab({ url: '/pages/subscriptions/index' })
 }
 
 function switchTab(t: 'all' | 'updates') {
@@ -230,6 +240,7 @@ function goJournal(id?: string) {
 .tab.active { color: #3cc51f; font-weight: 500; border-bottom: 4rpx solid #3cc51f; }
 .loading, .empty { text-align: center; padding: 100rpx 40rpx; color: #999; font-size: 28rpx; }
 .btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
+.btn-empty.ghost { background: #fff; border: 2rpx solid #3cc51f; }
 .scroll-view { height: calc(100vh - 100rpx); }
 .loading-more { text-align: center; padding: 20rpx; color: #999; font-size: 26rpx; }
 .card { background: #fff; padding: 28rpx 30rpx; border-bottom: 1rpx solid #f0f0f0; }
