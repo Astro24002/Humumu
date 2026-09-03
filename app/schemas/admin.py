@@ -46,6 +46,10 @@ class ReviewRequest(BaseModel):
     status: str
 
 
+class DirectoryStatusRequest(BaseModel):
+    directory_status: str
+
+
 class MessageResponse(BaseModel):
     message: str
 
@@ -57,6 +61,7 @@ __all__ = [
     "AdminUsersResponse",
     "AdminJournalCreate",
     "AdminJournalUpdate",
+    "DirectoryStatusRequest",
     "JournalOut",
     "JournalsResponse",
     "JournalRequestOut",

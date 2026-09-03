@@ -15,6 +15,7 @@ from app.schemas.admin import (
     AdminStatsResponse,
     AdminUserOut,
     AdminUsersResponse,
+    DirectoryStatusRequest,
     JournalOut,
     JournalRequestsResponse,
     JournalsResponse,
@@ -122,6 +123,29 @@ async def admin_delete_journal(
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to delete journal") from exc
     return MessageResponse(message="deleted")
+
+
+@router.post("/journals/{journal_id}/directory_status", response_model=MessageResponse)
+async def admin_set_directory_status(
+    journal_id: str,
+    body: DirectoryStatusRequest,
+    _user_id: str = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+) -> MessageResponse:
+    try:
+        updated = await journal_service.set_directory_status(
+            session, journal_id, body.directory_status
+        )
+        if not updated:
+            raise HTTPException(status_code=404, detail="journal not found")
+        await session.commit()
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="failed to update directory status") from exc
+    return MessageResponse(message="directory_status updated")
 
 
 @router.get("/requests", response_model=JournalRequestsResponse)

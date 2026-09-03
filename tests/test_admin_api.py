@@ -268,6 +268,43 @@ async def test_admin_users_omit_password_hash(client, authed_user_id):
 
 
 @pytest.mark.asyncio
+async def test_admin_set_directory_status_success(client, authed_user_id):
+    jid = str(uuid.uuid4())
+    with patch(
+        "app.routers.admin.journal_service.set_directory_status",
+        new_callable=AsyncMock,
+        return_value=True,
+    ) as mock_set:
+        r = await client.post(
+            f"/api/v1/admin/journals/{jid}/directory_status",
+            json={"directory_status": "hidden"},
+        )
+    assert r.status_code == 200
+    assert r.json() == {"message": "directory_status updated"}
+    mock_set.assert_awaited_once()
+    assert mock_set.await_args.args[1] == jid
+    assert mock_set.await_args.args[2] == "hidden"
+
+
+@pytest.mark.asyncio
+async def test_admin_set_directory_status_invalid_400(client, authed_user_id):
+    jid = str(uuid.uuid4())
+    with patch(
+        "app.routers.admin.journal_service.set_directory_status",
+        new_callable=AsyncMock,
+        side_effect=ValueError(
+            "directory_status must be one of: private, pending_review, public, rejected, hidden"
+        ),
+    ):
+        r = await client.post(
+            f"/api/v1/admin/journals/{jid}/directory_status",
+            json={"directory_status": "whatever"},
+        )
+    assert r.status_code == 400
+    assert "error" in r.json()
+
+
+@pytest.mark.asyncio
 async def test_admin_without_auth_401(client):
     r = await client.get("/api/v1/admin/stats")
     assert r.status_code == 401

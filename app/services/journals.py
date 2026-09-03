@@ -258,6 +258,7 @@ async def update_journal(
     description: str | None = None,
     fetch_interval: timedelta | None = None,
     is_active: bool | None = None,
+    directory_status: str | None = None,
 ) -> bool:
     """Partial-update a journal. Returns True if a row was updated."""
     uid = _parse_uuid(journal_id)
@@ -279,11 +280,32 @@ async def update_journal(
         values["fetch_interval"] = fetch_interval
     if is_active is not None:
         values["is_active"] = is_active
+    if directory_status is not None:
+        values["directory_status"] = directory_status
     if not values:
         return False
 
     result = await session.execute(update(Journal).where(Journal.id == uid).values(**values))
     return bool(result.rowcount)
+
+
+_VALID_DIRECTORY_STATUSES = frozenset(
+    {"private", "pending_review", "public", "rejected", "hidden"}
+)
+
+
+async def set_directory_status(
+    session: AsyncSession,
+    journal_id: str | UUID,
+    directory_status: str,
+) -> bool:
+    """Set journal directory_status. Returns True if a row was updated."""
+    status = (directory_status or "").strip().lower()
+    if status not in _VALID_DIRECTORY_STATUSES:
+        raise ValueError(
+            "directory_status must be one of: private, pending_review, public, rejected, hidden"
+        )
+    return await update_journal(session, journal_id, directory_status=status)
 
 
 async def delete_journal(session: AsyncSession, journal_id: str | UUID) -> bool:
