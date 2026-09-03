@@ -1568,5 +1568,605 @@
     "content_type": "preprint",
     "fetch_interval_minutes": 60,
     "homepage_url": "https://arxiv.org/list/math.NA/recent"
+  },
+  {
+    "name": "arXiv q-fin.CP",
+    "slug": "arxiv-qfin-cp",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-fin.CP",
+    "description": "Computational Finance — arXiv q-fin.CP",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-fin.CP/recent"
+  },
+  {
+    "name": "arXiv q-fin.EC",
+    "slug": "arxiv-qfin-ec",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-fin.EC",
+    "description": "Economics — arXiv q-fin.EC",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-fin.EC/recent"
+  },
+  {
+    "name": "arXiv q-fin.GN",
+    "slug": "arxiv-qfin-gn",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-fin.GN",
+    "description": "General Finance — arXiv q-fin.GN",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-fin.GN/recent"
+  },
+  {
+    "name": "arXiv q-fin.MF",
+    "slug": "arxiv-qfin-mf",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-fin.MF",
+    "description": "Mathematical Finance — arXiv q-fin.MF",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-fin.MF/recent"
+  },
+  {
+    "name": "arXiv q-fin.PR",
+    "slug": "arxiv-qfin-pr",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-fin.PR",
+    "description": "Pricing of Securities — arXiv q-fin.PR",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-fin.PR/recent"
+  },
+  {
+    "name": "arXiv q-fin.TR",
+    "slug": "arxiv-qfin-tr",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-fin.TR",
+    "description": "Trading and Market Microstructure — arXiv q-fin.TR",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-fin.TR/recent"
+  },
+  {
+    "name": "arXiv math.AP",
+    "slug": "arxiv-math-ap",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.AP",
+    "description": "Analysis of PDEs — arXiv math.AP",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.AP/recent"
+  },
+  {
+    "name": "arXiv math.AT",
+    "slug": "arxiv-math-at",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.AT",
+    "description": "Algebraic Topology — arXiv math.AT",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.AT/recent"
+  },
+  {
+    "name": "arXiv math.CO",
+    "slug": "arxiv-math-co",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.CO",
+    "description": "Combinatorics — arXiv math.CO",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.CO/recent"
+  },
+  {
+    "name": "arXiv math.CT",
+    "slug": "arxiv-math-ct",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.CT",
+    "description": "Category Theory — arXiv math.CT",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.CT/recent"
+  },
+  {
+    "name": "arXiv math.CV",
+    "slug": "arxiv-math-cv",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.CV",
+    "description": "Complex Variables — arXiv math.CV",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.CV/recent"
+  },
+  {
+    "name": "arXiv math.DS",
+    "slug": "arxiv-math-ds",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.DS",
+    "description": "Dynamical Systems — arXiv math.DS",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.DS/recent"
+  },
+  {
+    "name": "arXiv math.FA",
+    "slug": "arxiv-math-fa",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.FA",
+    "description": "Functional Analysis — arXiv math.FA",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.FA/recent"
+  },
+  {
+    "name": "arXiv math.GR",
+    "slug": "arxiv-math-gr",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.GR",
+    "description": "Group Theory — arXiv math.GR",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.GR/recent"
+  },
+  {
+    "name": "arXiv math.GT",
+    "slug": "arxiv-math-gt",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.GT",
+    "description": "Geometric Topology — arXiv math.GT",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.GT/recent"
+  },
+  {
+    "name": "arXiv math.HO",
+    "slug": "arxiv-math-ho",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.HO",
+    "description": "History and Overview — arXiv math.HO",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.HO/recent"
+  },
+  {
+    "name": "arXiv math.KT",
+    "slug": "arxiv-math-kt",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.KT",
+    "description": "K-Theory and Homology — arXiv math.KT",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.KT/recent"
+  },
+  {
+    "name": "arXiv math.MG",
+    "slug": "arxiv-math-mg",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.MG",
+    "description": "Metric Geometry — arXiv math.MG",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.MG/recent"
+  },
+  {
+    "name": "arXiv math.MP",
+    "slug": "arxiv-math-mp",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.MP",
+    "description": "Mathematical Physics — arXiv math.MP",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.MP/recent"
+  },
+  {
+    "name": "arXiv math.NT",
+    "slug": "arxiv-math-nt",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.NT",
+    "description": "Number Theory — arXiv math.NT",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.NT/recent"
+  },
+  {
+    "name": "arXiv math.QA",
+    "slug": "arxiv-math-qa",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.QA",
+    "description": "Quantum Algebra — arXiv math.QA",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.QA/recent"
+  },
+  {
+    "name": "arXiv math.RA",
+    "slug": "arxiv-math-ra",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.RA",
+    "description": "Rings and Algebras — arXiv math.RA",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.RA/recent"
+  },
+  {
+    "name": "arXiv math.RT",
+    "slug": "arxiv-math-rt",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.RT",
+    "description": "Representation Theory — arXiv math.RT",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.RT/recent"
+  },
+  {
+    "name": "arXiv math.SG",
+    "slug": "arxiv-math-sg",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.SG",
+    "description": "Symplectic Geometry — arXiv math.SG",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.SG/recent"
+  },
+  {
+    "name": "arXiv math.SP",
+    "slug": "arxiv-math-sp",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.SP",
+    "description": "Spectral Theory — arXiv math.SP",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.SP/recent"
+  },
+  {
+    "name": "arXiv cond-mat.mes-hall",
+    "slug": "arxiv-cond-mat-mes-hall",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cond-mat.mes-hall",
+    "description": "Mesoscale and Nanoscale Physics — arXiv cond-mat.mes-hall",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cond-mat.mes-hall/recent"
+  },
+  {
+    "name": "arXiv cond-mat.str-el",
+    "slug": "arxiv-cond-mat-str-el",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cond-mat.str-el",
+    "description": "Strongly Correlated Electrons — arXiv cond-mat.str-el",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cond-mat.str-el/recent"
+  },
+  {
+    "name": "arXiv cond-mat.supr-con",
+    "slug": "arxiv-cond-mat-supr-con",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cond-mat.supr-con",
+    "description": "Superconductivity — arXiv cond-mat.supr-con",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cond-mat.supr-con/recent"
+  },
+  {
+    "name": "arXiv cond-mat.quant-gas",
+    "slug": "arxiv-cond-mat-quant-gas",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cond-mat.quant-gas",
+    "description": "Quantum Gases — arXiv cond-mat.quant-gas",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cond-mat.quant-gas/recent"
+  },
+  {
+    "name": "arXiv hep-ex",
+    "slug": "arxiv-hep-ex",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/hep-ex",
+    "description": "High Energy Physics - Experiment — arXiv hep-ex",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/hep-ex/recent"
+  },
+  {
+    "name": "arXiv hep-lat",
+    "slug": "arxiv-hep-lat",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/hep-lat",
+    "description": "High Energy Physics - Lattice — arXiv hep-lat",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/hep-lat/recent"
+  },
+  {
+    "name": "arXiv nucl-th",
+    "slug": "arxiv-nucl-th",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/nucl-th",
+    "description": "Nuclear Theory — arXiv nucl-th",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/nucl-th/recent"
+  },
+  {
+    "name": "arXiv nucl-ex",
+    "slug": "arxiv-nucl-ex",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/nucl-ex",
+    "description": "Nuclear Experiment — arXiv nucl-ex",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/nucl-ex/recent"
+  },
+  {
+    "name": "arXiv astro-ph.EP",
+    "slug": "arxiv-astro-ph-ep",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/astro-ph.EP",
+    "description": "Earth and Planetary Astrophysics — arXiv astro-ph.EP",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/astro-ph.EP/recent"
+  },
+  {
+    "name": "arXiv eess.SY",
+    "slug": "arxiv-eess-sy",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/eess.SY",
+    "description": "Systems and Control — arXiv eess.SY",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/eess.SY/recent"
+  },
+  {
+    "name": "arXiv cs.PF",
+    "slug": "arxiv-cs-pf",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.PF",
+    "description": "Performance — arXiv cs.PF",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.PF/recent"
+  },
+  {
+    "name": "arXiv cs.CE",
+    "slug": "arxiv-cs-ce",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.CE",
+    "description": "Computational Engineering — arXiv cs.CE",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.CE/recent"
+  },
+  {
+    "name": "arXiv cs.DM",
+    "slug": "arxiv-cs-dm",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.DM",
+    "description": "Discrete Mathematics — arXiv cs.DM",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.DM/recent"
+  },
+  {
+    "name": "arXiv cs.NA",
+    "slug": "arxiv-cs-na",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.NA",
+    "description": "Numerical Analysis — arXiv cs.NA",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.NA/recent"
+  },
+  {
+    "name": "arXiv math.LO",
+    "slug": "arxiv-math-lo",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.LO",
+    "description": "Logic — arXiv math.LO",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.LO/recent"
+  },
+  {
+    "name": "arXiv math.AC",
+    "slug": "arxiv-math-ac",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.AC",
+    "description": "Commutative Algebra — arXiv math.AC",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.AC/recent"
+  },
+  {
+    "name": "arXiv math.CA",
+    "slug": "arxiv-math-ca",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.CA",
+    "description": "Classical Analysis — arXiv math.CA",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.CA/recent"
+  },
+  {
+    "name": "arXiv math.GM",
+    "slug": "arxiv-math-gm",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.GM",
+    "description": "General Mathematics — arXiv math.GM",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.GM/recent"
+  },
+  {
+    "name": "arXiv math.GN",
+    "slug": "arxiv-math-gn",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.GN",
+    "description": "General Topology — arXiv math.GN",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.GN/recent"
+  },
+  {
+    "name": "arXiv math.OA",
+    "slug": "arxiv-math-oa",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.OA",
+    "description": "Operator Algebras — arXiv math.OA",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.OA/recent"
+  },
+  {
+    "name": "arXiv nlin.AO",
+    "slug": "arxiv-nlin-ao",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/nlin.AO",
+    "description": "Adaptation and Self-Organizing Systems — arXiv nlin.AO",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/nlin.AO/recent"
+  },
+  {
+    "name": "arXiv nlin.CG",
+    "slug": "arxiv-nlin-cg",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/nlin.CG",
+    "description": "Cellular Automata — arXiv nlin.CG",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/nlin.CG/recent"
+  },
+  {
+    "name": "arXiv physics.class-ph",
+    "slug": "arxiv-physics-class-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.class-ph",
+    "description": "Classical Physics — arXiv physics.class-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.class-ph/recent"
+  },
+  {
+    "name": "arXiv physics.ed-ph",
+    "slug": "arxiv-physics-ed-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.ed-ph",
+    "description": "Physics Education — arXiv physics.ed-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.ed-ph/recent"
+  },
+  {
+    "name": "arXiv physics.hist-ph",
+    "slug": "arxiv-physics-hist-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.hist-ph",
+    "description": "History and Philosophy of Physics — arXiv physics.hist-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.hist-ph/recent"
+  },
+  {
+    "name": "arXiv physics.ins-det",
+    "slug": "arxiv-physics-ins-det",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.ins-det",
+    "description": "Instrumentation and Detectors — arXiv physics.ins-det",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.ins-det/recent"
+  },
+  {
+    "name": "arXiv physics.plasm-ph",
+    "slug": "arxiv-physics-plasm-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.plasm-ph",
+    "description": "Plasma Physics — arXiv physics.plasm-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.plasm-ph/recent"
+  },
+  {
+    "name": "arXiv physics.pop-ph",
+    "slug": "arxiv-physics-pop-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.pop-ph",
+    "description": "Popular Physics — arXiv physics.pop-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.pop-ph/recent"
+  },
+  {
+    "name": "arXiv physics.space-ph",
+    "slug": "arxiv-physics-space-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.space-ph",
+    "description": "Space Physics — arXiv physics.space-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.space-ph/recent"
+  },
+  {
+    "name": "arXiv q-bio.CB",
+    "slug": "arxiv-qbio-cb",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.CB",
+    "description": "Cell Behavior — arXiv q-bio.CB",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-bio.CB/recent"
+  },
+  {
+    "name": "arXiv q-bio.OT",
+    "slug": "arxiv-qbio-ot",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.OT",
+    "description": "Other Quantitative Biology — arXiv q-bio.OT",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-bio.OT/recent"
+  },
+  {
+    "name": "arXiv q-bio.SC",
+    "slug": "arxiv-qbio-sc",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.SC",
+    "description": "Subcellular Processes — arXiv q-bio.SC",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-bio.SC/recent"
+  },
+  {
+    "name": "arXiv q-bio.TO",
+    "slug": "arxiv-qbio-to",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.TO",
+    "description": "Tissues and Organs — arXiv q-bio.TO",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-bio.TO/recent"
+  },
+  {
+    "name": "arXiv econ.TH",
+    "slug": "arxiv-econ-th",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/econ.TH",
+    "description": "Theoretical Economics — arXiv econ.TH",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/econ.TH/recent"
+  },
+  {
+    "name": "arXiv cs.DL",
+    "slug": "arxiv-cs-dl",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.DL",
+    "description": "Digital Libraries — arXiv cs.DL",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.DL/recent"
   }
 ]

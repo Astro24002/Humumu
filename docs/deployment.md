@@ -78,7 +78,7 @@ docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 humumu
 
 ### 内置期刊（seed）
 
-- 数据文件：`data/journals_seed.json`（约 160 条冷启动：arXiv 多分类 / bioRxiv·medRxiv 主题 + PLOS / eLife / Nature / Science / Cell / PNAS / ACM / Frontiers / PeerJ 等；完整 200–300 目录为后续运维扩展）
+- 数据文件：`data/journals_seed.json`（约 220 条冷启动：arXiv 多分类 / bioRxiv·medRxiv 主题 + PLOS / eLife / Nature / Science / Cell / PNAS / ACM / Frontiers / PeerJ 等；期刊侧可继续运维扩展）
 - 脚本：`python -m scripts.seed_journals`（可传自定义 JSON 路径）
 - 行为：按 `slug` / `source_url` / `normalized_source_url` 命中则更新；否则插入
 - 写入字段：`content_type`、`directory_status=public`、`homepage_url`、`normalized_source_url`

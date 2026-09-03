@@ -156,7 +156,11 @@ function loadPage(p: number) {
 watch(filterJournalId, () => { page.value = 1; loadArticles() })
 
 onMounted(async () => {
-  try { journals.value = (await getJournals()).journals } catch {}
+  try {
+    journals.value = (await getJournals()).journals
+  } catch {
+    // journal filter is optional; articles load still proceeds
+  }
   loadArticles()
 })
 </script>

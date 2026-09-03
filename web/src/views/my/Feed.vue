@@ -54,7 +54,7 @@
         <template #footer>
           <n-space>
             <n-button size="tiny" quaternary @click="toggle(u, 'is_read')">
-              {{ u.status.is_read ? '标为未读' : '已读' }}
+              {{ u.status.is_read ? '标为未读' : '标为已读' }}
             </n-button>
             <n-button size="tiny" quaternary :type="u.status.is_starred ? 'warning' : 'default'" @click="toggle(u, 'is_starred')">
               {{ u.status.is_starred ? '取消星标' : '星标' }}
