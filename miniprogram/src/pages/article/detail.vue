@@ -23,9 +23,10 @@
         {{ formatDate(article.publish_date) }}
       </text>
 
-      <view class="section" v-if="article.abstract">
+      <view class="section">
         <text class="section-title">摘要</text>
-        <text class="abstract">{{ cleanAbstract(article.abstract) }}</text>
+        <text v-if="cleanAbstract(article.abstract)" class="abstract">{{ cleanAbstract(article.abstract) }}</text>
+        <text v-else class="abstract muted">暂无摘要</text>
       </view>
 
       <view class="status-row" v-if="auth.isLoggedIn">
@@ -44,6 +45,11 @@
         <button class="btn-link" v-else-if="article.url" @click="openOriginal(article.url)">
           查看原文
         </button>
+        <button
+          v-if="article.doi || article.url"
+          class="btn-copy"
+          @click="copyLink"
+        >复制链接</button>
       </view>
     </template>
   </view>
@@ -133,6 +139,16 @@ async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
   }
 }
 
+function originalUrl(): string {
+  if (!article.value) return ''
+  if (article.value.doi) {
+    return article.value.doi.startsWith('http')
+      ? article.value.doi
+      : `https://doi.org/${article.value.doi}`
+  }
+  return article.value.url || ''
+}
+
 async function openOriginal(url: string) {
   if (auth.isLoggedIn && article.value) {
     try {
@@ -141,6 +157,12 @@ async function openOriginal(url: string) {
       // non-blocking
     }
   }
+  uni.setClipboardData({ data: url, success: () => uni.showToast({ title: '链接已复制', icon: 'none' }) })
+}
+
+function copyLink() {
+  const url = originalUrl()
+  if (!url) return
   uni.setClipboardData({ data: url, success: () => uni.showToast({ title: '链接已复制', icon: 'none' }) })
 }
 </script>
@@ -157,6 +179,7 @@ async function openOriginal(url: string) {
 .section { margin-top: 40rpx; }
 .section-title { font-size: 30rpx; font-weight: 500; display: block; margin-bottom: 12rpx; }
 .abstract { font-size: 28rpx; color: #444; line-height: 1.8; }
+.abstract.muted { color: #999; }
 .status-row { display: flex; gap: 16rpx; margin-top: 36rpx; flex-wrap: wrap; }
 .chip {
   font-size: 24rpx; padding: 10rpx 20rpx; border-radius: 8rpx;
@@ -164,10 +187,14 @@ async function openOriginal(url: string) {
 }
 .chip.on { background: #e8f8e0; color: #3cc51f; }
 .chip.login { background: #e8f3ff; color: #2080f0; }
-.actions { margin-top: 40rpx; }
+.actions { margin-top: 40rpx; display: flex; flex-direction: column; gap: 16rpx; }
 .btn-link {
   width: 100%; padding: 24rpx; background: #3cc51f; color: #fff;
   border: none; border-radius: 12rpx; font-size: 30rpx; text-align: center;
+}
+.btn-copy {
+  width: 100%; padding: 24rpx; background: #fff; color: #3cc51f;
+  border: 2rpx solid #3cc51f; border-radius: 12rpx; font-size: 30rpx; text-align: center;
 }
 .loading, .empty { text-align: center; padding: 100rpx; color: #999; }
 .btn-back { margin-top: 24rpx; }

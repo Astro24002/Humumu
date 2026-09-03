@@ -34,7 +34,7 @@
         <span v-else>-</span>
       </n-descriptions-item>
       <n-descriptions-item label="原文链接">
-        <a v-if="article.url" :href="article.url" target="_blank" @click="onOriginalClick">{{ article.url.slice(0, 60) }}...</a>
+        <a v-if="article.url" :href="article.url" target="_blank" rel="noopener noreferrer" @click="onOriginalClick">{{ shortUrl(article.url) }}</a>
         <span v-else>-</span>
       </n-descriptions-item>
       <n-descriptions-item label="抓取时间">
@@ -43,7 +43,8 @@
     </n-descriptions>
 
     <n-h4>摘要</n-h4>
-    <p style="line-height: 1.8; white-space: pre-wrap;">{{ cleanAbstract(article.abstract) }}</p>
+    <p v-if="cleanAbstract(article.abstract)" style="line-height: 1.8; white-space: pre-wrap;">{{ cleanAbstract(article.abstract) }}</p>
+    <p v-else style="color: #999; line-height: 1.8;">暂无摘要</p>
 
     <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px;">
       <n-button type="primary" tag="a" :href="article.url" target="_blank" @click="onOriginalClick">
@@ -114,6 +115,18 @@ function doiUrl(doi: string): string {
 
 function formatDate(d: string): string {
   return d.slice(0, 10)
+}
+
+function shortUrl(url: string): string {
+  if (!url) return ''
+  try {
+    const u = new URL(url)
+    const path = u.pathname === '/' ? '' : u.pathname
+    const full = `${u.host}${path}`
+    return full.length > 48 ? `${full.slice(0, 48)}…` : full
+  } catch {
+    return url.length > 48 ? `${url.slice(0, 48)}…` : url
+  }
 }
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {

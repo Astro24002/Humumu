@@ -90,6 +90,8 @@ async function toggleAdmin(row: User, isAdmin: boolean) {
 onMounted(async () => {
   try {
     users.value = (await getUsers()).users
+  } catch (e: any) {
+    message.error(e?.message || '加载失败')
   } finally {
     loading.value = false
   }

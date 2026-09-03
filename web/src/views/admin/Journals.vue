@@ -266,6 +266,8 @@ async function load() {
   loading.value = true
   try {
     journals.value = (await getAllJournals()).journals
+  } catch (e: any) {
+    message.error(e?.message || '加载失败')
   } finally {
     loading.value = false
   }
