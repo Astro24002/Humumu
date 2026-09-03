@@ -22,12 +22,13 @@
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted } from 'vue'
-import { NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, useMessage } from 'naive-ui'
+import { NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, useMessage, useDialog } from 'naive-ui'
 import { getUsers, setUserAdmin, type User } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
 import { formatDateTime } from '@/utils/datetime'
 
 const message = useMessage()
+const dialog = useDialog()
 const auth = useAuthStore()
 const users = ref<User[]>([])
 const loading = ref(true)
@@ -80,13 +81,26 @@ const columns = [
             type: next ? 'primary' : 'warning',
             ghost: true,
             loading: busyId.value === row.id,
-            onClick: () => toggleAdmin(row, next),
+            onClick: () => confirmToggleAdmin(row, next),
           }, { default: () => next ? '设为管理员' : '取消管理员' }),
         ],
       })
     },
   },
 ]
+
+function confirmToggleAdmin(row: User, isAdmin: boolean) {
+  const label = row.name || row.email || row.id
+  dialog.warning({
+    title: isAdmin ? '设为管理员' : '取消管理员',
+    content: isAdmin
+      ? `确认将「${label}」设为管理员？对方将可访问管理后台。`
+      : `确认取消「${label}」的管理员权限？`,
+    positiveText: isAdmin ? '设为管理员' : '取消权限',
+    negativeText: '返回',
+    onPositiveClick: () => toggleAdmin(row, isAdmin),
+  })
+}
 
 async function toggleAdmin(row: User, isAdmin: boolean) {
   busyId.value = row.id
