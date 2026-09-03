@@ -342,6 +342,10 @@ watch(sortBy, () => {
   page.value = 1
 })
 
+watch(pageCount, (n) => {
+  if (page.value > n) page.value = n
+})
+
 onMounted(async () => {
   try {
     const cas = await getCasCategories()

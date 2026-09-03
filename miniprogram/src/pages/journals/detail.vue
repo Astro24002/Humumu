@@ -34,7 +34,10 @@
       <view v-if="articlesLoading && !articles.length" class="loading"><text>加载论文...</text></view>
       <template v-else>
         <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
-        <view v-if="articles.length === 0" class="empty"><text>{{ journal.health_status === 'paused' ? '暂无论文（抓取已暂停）' : '暂无论文' }}</text></view>
+        <view v-if="articles.length === 0" class="empty">
+          <text>{{ journal.health_status === 'paused' ? '暂无论文（抓取已暂停）' : '暂无论文' }}</text>
+          <button size="mini" class="btn-more" @click="goPlaza">返回期刊广场</button>
+        </view>
         <view v-if="hasMore" class="more-wrap">
           <button class="btn-more" size="mini" :loading="loadingMore" @click="loadMore">加载更多</button>
         </view>
@@ -64,6 +67,10 @@ const journalId = ref('')
 const offset = ref(0)
 const limit = 20
 const hasMore = ref(false)
+
+function goPlaza() {
+  uni.switchTab({ url: '/pages/journals/index' })
+}
 
 function goBack() {
   uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/journals/index' }) })
