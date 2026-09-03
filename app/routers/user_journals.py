@@ -110,7 +110,16 @@ async def create_my_journal(
         except Exception as exc:
             raise HTTPException(status_code=500, detail="failed to subscribe") from exc
         response.status_code = 200
-        return CreateUserJournalResponse(journal=existing, already_existed=True)
+        # Spec: same URL is shared under the hood; do not leak original creator
+        # identity or their directory_status nuances to the reusing subscriber.
+        journal_payload = existing.model_copy(deep=True)
+        owner_id = str(existing.created_by) if existing.created_by is not None else None
+        if owner_id != str(user_id):
+            journal_payload.created_by = None
+            status = (existing.directory_status or "public").strip().lower()
+            if status != "public":
+                journal_payload.directory_status = "private"
+        return CreateUserJournalResponse(journal=journal_payload, already_existed=True)
 
     try:
         journal = await journal_service.create_journal(

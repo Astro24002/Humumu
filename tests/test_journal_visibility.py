@@ -230,7 +230,7 @@ async def test_service_get_article_public_ok_anonymous():
     session = AsyncMock()
     session.execute = AsyncMock(
         return_value=_result_one(
-            (article, "J", "rss", "journal", "public", uuid.uuid4())
+            (article, "J", "rss", "journal", "public", uuid.uuid4(), jid)
         )
     )
     out = await article_service.get_article(session, aid, viewer_user_id=None)
@@ -257,7 +257,7 @@ async def test_service_get_article_private_owner_ok():
     session = AsyncMock()
     session.execute = AsyncMock(
         return_value=_result_one(
-            (article, "J", "rss", "journal", "private", owner)
+            (article, "J", "rss", "journal", "private", owner, jid)
         )
     )
     out = await article_service.get_article(session, aid, viewer_user_id=str(owner))
@@ -283,15 +283,56 @@ async def test_service_get_article_private_stranger_none():
         fetched_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
     )
     session = AsyncMock()
+    # get_article now returns journal_pk as 7th column
     session.execute = AsyncMock(
         return_value=_result_one(
-            (article, "J", "rss", "journal", "private", owner)
+            (article, "J", "rss", "journal", "private", owner, jid)
         )
     )
-    out = await article_service.get_article(session, aid, viewer_user_id=str(stranger))
-    assert out is None
-    out_anon = await article_service.get_article(session, aid, viewer_user_id=None)
-    assert out_anon is None
+    with patch(
+        "app.services.subscriptions.is_subscribed",
+        new_callable=AsyncMock,
+        return_value=False,
+    ):
+        out = await article_service.get_article(session, aid, viewer_user_id=str(stranger))
+        assert out is None
+        out_anon = await article_service.get_article(session, aid, viewer_user_id=None)
+        assert out_anon is None
+
+
+@pytest.mark.asyncio
+async def test_service_get_article_private_subscriber_ok():
+    owner = uuid.uuid4()
+    subscriber = uuid.uuid4()
+    aid = uuid.uuid4()
+    jid = uuid.uuid4()
+    article = SimpleNamespace(
+        id=aid,
+        doi="",
+        title="SubPriv",
+        authors=[],
+        abstract="",
+        journal_id=jid,
+        publish_date=None,
+        url="",
+        fetched_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+    )
+    session = AsyncMock()
+    session.execute = AsyncMock(
+        return_value=_result_one(
+            (article, "J", "rss", "journal", "private", owner, jid)
+        )
+    )
+    with patch(
+        "app.services.subscriptions.is_subscribed",
+        new_callable=AsyncMock,
+        return_value=True,
+    ):
+        out = await article_service.get_article(
+            session, aid, viewer_user_id=str(subscriber)
+        )
+    assert out is not None
+    assert out.title == "SubPriv"
 
 
 @pytest.mark.asyncio
@@ -349,8 +390,48 @@ async def test_service_get_journal_private_stranger_none():
     )
     session = AsyncMock()
     session.execute = AsyncMock(return_value=_result_one((journal, 0, None)))
-    assert await journal_service.get_journal(session, jid, viewer_user_id=stranger) is None
-    assert await journal_service.get_journal(session, jid, viewer_user_id=None) is None
+    with patch(
+        "app.services.subscriptions.is_subscribed",
+        new_callable=AsyncMock,
+        return_value=False,
+    ):
+        assert await journal_service.get_journal(session, jid, viewer_user_id=stranger) is None
+        assert await journal_service.get_journal(session, jid, viewer_user_id=None) is None
+
+
+@pytest.mark.asyncio
+async def test_service_get_journal_private_subscriber_ok():
+    owner = uuid.uuid4()
+    subscriber = uuid.uuid4()
+    jid = uuid.uuid4()
+    journal = SimpleNamespace(
+        id=jid,
+        name="SharedPriv",
+        slug="shared-priv",
+        source_type="rss",
+        source_url="https://ex.com/s.rss",
+        description="",
+        fetch_interval=None,
+        is_active=True,
+        created_by=owner,
+        created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        content_type="journal",
+        directory_status="private",
+        homepage_url="",
+        consecutive_failures=0,
+        last_error=None,
+        last_success_at=None,
+    )
+    session = AsyncMock()
+    session.execute = AsyncMock(return_value=_result_one((journal, 0, None)))
+    with patch(
+        "app.services.subscriptions.is_subscribed",
+        new_callable=AsyncMock,
+        return_value=True,
+    ):
+        out = await journal_service.get_journal(session, jid, viewer_user_id=subscriber)
+    assert out is not None
+    assert out.name == "SharedPriv"
 
 
 def test_article_filter_stmt_catalog_public_only():

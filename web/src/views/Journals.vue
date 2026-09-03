@@ -62,6 +62,15 @@
               <n-tag :type="j.source_type === 'arxiv' ? 'info' : 'success'" size="small">
                 {{ j.source_type }}
               </n-tag>
+              <n-tag
+                v-if="j.health_status === 'paused'"
+                type="error"
+                size="small"
+                :bordered="false"
+                :title="j.last_error || '抓取已暂停'"
+              >
+                暂停
+              </n-tag>
             </n-space>
           </template>
 

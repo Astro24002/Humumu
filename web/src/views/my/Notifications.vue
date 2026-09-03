@@ -1,6 +1,6 @@
 <template>
   <n-h2>通知历史</n-h2>
-  <div v-if="loading"><n-spin /></div>
+  <div v-if="loading && !notifs.length"><n-spin /></div>
   <n-empty v-else-if="!notifs.length" description="暂无通知" />
   <n-list v-else>
     <n-list-item v-for="n in notifs" :key="n.id">
@@ -37,15 +37,24 @@
       </n-thing>
     </n-list-item>
   </n-list>
+  <div v-if="hasMore || loadingMore" style="text-align: center; margin-top: 16px;">
+    <n-button :loading="loadingMore" :disabled="!hasMore" @click="loadMore">
+      {{ hasMore ? '加载更多' : '没有更多了' }}
+    </n-button>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getNotifications, type Notification } from '@/api/notifications'
-import { NH2, NSpin, NEmpty, NList, NListItem, NThing, NTag, NSpace } from 'naive-ui'
+import { NH2, NSpin, NEmpty, NList, NListItem, NThing, NTag, NSpace, NButton } from 'naive-ui'
 
 const notifs = ref<Notification[]>([])
 const loading = ref(true)
+const loadingMore = ref(false)
+const offset = ref(0)
+const limit = 20
+const hasMore = ref(false)
 
 function statusLabel(s: string): string {
   if (s === 'sent') return '已发送'
@@ -63,12 +72,32 @@ function reasonLabel(r: string): string {
   return map[r] || r
 }
 
-onMounted(async () => {
+async function fetchPage(reset: boolean) {
+  if (reset) {
+    loading.value = true
+    offset.value = 0
+    notifs.value = []
+  } else {
+    loadingMore.value = true
+  }
   try {
-    const res = await getNotifications({ limit: '50' })
-    notifs.value = res.notifications
+    const res = await getNotifications({
+      limit: String(limit),
+      offset: String(offset.value),
+    })
+    notifs.value.push(...res.notifications)
+    offset.value += res.notifications.length
+    hasMore.value = res.notifications.length >= limit
   } finally {
     loading.value = false
+    loadingMore.value = false
   }
-})
+}
+
+async function loadMore() {
+  if (!hasMore.value || loadingMore.value) return
+  await fetchPage(false)
+}
+
+onMounted(() => fetchPage(true))
 </script>

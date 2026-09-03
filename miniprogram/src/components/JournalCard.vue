@@ -5,6 +5,7 @@
       <view class="tags">
         <text v-if="journal.content_type === 'preprint'" class="tag preprint">预印本</text>
         <text class="tag">{{ journal.source_type }}</text>
+        <text v-if="journal.health_status === 'paused'" class="tag paused">暂停</text>
       </view>
     </view>
     <view class="stats">
@@ -39,6 +40,7 @@ function goDetail() {
 .tags { display: flex; gap: 8rpx; flex-shrink: 0; }
 .tag { font-size: 22rpx; color: #3cc51f; background: #e8f8e0; padding: 4rpx 12rpx; border-radius: 8rpx; }
 .tag.preprint { color: #2080f0; background: #e8f3ff; }
+.tag.paused { color: #d03050; background: #fdecef; }
 .stats { display: flex; gap: 30rpx; font-size: 26rpx; color: #999; margin-top: 16rpx; }
 .desc { font-size: 26rpx; color: #666; margin-top: 12rpx; display: block; line-height: 1.5; overflow: hidden; }
 </style>

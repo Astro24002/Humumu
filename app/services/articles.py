@@ -89,6 +89,7 @@ def _article_filter_stmt(
     journal_id: str | UUID | None = None,
     content_type: str | None = None,
     viewer_user_id: str | UUID | None = None,
+    allow_subscribed: bool = False,
 ) -> Any | None:
     """Build filtered article+journal select without limit/offset.
 
@@ -96,10 +97,10 @@ def _article_filter_stmt(
 
     public_only visibility:
     - Catalog (no journal_id): only directory_status=public.
-    - With journal_id + viewer: public OR journal.created_by == viewer
-      (so private-source owners can list articles on journal detail).
+    - With journal_id + viewer: public OR created_by == viewer
+      OR (allow_subscribed and viewer has JournalSubscription).
     """
-    # Apply public filter ourselves so we can add the owner exception.
+    # Apply public filter ourselves so we can add owner/subscriber exceptions.
     stmt = _base_article_select(public_only=False)
     if journal_id is not None and str(journal_id) != "":
         uid = _parse_uuid(journal_id)
@@ -111,10 +112,23 @@ def _article_filter_stmt(
     if public_only:
         viewer = _parse_uuid(viewer_user_id) if viewer_user_id is not None else None
         if viewer is not None and journal_id is not None and str(journal_id) != "":
-            stmt = stmt.where(
-                (Journal.directory_status == "public")
-                | (Journal.created_by == viewer)
+            from app.models.subscription import JournalSubscription
+
+            owner_or_public = (Journal.directory_status == "public") | (
+                Journal.created_by == viewer
             )
+            if allow_subscribed:
+                sub_exists = (
+                    select(JournalSubscription.journal_id)
+                    .where(
+                        JournalSubscription.user_id == viewer,
+                        JournalSubscription.journal_id == Journal.id,
+                    )
+                    .exists()
+                )
+                stmt = stmt.where(owner_or_public | sub_exists)
+            else:
+                stmt = stmt.where(owner_or_public)
         else:
             stmt = stmt.where(Journal.directory_status == "public")
     return stmt
@@ -132,8 +146,7 @@ async def list_articles(
 ) -> list[ArticleOut]:
     """Public article list: articles from public journals, optional journal_id filter.
 
-    When journal_id is set and viewer_user_id owns a non-public journal, that
-    journal's articles are included (owner journal-detail case).
+    When journal_id is set, viewer may see non-public journals they own or subscribe to.
     """
     limit = _clamp_limit(limit)
     if offset < 0:
@@ -144,6 +157,7 @@ async def list_articles(
         journal_id=journal_id,
         content_type=content_type,
         viewer_user_id=viewer_user_id,
+        allow_subscribed=True,
     )
     if stmt is None:
         return []
@@ -167,6 +181,7 @@ async def count_list_articles(
         journal_id=journal_id,
         content_type=content_type,
         viewer_user_id=viewer_user_id,
+        allow_subscribed=True,
     )
     if base is None:
         return 0
@@ -185,15 +200,14 @@ async def get_article(
 ) -> ArticleOut | None:
     """Get one article by id with joined journal fields, or None.
 
-    When public_only=True (default catalog): public journals always; non-public
-    journals only if viewer_user_id matches journal.created_by (owner of private
-    / pending_review sources).
+    When public_only=True: public journals always; non-public if viewer owns the
+    journal or is subscribed to it (same-URL reuse / private import path).
     """
     uid = _parse_uuid(article_id)
     if uid is None:
         return None
 
-    # Fetch without directory filter so we can apply owner exception.
+    # Fetch without directory filter so we can apply owner/subscriber exception.
     stmt = (
         select(
             Article,
@@ -202,6 +216,7 @@ async def get_article(
             Journal.content_type.label("content_type"),
             Journal.directory_status.label("directory_status"),
             Journal.created_by.label("created_by"),
+            Journal.id.label("journal_pk"),
         )
         .join(Journal, Article.journal_id == Journal.id)
         .where(Article.id == uid)
@@ -211,12 +226,25 @@ async def get_article(
     if row is None:
         return None
 
-    article, journal_name, journal_source_type, content_type, directory_status, created_by = row
+    (
+        article,
+        journal_name,
+        journal_source_type,
+        content_type,
+        directory_status,
+        created_by,
+        journal_pk,
+    ) = row
     status = (directory_status or "public").strip().lower()
     if public_only and status != "public":
         viewer = _parse_uuid(viewer_user_id) if viewer_user_id is not None else None
         owner = created_by if isinstance(created_by, UUID) else _parse_uuid(created_by)
-        if viewer is None or owner is None or viewer != owner:
+        allowed = viewer is not None and owner is not None and viewer == owner
+        if not allowed and viewer is not None:
+            from app.services import subscriptions as sub_service
+
+            allowed = await sub_service.is_subscribed(session, viewer, journal_pk)
+        if not allowed:
             return None
 
     return _article_out(

@@ -157,7 +157,7 @@ async def get_journal(
 ) -> JournalOut | None:
     """Get one journal by id with article stats, or None if missing/invalid id.
 
-    public_only: public directory always; non-public only for matching created_by.
+    public_only: public directory always; non-public for owner or subscriber.
     """
     uid = _parse_uuid(journal_id)
     if uid is None:
@@ -185,7 +185,12 @@ async def get_journal(
             owner = getattr(journal, "created_by", None)
             if isinstance(owner, str):
                 owner = _parse_uuid(owner)
-            if viewer is None or owner is None or viewer != owner:
+            allowed = viewer is not None and owner is not None and viewer == owner
+            if not allowed and viewer is not None:
+                from app.services import subscriptions as sub_service
+
+                allowed = await sub_service.is_subscribed(session, viewer, journal.id)
+            if not allowed:
                 return None
     return _journal_out(journal, article_count=row[1], last_article_date=row[2])
 

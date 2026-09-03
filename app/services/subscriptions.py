@@ -87,6 +87,7 @@ async def can_subscribe(
     """Subscribe allowed for public directory journals, or journals created by user.
 
     Non-public sources are not discoverable; strangers must not subscribe by UUID.
+    (Same-URL add via /my/journals still reuses the row and subscribes directly.)
     """
     uid = _parse_uuid(user_id)
     jid = _parse_uuid(journal_id)
@@ -104,6 +105,25 @@ async def can_subscribe(
         return True
     owner = created_by if isinstance(created_by, UUID) else _parse_uuid(created_by)
     return owner is not None and owner == uid
+
+
+async def is_subscribed(
+    session: AsyncSession,
+    user_id: str | UUID,
+    journal_id: str | UUID,
+) -> bool:
+    """True if user has an active journal subscription row."""
+    uid = _parse_uuid(user_id)
+    jid = _parse_uuid(journal_id)
+    if uid is None or jid is None:
+        return False
+    result = await session.execute(
+        select(JournalSubscription.user_id).where(
+            JournalSubscription.user_id == uid,
+            JournalSubscription.journal_id == jid,
+        )
+    )
+    return result.scalar_one_or_none() is not None
 
 
 async def subscribe_journal(

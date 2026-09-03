@@ -130,7 +130,7 @@ GET /api/v1/journals
 GET /api/v1/journals/:id
 ```
 
-公开源（`directory_status=public`）匿名可读。非公开源（private / pending_review / rejected / hidden）仅当请求带有效 `Authorization: Bearer` 且用户为该源 `created_by` 时返回 200，否则 404。列表接口仍只返回公开目录。
+公开源（`directory_status=public`）匿名可读。非公开源（private / pending_review / rejected / hidden）仅当请求带有效 `Authorization: Bearer` 且用户为该源 `created_by` **或已订阅** 时返回 200，否则 404。列表接口仍只返回公开目录。
 
 ### 用户自建源（私有 / 申请公开）
 
@@ -243,10 +243,10 @@ GET /api/v1/categories/cas
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/articles | 公开目录文章列表（`directory_status=public`）；带 `journal_id` + Bearer 时，创建者可见自己非公开源下的文章 |
-| GET | /api/v1/articles/:id | 文章详情：公开源匿名可读；非公开源仅创建者（Bearer）可读，否则 404 |
+| GET | /api/v1/articles | 公开目录文章列表（`directory_status=public`）；带 `journal_id` + Bearer 时，创建者或订阅者可见非公开源文章 |
+| GET | /api/v1/articles/:id | 文章详情：公开源匿名可读；非公开源仅创建者或订阅者（Bearer）可读，否则 404 |
 
-列表默认**无需登录**（仅公开源）。详情与按 `journal_id` 过滤的列表可选 Bearer：私有/待审等源的创建者可看自己源。个性化流请用 `GET /api/v1/my/updates`。
+列表默认**无需登录**（仅公开源）。详情与按 `journal_id` 过滤的列表可选 Bearer：私有/待审等源的创建者与订阅者可看。个性化流请用 `GET /api/v1/my/updates`。
 
 **查询参数:**
 - `journal_id` — 按期刊过滤
