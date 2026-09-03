@@ -13,6 +13,10 @@ export interface Notification {
   article_title?: string | null
 }
 
-export function getNotifications(params?: { limit?: string; offset?: string }): Promise<{ notifications: Notification[] }> {
+export function getNotifications(params?: {
+  limit?: string
+  offset?: string
+  status?: string
+}): Promise<{ notifications: Notification[] }> {
   return get('/notifications', params as Record<string, string>)
 }

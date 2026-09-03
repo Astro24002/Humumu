@@ -13,7 +13,11 @@ export interface Notification {
   article_title?: string | null
 }
 
-export function getNotifications(params: { limit?: number; offset?: number } = {}): Promise<{ notifications: Notification[] }> {
+export function getNotifications(params: {
+  limit?: number
+  offset?: number
+  status?: string
+} = {}): Promise<{ notifications: Notification[] }> {
   const qs = buildQuery(params as Record<string, string | number | undefined>)
   return get(`/notifications${qs}`)
 }

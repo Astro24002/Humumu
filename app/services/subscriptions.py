@@ -328,12 +328,16 @@ async def remove_keyword(
     await session.execute(stmt)
 
 
+_NOTIFICATION_STATUSES = frozenset({"pending", "sent", "failed"})
+
+
 async def list_notifications(
     session: AsyncSession,
     user_id: str | UUID,
     *,
     limit: int = 20,
     offset: int = 0,
+    status: str | None = None,
 ) -> list[NotificationOut]:
     limit = _clamp_limit(limit)
     if offset < 0:
@@ -343,10 +347,18 @@ async def list_notifications(
     if uid is None:
         return []
 
+    status_filter = (status or "").strip().lower() or None
+    if status_filter is not None and status_filter not in _NOTIFICATION_STATUSES:
+        status_filter = None
+
+    conditions = [Notification.user_id == uid]
+    if status_filter is not None:
+        conditions.append(Notification.status == status_filter)
+
     stmt = (
         select(Notification, Article.title)
         .outerjoin(Article, Article.id == Notification.article_id)
-        .where(Notification.user_id == uid)
+        .where(*conditions)
         .order_by(Notification.created_at.desc())
         .limit(limit)
         .offset(offset)

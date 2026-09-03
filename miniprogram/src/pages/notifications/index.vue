@@ -7,19 +7,19 @@
 
     <template v-else>
       <view class="filters">
-        <text :class="['chip', statusFilter === '' && 'on']" @click="statusFilter = ''">全部</text>
-        <text :class="['chip', statusFilter === 'sent' && 'on']" @click="statusFilter = 'sent'">已发送</text>
-        <text :class="['chip', statusFilter === 'failed' && 'on']" @click="statusFilter = 'failed'">失败</text>
-        <text :class="['chip', statusFilter === 'pending' && 'on']" @click="statusFilter = 'pending'">等待中</text>
+        <text :class="['chip', statusFilter === '' && 'on']" @click="setStatus('')">全部</text>
+        <text :class="['chip', statusFilter === 'sent' && 'on']" @click="setStatus('sent')">已发送</text>
+        <text :class="['chip', statusFilter === 'failed' && 'on']" @click="setStatus('failed')">失败</text>
+        <text :class="['chip', statusFilter === 'pending' && 'on']" @click="setStatus('pending')">等待中</text>
       </view>
       <view v-if="loading && !notifications.length" class="loading"><text>加载中...</text></view>
-      <view v-else-if="!filtered.length" class="empty">
+      <view v-else-if="!notifications.length" class="empty">
         <text>{{ emptyHint }}</text>
-        <button v-if="statusFilter" size="mini" class="btn-empty" @click="statusFilter = ''">查看全部通知</button>
+        <button v-if="statusFilter" size="mini" class="btn-empty" @click="setStatus('')">查看全部通知</button>
         <button v-else size="mini" class="btn-empty" @click="goSubscriptions">管理订阅</button>
       </view>
       <scroll-view v-else scroll-y @scrolltolower="loadMore" class="scroll-view">
-        <view v-for="n in filtered" :key="n.id" class="notif-item" @click="goArticle(n.article_id)">
+        <view v-for="n in notifications" :key="n.id" class="notif-item" @click="goArticle(n.article_id)">
           <text v-if="n.article_title" class="title">{{ n.article_title }}</text>
           <view class="notif-header">
             <text :class="['tag', n.channel === 'wechat' ? 'tag-wechat' : 'tag-email']">
@@ -51,11 +51,6 @@ const offset = ref(0)
 const limit = 20
 const statusFilter = ref('')
 
-const filtered = computed(() => {
-  if (!statusFilter.value) return notifications.value
-  return notifications.value.filter((n) => n.status === statusFilter.value)
-})
-
 const emptyHint = computed(() => {
   if (statusFilter.value === 'failed') return '没有失败的通知'
   if (statusFilter.value === 'pending') return '没有等待中的通知'
@@ -68,19 +63,34 @@ function goSubscriptions() {
 }
 
 onMounted(() => {
-  if (auth.isLoggedIn) fetchNotifications()
+  if (auth.isLoggedIn) fetchNotifications(true)
   else loading.value = false
 })
 
 function goLogin() { uni.navigateTo({ url: '/pages/login/index' }) }
 
-async function fetchNotifications() {
+function setStatus(s: string) {
+  if (statusFilter.value === s) return
+  statusFilter.value = s
+  fetchNotifications(true)
+}
+
+async function fetchNotifications(reset = false) {
+  if (reset) {
+    offset.value = 0
+    notifications.value = []
+    hasMore.value = true
+  }
   if (!hasMore.value && notifications.value.length) return
   loading.value = true
   try {
-    const res = await getNotifications({ limit, offset: offset.value })
+    const res = await getNotifications({
+      limit,
+      offset: offset.value,
+      status: statusFilter.value || undefined,
+    })
     notifications.value.push(...res.notifications)
-    offset.value += limit
+    offset.value += res.notifications.length
     hasMore.value = res.notifications.length === limit
   } catch (e: any) {
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
@@ -89,7 +99,7 @@ async function fetchNotifications() {
   }
 }
 
-function loadMore() { fetchNotifications() }
+function loadMore() { fetchNotifications(false) }
 
 function statusText(s: string) {
   switch (s) {

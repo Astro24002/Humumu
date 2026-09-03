@@ -39,13 +39,13 @@
         <n-number-animation :from="0" :to="journal.article_count" />
       </n-descriptions-item>
       <n-descriptions-item label="数据源">
-        <a :href="journal.source_url" target="_blank" style="word-break: break-all;">{{ journal.source_url.slice(0, 60) }}...</a>
+        <a :href="journal.source_url" target="_blank" rel="noopener noreferrer" style="word-break: break-all;">{{ shortUrl(journal.source_url) }}</a>
       </n-descriptions-item>
       <n-descriptions-item label="最新论文">
         {{ journal.last_article_date ? formatDate(journal.last_article_date) : '暂无' }}
       </n-descriptions-item>
       <n-descriptions-item v-if="journal.homepage_url" label="主页">
-        <a :href="journal.homepage_url" target="_blank" rel="noopener noreferrer">{{ journal.homepage_url }}</a>
+        <a :href="journal.homepage_url" target="_blank" rel="noopener noreferrer">{{ shortUrl(journal.homepage_url) }}</a>
       </n-descriptions-item>
     </n-descriptions>
 
@@ -165,6 +165,18 @@ const subBusy = ref(false)
 
 function formatDate(d: string): string {
   return d.slice(0, 10)
+}
+
+function shortUrl(url: string): string {
+  if (!url) return ''
+  try {
+    const u = new URL(url)
+    const path = u.pathname === '/' ? '' : u.pathname
+    const full = `${u.host}${path}`
+    return full.length > 48 ? `${full.slice(0, 48)}…` : full
+  } catch {
+    return url.length > 48 ? `${url.slice(0, 48)}…` : url
+  }
 }
 
 function dirStatusLabel(s?: string): string {

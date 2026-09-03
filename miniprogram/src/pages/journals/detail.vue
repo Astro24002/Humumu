@@ -17,9 +17,9 @@
         <text v-if="journal.health_status === 'paused'" class="tag paused">抓取暂停</text>
       </view>
       <text v-if="journal.description" class="desc">{{ journal.description }}</text>
-      <view v-if="journal.homepage_url" class="home-row" @click="openHome">
-        <text class="home-label">主页</text>
-        <text class="home-link">{{ journal.homepage_url }}</text>
+      <view v-if="journal.homepage_url || journal.source_url" class="home-row" @click="openHome">
+        <text class="home-label">{{ journal.homepage_url ? '主页' : '源' }}</text>
+        <text class="home-link">{{ shortUrl(journal.homepage_url || journal.source_url) }}</text>
       </view>
 
       <view class="subscribe-bar">
@@ -167,8 +167,20 @@ async function subscribe() {
   }
 }
 
+function shortUrl(url?: string | null): string {
+  if (!url) return ''
+  try {
+    const u = new URL(url)
+    const path = u.pathname === '/' ? '' : u.pathname
+    const full = `${u.host}${path}`
+    return full.length > 40 ? `${full.slice(0, 40)}…` : full
+  } catch {
+    return url.length > 40 ? `${url.slice(0, 40)}…` : url
+  }
+}
+
 function openHome() {
-  const url = journal.value?.homepage_url
+  const url = journal.value?.homepage_url || journal.value?.source_url
   if (!url) return
   // #ifdef H5
   window.open(url, '_blank')

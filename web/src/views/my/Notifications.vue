@@ -1,7 +1,7 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">通知历史</n-h2>
-    <n-radio-group v-model:value="statusFilter" size="small">
+    <n-radio-group v-model:value="statusFilter" size="small" @update:value="onStatusChange">
       <n-radio-button value="">全部</n-radio-button>
       <n-radio-button value="sent">已发送</n-radio-button>
       <n-radio-button value="failed">失败</n-radio-button>
@@ -9,14 +9,14 @@
     </n-radio-group>
   </div>
   <div v-if="loading && !notifs.length"><n-spin /></div>
-  <n-empty v-else-if="!filteredNotifs.length" :description="emptyDescription">
+  <n-empty v-else-if="!notifs.length" :description="emptyDescription">
     <template #extra>
-      <n-button v-if="statusFilter" @click="statusFilter = ''">查看全部通知</n-button>
+      <n-button v-if="statusFilter" @click="clearStatus">查看全部通知</n-button>
       <n-button v-else @click="router.push('/my/subscriptions')">管理订阅</n-button>
     </template>
   </n-empty>
   <n-list v-else>
-    <n-list-item v-for="n in filteredNotifs" :key="n.id">
+    <n-list-item v-for="n in notifs" :key="n.id">
       <n-thing>
         <template #header>
           <div>
@@ -86,11 +86,6 @@ const limit = 20
 const hasMore = ref(false)
 const statusFilter = ref('')
 
-const filteredNotifs = computed(() => {
-  if (!statusFilter.value) return notifs.value
-  return notifs.value.filter((n) => n.status === statusFilter.value)
-})
-
 const emptyDescription = computed(() => {
   if (statusFilter.value === 'failed') return '没有失败的通知'
   if (statusFilter.value === 'pending') return '没有等待中的通知'
@@ -126,6 +121,7 @@ async function fetchPage(reset: boolean) {
     const res = await getNotifications({
       limit: String(limit),
       offset: String(offset.value),
+      status: statusFilter.value || undefined,
     })
     notifs.value.push(...res.notifications)
     offset.value += res.notifications.length
@@ -136,6 +132,15 @@ async function fetchPage(reset: boolean) {
     loading.value = false
     loadingMore.value = false
   }
+}
+
+function onStatusChange() {
+  fetchPage(true)
+}
+
+function clearStatus() {
+  statusFilter.value = ''
+  fetchPage(true)
 }
 
 async function loadMore() {

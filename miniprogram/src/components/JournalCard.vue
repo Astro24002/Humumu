@@ -13,17 +13,48 @@
       <text>更新 {{ journal.last_article_date ? formatDate(journal.last_article_date) : '暂无' }}</text>
     </view>
     <text v-if="journal.description" class="desc" line-clamp="2">{{ journal.description }}</text>
+    <text v-if="linkLabel" class="link" @click.stop="openLink">{{ linkLabel }}</text>
   </view>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Journal } from '@/api/journals'
 import { formatDate } from '@/utils/format'
 
 const props = defineProps<{ journal: Journal }>()
 
+const linkUrl = computed(() => props.journal.homepage_url || props.journal.source_url || '')
+
+const linkLabel = computed(() => {
+  const url = linkUrl.value
+  if (!url) return ''
+  try {
+    const u = new URL(url)
+    const path = u.pathname === '/' ? '' : u.pathname
+    const full = `${u.host}${path}`
+    return full.length > 40 ? `${full.slice(0, 40)}…` : full
+  } catch {
+    return url.length > 40 ? `${url.slice(0, 40)}…` : url
+  }
+})
+
 function goDetail() {
   uni.navigateTo({ url: `/pages/journals/detail?id=${props.journal.id}` })
+}
+
+function openLink() {
+  const url = linkUrl.value
+  if (!url) return
+  // #ifdef H5
+  window.open(url, '_blank')
+  // #endif
+  // #ifndef H5
+  uni.setClipboardData({
+    data: url,
+    success: () => uni.showToast({ title: '链接已复制', icon: 'none' }),
+  })
+  // #endif
 }
 </script>
 
@@ -43,4 +74,5 @@ function goDetail() {
 .tag.paused { color: #d03050; background: #fdecef; }
 .stats { display: flex; gap: 30rpx; font-size: 26rpx; color: #999; margin-top: 16rpx; }
 .desc { font-size: 26rpx; color: #666; margin-top: 12rpx; display: block; line-height: 1.5; overflow: hidden; }
+.link { font-size: 22rpx; color: #18a058; margin-top: 10rpx; display: block; }
 </style>

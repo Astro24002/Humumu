@@ -311,6 +311,20 @@ async def test_notifications_list_shape(client, authed_user_id):
 
 
 @pytest.mark.asyncio
+async def test_notifications_status_filter_forwarded(client, authed_user_id):
+    with patch(
+        "app.routers.notifications.sub_service.list_notifications",
+        new_callable=AsyncMock,
+        return_value=[],
+    ) as mock_list:
+        r = await client.get("/api/v1/notifications?status=failed&limit=5")
+    assert r.status_code == 200
+    assert r.json() == {"notifications": []}
+    assert mock_list.await_args.kwargs["status"] == "failed"
+    assert mock_list.await_args.kwargs["limit"] == 5
+
+
+@pytest.mark.asyncio
 async def test_notifications_empty(client, authed_user_id):
     with patch(
         "app.routers.notifications.sub_service.list_notifications",
