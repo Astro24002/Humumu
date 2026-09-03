@@ -28,7 +28,12 @@
         @click="goDetail(a.id)"
       >
         <view class="meta">
-          <text class="journal">{{ a.journal_name }}</text>
+          <text
+            v-if="a.journal_id"
+            class="journal link"
+            @click.stop="goJournal(a.journal_id)"
+          >{{ a.journal_name }}</text>
+          <text v-else class="journal">{{ a.journal_name }}</text>
           <text v-if="a.content_type === 'preprint'" class="badge">预印本</text>
           <text v-for="r in a.reasons" :key="r" class="badge reason">{{ reasonLabel(r) }}</text>
         </view>
@@ -52,6 +57,7 @@ interface FeedItem {
   id: string
   title: string
   authors: string[]
+  journal_id?: string
   journal_name: string
   publish_date: string | null
   content_type?: string
@@ -134,6 +140,7 @@ async function fetchItems() {
         id: u.article_id,
         title: u.title,
         authors: u.authors || [],
+        journal_id: u.journal_id,
         journal_name: u.journal_name,
         publish_date: u.publish_date,
         content_type: u.content_type,
@@ -154,6 +161,7 @@ async function fetchItems() {
         id: a.id,
         title: a.title,
         authors: a.authors || [],
+        journal_id: a.journal_id,
         journal_name: a.journal_name,
         publish_date: a.publish_date,
         content_type: a.content_type,
@@ -178,6 +186,11 @@ function loadMore() {
 function goDetail(id: string) {
   uni.navigateTo({ url: `/pages/article/detail?id=${id}` })
 }
+
+function goJournal(id?: string) {
+  if (!id) return
+  uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
+}
 </script>
 
 <style scoped>
@@ -192,6 +205,7 @@ function goDetail(id: string) {
 .card { background: #fff; padding: 28rpx 30rpx; border-bottom: 1rpx solid #f0f0f0; }
 .meta { display: flex; flex-wrap: wrap; gap: 12rpx; margin-bottom: 8rpx; align-items: center; }
 .journal { font-size: 24rpx; color: #3cc51f; }
+.journal.link { text-decoration: underline; text-underline-offset: 4rpx; }
 .badge { font-size: 20rpx; background: #eef6ff; color: #3a7bd5; padding: 2rpx 10rpx; border-radius: 6rpx; }
 .badge.reason { background: #fff7e6; color: #d48806; }
 .title { font-size: 30rpx; color: #333; line-height: 1.4; display: block; }

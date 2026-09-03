@@ -1,7 +1,12 @@
 <template>
   <view class="card" @click="goDetail">
     <view class="meta">
-      <text class="journal">{{ article.journal_name }}</text>
+      <text
+        v-if="article.journal_id"
+        class="journal link"
+        @click.stop="goJournal"
+      >{{ article.journal_name }}</text>
+      <text v-else class="journal">{{ article.journal_name }}</text>
       <text class="date">{{ formatDate(article.publish_date) }}</text>
     </view>
     <text class="title">{{ article.title }}</text>
@@ -28,6 +33,11 @@ const props = defineProps<{ article: Article }>()
 function goDetail() {
   uni.navigateTo({ url: `/pages/article/detail?id=${props.article.id}` })
 }
+
+function goJournal() {
+  if (!props.article.journal_id) return
+  uni.navigateTo({ url: `/pages/journals/detail?id=${props.article.journal_id}` })
+}
 </script>
 
 <style scoped>
@@ -40,6 +50,7 @@ function goDetail() {
 }
 .meta { display: flex; justify-content: space-between; margin-bottom: 12rpx; }
 .journal { font-size: 24rpx; color: #3cc51f; }
+.journal.link { text-decoration: underline; text-underline-offset: 4rpx; }
 .date { font-size: 24rpx; color: #999; }
 .title { font-size: 32rpx; font-weight: 500; color: #333; line-height: 1.5; }
 .authors { font-size: 26rpx; color: #666; margin-top: 8rpx; display: block; }

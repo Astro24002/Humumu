@@ -29,7 +29,14 @@
         <n-thing :title="a.title">
           <template #description>
             <div style="margin-bottom: 6px;">
-              <n-tag v-if="a.journal_name" size="tiny" :bordered="false" style="margin-right: 6px;">
+              <router-link
+                v-if="a.journal_id && a.journal_name"
+                :to="`/journals/${a.journal_id}`"
+                style="text-decoration: none; margin-right: 6px;"
+              >
+                <n-tag size="tiny" :bordered="false">{{ a.journal_name }}</n-tag>
+              </router-link>
+              <n-tag v-else-if="a.journal_name" size="tiny" :bordered="false" style="margin-right: 6px;">
                 {{ a.journal_name }}
               </n-tag>
               <n-tag v-if="a.content_type === 'preprint'" type="info" size="tiny" :bordered="false" style="margin-right: 6px;">
