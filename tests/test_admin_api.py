@@ -11,7 +11,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.db import get_session
-from app.deps import get_current_user_id
+from app.deps import get_current_user_id, require_admin
 from app.main import app
 from app.schemas.journal import JournalOut, JournalRequestOut
 
@@ -94,9 +94,14 @@ def authed_user_id():
     async def override_user_id():
         return user_id
 
+    async def override_admin():
+        return user_id
+
     app.dependency_overrides[get_current_user_id] = override_user_id
+    app.dependency_overrides[require_admin] = override_admin
     yield user_id
     app.dependency_overrides.pop(get_current_user_id, None)
+    app.dependency_overrides.pop(require_admin, None)
 
 
 @pytest.mark.asyncio

@@ -1,4 +1,4 @@
-"""Admin APIs — JWT required, no RBAC (matches Go)."""
+"""Admin APIs — require real admin role (users.is_admin)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_session
-from app.deps import get_current_user_id
+from app.deps import require_admin
 from app.schemas.admin import (
     AdminJournalCreate,
     AdminJournalUpdate,
@@ -32,7 +32,7 @@ _VALID_REVIEW_STATUSES = frozenset({"approved", "rejected"})
 
 @router.get("/stats", response_model=AdminStatsResponse)
 async def admin_stats(
-    _user_id: str = Depends(get_current_user_id),
+    _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> AdminStatsResponse:
     try:
@@ -52,7 +52,7 @@ async def admin_stats(
 
 @router.get("/journals", response_model=JournalsResponse)
 async def admin_list_journals(
-    _user_id: str = Depends(get_current_user_id),
+    _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> JournalsResponse:
     try:
@@ -65,7 +65,7 @@ async def admin_list_journals(
 @router.post("/journals", response_model=JournalOut, status_code=201)
 async def admin_create_journal(
     body: AdminJournalCreate,
-    _user_id: str = Depends(get_current_user_id),
+    _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> JournalOut:
     slug = (body.slug or "").strip() or None
@@ -93,7 +93,7 @@ async def admin_create_journal(
 async def admin_update_journal(
     journal_id: str,
     body: AdminJournalUpdate,
-    _user_id: str = Depends(get_current_user_id),
+    _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> MessageResponse:
     fields = body.model_dump(exclude_unset=True)
@@ -113,7 +113,7 @@ async def admin_update_journal(
 @router.delete("/journals/{journal_id}", response_model=MessageResponse)
 async def admin_delete_journal(
     journal_id: str,
-    _user_id: str = Depends(get_current_user_id),
+    _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> MessageResponse:
     try:
@@ -126,7 +126,7 @@ async def admin_delete_journal(
 
 @router.get("/requests", response_model=JournalRequestsResponse)
 async def admin_list_requests(
-    _user_id: str = Depends(get_current_user_id),
+    _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> JournalRequestsResponse:
     try:
@@ -140,7 +140,7 @@ async def admin_list_requests(
 async def admin_review_request(
     request_id: str,
     body: ReviewRequest,
-    _user_id: str = Depends(get_current_user_id),
+    _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> MessageResponse:
     status = (body.status or "").strip()
@@ -159,7 +159,7 @@ async def admin_review_request(
 
 @router.get("/users", response_model=AdminUsersResponse)
 async def admin_list_users(
-    _user_id: str = Depends(get_current_user_id),
+    _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ) -> AdminUsersResponse:
     try:
