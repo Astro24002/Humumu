@@ -1,6 +1,11 @@
 <template>
   <n-card title="登录" style="max-width: 400px; margin: 80px auto;">
-    <n-form :model="form" :rules="rules" @submit.prevent="handleLogin">
+    <n-form
+      ref="formRef"
+      :model="form"
+      :rules="rules"
+      @submit.prevent="handleLogin"
+    >
       <n-form-item label="邮箱" path="email">
         <n-input v-model:value="form.email" placeholder="user@example.com" autocomplete="username" />
       </n-form-item>
@@ -19,7 +24,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useMessage } from 'naive-ui'
+import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { NCard, NForm, NFormItem, NInput, NButton } from 'naive-ui'
 
 const router = useRouter()
@@ -27,11 +32,12 @@ const route = useRoute()
 const auth = useAuthStore()
 const message = useMessage()
 const loading = ref(false)
+const formRef = ref<FormInst | null>(null)
 
 const form = reactive({ email: '', password: '' })
-const rules = {
-  email: { required: true, type: 'email' as const, message: '请输入有效邮箱' },
-  password: { required: true, message: '请输入密码' },
+const rules: FormRules = {
+  email: { required: true, type: 'email', message: '请输入有效邮箱', trigger: ['input', 'blur'] },
+  password: { required: true, message: '请输入密码', trigger: ['input', 'blur'] },
 }
 
 onMounted(() => {
@@ -42,6 +48,11 @@ onMounted(() => {
 })
 
 async function handleLogin() {
+  try {
+    await formRef.value?.validate()
+  } catch {
+    return
+  }
   loading.value = true
   try {
     await auth.login(form.email, form.password)
