@@ -97,6 +97,7 @@ import { getMyUpdates, type MyUpdateItem } from '@/api/myUpdates'
 import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
+import { reasonLabel } from '@/utils/labels'
 import {
   NH2, NSpin, NEmpty, NButton, NList, NListItem, NThing, NTag, NSpace,
   NRadioGroup, NRadioButton, useMessage,
@@ -119,14 +120,6 @@ const emptyDescription = computed(() => {
   return '暂无更新，去订阅期刊或关键词吧'
 })
 
-function reasonLabel(r: string): string {
-  const map: Record<string, string> = {
-    journal: '期刊',
-    author: '作者',
-    keyword: '关键词',
-  }
-  return map[r] || r
-}
 
 async function fetchPage(reset: boolean) {
   if (reset) {

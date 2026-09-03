@@ -79,7 +79,7 @@ import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
 import { truncateAbstract } from '@/utils/abstract'
-import { formatDate } from '@/utils/format'
+import { formatDate, reasonLabel } from '@/utils/format'
 
 interface FeedItem {
   id: string
@@ -120,12 +120,6 @@ onMounted(() => {
   fetchItems()
 })
 
-function reasonLabel(r: string): string {
-  if (r === 'journal') return '期刊'
-  if (r === 'author') return '作者'
-  if (r === 'keyword') return '关键词'
-  return r
-}
 
 function goJournals() {
   uni.switchTab({ url: '/pages/journals/index' })

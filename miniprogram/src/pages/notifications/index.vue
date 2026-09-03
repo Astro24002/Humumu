@@ -46,7 +46,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { getNotifications, type Notification } from '@/api/notifications'
-import { formatDateTime } from '@/utils/format'
+import { formatDateTime, reasonLabel } from '@/utils/format'
 
 const auth = useAuthStore()
 const notifications = ref<Notification[]>([])
@@ -129,12 +129,6 @@ function statusText(s: string) {
   }
 }
 
-function reasonLabel(r: string): string {
-  if (r === 'journal') return '期刊'
-  if (r === 'author') return '作者'
-  if (r === 'keyword') return '关键词'
-  return r
-}
 
 function goArticle(articleId: string) {
   if (!articleId) return

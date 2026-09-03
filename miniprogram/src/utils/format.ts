@@ -43,6 +43,14 @@ export function doiUrl(doi: string): string {
   return `https://doi.org/${s.replace(/^doi:\s*/i, '')}`
 }
 
+/** Human label for match reason codes from my-updates / notifications. */
+export function reasonLabel(r: string): string {
+  if (r === 'journal') return '期刊'
+  if (r === 'author') return '作者'
+  if (r === 'keyword') return '关键词'
+  return r
+}
+
 export function truncate(s: string, max: number): string {
   if (s.length <= max) return s
   return s.slice(0, max) + '...'
