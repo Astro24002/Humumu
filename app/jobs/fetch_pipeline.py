@@ -1,9 +1,12 @@
-"""Fetch → dedup → insert → match → notify pipeline for active journals."""
+"""Fetch → dedup → insert → match → notify pipeline for active journals.
+
+Only enqueue notifications (status=pending) — sending is decoupled to notify_dispatch.
+"""
 
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timezone
+from datetime import date
 from typing import Any
 from uuid import UUID
 
@@ -20,8 +23,6 @@ from app.redis_client import get_redis
 from app.services.dedup import is_duplicate_and_mark
 from app.services.fetcher import RawArticle, fetch_articles
 from app.services.matcher import match_article
-from app.services.notifier_email import EmailNotifier
-from app.services.notifier_wechat import WeChatNotifier
 
 logger = logging.getLogger(__name__)
 
@@ -89,10 +90,8 @@ async def process_raw_article(
     journal: Journal,
     raw: RawArticle,
     match_ctx: dict[str, Any],
-    email_ntfr: EmailNotifier,
-    wechat_ntfr: WeChatNotifier,
 ) -> None:
-    """Dedup, insert, match, create notifications, send, mark status."""
+    """Dedup, insert, match, and enqueue pending notifications (no inline send)."""
     r = get_redis()
     journal_id = str(journal.id)
     doi = _empty_doi_to_none(raw.get("doi"))
@@ -136,94 +135,18 @@ async def process_raw_article(
         user_openid=match_ctx["user_openid"],
     )
 
-    notifs: list[Notification] = []
     for m in matches:
+        reasons = getattr(m, "reasons", ()) or ()
         n = Notification(
             user_id=UUID(m.user_id),
             article_id=article.id,
             channel=m.channel,
             status="pending",
+            match_reasons=",".join(reasons) if reasons else "",
         )
         session.add(n)
-        notifs.append(n)
-
-    await session.flush()
-
-    journal_name = journal.name or ""
-    for n in notifs:
-        await _send_one(
-            session,
-            notif=n,
-            journal_name=journal_name,
-            article=article,
-            match_ctx=match_ctx,
-            email_ntfr=email_ntfr,
-            wechat_ntfr=wechat_ntfr,
-        )
 
     await session.commit()
-
-
-async def _send_one(
-    session: AsyncSession,
-    *,
-    notif: Notification,
-    journal_name: str,
-    article: Article,
-    match_ctx: dict[str, Any],
-    email_ntfr: EmailNotifier,
-    wechat_ntfr: WeChatNotifier,
-) -> None:
-    uid = str(notif.user_id)
-    doi = article.doi or ""
-    try:
-        if notif.channel == "wechat":
-            openid = match_ctx["user_openid"].get(uid) or ""
-            sent = await wechat_ntfr.send_article(
-                openid=openid,
-                journal_name=journal_name,
-                title=article.title or "",
-                authors=list(article.authors or []),
-                abstract=article.abstract or "",
-                doi=doi,
-            )
-            if not sent:
-                # skipped (not configured) — mark failed with clear message
-                notif.status = "failed"
-                notif.error_message = "wechat not configured or user has no openid"
-                return
-        elif notif.channel == "email":
-            to_email = match_ctx["user_email"].get(uid) or ""
-            sent = email_ntfr.send_article(
-                to_email=to_email,
-                journal_name=journal_name,
-                title=article.title or "",
-                authors=list(article.authors or []),
-                abstract=article.abstract or "",
-                url=article.url or "",
-                doi=doi,
-            )
-            if not sent:
-                notif.status = "failed"
-                notif.error_message = "email not configured or user has no email"
-                return
-        else:
-            notif.status = "failed"
-            notif.error_message = f"unknown channel: {notif.channel}"
-            return
-
-        notif.status = "sent"
-        notif.sent_at = datetime.now(timezone.utc)
-        notif.error_message = None
-    except Exception as exc:  # noqa: BLE001
-        logger.warning(
-            "pipeline: send notification error [%s/%s]: %s",
-            notif.channel,
-            notif.id,
-            exc,
-        )
-        notif.status = "failed"
-        notif.error_message = str(exc)[:500]
 
 
 async def run_fetch_pipeline(
@@ -232,8 +155,6 @@ async def run_fetch_pipeline(
 ) -> None:
     """Run one full fetch cycle over all active journals."""
     settings = settings or get_settings()
-    email_ntfr = EmailNotifier(settings)
-    wechat_ntfr = WeChatNotifier(settings)
 
     logger.info("scheduler: starting fetch cycle")
     async with session_factory() as session:
@@ -270,8 +191,6 @@ async def run_fetch_pipeline(
                         journal=j,
                         raw=raw,
                         match_ctx=match_ctx,
-                        email_ntfr=email_ntfr,
-                        wechat_ntfr=wechat_ntfr,
                     )
             except Exception as exc:  # noqa: BLE001
                 logger.warning(

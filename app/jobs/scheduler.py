@@ -15,6 +15,7 @@ from app.config import Settings, get_settings
 from app.db import get_session_factory
 from app.jobs.daily_summary import run_daily_summary
 from app.jobs.fetch_pipeline import run_fetch_pipeline
+from app.jobs.notify_dispatch import run_notify_dispatch
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ def start_scheduler(settings: Settings | None = None) -> AsyncIOScheduler | None
 
     Jobs:
       - interval fetch every ``fetch_interval_minutes``
+      - interval notify dispatch every 2 minutes
       - cron daily summary at 08:00 local
     """
     global _scheduler
@@ -61,6 +63,9 @@ def start_scheduler(settings: Settings | None = None) -> AsyncIOScheduler | None
     async def _fetch_job() -> None:
         await run_fetch_pipeline(session_factory, settings)
 
+    async def _notify_job() -> None:
+        await run_notify_dispatch(session_factory, settings)
+
     async def _summary_job() -> None:
         await run_daily_summary(session_factory, settings)
 
@@ -69,6 +74,15 @@ def start_scheduler(settings: Settings | None = None) -> AsyncIOScheduler | None
         trigger="interval",
         minutes=interval_min,
         id="fetch_pipeline",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    sched.add_job(
+        _notify_job,
+        trigger="interval",
+        minutes=2,
+        id="notify_dispatch",
         replace_existing=True,
         max_instances=1,
         coalesce=True,
@@ -86,7 +100,7 @@ def start_scheduler(settings: Settings | None = None) -> AsyncIOScheduler | None
     sched.start()
     _scheduler = sched
     logger.info(
-        "scheduler started: fetch every %d min, daily summary at 08:00",
+        "scheduler started: fetch every %d min, notify every 2 min, daily summary at 08:00",
         interval_min,
     )
     return _scheduler
