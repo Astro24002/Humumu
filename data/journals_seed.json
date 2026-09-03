@@ -1388,5 +1388,185 @@
     "content_type": "preprint",
     "fetch_interval_minutes": 60,
     "homepage_url": "https://arxiv.org/list/econ.GN/recent"
+  },
+  {
+    "name": "arXiv nlin.CD",
+    "slug": "arxiv-nlin-cd",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/nlin.CD",
+    "description": "Chaotic Dynamics — arXiv nlin.CD",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/nlin.CD/recent"
+  },
+  {
+    "name": "arXiv nlin.PS",
+    "slug": "arxiv-nlin-ps",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/nlin.PS",
+    "description": "Pattern Formation — arXiv nlin.PS",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/nlin.PS/recent"
+  },
+  {
+    "name": "arXiv nlin.SI",
+    "slug": "arxiv-nlin-si",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/nlin.SI",
+    "description": "Exactly Solvable — arXiv nlin.SI",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/nlin.SI/recent"
+  },
+  {
+    "name": "arXiv physics.flu-dyn",
+    "slug": "arxiv-physics-flu-dyn",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.flu-dyn",
+    "description": "Fluid Dynamics — arXiv physics.flu-dyn",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.flu-dyn/recent"
+  },
+  {
+    "name": "arXiv physics.geo-ph",
+    "slug": "arxiv-physics-geo-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.geo-ph",
+    "description": "Geophysics — arXiv physics.geo-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.geo-ph/recent"
+  },
+  {
+    "name": "arXiv physics.med-ph",
+    "slug": "arxiv-physics-med-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.med-ph",
+    "description": "Medical Physics — arXiv physics.med-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.med-ph/recent"
+  },
+  {
+    "name": "arXiv physics.atom-ph",
+    "slug": "arxiv-physics-atom-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.atom-ph",
+    "description": "Atomic Physics — arXiv physics.atom-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.atom-ph/recent"
+  },
+  {
+    "name": "arXiv hep-th",
+    "slug": "arxiv-hep-th",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/hep-th",
+    "description": "High Energy Physics - Theory — arXiv hep-th",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/hep-th/recent"
+  },
+  {
+    "name": "arXiv hep-ph",
+    "slug": "arxiv-hep-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/hep-ph",
+    "description": "High Energy Physics - Phenomenology — arXiv hep-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/hep-ph/recent"
+  },
+  {
+    "name": "arXiv gr-qc",
+    "slug": "arxiv-gr-qc",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/gr-qc",
+    "description": "General Relativity — arXiv gr-qc",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/gr-qc/recent"
+  },
+  {
+    "name": "arXiv astro-ph.CO",
+    "slug": "arxiv-astro-ph-co",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/astro-ph.CO",
+    "description": "Cosmology — arXiv astro-ph.CO",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/astro-ph.CO/recent"
+  },
+  {
+    "name": "arXiv astro-ph.GA",
+    "slug": "arxiv-astro-ph-ga",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/astro-ph.GA",
+    "description": "Astrophysics of Galaxies — arXiv astro-ph.GA",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/astro-ph.GA/recent"
+  },
+  {
+    "name": "arXiv astro-ph.HE",
+    "slug": "arxiv-astro-ph-he",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/astro-ph.HE",
+    "description": "High Energy Astrophysical Phenomena — arXiv astro-ph.HE",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/astro-ph.HE/recent"
+  },
+  {
+    "name": "arXiv astro-ph.IM",
+    "slug": "arxiv-astro-ph-im",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/astro-ph.IM",
+    "description": "Instrumentation and Methods — arXiv astro-ph.IM",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/astro-ph.IM/recent"
+  },
+  {
+    "name": "arXiv astro-ph.SR",
+    "slug": "arxiv-astro-ph-sr",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/astro-ph.SR",
+    "description": "Solar and Stellar Astrophysics — arXiv astro-ph.SR",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/astro-ph.SR/recent"
+  },
+  {
+    "name": "arXiv math.AG",
+    "slug": "arxiv-math-ag",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.AG",
+    "description": "Algebraic Geometry — arXiv math.AG",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.AG/recent"
+  },
+  {
+    "name": "arXiv math.DG",
+    "slug": "arxiv-math-dg",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.DG",
+    "description": "Differential Geometry — arXiv math.DG",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.DG/recent"
+  },
+  {
+    "name": "arXiv math.NA",
+    "slug": "arxiv-math-na",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.NA",
+    "description": "Numerical Analysis — arXiv math.NA",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/math.NA/recent"
   }
 ]

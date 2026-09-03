@@ -16,7 +16,7 @@
     <view v-else-if="journals.length === 0" class="empty">
       <text>{{ emptyHint }}</text>
       <button v-if="hasActiveFilters" size="mini" class="btn-empty" @click="clearFilters">清除筛选</button>
-      <button v-else size="mini" class="btn-empty" @click="goSubscriptions">去添加源</button>
+      <button v-else size="mini" class="btn-empty" @click="goEmptyCta">{{ emptyCtaLabel }}</button>
     </view>
     <scroll-view v-else scroll-y class="scroll-view">
       <JournalCard v-for="j in journals" :key="j.id" :journal="j" />
@@ -27,8 +27,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getJournals, type Journal } from '@/api/journals'
+import { useAuthStore } from '@/stores/auth'
 import JournalCard from '@/components/JournalCard.vue'
 
+const auth = useAuthStore()
 const journals = ref<Journal[]>([])
 const loading = ref(true)
 const search = ref('')
@@ -37,6 +39,9 @@ const contentType = ref('')
 const hasActiveFilters = computed(() => Boolean(search.value.trim() || contentType.value))
 const emptyHint = computed(() =>
   hasActiveFilters.value ? '当前筛选下暂无期刊' : '暂无期刊',
+)
+const emptyCtaLabel = computed(() =>
+  auth.isLoggedIn ? '去添加源' : '登录后添加源',
 )
 
 function setType(t: string) {
@@ -64,8 +69,12 @@ async function reload() {
   }
 }
 
-function goSubscriptions() {
-  uni.switchTab({ url: '/pages/subscriptions/index' })
+function goEmptyCta() {
+  if (auth.isLoggedIn) {
+    uni.switchTab({ url: '/pages/subscriptions/index' })
+  } else {
+    uni.navigateTo({ url: '/pages/login/index' })
+  }
 }
 
 onMounted(reload)

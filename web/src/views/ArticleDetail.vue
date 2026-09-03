@@ -52,6 +52,9 @@
       <n-button v-if="article.doi" quaternary tag="a" :href="doiUrl(article.doi)" target="_blank" @click="onOriginalClick">
         DOI 原文
       </n-button>
+      <n-button v-if="article.doi || article.url" quaternary @click="copyLink">
+        复制链接
+      </n-button>
       <template v-if="isLoggedIn">
         <n-button :type="status.is_read ? 'success' : 'default'" ghost @click="toggle('is_read')" :loading="statusSaving">
           {{ status.is_read ? '已读' : '标为已读' }}
@@ -134,6 +137,20 @@ async function onOriginalClick() {
     }
   } catch {
     // non-blocking
+  }
+}
+
+async function copyLink() {
+  if (!article.value) return
+  const link = article.value.doi
+    ? doiUrl(article.value.doi)
+    : article.value.url || ''
+  if (!link) return
+  try {
+    await navigator.clipboard.writeText(link)
+    message.success('链接已复制')
+  } catch {
+    message.error('复制失败，请手动选择链接')
   }
 }
 
