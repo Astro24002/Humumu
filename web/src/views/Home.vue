@@ -6,7 +6,12 @@
       <n-button text type="primary" @click="router.push('/my')">我的更新</n-button>
       查看订阅命中与阅读状态。
     </n-alert>
-    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+      <n-radio-group v-model:value="filterContentType" size="small" @update:value="onContentTypeChange">
+        <n-radio-button value="">全部</n-radio-button>
+        <n-radio-button value="journal">期刊</n-radio-button>
+        <n-radio-button value="preprint">预印本</n-radio-button>
+      </n-radio-group>
       <n-select v-if="journals.length" v-model:value="filterJournalId" :options="journalOptions"
         placeholder="筛选期刊" clearable style="max-width: 300px;" />
       <n-tag v-if="!loading" :bordered="false">{{ total }} 篇</n-tag>
@@ -60,7 +65,10 @@ import { useRouter } from 'vue-router'
 import { getArticles, type Article } from '@/api/articles'
 import { getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
-import { NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton, NAlert } from 'naive-ui'
+import {
+  NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton, NAlert,
+  NRadioGroup, NRadioButton,
+} from 'naive-ui'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -71,6 +79,7 @@ const loading = ref(true)
 const page = ref(1)
 const limit = 20
 const filterJournalId = ref<string | null>(null)
+const filterContentType = ref('')
 
 const pageCount = computed(() => Math.ceil(total.value / limit) || 1)
 
@@ -89,6 +98,11 @@ function truncateAbstract(text: string): string {
   return cleaned.length > 200 ? cleaned.slice(0, 200) + '...' : cleaned
 }
 
+function onContentTypeChange() {
+  page.value = 1
+  loadArticles()
+}
+
 async function loadArticles() {
   loading.value = true
   try {
@@ -97,6 +111,7 @@ async function loadArticles() {
       offset: String((page.value - 1) * limit),
     }
     if (filterJournalId.value) params.journal_id = filterJournalId.value
+    if (filterContentType.value) params.content_type = filterContentType.value
     const res = await getArticles(params)
     articles.value = res.articles
     // Prefer server total; fall back to page length only when absent.

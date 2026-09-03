@@ -20,7 +20,12 @@ export interface ArticlesResponse {
   total?: number
 }
 
-export function getArticles(params?: { journal_id?: string; limit?: string; offset?: string }): Promise<ArticlesResponse> {
+export function getArticles(params?: {
+  journal_id?: string
+  content_type?: string
+  limit?: string
+  offset?: string
+}): Promise<ArticlesResponse> {
   return get<ArticlesResponse>('/articles', params as Record<string, string>)
 }
 

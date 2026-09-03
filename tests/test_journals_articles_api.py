@@ -187,6 +187,26 @@ async def test_list_articles_with_journal_id(client):
 
 
 @pytest.mark.asyncio
+async def test_list_articles_with_content_type(client):
+    with (
+        patch(
+            "app.routers.articles.article_service.list_articles",
+            new_callable=AsyncMock,
+            return_value=[],
+        ) as mock_list,
+        patch(
+            "app.routers.articles.article_service.count_list_articles",
+            new_callable=AsyncMock,
+            return_value=0,
+        ) as mock_count,
+    ):
+        r = await client.get("/api/v1/articles?content_type=preprint")
+    assert r.status_code == 200
+    assert mock_list.await_args.kwargs["content_type"] == "preprint"
+    assert mock_count.await_args.kwargs["content_type"] == "preprint"
+
+
+@pytest.mark.asyncio
 async def test_get_article_bare(client):
     a = _sample_article(title="Bare Article")
     with patch(

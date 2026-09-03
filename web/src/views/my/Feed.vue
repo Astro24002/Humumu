@@ -57,6 +57,7 @@
               :href="u.original_url || u.url"
               target="_blank"
               rel="noopener noreferrer"
+              @click="onOriginalClick(u)"
             >
               原文
             </n-button>
@@ -71,7 +72,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getMyUpdates, type MyUpdateItem } from '@/api/myUpdates'
-import { updateArticleStatus } from '@/api/reading'
+import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
 import {
   NH2, NSpin, NEmpty, NButton, NList, NListItem, NThing, NTag, NSpace,
   NRadioGroup, NRadioButton, useMessage,
@@ -115,6 +116,19 @@ async function toggle(u: MyUpdateItem, field: 'is_read' | 'is_starred' | 'is_lat
     u.status.is_later = status.is_later
   } catch (e: any) {
     message.error(e.message || '更新失败')
+  }
+}
+
+async function onOriginalClick(u: MyUpdateItem) {
+  try {
+    await recordOriginalClick(u.article_id)
+    if (!u.status.is_read) {
+      const status = await updateArticleStatus(u.article_id, { is_read: true })
+      u.status.is_read = status.is_read
+      u.status.original_clicked_at = status.original_clicked_at
+    }
+  } catch {
+    // non-blocking
   }
 }
 

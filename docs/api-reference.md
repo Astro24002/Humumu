@@ -248,6 +248,7 @@ GET /api/v1/categories/cas
 
 **查询参数:**
 - `journal_id` — 按期刊过滤
+- `content_type` — `journal` | `preprint`
 - `limit` — 每页数量（默认 20，最大 100）
 - `offset` — 偏移量
 

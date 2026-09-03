@@ -20,7 +20,12 @@ export interface ArticlesResponse {
   total: number
 }
 
-export function getArticles(params: { limit?: number; offset?: number; journal_id?: string } = {}): Promise<ArticlesResponse> {
+export function getArticles(params: {
+  limit?: number
+  offset?: number
+  journal_id?: string
+  content_type?: string
+} = {}): Promise<ArticlesResponse> {
   const qs = buildQuery(params as Record<string, string | number | undefined>)
   return get(`/articles${qs}`)
 }
