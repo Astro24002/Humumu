@@ -44,6 +44,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getTemplateSetting, updateTemplateSetting, getTemplateIds } from '@/api/wechat'
 
@@ -58,7 +59,7 @@ const accountEmailLabel = computed(() => {
   return '未绑定邮箱（微信登录）'
 })
 
-onMounted(async () => {
+async function hydrateProfile() {
   if (!auth.isLoggedIn) return
   try {
     await auth.refreshMe()
@@ -68,7 +69,10 @@ onMounted(async () => {
   // default daily (index 0); realtime is index 1
   freqIndex.value = auth.user?.push_frequency === 'realtime' ? 1 : 0
   loadTemplateSetting()
-})
+}
+
+onMounted(() => { hydrateProfile() })
+onShow(() => { hydrateProfile() })
 
 async function loadTemplateSetting() {
   try {

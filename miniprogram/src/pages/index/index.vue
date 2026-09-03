@@ -75,6 +75,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
@@ -117,6 +118,14 @@ const emptyHint = computed(() => {
 
 onMounted(() => {
   if (auth.isLoggedIn) tab.value = 'updates'
+  fetchItems()
+})
+
+// Tab page stays alive; re-sync when returning from login or other tabs.
+onShow(() => {
+  if (!auth.isLoggedIn && tab.value === 'updates') {
+    tab.value = 'all'
+  }
   fetchItems()
 })
 

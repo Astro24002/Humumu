@@ -113,6 +113,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import {
   getSubscribedJournals, unsubscribeJournal, updateJournalSubscriptionPrefs,
@@ -161,11 +162,24 @@ function goJournal(id: string) {
 }
 
 onMounted(() => {
-  if (!auth.isLoggedIn) return
+  if (auth.isLoggedIn) loadData()
+  else loadingJournals.value = false
+})
+
+// Tab pages stay mounted; refresh after login/return from journal detail.
+onShow(() => {
+  if (!auth.isLoggedIn) {
+    journals.value = []
+    authors.value = []
+    keywords.value = []
+    loadingJournals.value = false
+    return
+  }
   loadData()
 })
 
 async function loadData() {
+  loadingJournals.value = true
   try {
     const [jr, ar, kr] = await Promise.all([
       getSubscribedJournals(),

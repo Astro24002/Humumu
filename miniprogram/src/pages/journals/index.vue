@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
 import JournalCard from '@/components/JournalCard.vue'
@@ -117,6 +118,11 @@ watch(sortBy, () => {
 })
 
 onMounted(reload)
+
+// Keep catalog fresh when switching back to this tab.
+onShow(() => {
+  reload()
+})
 </script>
 
 <style scoped>
