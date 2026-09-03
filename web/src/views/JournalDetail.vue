@@ -2,6 +2,12 @@
   <n-button quaternary @click="router.back()" style="margin-bottom: 16px;">← 返回</n-button>
 
   <div v-if="loading"><n-spin /></div>
+  <n-result v-else-if="loadError" status="404" :title="loadError" description="可能是私有源或已删除">
+    <template #footer>
+      <n-button @click="router.push('/journals')">期刊广场</n-button>
+      <n-button type="primary" style="margin-left: 8px;" @click="router.push('/my/subscriptions')">我的订阅</n-button>
+    </template>
+  </n-result>
   <template v-else-if="journal">
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
       <n-h2 style="margin-bottom: 0;">{{ journal.name }}</n-h2>
@@ -111,7 +117,7 @@ import {
 } from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
 import {
-  NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty,
+  NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty, NResult,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,
   NNumberAnimation, NPagination, useMessage,
 } from 'naive-ui'
@@ -124,6 +130,7 @@ const isLoggedIn = computed(() => auth.isLoggedIn)
 const journal = ref<Journal | null>(null)
 const articles = ref<Article[]>([])
 const loading = ref(true)
+const loadError = ref('')
 const articlesLoading = ref(false)
 const articlesTotal = ref(0)
 const articlesPage = ref(1)
@@ -210,6 +217,8 @@ onMounted(async () => {
     if (subRes) {
       isSubscribed.value = subRes.journals.some((j) => j.id === id)
     }
+  } catch (e: any) {
+    loadError.value = e?.message || '期刊不存在或无权查看'
   } finally {
     loading.value = false
   }

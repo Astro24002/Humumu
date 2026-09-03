@@ -1,6 +1,12 @@
 <template>
   <n-button quaternary @click="router.back()" style="margin-bottom: 16px;">← 返回</n-button>
   <div v-if="loading"><n-spin /></div>
+  <n-result v-else-if="loadError" status="404" :title="loadError" description="可能是私有源或已删除">
+    <template #footer>
+      <n-button @click="router.push('/')">回广场</n-button>
+      <n-button type="primary" style="margin-left: 8px;" @click="router.push('/my')">我的更新</n-button>
+    </template>
+  </n-result>
   <template v-else-if="article">
     <div style="margin-bottom: 12px;">
       <router-link v-if="article.journal_name" :to="`/journals/${article.journal_id}`" style="text-decoration: none;">
@@ -68,7 +74,7 @@ import { getArticle, type Article } from '@/api/articles'
 import { getArticleStatus, updateArticleStatus, recordOriginalClick, type ArticleStatus } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
 import {
-  NH2, NH4, NButton, NSpin, NTag,
+  NH2, NH4, NButton, NSpin, NTag, NResult,
   NDescriptions, NDescriptionsItem, useMessage,
 } from 'naive-ui'
 
@@ -79,6 +85,7 @@ const auth = useAuthStore()
 const isLoggedIn = computed(() => auth.isLoggedIn)
 const article = ref<Article | null>(null)
 const loading = ref(true)
+const loadError = ref('')
 const statusSaving = ref(false)
 const status = ref<ArticleStatus>({
   user_id: '',
@@ -140,6 +147,8 @@ onMounted(async () => {
         // status optional
       }
     }
+  } catch (e: any) {
+    loadError.value = e?.message || '文章不存在或无权查看'
   } finally {
     loading.value = false
   }

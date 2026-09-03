@@ -1,6 +1,10 @@
 <template>
   <view class="container">
     <view v-if="loading" class="loading"><text>加载中...</text></view>
+    <view v-else-if="loadError" class="empty">
+      <text>{{ loadError }}</text>
+      <button size="mini" class="btn-back" @click="goBack">返回</button>
+    </view>
     <template v-else-if="article">
       <view class="journal-name">
         {{ article.journal_name }}
@@ -52,6 +56,7 @@ import { formatDate } from '@/utils/format'
 const auth = useAuthStore()
 const article = ref<Article | null>(null)
 const loading = ref(true)
+const loadError = ref('')
 const status = ref<ArticleStatus>({
   user_id: '',
   article_id: '',
@@ -61,11 +66,19 @@ const status = ref<ArticleStatus>({
   original_clicked_at: null,
 })
 
+function goBack() {
+  uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/index/index' }) })
+}
+
 onMounted(async () => {
   const pages = getCurrentPages()
   const page = pages[pages.length - 1] as any
   const id = page.$page?.options?.id || page.options?.id
-  if (!id) return
+  if (!id) {
+    loadError.value = '缺少文章 ID'
+    loading.value = false
+    return
+  }
 
   try {
     article.value = await getArticle(id)
@@ -79,6 +92,8 @@ onMounted(async () => {
         // optional
       }
     }
+  } catch (e: any) {
+    loadError.value = e?.message || '文章不存在或无权查看'
   } finally {
     loading.value = false
   }
@@ -129,5 +144,6 @@ async function openOriginal(url: string) {
   width: 100%; padding: 24rpx; background: #3cc51f; color: #fff;
   border: none; border-radius: 12rpx; font-size: 30rpx; text-align: center;
 }
-.loading { text-align: center; padding: 100rpx; color: #999; }
+.loading, .empty { text-align: center; padding: 100rpx; color: #999; }
+.btn-back { margin-top: 24rpx; }
 </style>

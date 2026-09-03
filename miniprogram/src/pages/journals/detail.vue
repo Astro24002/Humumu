@@ -1,6 +1,10 @@
 <template>
   <view class="container">
     <view v-if="loading" class="loading"><text>加载中...</text></view>
+    <view v-else-if="loadError" class="empty">
+      <text>{{ loadError }}</text>
+      <button size="mini" class="btn-more" @click="goBack">返回</button>
+    </view>
     <template v-else-if="journal">
       <view class="header">
         <text class="name">{{ journal.name }}</text>
@@ -46,11 +50,16 @@ const journal = ref<Journal | null>(null)
 const articles = ref<Article[]>([])
 const loading = ref(true)
 const loadingMore = ref(false)
+const loadError = ref('')
 const isSubscribed = ref(false)
 const journalId = ref('')
 const offset = ref(0)
 const limit = 20
 const hasMore = ref(false)
+
+function goBack() {
+  uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/journals/index' }) })
+}
 
 function dirStatusLabel(s?: string): string {
   const map: Record<string, string> = {
@@ -100,7 +109,11 @@ onMounted(async () => {
   const pages = getCurrentPages()
   const page = pages[pages.length - 1] as any
   const id = page.$page?.options?.id || page.options?.id
-  if (!id) return
+  if (!id) {
+    loadError.value = '缺少期刊 ID'
+    loading.value = false
+    return
+  }
   journalId.value = id
 
   try {
@@ -113,6 +126,8 @@ onMounted(async () => {
     if (subRes) {
       isSubscribed.value = subRes.journals.some(j => j.id === id)
     }
+  } catch (e: any) {
+    loadError.value = e?.message || '期刊不存在或无权查看'
   } finally {
     loading.value = false
   }
