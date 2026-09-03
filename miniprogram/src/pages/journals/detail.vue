@@ -126,6 +126,9 @@ onMounted(async () => {
       auth.isLoggedIn ? getSubscribedJournals() : Promise.resolve(null),
     ])
     journal.value = jr
+    if (jr?.name) {
+      uni.setNavigationBarTitle({ title: jr.name.length > 16 ? `${jr.name.slice(0, 16)}…` : jr.name })
+    }
     if (subRes) {
       isSubscribed.value = subRes.journals.some(j => j.id === id)
     }

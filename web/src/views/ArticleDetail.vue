@@ -141,6 +141,13 @@ onMounted(async () => {
   const id = route.params.id as string
   try {
     article.value = await getArticle(id)
+    if (article.value?.title) {
+      const short =
+        article.value.title.length > 48
+          ? `${article.value.title.slice(0, 48)}…`
+          : article.value.title
+      document.title = `${short} · Humumu`
+    }
     if (isLoggedIn.value) {
       try {
         status.value = await getArticleStatus(id)

@@ -238,6 +238,7 @@ onMounted(async () => {
       auth.isLoggedIn ? getSubscribedJournals().catch(() => null) : Promise.resolve(null),
     ])
     journal.value = jr
+    if (jr?.name) document.title = `${jr.name} · Humumu`
     if (subRes) {
       isSubscribed.value = subRes.journals.some((j) => j.id === id)
     }

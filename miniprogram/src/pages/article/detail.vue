@@ -101,6 +101,10 @@ onMounted(async () => {
 
   try {
     article.value = await getArticle(id)
+    if (article.value?.title) {
+      const t = article.value.title
+      uni.setNavigationBarTitle({ title: t.length > 18 ? `${t.slice(0, 18)}…` : t })
+    }
     if (auth.isLoggedIn) {
       try {
         status.value = await getArticleStatus(id)
