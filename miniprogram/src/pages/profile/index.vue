@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
@@ -72,7 +72,6 @@ async function hydrateProfile() {
   loadTemplateSetting()
 }
 
-onMounted(() => { hydrateProfile() })
 onShow(() => { hydrateProfile() })
 
 onPullDownRefresh(async () => {

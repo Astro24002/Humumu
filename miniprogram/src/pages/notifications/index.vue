@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
@@ -70,10 +70,6 @@ function goSubscriptions() {
   uni.switchTab({ url: '/pages/subscriptions/index' })
 }
 
-onMounted(() => {
-  if (auth.isLoggedIn) fetchNotifications(true)
-  else loading.value = false
-})
 
 onShow(() => {
   if (auth.isLoggedIn) fetchNotifications(true)

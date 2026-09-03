@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
@@ -118,9 +118,6 @@ watch(sortBy, () => {
   visibleCount.value = pageSize
 })
 
-onMounted(reload)
-
-// Keep catalog fresh when switching back to this tab.
 onShow(() => {
   reload()
 })

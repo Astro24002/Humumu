@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
@@ -116,14 +116,14 @@ const emptyHint = computed(() => {
   return '暂无论文'
 })
 
-onMounted(() => {
-  if (auth.isLoggedIn) tab.value = 'updates'
-  fetchItems()
-})
-
 // Tab page stays alive; re-sync when returning from login or other tabs.
 onShow(() => {
-  if (!auth.isLoggedIn && tab.value === 'updates') {
+  if (auth.isLoggedIn) {
+    if (!didPreferUpdates.value) {
+      tab.value = 'updates'
+      didPreferUpdates.value = true
+    }
+  } else if (tab.value === 'updates') {
     tab.value = 'all'
   }
   fetchItems()

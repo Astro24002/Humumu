@@ -113,7 +113,7 @@
 
 <script setup lang="ts">
 import { dirStatusLabel, sourceTypeLabel } from '@/utils/format'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
@@ -154,12 +154,6 @@ function goJournal(id: string) {
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
 }
 
-onMounted(() => {
-  if (auth.isLoggedIn) loadData()
-  else loadingJournals.value = false
-})
-
-// Tab pages stay mounted; refresh after login/return from journal detail.
 onShow(() => {
   if (!auth.isLoggedIn) {
     journals.value = []

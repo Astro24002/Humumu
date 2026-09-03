@@ -35,6 +35,7 @@ const message = useMessage()
 const dialog = useDialog()
 const requests = ref<JournalRequest[]>([])
 const loading = ref(true)
+const reviewBusy = ref(false)
 const statusFilter = ref('pending')
 
 const filtered = computed(() => {
@@ -83,8 +84,8 @@ const columns = [
     title: '操作', key: 'actions',
     render: (row: JournalRequest) => row.status === 'pending' ? h(NSpace, null, {
       default: () => [
-        h(NButton, { size: 'small', type: 'success', onClick: () => confirmReview(row, 'approved') }, { default: () => '通过' }),
-        h(NButton, { size: 'small', type: 'error', ghost: true, onClick: () => confirmReview(row, 'rejected') }, { default: () => '拒绝' }),
+        h(NButton, { size: 'small', type: 'success', loading: reviewBusy.value, disabled: reviewBusy.value, onClick: () => confirmReview(row, 'approved') }, { default: () => '通过' }),
+        h(NButton, { size: 'small', type: 'error', ghost: true, loading: reviewBusy.value, disabled: reviewBusy.value, onClick: () => confirmReview(row, 'rejected') }, { default: () => '拒绝' }),
       ],
     }) : null,
   },
@@ -104,12 +105,16 @@ function confirmReview(row: JournalRequest, status: string) {
 }
 
 async function review(id: string, status: string) {
+  if (reviewBusy.value) return
+  reviewBusy.value = true
   try {
     await reviewRequest(id, status)
     message.success(status === 'approved' ? '已通过（将创建/复用公开期刊）' : '已拒绝')
-    load()
+    await load()
   } catch (e: any) {
     message.error(e.message)
+  } finally {
+    reviewBusy.value = false
   }
 }
 
