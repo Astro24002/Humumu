@@ -27,6 +27,22 @@ async def get_current_user_id(authorization: str | None = Header(default=None)) 
     return str(user_id)
 
 
+async def get_optional_user_id(authorization: str | None = Header(default=None)) -> str | None:
+    """Return user_id when a valid Bearer token is present; otherwise None (no 401)."""
+    if not authorization:
+        return None
+    parts = authorization.split(" ", 1)
+    if len(parts) != 2 or parts[0] != "Bearer":
+        return None
+    settings = get_settings()
+    try:
+        payload = decode_token(parts[1], settings.jwt_secret)
+    except Exception:
+        return None
+    user_id = payload.get("user_id")
+    return str(user_id) if user_id else None
+
+
 async def require_admin(
     authorization: str | None = Header(default=None),
     session: AsyncSession = Depends(get_session),

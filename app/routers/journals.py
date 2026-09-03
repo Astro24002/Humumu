@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_session
+from app.deps import get_optional_user_id
 from app.schemas.journal import JournalOut, JournalsResponse
 from app.services import journals as journal_service
 
@@ -39,9 +40,14 @@ async def list_journals(
 async def get_journal(
     journal_id: str,
     session: AsyncSession = Depends(get_session),
+    viewer_id: str | None = Depends(get_optional_user_id),
 ) -> JournalOut:
     try:
-        journal = await journal_service.get_journal(session, journal_id)
+        journal = await journal_service.get_journal(
+            session,
+            journal_id,
+            viewer_user_id=viewer_id,
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch journal") from exc
     if journal is None:

@@ -157,22 +157,49 @@ async def get_article(
     article_id: str | UUID,
     *,
     public_only: bool = True,
+    viewer_user_id: str | UUID | None = None,
 ) -> ArticleOut | None:
-    """Get one article by id with joined journal fields, or None."""
+    """Get one article by id with joined journal fields, or None.
+
+    When public_only=True (default catalog): public journals always; non-public
+    journals only if viewer_user_id matches journal.created_by (owner of private
+    / pending_review sources).
+    """
     uid = _parse_uuid(article_id)
     if uid is None:
         return None
 
-    stmt = _base_article_select(public_only=public_only).where(Article.id == uid)
+    # Fetch without directory filter so we can apply owner exception.
+    stmt = (
+        select(
+            Article,
+            Journal.name.label("journal_name"),
+            Journal.source_type.label("journal_source_type"),
+            Journal.content_type.label("content_type"),
+            Journal.directory_status.label("directory_status"),
+            Journal.created_by.label("created_by"),
+        )
+        .join(Journal, Article.journal_id == Journal.id)
+        .where(Article.id == uid)
+    )
     result = await session.execute(stmt)
     row = result.one_or_none()
     if row is None:
         return None
+
+    article, journal_name, journal_source_type, content_type, directory_status, created_by = row
+    status = (directory_status or "public").strip().lower()
+    if public_only and status != "public":
+        viewer = _parse_uuid(viewer_user_id) if viewer_user_id is not None else None
+        owner = created_by if isinstance(created_by, UUID) else _parse_uuid(created_by)
+        if viewer is None or owner is None or viewer != owner:
+            return None
+
     return _article_out(
-        row[0],
-        journal_name=row[1],
-        journal_source_type=row[2],
-        content_type=row[3],
+        article,
+        journal_name=journal_name,
+        journal_source_type=journal_source_type,
+        content_type=content_type,
     )
 
 

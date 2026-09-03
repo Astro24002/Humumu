@@ -153,8 +153,12 @@ async def get_journal(
     journal_id: str | UUID,
     *,
     public_only: bool = True,
+    viewer_user_id: str | UUID | None = None,
 ) -> JournalOut | None:
-    """Get one journal by id with article stats, or None if missing/invalid id."""
+    """Get one journal by id with article stats, or None if missing/invalid id.
+
+    public_only: public directory always; non-public only for matching created_by.
+    """
     uid = _parse_uuid(journal_id)
     if uid is None:
         return None
@@ -169,13 +173,21 @@ async def get_journal(
         .outerjoin(stats, Journal.id == stats.c.journal_id)
         .where(Journal.id == uid)
     )
-    if public_only:
-        stmt = stmt.where(Journal.directory_status == "public")
     result = await session.execute(stmt)
     row = result.one_or_none()
     if row is None:
         return None
-    return _journal_out(row[0], article_count=row[1], last_article_date=row[2])
+    journal = row[0]
+    if public_only:
+        status = (getattr(journal, "directory_status", None) or "public").strip().lower()
+        if status != "public":
+            viewer = _parse_uuid(viewer_user_id) if viewer_user_id is not None else None
+            owner = getattr(journal, "created_by", None)
+            if isinstance(owner, str):
+                owner = _parse_uuid(owner)
+            if viewer is None or owner is None or viewer != owner:
+                return None
+    return _journal_out(journal, article_count=row[1], last_article_date=row[2])
 
 
 async def find_by_url(session: AsyncSession, source_url: str) -> JournalOut | None:

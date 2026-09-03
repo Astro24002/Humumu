@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_session
-from app.deps import get_current_user_id
+from app.deps import get_current_user_id, get_optional_user_id
 from app.schemas.article import ArticleOut, ArticlesResponse
 from app.services import articles as article_service
 
@@ -39,9 +39,14 @@ async def list_articles(
 async def get_article(
     article_id: str,
     session: AsyncSession = Depends(get_session),
+    viewer_id: str | None = Depends(get_optional_user_id),
 ) -> ArticleOut:
     try:
-        article = await article_service.get_article(session, article_id)
+        article = await article_service.get_article(
+            session,
+            article_id,
+            viewer_user_id=viewer_id,
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch article") from exc
     if article is None:
