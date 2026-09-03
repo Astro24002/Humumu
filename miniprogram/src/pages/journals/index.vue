@@ -126,5 +126,5 @@ onMounted(reload)
 .chip.on { background: #e8f8e0; color: #3cc51f; border-color: #3cc51f; }
 .loading, .empty { text-align: center; padding: 100rpx 40rpx; color: #999; }
 .btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
-.scroll-view { height: calc(100vh - 180rpx); }
+.scroll-view { height: calc(100vh - 280rpx); }
 </style>

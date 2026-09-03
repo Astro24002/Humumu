@@ -2728,5 +2728,295 @@
     "content_type": "preprint",
     "fetch_interval_minutes": 120,
     "homepage_url": "https://www.medrxiv.org/collection/surgery"
+  },
+  {
+    "name": "Epidemiology",
+    "slug": "biorxiv-epidemiology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=epidemiology",
+    "description": "Epidemiology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/epidemiology"
+  },
+  {
+    "name": "Paleontology",
+    "slug": "biorxiv-paleontology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=paleontology",
+    "description": "Paleontology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/paleontology"
+  },
+  {
+    "name": "Genetic and Genomic Medicine",
+    "slug": "medrxiv-genomic-med",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=genetic_and_genomic_medicine",
+    "description": "Genetic and Genomic Medicine",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/genetic_and_genomic_medicine"
+  },
+  {
+    "name": "Geriatric Medicine",
+    "slug": "medrxiv-geriatric",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=geriatric_medicine",
+    "description": "Geriatric Medicine",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/geriatric_medicine"
+  },
+  {
+    "name": "Health Economics",
+    "slug": "medrxiv-health-econ",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=health_economics",
+    "description": "Health Economics",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/health_economics"
+  },
+  {
+    "name": "Health Policy",
+    "slug": "medrxiv-health-policy",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=health_policy",
+    "description": "Health Policy",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/health_policy"
+  },
+  {
+    "name": "HIV/AIDS",
+    "slug": "medrxiv-hiv",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=hiv_aids",
+    "description": "HIV/AIDS",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/hiv_aids"
+  },
+  {
+    "name": "Intensive Care",
+    "slug": "medrxiv-icu",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=intensive_care_and_critical_care_medicine",
+    "description": "Intensive Care",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/intensive_care_and_critical_care_medicine"
+  },
+  {
+    "name": "Medical Education",
+    "slug": "medrxiv-med-ed",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=medical_education",
+    "description": "Medical Education",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/medical_education"
+  },
+  {
+    "name": "Medical Ethics",
+    "slug": "medrxiv-med-ethics",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=medical_ethics",
+    "description": "Medical Ethics",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/medical_ethics"
+  },
+  {
+    "name": "Nephrology",
+    "slug": "medrxiv-nephrology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=nephrology",
+    "description": "Nephrology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/nephrology"
+  },
+  {
+    "name": "Nursing",
+    "slug": "medrxiv-nursing",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=nursing",
+    "description": "Nursing",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/nursing"
+  },
+  {
+    "name": "Nutrition",
+    "slug": "medrxiv-nutrition",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=nutrition",
+    "description": "Nutrition",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/nutrition"
+  },
+  {
+    "name": "Obstetrics and Gynecology",
+    "slug": "medrxiv-obgyn",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=obstetrics_and_gynecology",
+    "description": "Obstetrics and Gynecology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/obstetrics_and_gynecology"
+  },
+  {
+    "name": "Occupational and Environmental Health",
+    "slug": "medrxiv-occ-env",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=occupational_and_environmental_health",
+    "description": "Occupational and Environmental Health",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/occupational_and_environmental_health"
+  },
+  {
+    "name": "Ophthalmology",
+    "slug": "medrxiv-ophthalmology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=ophthalmology",
+    "description": "Ophthalmology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/ophthalmology"
+  },
+  {
+    "name": "Otolaryngology",
+    "slug": "medrxiv-otolaryngology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=otolaryngology",
+    "description": "Otolaryngology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/otolaryngology"
+  },
+  {
+    "name": "Pain Medicine",
+    "slug": "medrxiv-pain",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=pain_medicine",
+    "description": "Pain Medicine",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/pain_medicine"
+  },
+  {
+    "name": "Palliative Medicine",
+    "slug": "medrxiv-palliative",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=palliative_medicine",
+    "description": "Palliative Medicine",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/palliative_medicine"
+  },
+  {
+    "name": "Pathology med",
+    "slug": "medrxiv-pathology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=pathology",
+    "description": "Pathology med",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/pathology"
+  },
+  {
+    "name": "Pharmacology and Therapeutics",
+    "slug": "medrxiv-pharmacology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=pharmacology_and_therapeutics",
+    "description": "Pharmacology and Therapeutics",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/pharmacology_and_therapeutics"
+  },
+  {
+    "name": "Primary Care Research",
+    "slug": "medrxiv-primary-care",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=primary_care_research",
+    "description": "Primary Care Research",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/primary_care_research"
+  },
+  {
+    "name": "Rehabilitation Medicine",
+    "slug": "medrxiv-rehab",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=rehabilitation_medicine_and_physical_therapy",
+    "description": "Rehabilitation Medicine",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/rehabilitation_medicine_and_physical_therapy"
+  },
+  {
+    "name": "Respiratory Medicine",
+    "slug": "medrxiv-respiratory",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=respiratory_medicine",
+    "description": "Respiratory Medicine",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/respiratory_medicine"
+  },
+  {
+    "name": "Rheumatology",
+    "slug": "medrxiv-rheumatology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=rheumatology",
+    "description": "Rheumatology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/rheumatology"
+  },
+  {
+    "name": "Sexual and Reproductive Health",
+    "slug": "medrxiv-srh",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=sexual_and_reproductive_health",
+    "description": "Sexual and Reproductive Health",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/sexual_and_reproductive_health"
+  },
+  {
+    "name": "Sports Medicine",
+    "slug": "medrxiv-sports",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=sports_medicine",
+    "description": "Sports Medicine",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/sports_medicine"
+  },
+  {
+    "name": "Transplantation",
+    "slug": "medrxiv-transplant",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=transplantation",
+    "description": "Transplantation",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/transplantation"
+  },
+  {
+    "name": "Urology",
+    "slug": "medrxiv-urology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=urology",
+    "description": "Urology",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.medrxiv.org/collection/urology"
   }
 ]
