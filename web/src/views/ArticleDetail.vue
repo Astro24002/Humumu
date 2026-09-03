@@ -63,6 +63,13 @@
           {{ status.is_later ? '稍后再看中' : '稍后再看' }}
         </n-button>
       </template>
+      <n-button
+        v-else
+        ghost
+        @click="router.push({ path: '/login', query: { redirect: route.fullPath } })"
+      >
+        登录后管理阅读状态
+      </n-button>
     </div>
   </template>
 </template>

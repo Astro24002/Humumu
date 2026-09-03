@@ -33,6 +33,9 @@
         <text :class="['chip', status.is_starred && 'on']" @click="toggle('is_starred')">{{ status.is_starred ? '已星标' : '星标' }}</text>
         <text :class="['chip', status.is_later && 'on']" @click="toggle('is_later')">{{ status.is_later ? '稍后再看' : '稍后' }}</text>
       </view>
+      <view class="status-row" v-else>
+        <text class="chip login" @click="goLogin">登录后管理阅读状态</text>
+      </view>
 
       <view class="actions">
         <button class="btn-link" v-if="article.doi" @click="openOriginal(`https://doi.org/${article.doi}`)">
@@ -71,6 +74,10 @@ const status = ref<ArticleStatus>({
   is_later: false,
   original_clicked_at: null,
 })
+
+function goLogin() {
+  uni.navigateTo({ url: '/pages/login/index' })
+}
 
 function goBack() {
   uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/index/index' }) })
@@ -152,6 +159,7 @@ async function openOriginal(url: string) {
   background: #f5f5f5; color: #666;
 }
 .chip.on { background: #e8f8e0; color: #3cc51f; }
+.chip.login { background: #e8f3ff; color: #2080f0; }
 .actions { margin-top: 40rpx; }
 .btn-link {
   width: 100%; padding: 24rpx; background: #3cc51f; color: #fff;

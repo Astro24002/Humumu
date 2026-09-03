@@ -85,10 +85,11 @@ import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import {
   NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton, NAlert,
-  NRadioGroup, NRadioButton,
+  NRadioGroup, NRadioButton, useMessage,
 } from 'naive-ui'
 
 const router = useRouter()
+const message = useMessage()
 const auth = useAuthStore()
 const articles = ref<Article[]>([])
 const journals = ref<Journal[]>([])
@@ -140,6 +141,8 @@ async function loadArticles() {
     articles.value = res.articles
     // Prefer server total; fall back to page length only when absent.
     total.value = typeof res.total === 'number' ? res.total : res.articles.length
+  } catch (e: any) {
+    message.error(e?.message || '加载失败')
   } finally {
     loading.value = false
   }
