@@ -58,7 +58,7 @@
     <n-tab-pane name="authors" tab="作者">
       <div style="display: flex; gap: 8px; margin-bottom: 16px;">
         <n-input v-model:value="newAuthor" placeholder="作者姓名" @keyup.enter="addAuthor" />
-        <n-button @click="addAuthor" :disabled="!newAuthor.trim()">添加</n-button>
+        <n-button @click="addAuthor" :loading="authorBusy" :disabled="!newAuthor.trim() || authorBusy">添加</n-button>
       </div>
       <n-empty v-if="!authors.length" description="尚未追踪任何作者">
         <template #extra>
@@ -73,7 +73,7 @@
     <n-tab-pane name="keywords" tab="关键词">
       <div style="display: flex; gap: 8px; margin-bottom: 16px;">
         <n-input v-model:value="newKeyword" placeholder="关键词" @keyup.enter="addKeyword" />
-        <n-button @click="addKeyword" :disabled="!newKeyword.trim()">添加</n-button>
+        <n-button @click="addKeyword" :loading="keywordBusy" :disabled="!newKeyword.trim() || keywordBusy">添加</n-button>
       </div>
       <n-empty v-if="!keywords.length" description="尚未订阅任何关键词">
         <template #extra>
@@ -223,6 +223,9 @@ const addError = ref('')
 const previewLoading = ref(false)
 const addLoading = ref(false)
 const unsubBusyId = ref<string | null>(null)
+const authorBusy = ref(false)
+const keywordBusy = ref(false)
+const removeBusyId = ref<string | null>(null)
 
 
 
@@ -300,13 +303,18 @@ async function unsubscribe(id: string) {
 }
 
 async function addAuthor() {
+  const name = newAuthor.value.trim()
+  if (!name || authorBusy.value) return
+  authorBusy.value = true
   try {
-    await addAuthorApi(newAuthor.value.trim())
+    await addAuthorApi(name)
     newAuthor.value = ''
     authors.value = (await getAuthors()).authors
     message.success('已添加')
   } catch (e: any) {
     message.error(e.message)
+  } finally {
+    authorBusy.value = false
   }
 }
 
@@ -321,23 +329,32 @@ function confirmRemoveAuthor(a: { id: string; author_name: string }) {
 }
 
 async function removeAuthor(id: string) {
+  if (removeBusyId.value === id) return
+  removeBusyId.value = id
   try {
     await removeAuthorApi(id)
     authors.value = authors.value.filter(a => a.id !== id)
     message.success('已移除作者')
   } catch (e: any) {
     message.error(e.message)
+  } finally {
+    removeBusyId.value = null
   }
 }
 
 async function addKeyword() {
+  const kw = newKeyword.value.trim()
+  if (!kw || keywordBusy.value) return
+  keywordBusy.value = true
   try {
-    await addKeywordApi(newKeyword.value.trim())
+    await addKeywordApi(kw)
     newKeyword.value = ''
     keywords.value = (await getKeywords()).keywords
     message.success('已添加')
   } catch (e: any) {
     message.error(e.message)
+  } finally {
+    keywordBusy.value = false
   }
 }
 
@@ -352,12 +369,16 @@ function confirmRemoveKeyword(k: { id: string; keyword: string }) {
 }
 
 async function removeKeyword(id: string) {
+  if (removeBusyId.value === id) return
+  removeBusyId.value = id
   try {
     await removeKeywordApi(id)
     keywords.value = keywords.value.filter(k => k.id !== id)
     message.success('已移除关键词')
   } catch (e: any) {
     message.error(e.message)
+  } finally {
+    removeBusyId.value = null
   }
 }
 

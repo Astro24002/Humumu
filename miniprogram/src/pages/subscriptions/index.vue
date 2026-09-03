@@ -77,7 +77,7 @@
             confirm-type="done"
             @confirm="addAuthor"
           />
-          <button @click="addAuthor" :disabled="!newAuthor.trim()" class="btn-add">添加</button>
+          <button @click="addAuthor" :disabled="!newAuthor.trim() || authorBusy" class="btn-add">添加</button>
         </view>
         <view v-if="authors.length === 0" class="empty"><text>尚未追踪任何作者</text><text class="hint">在上方输入姓名后添加</text></view>
         <view v-else class="tag-list">
@@ -97,7 +97,7 @@
             confirm-type="done"
             @confirm="addKeyword"
           />
-          <button @click="addKeyword" :disabled="!newKeyword.trim()" class="btn-add">添加</button>
+          <button @click="addKeyword" :disabled="!newKeyword.trim() || keywordBusy" class="btn-add">添加</button>
         </view>
         <view v-if="keywords.length === 0" class="empty"><text>尚未订阅任何关键词</text><text class="hint">在上方输入关键词后添加</text></view>
         <view v-else class="tag-list">
@@ -141,6 +141,9 @@ const feedVisibility = ref<'private' | 'apply_public'>('private')
 const previewItems = ref<PreviewItem[]>([])
 const addingFeed = ref(false)
 const busyIds = ref<Set<string>>(new Set())
+const authorBusy = ref(false)
+const keywordBusy = ref(false)
+const removeBusyId = ref<string | null>(null)
 
 const FREQ_CYCLE = ['default', 'realtime', 'daily'] as const
 
@@ -288,17 +291,23 @@ async function addFeed() {
 }
 
 async function addAuthor() {
+  const name = newAuthor.value.trim()
+  if (!name || authorBusy.value) return
+  authorBusy.value = true
   try {
-    await addAuthorApi(newAuthor.value.trim())
+    await addAuthorApi(name)
     newAuthor.value = ''
     authors.value = (await getAuthors()).authors
     uni.showToast({ title: '已添加', icon: 'success' })
   } catch (e: any) {
     uni.showToast({ title: e.message || '添加失败', icon: 'none' })
+  } finally {
+    authorBusy.value = false
   }
 }
 
 function confirmRemoveAuthor(a: AuthorTracking) {
+  if (removeBusyId.value === a.id) return
   uni.showModal({
     title: '移除作者',
     content: `确认停止追踪「${a.author_name}」？`,
@@ -306,29 +315,39 @@ function confirmRemoveAuthor(a: AuthorTracking) {
     cancelText: '返回',
     success: async (res) => {
       if (!res.confirm) return
+      if (removeBusyId.value === a.id) return
+      removeBusyId.value = a.id
       try {
         await removeAuthorApi(a.id)
         authors.value = authors.value.filter(x => x.id !== a.id)
         uni.showToast({ title: '已移除作者', icon: 'success' })
       } catch (e: any) {
         uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+      } finally {
+        removeBusyId.value = null
       }
     },
   })
 }
 
 async function addKeyword() {
+  const kw = newKeyword.value.trim()
+  if (!kw || keywordBusy.value) return
+  keywordBusy.value = true
   try {
-    await addKeywordApi(newKeyword.value.trim())
+    await addKeywordApi(kw)
     newKeyword.value = ''
     keywords.value = (await getKeywords()).keywords
     uni.showToast({ title: '已添加', icon: 'success' })
   } catch (e: any) {
     uni.showToast({ title: e.message || '添加失败', icon: 'none' })
+  } finally {
+    keywordBusy.value = false
   }
 }
 
 function confirmRemoveKeyword(k: KeywordSubscription) {
+  if (removeBusyId.value === k.id) return
   uni.showModal({
     title: '移除关键词',
     content: `确认取消关键词「${k.keyword}」？`,
@@ -336,12 +355,16 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
     cancelText: '返回',
     success: async (res) => {
       if (!res.confirm) return
+      if (removeBusyId.value === k.id) return
+      removeBusyId.value = k.id
       try {
         await removeKeywordApi(k.id)
         keywords.value = keywords.value.filter(x => x.id !== k.id)
         uni.showToast({ title: '已移除关键词', icon: 'success' })
       } catch (e: any) {
         uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+      } finally {
+        removeBusyId.value = null
       }
     },
   })

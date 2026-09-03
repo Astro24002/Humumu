@@ -9,6 +9,7 @@
         >{{ article.journal_name }}</text>
         <text v-else class="journal">{{ article.journal_name }}</text>
         <text v-if="article.content_type === 'preprint'" class="tag preprint">{{ contentTypeLabel(article.content_type) }}</text>
+        <text v-if="article.journal_source_type" class="tag source">{{ sourceTypeLabel(article.journal_source_type) }}</text>
       </view>
       <text class="date">{{ formatDate(article.publish_date) }}</text>
     </view>
@@ -25,7 +26,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Article } from '@/api/articles'
-import { formatDate, formatAuthors, contentTypeLabel } from '@/utils/format'
+import { formatDate, formatAuthors, contentTypeLabel, sourceTypeLabel } from '@/utils/format'
 import { cleanAbstract } from '@/utils/abstract'
 
 const props = defineProps<{ article: Article }>()
@@ -55,6 +56,7 @@ function goJournal() {
 .journal { font-size: 24rpx; color: #3cc51f; }
 .journal.link { text-decoration: underline; text-underline-offset: 4rpx; }
 .tag { font-size: 20rpx; padding: 2rpx 10rpx; border-radius: 8rpx; }
+.tag.source { color: #666; background: #f0f0f0; }
 .tag.preprint { color: #2080f0; background: #e8f3ff; }
 .date { font-size: 24rpx; color: #999; flex-shrink: 0; }
 .title { font-size: 32rpx; font-weight: 500; color: #333; line-height: 1.5; }

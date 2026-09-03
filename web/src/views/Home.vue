@@ -169,7 +169,8 @@ watch(filterJournalId, () => { page.value = 1; loadArticles() })
 
 onMounted(async () => {
   try {
-    journals.value = (await getJournals()).journals
+    // Name-sorted page is enough for the filter dropdown; avoid full catalog pull.
+    journals.value = (await getJournals({ sort: 'name', limit: 200, offset: 0 })).journals
   } catch {
     // journal filter is optional; articles load still proceeds
   }
