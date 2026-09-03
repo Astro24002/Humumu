@@ -100,6 +100,7 @@ const loading = ref(true)
 const showModal = ref(false)
 const editingId = ref<string | null>(null)
 const saving = ref(false)
+const statusBusy = ref(false)
 const statusFilter = ref<string>(typeof route.query.status === 'string' ? route.query.status : '')
 const contentFilter = ref<string>('')
 const nameFilter = ref('')
@@ -274,12 +275,16 @@ function confirmChangeStatus(row: Journal, status: string) {
 }
 
 async function changeStatus(id: string, status: string) {
+  if (statusBusy.value) return
+  statusBusy.value = true
   try {
     await setDirectoryStatus(id, status)
     message.success(`目录状态 → ${statusLabels[status] || status}`)
-    load()
+    await load()
   } catch (e: any) {
     message.error(e.message)
+  } finally {
+    statusBusy.value = false
   }
 }
 
