@@ -13,7 +13,7 @@
         <n-tag :bordered="false" style="margin-right: 6px;">{{ article.journal_name }}</n-tag>
       </router-link>
       <n-tag v-if="article.content_type === 'preprint'" type="info" size="small" :bordered="false" style="margin-right: 6px;">
-        预印本
+        {{ contentTypeLabel(article.content_type) }}
       </n-tag>
       <n-tag :type="article.journal_source_type === 'arxiv' ? 'info' : 'success'" size="small" :bordered="false">
         {{ sourceTypeLabel(article.journal_source_type) }}
@@ -102,7 +102,7 @@ import { useAuthStore } from '@/stores/auth'
 import { cleanAbstract } from '@/utils/abstract'
 import { shortUrl, doiUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
-import { formatAuthors, sourceTypeLabel } from '@/utils/labels'
+import { formatAuthors, sourceTypeLabel, contentTypeLabel } from '@/utils/labels'
 import {
   NH2, NH4, NButton, NSpin, NTag, NResult,
   NDescriptions, NDescriptionsItem, useMessage,

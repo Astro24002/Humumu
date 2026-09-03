@@ -8,7 +8,7 @@
           @click.stop="goJournal"
         >{{ article.journal_name }}</text>
         <text v-else class="journal">{{ article.journal_name }}</text>
-        <text v-if="article.content_type === 'preprint'" class="tag preprint">预印本</text>
+        <text v-if="article.content_type === 'preprint'" class="tag preprint">{{ contentTypeLabel(article.content_type) }}</text>
       </view>
       <text class="date">{{ formatDate(article.publish_date) }}</text>
     </view>
@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Article } from '@/api/articles'
-import { formatDate, formatAuthors } from '@/utils/format'
+import { formatDate, formatAuthors, contentTypeLabel } from '@/utils/format'
 import { cleanAbstract } from '@/utils/abstract'
 
 const props = defineProps<{ article: Article }>()

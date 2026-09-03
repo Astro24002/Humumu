@@ -13,7 +13,8 @@
           @click="goJournal"
         >{{ article.journal_name }}</text>
         <text v-else>{{ article.journal_name }}</text>
-        <text v-if="article.content_type === 'preprint'" class="tag preprint">预印本</text>
+        <text v-if="article.content_type === 'preprint'" class="tag preprint">{{ contentTypeLabel(article.content_type) }}</text>
+        <text v-if="article.journal_source_type" class="tag source">{{ sourceTypeLabel(article.journal_source_type) }}</text>
       </view>
       <text class="title">{{ article.title }}</text>
       <text class="authors" v-if="article.authors?.length">
@@ -66,7 +67,7 @@ import {
 } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
-import { formatDate, doiUrl, formatAuthors } from '@/utils/format'
+import { formatDate, doiUrl, formatAuthors, contentTypeLabel, sourceTypeLabel } from '@/utils/format'
 import { cleanAbstract } from '@/utils/abstract'
 
 const auth = useAuthStore()
@@ -173,6 +174,7 @@ function copyLink() {
 .journal-link { color: #3cc51f; text-decoration: underline; text-underline-offset: 4rpx; }
 .tag { font-size: 22rpx; color: #3cc51f; background: #e8f8e0; padding: 4rpx 12rpx; border-radius: 8rpx; }
 .tag.preprint { color: #2080f0; background: #e8f3ff; }
+.tag.source { color: #666; background: #f0f0f0; margin-left: 8rpx; }
 .title { font-size: 36rpx; font-weight: 600; color: #333; line-height: 1.5; margin-top: 16rpx; display: block; }
 .authors { font-size: 28rpx; color: #666; margin-top: 12rpx; display: block; }
 .date { font-size: 26rpx; color: #999; margin-top: 8rpx; display: block; }

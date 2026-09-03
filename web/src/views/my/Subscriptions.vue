@@ -23,7 +23,7 @@
             <template #description>
               <n-space size="small" style="margin-top: 4px;">
                 <n-tag size="tiny" :bordered="false">{{ sourceTypeLabel(j.source_type) }}</n-tag>
-                <n-tag v-if="j.content_type === 'preprint'" size="tiny" type="info" :bordered="false">预印本</n-tag>
+                <n-tag v-if="j.content_type === 'preprint'" size="tiny" type="info" :bordered="false">{{ contentTypeLabel(j.content_type) }}</n-tag>
                 <n-tag
                   v-if="j.directory_status && j.directory_status !== 'public'"
                   size="tiny"
@@ -48,7 +48,7 @@
           <template #suffix>
             <n-space>
               <n-button size="small" ghost @click="openPrefs(j)">推送设置</n-button>
-              <n-button size="small" type="error" ghost @click="confirmUnsubscribe(j)">取消关注</n-button>
+              <n-button size="small" type="error" ghost :loading="unsubBusyId === j.id" :disabled="unsubBusyId === j.id" @click="confirmUnsubscribe(j)">取消关注</n-button>
             </n-space>
           </template>
         </n-list-item>
@@ -184,7 +184,7 @@ import {
   type KeywordSubscription,
 } from '@/api/subscriptions'
 import { previewJournal, addMyJournal, type PreviewItem } from '@/api/journals'
-import { dirStatusLabel, dirStatusType, freqLabel, sourceTypeLabel } from '@/utils/labels'
+import { dirStatusLabel, dirStatusType, freqLabel, sourceTypeLabel, contentTypeLabel } from '@/utils/labels'
 import {
   NH2, NButton, NTabs, NTabPane, NSpin, NEmpty, NList, NListItem, NThing, NInput, NTag,
   NModal, NCard, NForm, NFormItem, NAlert, NSpace, NRadio, NRadioGroup, NCheckbox,
@@ -222,6 +222,7 @@ const addPreviewItems = ref<PreviewItem[]>([])
 const addError = ref('')
 const previewLoading = ref(false)
 const addLoading = ref(false)
+const unsubBusyId = ref<string | null>(null)
 
 
 
@@ -285,12 +286,16 @@ function confirmUnsubscribe(j: { id: string; name: string }) {
 }
 
 async function unsubscribe(id: string) {
+  if (unsubBusyId.value === id) return
+  unsubBusyId.value = id
   try {
     await unsubscribeJournal(id)
     journals.value = journals.value.filter(j => j.id !== id)
     message.success('已取消关注')
   } catch (e: any) {
     message.error(e.message)
+  } finally {
+    unsubBusyId.value = null
   }
 }
 

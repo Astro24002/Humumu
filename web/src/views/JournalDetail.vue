@@ -11,7 +11,7 @@
   <template v-else-if="journal">
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
       <n-h2 style="margin-bottom: 0;">{{ journal.name }}</n-h2>
-      <n-tag v-if="journal.content_type === 'preprint'" type="info" size="small" :bordered="false">预印本</n-tag>
+      <n-tag v-if="journal.content_type === 'preprint'" type="info" size="small" :bordered="false">{{ contentTypeLabel(journal.content_type) }}</n-tag>
       <n-tag :type="journal.source_type === 'arxiv' ? 'info' : 'success'" size="small">
         {{ sourceTypeLabel(journal.source_type) }}
       </n-tag>
@@ -104,7 +104,7 @@
           </template>
           <template #description>
             <n-tag v-if="a.content_type === 'preprint'" type="info" size="tiny" :bordered="false" style="margin-right: 6px;">
-              预印本
+              {{ contentTypeLabel(a.content_type) }}
             </n-tag>
             <span style="color: #888; font-size: 13px;">作者：{{ formatAuthors(a.authors) }}</span>
             <br>
@@ -146,7 +146,7 @@ import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { shortUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
-import { formatAuthors, dirStatusLabel, dirStatusType, sourceTypeLabel } from '@/utils/labels'
+import { formatAuthors, dirStatusLabel, dirStatusType, sourceTypeLabel, contentTypeLabel } from '@/utils/labels'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty, NResult,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,

@@ -45,14 +45,14 @@
                 <text class="item-name">{{ j.name }}</text>
                 <text class="item-meta">
                   {{ sourceTypeLabel(j.source_type) }}
-                  <text v-if="j.content_type === 'preprint'"> · 预印本</text>
+                  <text v-if="j.content_type === 'preprint'"> · {{ contentTypeLabel(j.content_type) }}</text>
                   <text v-if="j.directory_status && j.directory_status !== 'public'"> · {{ dirStatusLabel(j.directory_status) }}</text>
                   <text v-if="j.health_status === 'paused'" class="meta-paused"> · 抓取暂停</text>
                   · {{ freqLabel(j.push_frequency) }}
                 </text>
               </view>
-              <text class="btn-prefs" @click="cycleFreq(j)">频率</text>
-              <text class="btn-unsub" @click="unsubscribe(j.id)">取消</text>
+              <text class="btn-prefs" :class="{ disabled: busyIds.has(j.id) }" @click="cycleFreq(j)">频率</text>
+              <text class="btn-unsub" :class="{ disabled: busyIds.has(j.id) }" @click="unsubscribe(j)">取消</text>
             </view>
             <view class="channel-row">
               <text
@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { dirStatusLabel, sourceTypeLabel } from '@/utils/format'
+import { dirStatusLabel, sourceTypeLabel, contentTypeLabel, freqLabel } from '@/utils/format'
 import { ref } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
@@ -140,15 +140,9 @@ const feedName = ref('')
 const feedVisibility = ref<'private' | 'apply_public'>('private')
 const previewItems = ref<PreviewItem[]>([])
 const addingFeed = ref(false)
+const busyIds = ref<Set<string>>(new Set())
 
 const FREQ_CYCLE = ['default', 'realtime', 'daily'] as const
-
-function freqLabel(f?: string): string {
-  if (f === 'realtime') return '实时'
-  if (f === 'daily') return '每日'
-  return '跟随全局'
-}
-
 
 function goJournal(id: string) {
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
@@ -197,21 +191,29 @@ function goJournalsPlaza() {
 }
 
 async function cycleFreq(j: SubscribedJournal) {
+  if (busyIds.value.has(j.id)) return
   const cur = j.push_frequency || 'default'
   const idx = Math.max(0, FREQ_CYCLE.indexOf(cur as any))
   const next = FREQ_CYCLE[(idx + 1) % FREQ_CYCLE.length]
+  busyIds.value = new Set([...busyIds.value, j.id])
   try {
     const updated = await updateJournalSubscriptionPrefs(j.id, { push_frequency: next })
     j.push_frequency = updated.push_frequency
     uni.showToast({ title: `频率 → ${freqLabel(next)}`, icon: 'none' })
   } catch (e: any) {
     uni.showToast({ title: e.message || '更新失败', icon: 'none' })
+  } finally {
+    const nextSet = new Set(busyIds.value)
+    nextSet.delete(j.id)
+    busyIds.value = nextSet
   }
 }
 
 async function toggleChannel(j: SubscribedJournal, field: 'email_enabled' | 'wechat_enabled') {
+  if (busyIds.value.has(j.id)) return
   const cur = j[field] !== false
   const next = !cur
+  busyIds.value = new Set([...busyIds.value, j.id])
   try {
     const updated = await updateJournalSubscriptionPrefs(j.id, { [field]: next })
     j.email_enabled = updated.email_enabled
@@ -222,22 +224,32 @@ async function toggleChannel(j: SubscribedJournal, field: 'email_enabled' | 'wec
     })
   } catch (e: any) {
     uni.showToast({ title: e.message || '更新失败', icon: 'none' })
+  } finally {
+    const nextSet = new Set(busyIds.value)
+    nextSet.delete(j.id)
+    busyIds.value = nextSet
   }
 }
 
-function unsubscribe(id: string) {
-  const j = journals.value.find((x) => x.id === id)
+function unsubscribe(j: SubscribedJournal) {
+  if (busyIds.value.has(j.id)) return
   uni.showModal({
     title: '取消关注',
-    content: j ? `确认取消关注「${j.name}」？` : '确认取消关注？',
+    content: `确认取消关注「${j.name}」？`,
     success: async (res) => {
       if (!res.confirm) return
+      if (busyIds.value.has(j.id)) return
+      busyIds.value = new Set([...busyIds.value, j.id])
       try {
-        await unsubscribeJournal(id)
-        journals.value = journals.value.filter((x) => x.id !== id)
+        await unsubscribeJournal(j.id)
+        journals.value = journals.value.filter((x) => x.id !== j.id)
         uni.showToast({ title: '已取消关注', icon: 'success' })
       } catch (e: any) {
         uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+      } finally {
+        const next = new Set(busyIds.value)
+        next.delete(j.id)
+        busyIds.value = next
       }
     },
   })
@@ -373,4 +385,6 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
 .tag-list { display: flex; flex-wrap: wrap; padding: 20rpx 30rpx; gap: 16rpx; }
 .tag-item { background: #e8f8e0; color: #3cc51f; padding: 12rpx 20rpx; border-radius: 8rpx; font-size: 26rpx; display: flex; align-items: center; gap: 12rpx; }
 .tag-close { color: #999; font-size: 32rpx; }
+
+.btn-prefs.disabled, .btn-unsub.disabled { opacity: 0.45; pointer-events: none; }
 </style>

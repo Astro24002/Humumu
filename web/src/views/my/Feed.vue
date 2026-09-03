@@ -40,7 +40,7 @@
               <n-tag size="tiny" :bordered="false">{{ u.journal_name }}</n-tag>
             </router-link>
             <n-tag v-else size="tiny" :bordered="false">{{ u.journal_name }}</n-tag>
-            <n-tag v-if="u.content_type === 'preprint'" size="tiny" type="info" :bordered="false">预印本</n-tag>
+            <n-tag v-if="u.content_type === 'preprint'" size="tiny" type="info" :bordered="false">{{ contentTypeLabel(u.content_type) }}</n-tag>
             <n-tag v-for="r in u.reasons" :key="r" size="tiny" type="warning" :bordered="false">{{ reasonLabel(r) }}</n-tag>
             <span style="color: #888; font-size: 12px;">{{ formatDate(u.publish_date) }}</span>
           </n-space>
@@ -96,7 +96,7 @@ import { getMyUpdates, type MyUpdateItem } from '@/api/myUpdates'
 import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
-import { reasonLabel, formatAuthors } from '@/utils/labels'
+import { reasonLabel, formatAuthors, contentTypeLabel } from '@/utils/labels'
 import {
   NH2, NSpin, NEmpty, NButton, NList, NListItem, NThing, NTag, NSpace,
   NRadioGroup, NRadioButton, useMessage,

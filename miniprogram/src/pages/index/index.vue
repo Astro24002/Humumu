@@ -58,7 +58,7 @@
             @click.stop="goJournal(a.journal_id)"
           >{{ a.journal_name }}</text>
           <text v-else class="journal">{{ a.journal_name }}</text>
-          <text v-if="a.content_type === 'preprint'" class="badge">预印本</text>
+          <text v-if="a.content_type === 'preprint'" class="badge">{{ contentTypeLabel(a.content_type) }}</text>
           <text v-for="r in a.reasons" :key="r" class="badge reason">{{ reasonLabel(r) }}</text>
         </view>
         <text class="title" :class="{ unread: a.unread }">{{ a.title }}</text>
@@ -80,7 +80,7 @@ import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
 import { truncateAbstract } from '@/utils/abstract'
-import { formatDate, reasonLabel, formatAuthors } from '@/utils/format'
+import { formatDate, reasonLabel, formatAuthors, contentTypeLabel } from '@/utils/format'
 
 interface FeedItem {
   id: string
