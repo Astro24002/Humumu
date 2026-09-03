@@ -3,6 +3,8 @@
     <view class="tabs">
       <text :class="['tab', tab === 'all' && 'active']" @click="switchTab('all')">全部</text>
       <text v-if="auth.isLoggedIn" :class="['tab', tab === 'updates' && 'active']" @click="switchTab('updates')">我的更新</text>
+      <text v-if="tab === 'all'" :class="['tab', contentType === 'journal' && 'active']" @click="setContentType('journal')">期刊</text>
+      <text v-if="tab === 'all'" :class="['tab', contentType === 'preprint' && 'active']" @click="setContentType('preprint')">预印本</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'unread' && 'active']" @click="setFilter('unread')">未读</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'starred' && 'active']" @click="setFilter('starred')">星标</text>
     </view>
@@ -50,6 +52,7 @@ interface FeedItem {
 const auth = useAuthStore()
 const tab = ref<'all' | 'updates'>('all')
 const filter = ref('')
+const contentType = ref('')
 const items = ref<FeedItem[]>([])
 const loading = ref(true)
 const hasMore = ref(true)
@@ -71,11 +74,17 @@ function reasonLabel(r: string): string {
 function switchTab(t: 'all' | 'updates') {
   tab.value = t
   filter.value = ''
+  contentType.value = ''
   resetAndFetch()
 }
 
 function setFilter(f: string) {
   filter.value = filter.value === f ? '' : f
+  resetAndFetch()
+}
+
+function setContentType(t: string) {
+  contentType.value = contentType.value === t ? '' : t
   resetAndFetch()
 }
 
@@ -110,7 +119,11 @@ async function fetchItems() {
       offset.value += limit
       hasMore.value = res.updates.length === limit
     } else {
-      const res = await getArticles({ limit, offset: offset.value })
+      const res = await getArticles({
+        limit,
+        offset: offset.value,
+        content_type: contentType.value || undefined,
+      })
       const mapped: FeedItem[] = res.articles.map(a => ({
         id: a.id,
         title: a.title,

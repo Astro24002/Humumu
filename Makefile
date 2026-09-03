@@ -15,8 +15,14 @@ migrate:
 seed:
 	.venv/bin/python -m scripts.seed_journals
 
+# Prefer local .venv; fall back to the migration worktree venv used in CI/dev.
+PYTEST ?= $(shell if [ -x .venv/bin/pytest ]; then echo .venv/bin/pytest; \
+	elif [ -x .claude/worktrees/fastapi-migration/.venv/bin/pytest ]; then \
+	echo .claude/worktrees/fastapi-migration/.venv/bin/pytest; \
+	else echo pytest; fi)
+
 test:
-	.venv/bin/pytest -v
+	PYTHONPATH=$(CURDIR) $(PYTEST) tests/ -q
 
 docker-build:
 	docker build -t humumu .
