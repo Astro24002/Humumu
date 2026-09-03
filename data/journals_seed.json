@@ -1258,5 +1258,105 @@
     "content_type": "preprint",
     "fetch_interval_minutes": 120,
     "homepage_url": "https://www.biorxiv.org/collection/molecular-biology"
+  },
+  {
+    "name": "Frontiers in Physiology",
+    "slug": "frontiers-physiology",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/physiology/rss",
+    "description": "Frontiers in Physiology",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.frontiersin.org/journals/physiology"
+  },
+  {
+    "name": "arXiv cs.GL",
+    "slug": "arxiv-cs-gl",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.GL",
+    "description": "General Literature — arXiv cs.GL",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.GL/recent"
+  },
+  {
+    "name": "arXiv cs.OH",
+    "slug": "arxiv-cs-oh",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.OH",
+    "description": "Other Computer Science — arXiv cs.OH",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.OH/recent"
+  },
+  {
+    "name": "arXiv physics.app-ph",
+    "slug": "arxiv-physics-app-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.app-ph",
+    "description": "Applied Physics — arXiv physics.app-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.app-ph/recent"
+  },
+  {
+    "name": "Nature Reviews Physics",
+    "slug": "nature-rev-physics",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/natrevphys.rss",
+    "description": "Nature Reviews Physics",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.nature.com/natrevphys"
+  },
+  {
+    "name": "Light: Science & Applications",
+    "slug": "light-sci-app",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/lsa.rss",
+    "description": "Light: Science & Applications",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.nature.com/lsa"
+  },
+  {
+    "name": "arXiv physics.chem-ph",
+    "slug": "arxiv-physics-chem-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.chem-ph",
+    "description": "Chemical Physics — arXiv physics.chem-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.chem-ph/recent"
+  },
+  {
+    "name": "arXiv physics.bio-ph",
+    "slug": "arxiv-physics-bio-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.bio-ph",
+    "description": "Biological Physics — arXiv physics.bio-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.bio-ph/recent"
+  },
+  {
+    "name": "arXiv cond-mat.mtrl-sci",
+    "slug": "arxiv-cond-mat-mtrl",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cond-mat.mtrl-sci",
+    "description": "Materials Science — arXiv cond-mat.mtrl-sci",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cond-mat.mtrl-sci/recent"
+  },
+  {
+    "name": "npj Computational Materials",
+    "slug": "npj-comp-materials",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/npjcompumats.rss",
+    "description": "npj Computational Materials",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://www.nature.com/npjcompumats"
   }
 ]
