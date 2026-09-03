@@ -24,7 +24,7 @@ docker compose up -d
 # 启动时自动执行数据库迁移；生产默认开启调度器
 ```
 
-服务将在 `http://localhost:8080` 启动。
+服务将在 `http://localhost:8080` 启动。健康探针：`GET /health`（Compose 已对 app / postgres / redis 配置 healthcheck）。
 
 ### 本地开发（后端）
 

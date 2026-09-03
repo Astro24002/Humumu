@@ -43,6 +43,11 @@ HUMUMU_ENABLE_SCHEDULER: "1"
 - `DB_DSN`：FastAPI / SQLAlchemy async（**不要**加 `?sslmode=`）
 - `DB_DSN_SYNC`：迁移脚本用的同步连接（psycopg2）
 
+健康检查：
+
+- `GET /health` → `{"status":"ok","service":"humumu"}`
+- Compose 中 `app` 服务已配置对该端点的 `healthcheck`（postgres / redis 亦有依赖健康条件）
+
 ### 传统部署（无 Docker 应用容器）
 
 ```bash

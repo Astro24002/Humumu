@@ -30,7 +30,7 @@
         {{ article.publish_date || '未知' }}
       </n-descriptions-item>
       <n-descriptions-item label="DOI">
-        <a v-if="article.doi" :href="doiUrl(article.doi)" target="_blank">{{ article.doi }}</a>
+        <a v-if="article.doi" :href="doiUrl(article.doi)" target="_blank" rel="noopener noreferrer" @click="onOriginalClick">{{ article.doi }}</a>
         <span v-else>-</span>
       </n-descriptions-item>
       <n-descriptions-item label="原文链接">
@@ -47,10 +47,10 @@
     <p v-else style="color: #999; line-height: 1.8;">暂无摘要</p>
 
     <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px;">
-      <n-button type="primary" tag="a" :href="article.url" target="_blank" @click="onOriginalClick">
+      <n-button type="primary" tag="a" :href="article.url" target="_blank" rel="noopener noreferrer" @click="onOriginalClick">
         查看原文
       </n-button>
-      <n-button v-if="article.doi" quaternary tag="a" :href="doiUrl(article.doi)" target="_blank" @click="onOriginalClick">
+      <n-button v-if="article.doi" quaternary tag="a" :href="doiUrl(article.doi)" target="_blank" rel="noopener noreferrer" @click="onOriginalClick">
         DOI 原文
       </n-button>
       <n-button v-if="article.doi || article.url" quaternary @click="copyLink">

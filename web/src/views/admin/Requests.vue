@@ -13,7 +13,12 @@
     v-if="!loading && !filtered.length"
     style="margin-top: 24px;"
     :description="statusFilter === 'pending' ? '暂无待审申请' : '当前筛选下暂无申请'"
-  />
+  >
+    <template #extra>
+      <n-button v-if="statusFilter" @click="statusFilter = ''">查看全部申请</n-button>
+      <n-button v-else quaternary @click="load" :loading="loading">刷新</n-button>
+    </template>
+  </n-empty>
 </template>
 
 <script setup lang="ts">
@@ -24,6 +29,7 @@ import {
 } from 'naive-ui'
 import { getRequests, reviewRequest, type JournalRequest } from '@/api/admin'
 import { formatDateTime } from '@/utils/datetime'
+import { shortUrl } from '@/utils/url'
 
 const message = useMessage()
 const dialog = useDialog()
@@ -38,7 +44,26 @@ const filtered = computed(() => {
 
 const columns = [
   { title: '期刊名', key: 'journal_name' },
-  { title: '来源', key: 'source_url', ellipsis: { tooltip: true } },
+  {
+    title: '来源',
+    key: 'source_url',
+    ellipsis: { tooltip: true },
+    render: (row: JournalRequest) => {
+      const url = row.source_url || ''
+      if (!url) return '—'
+      return h(
+        'a',
+        {
+          href: url,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          title: url,
+          style: 'color: inherit;',
+        },
+        shortUrl(url),
+      )
+    },
+  },
   {
     title: '状态', key: 'status',
     render: (row: JournalRequest) => {
