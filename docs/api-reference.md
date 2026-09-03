@@ -101,7 +101,7 @@ GET /api/v1/journals
 公开目录默认只返回 `directory_status=public`。
 
 **查询参数:**
-- `q` — 名称/描述搜索
+- `q` — 名称 / 描述 / slug 搜索
 - `content_type` — `journal` | `preprint`
 - `major` / `minor` / `zone` / `top` / `year` — CAS 分区筛选
 

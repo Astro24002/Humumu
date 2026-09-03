@@ -21,6 +21,7 @@
             <text :class="['status', n.status]">{{ statusText(n.status) }}</text>
             <text v-for="r in (n.match_reasons || [])" :key="r" class="reason">{{ reasonLabel(r) }}</text>
           </view>
+          <text v-if="n.error_message" class="error">{{ n.error_message }}</text>
           <text class="time">{{ formatDate(n.created_at) }}</text>
         </view>
         <view class="loading-more" v-if="hasMore"><text>加载更多...</text></view>
@@ -108,6 +109,7 @@ function goArticle(articleId: string) {
 .status.sent { color: #3cc51f; }
 .status.failed { color: #e74c3c; }
 .reason { font-size: 22rpx; padding: 2rpx 10rpx; border-radius: 8rpx; background: #fff7e6; color: #d48806; }
+.error { font-size: 24rpx; color: #e74c3c; margin-top: 8rpx; display: block; }
 .time { font-size: 24rpx; color: #ccc; margin-top: 8rpx; display: block; }
 .loading-more { text-align: center; padding: 20rpx; color: #999; }
 </style>
