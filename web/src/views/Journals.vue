@@ -65,8 +65,8 @@
     </n-space>
 
     <div v-if="loading" style="padding: 48px 0; text-align: center;"><n-spin /></div>
-    <n-grid v-else :cols="2" :y-gap="16" :x-gap="16">
-      <n-gi v-for="j in displayedJournals" :key="j.id">
+    <n-grid v-else-if="pageJournals.length" :cols="2" :y-gap="16" :x-gap="16">
+      <n-gi v-for="j in pageJournals" :key="j.id">
         <n-card :title="j.name" hoverable @click="router.push(`/journals/${j.id}`)">
           <template #header-extra>
             <n-space size="small">
@@ -145,11 +145,18 @@
         </template>
       </template>
     </n-empty>
+    <n-pagination
+      v-if="pageCount > 1 && !loading"
+      :page="page"
+      :page-count="pageCount"
+      style="margin-top: 16px;"
+      @update:page="onPageChange"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getJournals, type Journal } from '@/api/journals'
 import { getCasCategories, type CasCategory } from '@/api/categories'
@@ -161,7 +168,7 @@ import {
 import { useAuthStore } from '@/stores/auth'
 import {
   NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace, NSpin,
-  NRadioGroup, NRadioButton, NSelect, NCheckbox, useMessage,
+  NRadioGroup, NRadioButton, NSelect, NCheckbox, NPagination, useMessage,
 } from 'naive-ui'
 
 const router = useRouter()
@@ -173,6 +180,8 @@ const loading = ref(true)
 const q = ref('')
 const contentType = ref('')
 const sortBy = ref<'name' | 'articles' | 'updated'>('name')
+const page = ref(1)
+const pageSize = 24
 const major = ref<string | null>(null)
 const minor = ref<string | null>(null)
 const zone = ref<string | null>(null)
@@ -203,6 +212,13 @@ const displayedJournals = computed(() => {
   return list
 })
 
+const pageCount = computed(() => Math.ceil(displayedJournals.value.length / pageSize) || 1)
+
+const pageJournals = computed(() => {
+  const start = (page.value - 1) * pageSize
+  return displayedJournals.value.slice(start, start + pageSize)
+})
+
 const hasActiveFilters = computed(() =>
   Boolean(q.value.trim() || contentType.value || major.value || minor.value || zone.value || topOnly.value),
 )
@@ -211,6 +227,11 @@ const emptyDescription = computed(() =>
   hasActiveFilters.value ? '当前筛选下暂无期刊' : '暂无可浏览的期刊',
 )
 
+function onPageChange(p: number) {
+  page.value = p
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 function clearFilters() {
   q.value = ''
   contentType.value = ''
@@ -218,6 +239,7 @@ function clearFilters() {
   minor.value = null
   zone.value = null
   topOnly.value = false
+  page.value = 1
   reload()
 }
 
@@ -293,6 +315,7 @@ async function handleUnsubscribe(j: Journal) {
 
 async function reload() {
   loading.value = true
+  page.value = 1
   try {
     const res = await getJournals({
       q: q.value.trim() || undefined,
@@ -309,6 +332,10 @@ async function reload() {
     loading.value = false
   }
 }
+
+watch(sortBy, () => {
+  page.value = 1
+})
 
 onMounted(async () => {
   try {

@@ -23,14 +23,16 @@
       <button v-if="hasActiveFilters" size="mini" class="btn-empty" @click="clearFilters">清除筛选</button>
       <button v-else size="mini" class="btn-empty" @click="goEmptyCta">{{ emptyCtaLabel }}</button>
     </view>
-    <scroll-view v-else scroll-y class="scroll-view">
-      <JournalCard v-for="j in displayedJournals" :key="j.id" :journal="j" />
+    <scroll-view v-else scroll-y class="scroll-view" @scrolltolower="loadMore">
+      <JournalCard v-for="j in visibleJournals" :key="j.id" :journal="j" />
+      <view v-if="hasMore" class="loading-more"><text>上拉加载更多</text></view>
+      <view v-else-if="displayedJournals.length > pageSize" class="loading-more"><text>已显示全部</text></view>
     </scroll-view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
 import JournalCard from '@/components/JournalCard.vue'
@@ -41,6 +43,8 @@ const loading = ref(true)
 const search = ref('')
 const contentType = ref('')
 const sortBy = ref<'name' | 'articles' | 'updated'>('name')
+const pageSize = 30
+const visibleCount = ref(pageSize)
 
 const hasActiveFilters = computed(() => Boolean(search.value.trim() || contentType.value))
 const emptyHint = computed(() =>
@@ -66,6 +70,9 @@ const displayedJournals = computed(() => {
   return list
 })
 
+const visibleJournals = computed(() => displayedJournals.value.slice(0, visibleCount.value))
+const hasMore = computed(() => visibleCount.value < displayedJournals.value.length)
+
 function setType(t: string) {
   contentType.value = t
   reload()
@@ -77,8 +84,14 @@ function clearFilters() {
   reload()
 }
 
+function loadMore() {
+  if (!hasMore.value) return
+  visibleCount.value = Math.min(visibleCount.value + pageSize, displayedJournals.value.length)
+}
+
 async function reload() {
   loading.value = true
+  visibleCount.value = pageSize
   try {
     journals.value = (await getJournals({
       q: search.value.trim() || undefined,
@@ -98,6 +111,10 @@ function goEmptyCta() {
     uni.navigateTo({ url: '/pages/login/index' })
   }
 }
+
+watch(sortBy, () => {
+  visibleCount.value = pageSize
+})
 
 onMounted(reload)
 </script>
@@ -127,4 +144,5 @@ onMounted(reload)
 .loading, .empty { text-align: center; padding: 100rpx 40rpx; color: #999; }
 .btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
 .scroll-view { height: calc(100vh - 280rpx); }
+.loading-more { text-align: center; padding: 24rpx; color: #999; font-size: 24rpx; }
 </style>
