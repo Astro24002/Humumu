@@ -62,7 +62,9 @@
           <text v-for="r in a.reasons" :key="r" class="badge reason">{{ reasonLabel(r) }}</text>
         </view>
         <text class="title" :class="{ unread: a.unread }">{{ a.title }}</text>
-        <text class="authors" v-if="a.authors?.length">{{ a.authors.slice(0, 3).join(', ') }}</text>
+        <text class="authors" v-if="a.authors?.length">
+          {{ a.authors.slice(0, 3).join(', ') }}{{ a.authors.length > 3 ? ' 等' : '' }}
+        </text>
         <text class="date" v-if="a.publish_date">{{ formatDate(a.publish_date) }}</text>
         <text class="snippet" v-if="a.abstract">{{ truncateAbstract(a.abstract) }}</text>
       </view>

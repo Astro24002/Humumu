@@ -36,7 +36,15 @@
       <n-radio value="daily">每日汇总（推荐）</n-radio>
       <n-radio value="realtime">实时推送</n-radio>
     </n-radio-group>
-    <n-button style="margin-top: 16px;" @click="saveFrequency" :loading="saving">保存</n-button>
+    <n-button
+      style="margin-top: 16px;"
+      type="primary"
+      :disabled="!frequencyDirty"
+      :loading="saving"
+      @click="saveFrequency"
+    >
+      {{ frequencyDirty ? '保存' : '已保存' }}
+    </n-button>
   </n-card>
 
   <n-card title="会话">
@@ -58,6 +66,7 @@ const auth = useAuthStore()
 const message = useMessage()
 const dialog = useDialog()
 const frequency = ref(auth.user?.push_frequency || 'daily')
+const savedFrequency = ref(frequency.value)
 const saving = ref(false)
 
 const accountHasEmail = computed(() => {
@@ -66,6 +75,8 @@ const accountHasEmail = computed(() => {
   if (typeof u.has_email === 'boolean') return u.has_email
   return !!(u.email && !u.email.endsWith('@wechat.user'))
 })
+
+const frequencyDirty = computed(() => frequency.value !== savedFrequency.value)
 
 onMounted(async () => {
   if (auth.isLoggedIn) {
@@ -76,6 +87,7 @@ onMounted(async () => {
     }
   }
   frequency.value = auth.user?.push_frequency || 'daily'
+  savedFrequency.value = frequency.value
 })
 
 async function saveFrequency() {
@@ -86,6 +98,7 @@ async function saveFrequency() {
       auth.user.push_frequency = frequency.value
       localStorage.setItem('user', JSON.stringify(auth.user))
     }
+    savedFrequency.value = frequency.value
     message.success('设置已保存')
   } catch (e: any) {
     message.error(e.message)

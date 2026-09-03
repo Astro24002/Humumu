@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">用户管理</n-h2>
     <n-input
       v-model:value="nameFilter"
@@ -9,11 +9,20 @@
     />
   </div>
   <n-data-table :columns="columns" :data="filteredUsers" :loading="loading" :pagination="{ pageSize: 20 }" />
+  <n-empty
+    v-if="!loading && !filteredUsers.length"
+    style="margin-top: 24px;"
+    :description="nameFilter.trim() ? '没有匹配的用户' : '暂无用户'"
+  >
+    <template #extra>
+      <n-button v-if="nameFilter.trim()" @click="nameFilter = ''">清除搜索</n-button>
+    </template>
+  </n-empty>
 </template>
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted } from 'vue'
-import { NTag, NDataTable, NH2, NButton, NSpace, NInput, useMessage } from 'naive-ui'
+import { NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, useMessage } from 'naive-ui'
 import { getUsers, setUserAdmin, type User } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
 import { formatDateTime } from '@/utils/datetime'
