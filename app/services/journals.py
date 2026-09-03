@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.article import Article
@@ -126,7 +126,14 @@ async def list_journals(
     if content_type:
         stmt = stmt.where(Journal.content_type == content_type)
     if q and q.strip():
-        stmt = stmt.where(Journal.name.ilike(f"%{q.strip()}%"))
+        term = f"%{q.strip()}%"
+        stmt = stmt.where(
+            or_(
+                Journal.name.ilike(term),
+                Journal.description.ilike(term),
+                Journal.slug.ilike(term),
+            )
+        )
 
     # CAS facet filters (no-op when none provided)
     from app.services.categories import journal_ids_for_filters
