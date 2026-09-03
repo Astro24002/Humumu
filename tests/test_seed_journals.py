@@ -11,15 +11,23 @@ SEED = ROOT / "data" / "journals_seed.json"
 
 def test_repo_seed_file_loads_and_has_unique_slugs():
     rows = load_seed(SEED)
-    assert len(rows) >= 8
+    assert len(rows) >= 20
     slugs = [r["slug"] for r in rows]
     urls = [r["source_url"] for r in rows]
     assert len(slugs) == len(set(slugs))
     assert len(urls) == len(set(urls))
+    preprint_count = 0
     for r in rows:
-        assert r["source_type"] in {"rss", "arxiv", "crossref", "cnki"}
+        assert r["source_type"] in {"rss", "arxiv", "crossref", "cnki", "atom"}
         assert r["source_url"].startswith("http")
         assert r["fetch_interval_minutes"] > 0
+        assert r["content_type"] in {"journal", "preprint"}
+        assert r["directory_status"] == "public"
+        assert r["normalized_source_url"]
+        if "arxiv.org" in r["source_url"] or "biorxiv" in r["source_url"] or "medrxiv" in r["source_url"]:
+            assert r["content_type"] == "preprint"
+            preprint_count += 1
+    assert preprint_count >= 5
 
 
 def test_load_seed_rejects_missing_fields(tmp_path: Path):
@@ -57,6 +65,10 @@ def test_upsert_insert_then_update():
         "description": "AI",
         "fetch_interval_minutes": 60,
         "is_active": True,
+        "content_type": "preprint",
+        "directory_status": "public",
+        "homepage_url": "",
+        "normalized_source_url": "https://rss.arxiv.org/rss/cs.AI",
     }
     inserted, updated = upsert_journals(cur, [row])
     assert (inserted, updated) == (1, 0)
@@ -66,3 +78,6 @@ def test_upsert_insert_then_update():
     assert verbs.count("SELECT") == 2
     assert verbs.count("INSERT") == 1
     assert verbs.count("UPDATE") == 1
+    # INSERT includes content_type / normalized_source_url
+    insert_params = [c[1] for c in calls if c[0] == "INSERT"][0]
+    assert "preprint" in insert_params

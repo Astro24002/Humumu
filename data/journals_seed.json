@@ -5,6 +5,7 @@
     "source_type": "rss",
     "source_url": "https://rss.arxiv.org/rss/cs.AI",
     "description": "Artificial Intelligence — arXiv cs.AI",
+    "content_type": "preprint",
     "fetch_interval_minutes": 60
   },
   {
@@ -13,6 +14,7 @@
     "source_type": "rss",
     "source_url": "https://rss.arxiv.org/rss/cs.LG",
     "description": "Machine Learning — arXiv cs.LG",
+    "content_type": "preprint",
     "fetch_interval_minutes": 60
   },
   {
@@ -21,6 +23,7 @@
     "source_type": "rss",
     "source_url": "https://rss.arxiv.org/rss/cs.CL",
     "description": "Computation and Language (NLP) — arXiv cs.CL",
+    "content_type": "preprint",
     "fetch_interval_minutes": 60
   },
   {
@@ -29,6 +32,7 @@
     "source_type": "rss",
     "source_url": "https://rss.arxiv.org/rss/cs.CV",
     "description": "Computer Vision and Pattern Recognition — arXiv cs.CV",
+    "content_type": "preprint",
     "fetch_interval_minutes": 60
   },
   {
@@ -37,7 +41,53 @@
     "source_type": "rss",
     "source_url": "https://rss.arxiv.org/rss/cs.SE",
     "description": "Software Engineering — arXiv cs.SE",
+    "content_type": "preprint",
     "fetch_interval_minutes": 120
+  },
+  {
+    "name": "arXiv cs.IR",
+    "slug": "arxiv-cs-ir",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.IR",
+    "description": "Information Retrieval — arXiv cs.IR",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "arXiv cs.CR",
+    "slug": "arxiv-cs-cr",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.CR",
+    "description": "Cryptography and Security — arXiv cs.CR",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "arXiv cs.RO",
+    "slug": "arxiv-cs-ro",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.RO",
+    "description": "Robotics — arXiv cs.RO",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "arXiv cs.HC",
+    "slug": "arxiv-cs-hc",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.HC",
+    "description": "Human-Computer Interaction — arXiv cs.HC",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "arXiv cs.DB",
+    "slug": "arxiv-cs-db",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.DB",
+    "description": "Databases — arXiv cs.DB",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 180
   },
   {
     "name": "arXiv stat.ML",
@@ -45,6 +95,45 @@
     "source_type": "rss",
     "source_url": "https://rss.arxiv.org/rss/stat.ML",
     "description": "Machine Learning (Statistics) — arXiv stat.ML",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "arXiv q-bio.BM",
+    "slug": "arxiv-q-bio-bm",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.BM",
+    "description": "Biomolecules — arXiv q-bio.BM",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "arXiv physics.data-an",
+    "slug": "arxiv-physics-data-an",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.data-an",
+    "description": "Data Analysis, Statistics and Probability — arXiv physics.data-an",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "bioRxiv",
+    "slug": "biorxiv-all",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=all",
+    "description": "bioRxiv — all subjects preprint feed",
+    "content_type": "preprint",
+    "homepage_url": "https://www.biorxiv.org/",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "medRxiv",
+    "slug": "medrxiv-all",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=all",
+    "description": "medRxiv — all subjects preprint feed",
+    "content_type": "preprint",
+    "homepage_url": "https://www.medrxiv.org/",
     "fetch_interval_minutes": 120
   },
   {
@@ -53,6 +142,8 @@
     "source_type": "rss",
     "source_url": "https://journals.plos.org/plosone/feed/atom",
     "description": "PLOS ONE multidisciplinary open-access journal",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/plosone/",
     "fetch_interval_minutes": 180
   },
   {
@@ -61,6 +152,38 @@
     "source_type": "rss",
     "source_url": "https://journals.plos.org/ploscompbiol/feed/atom",
     "description": "PLOS Computational Biology",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/ploscompbiol/",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "PLOS Biology",
+    "slug": "plos-biology",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/plosbiology/feed/atom",
+    "description": "PLOS Biology",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/plosbiology/",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "PLOS Medicine",
+    "slug": "plos-medicine",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/plosmedicine/feed/atom",
+    "description": "PLOS Medicine",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/plosmedicine/",
+    "fetch_interval_minutes": 180
+  },
+  {
+    "name": "eLife",
+    "slug": "elife",
+    "source_type": "rss",
+    "source_url": "https://elifesciences.org/rss/recent.xml",
+    "description": "eLife — recent research articles",
+    "content_type": "journal",
+    "homepage_url": "https://elifesciences.org/",
     "fetch_interval_minutes": 180
   },
   {
@@ -69,7 +192,29 @@
     "source_type": "rss",
     "source_url": "https://www.nature.com/nature.rss",
     "description": "Nature journal news / highlights feed",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/nature",
     "fetch_interval_minutes": 180
+  },
+  {
+    "name": "Nature Biotechnology",
+    "slug": "nature-biotechnology",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/nbt.rss",
+    "description": "Nature Biotechnology",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/nbt",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Nature Methods",
+    "slug": "nature-methods",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/nmeth.rss",
+    "description": "Nature Methods",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/nmeth",
+    "fetch_interval_minutes": 360
   },
   {
     "name": "Science Magazine News",
@@ -77,6 +222,8 @@
     "source_type": "rss",
     "source_url": "https://www.science.org/rss/news_current.xml",
     "description": "Science magazine current news RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.science.org/",
     "fetch_interval_minutes": 180
   },
   {
@@ -85,6 +232,8 @@
     "source_type": "rss",
     "source_url": "https://queue.acm.org/rss/rss.cfm",
     "description": "ACM Queue — practitioner-oriented computing",
+    "content_type": "journal",
+    "homepage_url": "https://queue.acm.org/",
     "fetch_interval_minutes": 360
   },
   {
@@ -93,6 +242,28 @@
     "source_type": "rss",
     "source_url": "https://cacm.acm.org/feed/",
     "description": "Communications of the ACM",
+    "content_type": "journal",
+    "homepage_url": "https://cacm.acm.org/",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Computer Science",
+    "slug": "frontiers-computer-science",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/computer-science/rss",
+    "description": "Frontiers in Computer Science",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/computer-science",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "PeerJ",
+    "slug": "peerj",
+    "source_type": "rss",
+    "source_url": "https://peerj.com/articles/index.rss",
+    "description": "PeerJ — open access journal articles",
+    "content_type": "journal",
+    "homepage_url": "https://peerj.com/",
     "fetch_interval_minutes": 360
   }
 ]

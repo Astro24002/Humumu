@@ -2,6 +2,8 @@
 
 Upserts by slug (preferred) or source_url. Does not deactivate journals that
 were removed from the seed file — admin-managed rows stay intact.
+
+Sets content_type, directory_status=public, homepage_url, and normalized_source_url.
 """
 
 from __future__ import annotations
@@ -14,10 +16,29 @@ from typing import Any
 import psycopg2
 
 from app.config import get_settings
+from app.services.feed_url import normalize_feed_url
 
 DEFAULT_SEED = Path(__file__).resolve().parents[1] / "data" / "journals_seed.json"
 
 REQUIRED_FIELDS = ("name", "slug", "source_type", "source_url")
+_VALID_CONTENT_TYPES = frozenset({"journal", "preprint"})
+
+_PREPRINT_HOST_MARKERS = (
+    "arxiv.org",
+    "biorxiv.org",
+    "medrxiv.org",
+)
+
+
+def _infer_content_type(source_url: str, explicit: str | None) -> str:
+    if explicit:
+        ct = explicit.strip().lower()
+        if ct in _VALID_CONTENT_TYPES:
+            return ct
+    host = (source_url or "").lower()
+    if any(m in host for m in _PREPRINT_HOST_MARKERS):
+        return "preprint"
+    return "journal"
 
 
 def load_seed(path: Path) -> list[dict[str, Any]]:
@@ -36,15 +57,22 @@ def load_seed(path: Path) -> list[dict[str, Any]]:
         minutes = item.get("fetch_interval_minutes", 60)
         if not isinstance(minutes, int) or minutes <= 0:
             raise ValueError(f"seed[{i}].fetch_interval_minutes must be a positive int")
+        source_url = item["source_url"].strip()
+        content_type = _infer_content_type(source_url, item.get("content_type"))
+        normalized = normalize_feed_url(source_url) or source_url
         out.append(
             {
                 "name": item["name"].strip(),
                 "slug": item["slug"].strip().lower(),
                 "source_type": item["source_type"].strip().lower(),
-                "source_url": item["source_url"].strip(),
+                "source_url": source_url,
                 "description": str(item.get("description") or "").strip(),
                 "fetch_interval_minutes": minutes,
                 "is_active": bool(item.get("is_active", True)),
+                "content_type": content_type,
+                "directory_status": "public",
+                "homepage_url": str(item.get("homepage_url") or "").strip(),
+                "normalized_source_url": normalized,
             }
         )
     return out
@@ -56,8 +84,14 @@ def upsert_journals(cur: Any, rows: list[dict[str, Any]]) -> tuple[int, int]:
     updated = 0
     for row in rows:
         cur.execute(
-            "SELECT id FROM journals WHERE slug = %s OR source_url = %s LIMIT 1",
-            (row["slug"], row["source_url"]),
+            """
+            SELECT id FROM journals
+            WHERE slug = %s
+               OR source_url = %s
+               OR normalized_source_url = %s
+            LIMIT 1
+            """,
+            (row["slug"], row["source_url"], row["normalized_source_url"]),
         )
         existing = cur.fetchone()
         interval = f"{row['fetch_interval_minutes']} minutes"
@@ -71,7 +105,11 @@ def upsert_journals(cur: Any, rows: list[dict[str, Any]]) -> tuple[int, int]:
                     source_url = %s,
                     description = %s,
                     fetch_interval = %s::interval,
-                    is_active = %s
+                    is_active = %s,
+                    content_type = %s,
+                    directory_status = %s,
+                    homepage_url = %s,
+                    normalized_source_url = %s
                 WHERE id = %s
                 """,
                 (
@@ -82,6 +120,10 @@ def upsert_journals(cur: Any, rows: list[dict[str, Any]]) -> tuple[int, int]:
                     row["description"],
                     interval,
                     row["is_active"],
+                    row["content_type"],
+                    row["directory_status"],
+                    row["homepage_url"],
+                    row["normalized_source_url"],
                     existing[0],
                 ),
             )
@@ -91,9 +133,11 @@ def upsert_journals(cur: Any, rows: list[dict[str, Any]]) -> tuple[int, int]:
                 """
                 INSERT INTO journals (
                     name, slug, source_type, source_url, description,
-                    fetch_interval, is_active
+                    fetch_interval, is_active,
+                    content_type, directory_status, homepage_url, normalized_source_url
                 ) VALUES (
-                    %s, %s, %s, %s, %s, %s::interval, %s
+                    %s, %s, %s, %s, %s, %s::interval, %s,
+                    %s, %s, %s, %s
                 )
                 """,
                 (
@@ -104,6 +148,10 @@ def upsert_journals(cur: Any, rows: list[dict[str, Any]]) -> tuple[int, int]:
                     row["description"],
                     interval,
                     row["is_active"],
+                    row["content_type"],
+                    row["directory_status"],
+                    row["homepage_url"],
+                    row["normalized_source_url"],
                 ),
             )
             inserted += 1
