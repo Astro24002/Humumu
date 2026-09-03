@@ -5,8 +5,13 @@
       <view class="header">
         <text class="name">{{ journal.name }}</text>
         <text class="tag">{{ journal.source_type }}</text>
+        <text v-if="journal.content_type === 'preprint'" class="tag preprint">预印本</text>
       </view>
       <text v-if="journal.description" class="desc">{{ journal.description }}</text>
+      <view v-if="journal.homepage_url" class="home-row" @click="openHome">
+        <text class="home-label">主页</text>
+        <text class="home-link">{{ journal.homepage_url }}</text>
+      </view>
 
       <view class="subscribe-bar" v-if="auth.isLoggedIn">
         <button v-if="isSubscribed" class="btn-unsub" @click="unsubscribe">取消订阅</button>
@@ -71,6 +76,18 @@ async function subscribe() {
   }
 }
 
+function openHome() {
+  const url = journal.value?.homepage_url
+  if (!url) return
+  // #ifdef H5
+  window.open(url, '_blank')
+  // #endif
+  // #ifndef H5
+  uni.setClipboardData({ data: url })
+  uni.showToast({ title: '链接已复制', icon: 'none' })
+  // #endif
+}
+
 async function unsubscribe() {
   try {
     await unsubscribeJournal(journal.value!.id)
@@ -87,6 +104,10 @@ async function unsubscribe() {
 .header { padding: 30rpx; display: flex; align-items: center; gap: 16rpx; }
 .name { font-size: 36rpx; font-weight: 600; }
 .tag { font-size: 22rpx; color: #3cc51f; background: #e8f8e0; padding: 4rpx 12rpx; border-radius: 8rpx; }
+.tag.preprint { color: #2080f0; background: #e8f3ff; }
+.home-row { padding: 0 30rpx 16rpx; display: flex; gap: 12rpx; align-items: flex-start; }
+.home-label { font-size: 24rpx; color: #999; flex-shrink: 0; }
+.home-link { font-size: 24rpx; color: #2080f0; word-break: break-all; }
 .desc { padding: 0 30rpx; font-size: 28rpx; color: #666; line-height: 1.6; display: block; }
 .subscribe-bar { padding: 20rpx 30rpx; }
 .btn-sub, .btn-unsub {

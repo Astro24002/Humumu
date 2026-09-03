@@ -6,7 +6,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.AI",
     "description": "Artificial Intelligence — arXiv cs.AI",
     "content_type": "preprint",
-    "fetch_interval_minutes": 60
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.AI/recent"
   },
   {
     "name": "arXiv cs.LG",
@@ -15,7 +16,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.LG",
     "description": "Machine Learning — arXiv cs.LG",
     "content_type": "preprint",
-    "fetch_interval_minutes": 60
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.LG/recent"
   },
   {
     "name": "arXiv cs.CL",
@@ -24,7 +26,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.CL",
     "description": "Computation and Language (NLP) — arXiv cs.CL",
     "content_type": "preprint",
-    "fetch_interval_minutes": 60
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.CL/recent"
   },
   {
     "name": "arXiv cs.CV",
@@ -33,7 +36,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.CV",
     "description": "Computer Vision and Pattern Recognition — arXiv cs.CV",
     "content_type": "preprint",
-    "fetch_interval_minutes": 60
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.CV/recent"
   },
   {
     "name": "arXiv cs.SE",
@@ -42,7 +46,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.SE",
     "description": "Software Engineering — arXiv cs.SE",
     "content_type": "preprint",
-    "fetch_interval_minutes": 120
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://arxiv.org/list/cs.SE/recent"
   },
   {
     "name": "arXiv cs.IR",
@@ -51,7 +56,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.IR",
     "description": "Information Retrieval — arXiv cs.IR",
     "content_type": "preprint",
-    "fetch_interval_minutes": 120
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://arxiv.org/list/cs.IR/recent"
   },
   {
     "name": "arXiv cs.CR",
@@ -60,7 +66,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.CR",
     "description": "Cryptography and Security — arXiv cs.CR",
     "content_type": "preprint",
-    "fetch_interval_minutes": 120
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://arxiv.org/list/cs.CR/recent"
   },
   {
     "name": "arXiv cs.RO",
@@ -69,7 +76,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.RO",
     "description": "Robotics — arXiv cs.RO",
     "content_type": "preprint",
-    "fetch_interval_minutes": 120
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://arxiv.org/list/cs.RO/recent"
   },
   {
     "name": "arXiv cs.HC",
@@ -78,7 +86,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.HC",
     "description": "Human-Computer Interaction — arXiv cs.HC",
     "content_type": "preprint",
-    "fetch_interval_minutes": 180
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://arxiv.org/list/cs.HC/recent"
   },
   {
     "name": "arXiv cs.DB",
@@ -87,7 +96,8 @@
     "source_url": "https://rss.arxiv.org/rss/cs.DB",
     "description": "Databases — arXiv cs.DB",
     "content_type": "preprint",
-    "fetch_interval_minutes": 180
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://arxiv.org/list/cs.DB/recent"
   },
   {
     "name": "arXiv stat.ML",
@@ -96,7 +106,8 @@
     "source_url": "https://rss.arxiv.org/rss/stat.ML",
     "description": "Machine Learning (Statistics) — arXiv stat.ML",
     "content_type": "preprint",
-    "fetch_interval_minutes": 120
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://arxiv.org/list/stat.ML/recent"
   },
   {
     "name": "arXiv q-bio.BM",
@@ -105,7 +116,8 @@
     "source_url": "https://rss.arxiv.org/rss/q-bio.BM",
     "description": "Biomolecules — arXiv q-bio.BM",
     "content_type": "preprint",
-    "fetch_interval_minutes": 180
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://arxiv.org/list/q-bio.BM/recent"
   },
   {
     "name": "arXiv physics.data-an",
@@ -114,7 +126,8 @@
     "source_url": "https://rss.arxiv.org/rss/physics.data-an",
     "description": "Data Analysis, Statistics and Probability — arXiv physics.data-an",
     "content_type": "preprint",
-    "fetch_interval_minutes": 180
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://arxiv.org/list/physics.data-an/recent"
   },
   {
     "name": "bioRxiv",
