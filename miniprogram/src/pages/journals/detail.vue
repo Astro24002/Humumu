@@ -26,6 +26,9 @@
       <view class="section-title"><text>最新论文</text></view>
       <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
       <view v-if="articles.length === 0" class="empty"><text>暂无论文</text></view>
+      <view v-if="hasMore" class="more-wrap">
+        <button class="btn-more" size="mini" :loading="loadingMore" @click="loadMore">加载更多</button>
+      </view>
     </template>
   </view>
 </template>
@@ -42,7 +45,12 @@ const auth = useAuthStore()
 const journal = ref<Journal | null>(null)
 const articles = ref<Article[]>([])
 const loading = ref(true)
+const loadingMore = ref(false)
 const isSubscribed = ref(false)
+const journalId = ref('')
+const offset = ref(0)
+const limit = 20
+const hasMore = ref(false)
 
 function dirStatusLabel(s?: string): string {
   const map: Record<string, string> = {
@@ -60,22 +68,50 @@ function dirClass(s?: string): string {
   return 'info'
 }
 
+async function loadArticles(reset: boolean) {
+  if (!journalId.value) return
+  if (reset) {
+    offset.value = 0
+    articles.value = []
+  } else {
+    loadingMore.value = true
+  }
+  try {
+    const ar = await getArticles({
+      journal_id: journalId.value,
+      limit,
+      offset: offset.value,
+    })
+    articles.value.push(...ar.articles)
+    offset.value += ar.articles.length
+    const total = ar.total ?? offset.value
+    hasMore.value = offset.value < total && ar.articles.length >= limit
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+function loadMore() {
+  if (!hasMore.value || loadingMore.value) return
+  loadArticles(false)
+}
+
 onMounted(async () => {
   const pages = getCurrentPages()
   const page = pages[pages.length - 1] as any
-  const journalId = page.$page?.options?.id || page.options?.id
-  if (!journalId) return
+  const id = page.$page?.options?.id || page.options?.id
+  if (!id) return
+  journalId.value = id
 
   try {
-    const [jr, ar, subRes] = await Promise.all([
-      getJournal(journalId),
-      getArticles({ journal_id: journalId, limit: 50 }),
+    const [jr, , subRes] = await Promise.all([
+      getJournal(id),
+      loadArticles(true),
       auth.isLoggedIn ? getSubscribedJournals() : Promise.resolve(null),
     ])
     journal.value = jr
-    articles.value = ar.articles
     if (subRes) {
-      isSubscribed.value = subRes.journals.some(j => j.id === journalId)
+      isSubscribed.value = subRes.journals.some(j => j.id === id)
     }
   } finally {
     loading.value = false
@@ -141,4 +177,6 @@ async function unsubscribe() {
 .btn-unsub { background: #fff; color: #e74c3c; border: 2rpx solid #e74c3c; }
 .section-title { padding: 20rpx 30rpx 10rpx; font-size: 30rpx; font-weight: 500; }
 .loading, .empty { text-align: center; padding: 60rpx; color: #999; }
+.more-wrap { padding: 24rpx 30rpx 40rpx; text-align: center; }
+.btn-more { background: #f5f5f5; color: #666; border: none; }
 </style>

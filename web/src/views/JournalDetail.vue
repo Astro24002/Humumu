@@ -67,8 +67,11 @@
 
     <n-divider />
 
-    <n-h3>论文列表</n-h3>
-    <n-empty v-if="!articles.length" description="暂无文章" />
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <n-h3 style="margin: 0;">论文列表</n-h3>
+      <n-tag v-if="articlesTotal > 0" size="small" :bordered="false">{{ articlesTotal }} 篇</n-tag>
+    </div>
+    <n-empty v-if="!articles.length && !articlesLoading" description="暂无文章" />
     <n-list v-else>
       <n-list-item v-for="a in articles" :key="a.id">
         <n-thing :title="a.title">
@@ -86,6 +89,13 @@
         </n-thing>
       </n-list-item>
     </n-list>
+    <n-pagination
+      v-if="articlesPageCount > 1"
+      :page="articlesPage"
+      :page-count="articlesPageCount"
+      style="margin-top: 16px;"
+      @update:page="loadArticlesPage"
+    />
   </template>
 </template>
 
@@ -103,7 +113,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,
-  NNumberAnimation, useMessage,
+  NNumberAnimation, NPagination, useMessage,
 } from 'naive-ui'
 
 const route = useRoute()
@@ -114,6 +124,11 @@ const isLoggedIn = computed(() => auth.isLoggedIn)
 const journal = ref<Journal | null>(null)
 const articles = ref<Article[]>([])
 const loading = ref(true)
+const articlesLoading = ref(false)
+const articlesTotal = ref(0)
+const articlesPage = ref(1)
+const articlesLimit = 20
+const articlesPageCount = computed(() => Math.ceil(articlesTotal.value / articlesLimit) || 1)
 const isSubscribed = ref(false)
 const subBusy = ref(false)
 
@@ -166,16 +181,32 @@ async function handleUnsubscribe() {
   }
 }
 
+async function loadArticlesPage(p: number) {
+  const id = route.params.id as string
+  articlesPage.value = p
+  articlesLoading.value = true
+  try {
+    const ar = await getArticles({
+      journal_id: id,
+      limit: String(articlesLimit),
+      offset: String((p - 1) * articlesLimit),
+    })
+    articles.value = ar.articles
+    articlesTotal.value = ar.total ?? ar.articles.length
+  } finally {
+    articlesLoading.value = false
+  }
+}
+
 onMounted(async () => {
   const id = route.params.id as string
   try {
-    const [jr, ar, subRes] = await Promise.all([
+    const [jr, , subRes] = await Promise.all([
       getJournal(id),
-      getArticles({ journal_id: id, limit: '50' }),
+      loadArticlesPage(1),
       auth.isLoggedIn ? getSubscribedJournals().catch(() => null) : Promise.resolve(null),
     ])
     journal.value = jr
-    articles.value = ar.articles
     if (subRes) {
       isSubscribed.value = subRes.journals.some((j) => j.id === id)
     }

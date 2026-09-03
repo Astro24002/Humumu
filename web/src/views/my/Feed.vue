@@ -12,7 +12,7 @@
     </n-radio-group>
   </n-space>
 
-  <div v-if="loading"><n-spin /></div>
+  <div v-if="loading && !updates.length"><n-spin /></div>
   <n-empty v-else-if="!updates.length" description="暂无更新，去订阅期刊或关键词吧">
     <template #extra>
       <n-button @click="router.push('/journals')">浏览期刊</n-button>
@@ -66,6 +66,11 @@
       </n-thing>
     </n-list-item>
   </n-list>
+  <div v-if="hasMore || loadingMore" style="text-align: center; margin-top: 16px;">
+    <n-button :loading="loadingMore" :disabled="!hasMore" @click="loadMore">
+      {{ hasMore ? '加载更多' : '没有更多了' }}
+    </n-button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -82,7 +87,11 @@ const router = useRouter()
 const message = useMessage()
 const updates = ref<MyUpdateItem[]>([])
 const loading = ref(true)
+const loadingMore = ref(false)
 const filter = ref('')
+const offset = ref(0)
+const limit = 20
+const hasMore = ref(false)
 
 function reasonLabel(r: string): string {
   const map: Record<string, string> = {
@@ -93,18 +102,39 @@ function reasonLabel(r: string): string {
   return map[r] || r
 }
 
-async function reload() {
-  loading.value = true
+async function fetchPage(reset: boolean) {
+  if (reset) {
+    loading.value = true
+    offset.value = 0
+  } else {
+    loadingMore.value = true
+  }
   try {
-    const params: { limit: string; filter?: string } = { limit: '50' }
+    const params: { limit: string; offset: string; filter?: string } = {
+      limit: String(limit),
+      offset: String(offset.value),
+    }
     if (filter.value) params.filter = filter.value
     const res = await getMyUpdates(params)
-    updates.value = res.updates
+    if (reset) updates.value = res.updates
+    else updates.value.push(...res.updates)
+    offset.value += res.updates.length
+    hasMore.value = res.updates.length >= limit
   } catch (e: any) {
     message.error(e.message || '加载失败')
   } finally {
     loading.value = false
+    loadingMore.value = false
   }
+}
+
+async function reload() {
+  await fetchPage(true)
+}
+
+async function loadMore() {
+  if (!hasMore.value || loadingMore.value) return
+  await fetchPage(false)
 }
 
 async function toggle(u: MyUpdateItem, field: 'is_read' | 'is_starred' | 'is_later') {
