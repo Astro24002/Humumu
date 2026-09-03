@@ -65,7 +65,7 @@
           <span style="color: #888; font-size: 13px;">在上方输入作者姓名后点击添加</span>
         </template>
       </n-empty>
-      <n-tag v-for="a in authors" :key="a.id" closable @close="removeAuthor(a.id)" style="margin: 4px;">
+      <n-tag v-for="a in authors" :key="a.id" closable @close="confirmRemoveAuthor(a)" style="margin: 4px;">
         {{ a.author_name }}
       </n-tag>
     </n-tab-pane>
@@ -80,7 +80,7 @@
           <span style="color: #888; font-size: 13px;">在上方输入关键词后点击添加</span>
         </template>
       </n-empty>
-      <n-tag v-for="k in keywords" :key="k.id" closable @close="removeKeyword(k.id)" style="margin: 4px;">
+      <n-tag v-for="k in keywords" :key="k.id" closable @close="confirmRemoveKeyword(k)" style="margin: 4px;">
         {{ k.keyword }}
       </n-tag>
     </n-tab-pane>
@@ -324,6 +324,16 @@ async function addAuthor() {
   }
 }
 
+function confirmRemoveAuthor(a: { id: string; author_name: string }) {
+  dialog.warning({
+    title: '移除作者',
+    content: `确认停止追踪「${a.author_name}」？`,
+    positiveText: '移除',
+    negativeText: '返回',
+    onPositiveClick: () => removeAuthor(a.id),
+  })
+}
+
 async function removeAuthor(id: string) {
   try {
     await removeAuthorApi(id)
@@ -343,6 +353,16 @@ async function addKeyword() {
   } catch (e: any) {
     message.error(e.message)
   }
+}
+
+function confirmRemoveKeyword(k: { id: string; keyword: string }) {
+  dialog.warning({
+    title: '移除关键词',
+    content: `确认取消关键词「${k.keyword}」？`,
+    positiveText: '移除',
+    negativeText: '返回',
+    onPositiveClick: () => removeKeyword(k.id),
+  })
 }
 
 async function removeKeyword(id: string) {

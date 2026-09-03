@@ -77,7 +77,7 @@
         <view v-else class="tag-list">
           <view v-for="a in authors" :key="a.id" class="tag-item">
             <text>{{ a.author_name }}</text>
-            <text class="tag-close" @click="removeAuthor(a.id)">×</text>
+            <text class="tag-close" @click="confirmRemoveAuthor(a)">×</text>
           </view>
         </view>
       </view>
@@ -91,7 +91,7 @@
         <view v-else class="tag-list">
           <view v-for="k in keywords" :key="k.id" class="tag-item">
             <text>{{ k.keyword }}</text>
-            <text class="tag-close" @click="removeKeyword(k.id)">×</text>
+            <text class="tag-close" @click="confirmRemoveKeyword(k)">×</text>
           </view>
         </view>
       </view>
@@ -266,14 +266,23 @@ async function addAuthor() {
   }
 }
 
-async function removeAuthor(id: string) {
-  try {
-    await removeAuthorApi(id)
-    authors.value = authors.value.filter(a => a.id !== id)
-    uni.showToast({ title: '已移除作者', icon: 'success' })
-  } catch (e: any) {
-    uni.showToast({ title: e.message || '操作失败', icon: 'none' })
-  }
+function confirmRemoveAuthor(a: AuthorTracking) {
+  uni.showModal({
+    title: '移除作者',
+    content: `确认停止追踪「${a.author_name}」？`,
+    confirmText: '移除',
+    cancelText: '返回',
+    success: async (res) => {
+      if (!res.confirm) return
+      try {
+        await removeAuthorApi(a.id)
+        authors.value = authors.value.filter(x => x.id !== a.id)
+        uni.showToast({ title: '已移除作者', icon: 'success' })
+      } catch (e: any) {
+        uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+      }
+    },
+  })
 }
 
 async function addKeyword() {
@@ -287,14 +296,23 @@ async function addKeyword() {
   }
 }
 
-async function removeKeyword(id: string) {
-  try {
-    await removeKeywordApi(id)
-    keywords.value = keywords.value.filter(k => k.id !== id)
-    uni.showToast({ title: '已移除关键词', icon: 'success' })
-  } catch (e: any) {
-    uni.showToast({ title: e.message || '操作失败', icon: 'none' })
-  }
+function confirmRemoveKeyword(k: KeywordSubscription) {
+  uni.showModal({
+    title: '移除关键词',
+    content: `确认取消关键词「${k.keyword}」？`,
+    confirmText: '移除',
+    cancelText: '返回',
+    success: async (res) => {
+      if (!res.confirm) return
+      try {
+        await removeKeywordApi(k.id)
+        keywords.value = keywords.value.filter(x => x.id !== k.id)
+        uni.showToast({ title: '已移除关键词', icon: 'success' })
+      } catch (e: any) {
+        uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+      }
+    },
+  })
 }
 </script>
 
