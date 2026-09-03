@@ -42,10 +42,65 @@ const error = ref('')
 const needsBind = ref(false)
 const wxCode = ref('')
 const form = ref({ email: '', password: '' })
+/** Optional return path (no leading slash), e.g. pages/article/detail?id=... */
+const returnTo = ref('')
+
+const TAB_PAGES = new Set([
+  'pages/index/index',
+  'pages/journals/index',
+  'pages/subscriptions/index',
+  'pages/profile/index',
+])
+
+function normalizePath(raw?: string | null): string {
+  if (!raw) return ''
+  let s = String(raw).trim()
+  if (!s) return ''
+  try {
+    s = decodeURIComponent(s)
+  } catch {
+    /* keep raw */
+  }
+  s = s.replace(/^\/+/, '')
+  if (s.startsWith('pages/login')) return ''
+  return s
+}
+
+function pathOnly(full: string): string {
+  return full.split('?')[0]
+}
+
+function goAfterLogin() {
+  const target = normalizePath(returnTo.value)
+  if (target) {
+    const base = pathOnly(target)
+    if (TAB_PAGES.has(base)) {
+      uni.switchTab({ url: `/${base}` })
+      return
+    }
+    uni.redirectTo({
+      url: `/${target}`,
+      fail: () => uni.switchTab({ url: '/pages/index/index' }),
+    })
+    return
+  }
+  const pages = getCurrentPages()
+  if (pages.length > 1) {
+    uni.navigateBack({
+      fail: () => uni.switchTab({ url: '/pages/index/index' }),
+    })
+    return
+  }
+  uni.switchTab({ url: '/pages/index/index' })
+}
 
 onMounted(() => {
+  const pages = getCurrentPages()
+  const cur = pages[pages.length - 1] as any
+  const q = (cur && cur.options) || {}
+  returnTo.value = normalizePath(q.from || q.redirect || '')
   if (auth.isLoggedIn) {
-    uni.switchTab({ url: '/pages/index/index' })
+    goAfterLogin()
   }
 })
 
@@ -60,7 +115,7 @@ async function handleWeChatLogin() {
     if (!res.has_email) {
       needsBind.value = true
     } else {
-      uni.switchTab({ url: '/pages/index/index' })
+      goAfterLogin()
     }
   } catch (e: any) {
     error.value = e.message || '登录失败'
@@ -79,7 +134,7 @@ async function handleBind() {
   try {
     const res = await bindAccount(wxCode.value, form.value.email, form.value.password)
     auth.save(res.token, res.user)
-    uni.switchTab({ url: '/pages/index/index' })
+    goAfterLogin()
   } catch (e: any) {
     error.value = e.message || '绑定失败'
   } finally {
@@ -88,7 +143,7 @@ async function handleBind() {
 }
 
 function skipBind() {
-  uni.switchTab({ url: '/pages/index/index' })
+  goAfterLogin()
 }
 </script>
 
