@@ -10,6 +10,7 @@ export interface Notification {
   match_reasons?: string[]
   created_at: string
   sent_at: string | null
+  article_title?: string | null
 }
 
 export function getNotifications(params?: { limit?: string; offset?: string }): Promise<{ notifications: Notification[] }> {

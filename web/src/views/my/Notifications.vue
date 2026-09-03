@@ -10,26 +10,31 @@
     <n-list-item v-for="n in notifs" :key="n.id">
       <n-thing>
         <template #header>
-          <n-space size="small" align="center">
-            <n-tag :type="n.channel === 'email' ? 'primary' : 'success'" size="small">
-              {{ n.channel === 'wechat' ? '微信' : n.channel === 'email' ? '邮件' : n.channel }}
-            </n-tag>
-            <n-tag
-              :type="n.status === 'sent' ? 'success' : n.status === 'failed' ? 'error' : 'warning'"
-              size="small"
-            >
-              {{ statusLabel(n.status) }}
-            </n-tag>
-            <n-tag
-              v-for="r in (n.match_reasons || [])"
-              :key="r"
-              size="tiny"
-              type="warning"
-              :bordered="false"
-            >
-              {{ reasonLabel(r) }}
-            </n-tag>
-          </n-space>
+          <div>
+            <div v-if="n.article_title" style="font-weight: 500; margin-bottom: 6px;">
+              {{ n.article_title }}
+            </div>
+            <n-space size="small" align="center">
+              <n-tag :type="n.channel === 'email' ? 'primary' : 'success'" size="small">
+                {{ n.channel === 'wechat' ? '微信' : n.channel === 'email' ? '邮件' : n.channel }}
+              </n-tag>
+              <n-tag
+                :type="n.status === 'sent' ? 'success' : n.status === 'failed' ? 'error' : 'warning'"
+                size="small"
+              >
+                {{ statusLabel(n.status) }}
+              </n-tag>
+              <n-tag
+                v-for="r in (n.match_reasons || [])"
+                :key="r"
+                size="tiny"
+                type="warning"
+                :bordered="false"
+              >
+                {{ reasonLabel(r) }}
+              </n-tag>
+            </n-space>
+          </div>
         </template>
         <template #description>
           <span style="color: #888; font-size: 12px;">{{ n.created_at }}</span>

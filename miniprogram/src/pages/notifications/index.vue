@@ -13,6 +13,7 @@
       </view>
       <scroll-view v-else scroll-y @scrolltolower="loadMore" class="scroll-view">
         <view v-for="n in notifications" :key="n.id" class="notif-item" @click="goArticle(n.article_id)">
+          <text v-if="n.article_title" class="title">{{ n.article_title }}</text>
           <view class="notif-header">
             <text :class="['tag', n.channel === 'wechat' ? 'tag-wechat' : 'tag-email']">
               {{ n.channel === 'wechat' ? '微信' : '邮件' }}
@@ -98,7 +99,8 @@ function goArticle(articleId: string) {
 .btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
 .scroll-view { height: 100vh; }
 .notif-item { padding: 24rpx 30rpx; background: #fff; border-bottom: 1rpx solid #f0f0f0; }
-.notif-header { display: flex; align-items: center; gap: 12rpx; }
+.title { font-size: 28rpx; color: #333; font-weight: 500; line-height: 1.4; display: block; margin-bottom: 10rpx; }
+.notif-header { display: flex; align-items: center; gap: 12rpx; flex-wrap: wrap; }
 .tag { font-size: 22rpx; padding: 4rpx 12rpx; border-radius: 8rpx; }
 .tag-wechat { background: #e8f8e0; color: #3cc51f; }
 .tag-email { background: #e8f0fe; color: #1a73e8; }

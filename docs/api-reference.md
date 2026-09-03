@@ -295,13 +295,15 @@ GET /api/v1/categories/cas
       "status": "sent",
       "match_reasons": ["journal", "keyword"],
       "created_at": "...",
-      "sent_at": "..."
+      "sent_at": "...",
+      "article_title": "Paper title"
     }
   ]
 }
 ```
 
-`match_reasons` 来自匹配器命中类型（`journal` / `author` / `keyword`），与 My Updates 的 `reasons` 一致。
+`match_reasons` 来自匹配器命中类型（`journal` / `author` / `keyword`），与 My Updates 的 `reasons` 一致。  
+`article_title` 为关联文章标题（文章已删除时可为 `null`）。
 
 ---
 

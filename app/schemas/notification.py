@@ -16,6 +16,7 @@ class NotificationOut(BaseModel):
     match_reasons: list[str] = []
     created_at: datetime
     sent_at: datetime | None = None
+    article_title: str | None = None
 
     @field_validator("id", "user_id", "article_id", mode="before")
     @classmethod

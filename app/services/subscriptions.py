@@ -9,6 +9,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.article import Article
 from app.models.journal import Journal
 from app.models.notification import Notification
 from app.models.subscription import AuthorTracking, JournalSubscription, KeywordSubscription
@@ -343,11 +344,18 @@ async def list_notifications(
         return []
 
     stmt = (
-        select(Notification)
+        select(Notification, Article.title)
+        .outerjoin(Article, Article.id == Notification.article_id)
         .where(Notification.user_id == uid)
         .order_by(Notification.created_at.desc())
         .limit(limit)
         .offset(offset)
     )
     result = await session.execute(stmt)
-    return [NotificationOut.model_validate(row) for row in result.scalars().all()]
+    out: list[NotificationOut] = []
+    for row in result.all():
+        notif, title = row[0], row[1]
+        item = NotificationOut.model_validate(notif)
+        item.article_title = title or None
+        out.append(item)
+    return out
