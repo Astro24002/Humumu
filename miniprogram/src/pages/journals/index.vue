@@ -3,7 +3,7 @@
     <view class="search-bar">
       <view class="title-row">
         <text class="page-title">期刊广场</text>
-        <text v-if="!loading" class="count-badge">{{ journals.length }} 源</text>
+        <text v-if="!loading" class="count-badge">{{ total || journals.length }} 源</text>
       </view>
       <input class="search-input" v-model="search" placeholder="搜索名称 / 描述 / slug" confirm-type="search" @confirm="reload" />
       <view class="filters">
@@ -24,9 +24,10 @@
       <button v-else size="mini" class="btn-empty" @click="goEmptyCta">{{ emptyCtaLabel }}</button>
     </view>
     <scroll-view v-else scroll-y class="scroll-view" @scrolltolower="loadMore">
-      <JournalCard v-for="j in visibleJournals" :key="j.id" :journal="j" />
-      <view v-if="hasMore" class="loading-more"><text>上拉加载更多</text></view>
-      <view v-else-if="displayedJournals.length > pageSize" class="loading-more"><text>已显示全部</text></view>
+      <JournalCard v-for="j in journals" :key="j.id" :journal="j" />
+      <view v-if="loadingMore" class="loading-more"><text>加载中...</text></view>
+      <view v-else-if="hasMore" class="loading-more"><text>上拉加载更多</text></view>
+      <view v-else-if="journals.length" class="loading-more"><text>已显示全部</text></view>
     </scroll-view>
   </view>
 </template>
@@ -46,7 +47,10 @@ const search = ref('')
 const contentType = ref('')
 const sortBy = ref<'name' | 'articles' | 'updated'>('name')
 const pageSize = 30
-const visibleCount = ref(pageSize)
+const offset = ref(0)
+const total = ref(0)
+const loadingMore = ref(false)
+const hasMore = computed(() => journals.value.length < total.value)
 
 const hasActiveFilters = computed(() => Boolean(search.value.trim() || contentType.value))
 const emptyHint = computed(() =>
@@ -56,24 +60,21 @@ const emptyCtaLabel = computed(() =>
   auth.isLoggedIn ? '去添加源' : '登录后添加源',
 )
 
-const displayedJournals = computed(() => {
-  const list = [...journals.value]
+function sortLocal(list: Journal[]) {
+  const out = [...list]
   if (sortBy.value === 'articles') {
-    list.sort((a, b) => (b.article_count || 0) - (a.article_count || 0) || a.name.localeCompare(b.name))
+    out.sort((a, b) => (b.article_count || 0) - (a.article_count || 0) || a.name.localeCompare(b.name))
   } else if (sortBy.value === 'updated') {
-    list.sort((a, b) => {
+    out.sort((a, b) => {
       const da = a.last_article_date || ''
       const db = b.last_article_date || ''
       return db.localeCompare(da) || a.name.localeCompare(b.name)
     })
   } else {
-    list.sort((a, b) => a.name.localeCompare(b.name))
+    out.sort((a, b) => a.name.localeCompare(b.name))
   }
-  return list
-})
-
-const visibleJournals = computed(() => displayedJournals.value.slice(0, visibleCount.value))
-const hasMore = computed(() => visibleCount.value < displayedJournals.value.length)
+  return out
+}
 
 function setType(t: string) {
   contentType.value = t
@@ -86,19 +87,41 @@ function clearFilters() {
   reload()
 }
 
-function loadMore() {
-  if (!hasMore.value) return
-  visibleCount.value = Math.min(visibleCount.value + pageSize, displayedJournals.value.length)
+async function loadMore() {
+  if (!hasMore.value || loadingMore.value || loading.value) return
+  // Client sorts (articles/updated) load full set in reload; only name uses server pages.
+  if (sortBy.value !== 'name') return
+  loadingMore.value = true
+  try {
+    const res = await getJournals({
+      q: search.value.trim() || undefined,
+      content_type: contentType.value || undefined,
+      limit: pageSize,
+      offset: offset.value,
+    })
+    journals.value = sortLocal([...journals.value, ...res.journals])
+    offset.value += res.journals.length
+    total.value = typeof res.total === 'number' ? res.total : journals.value.length
+  } catch (e: any) {
+    uni.showToast({ title: e.message || '加载失败', icon: 'none' })
+  } finally {
+    loadingMore.value = false
+  }
 }
 
 async function reload() {
   loading.value = true
-  visibleCount.value = pageSize
+  offset.value = 0
   try {
-    journals.value = (await getJournals({
+    const useServerPage = sortBy.value === 'name'
+    const res = await getJournals({
       q: search.value.trim() || undefined,
       content_type: contentType.value || undefined,
-    })).journals
+      ...(useServerPage ? { limit: pageSize, offset: 0 } : {}),
+    })
+    journals.value = sortLocal(res.journals)
+    offset.value = res.journals.length
+    total.value = typeof res.total === 'number' ? res.total : res.journals.length
   } catch (e: any) {
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
   } finally {
@@ -115,7 +138,7 @@ function goEmptyCta() {
 }
 
 watch(sortBy, () => {
-  visibleCount.value = pageSize
+  reload()
 })
 
 onShow(() => {
