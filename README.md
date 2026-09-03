@@ -57,7 +57,7 @@ export HUMUMU_ENABLE_SCHEDULER=1
 make run
 ```
 
-内置期刊列表见 `data/journals_seed.json`（约 120 条冷启动：arXiv 多分类 / bioRxiv·medRxiv 主题预印本，以及 PLOS、eLife、Nature、Science、Cell、PNAS、ACM、Frontiers、PeerJ 等公开 RSS）。  
+内置期刊列表见 `data/journals_seed.json`（约 130 条冷启动：arXiv 多分类 / bioRxiv·medRxiv 主题预印本，以及 PLOS、eLife、Nature、Science、Cell、PNAS、ACM、Frontiers、PeerJ 等公开 RSS）。  
 seed 会写入 `content_type`、`directory_status=public`、`normalized_source_url`。  
 Docker 部署可在环境变量中设 `HUMUMU_SEED_JOURNALS=1`，entrypoint 会在迁移后自动 seed。
 

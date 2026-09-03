@@ -1158,5 +1158,105 @@
     "content_type": "journal",
     "fetch_interval_minutes": 180,
     "homepage_url": "https://www.nature.com/commschem"
+  },
+  {
+    "name": "arXiv cs.MS",
+    "slug": "arxiv-cs-ms",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.MS",
+    "description": "Mathematical Software — arXiv cs.MS",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cs.MS/recent"
+  },
+  {
+    "name": "arXiv physics.optics",
+    "slug": "arxiv-physics-optics",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.optics",
+    "description": "Optics — arXiv physics.optics",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/physics.optics/recent"
+  },
+  {
+    "name": "arXiv quant-ph",
+    "slug": "arxiv-quant-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/quant-ph",
+    "description": "Quantum Physics — arXiv quant-ph",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/quant-ph/recent"
+  },
+  {
+    "name": "arXiv cond-mat.soft",
+    "slug": "arxiv-cond-mat-soft",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cond-mat.soft",
+    "description": "Soft Condensed Matter — arXiv cond-mat.soft",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cond-mat.soft/recent"
+  },
+  {
+    "name": "arXiv cond-mat.stat-mech",
+    "slug": "arxiv-cond-mat-stat-mech",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cond-mat.stat-mech",
+    "description": "Statistical Mechanics — arXiv cond-mat.stat-mech",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/cond-mat.stat-mech/recent"
+  },
+  {
+    "name": "bioRxiv Cancer Biology",
+    "slug": "biorxiv-cancer-biology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=cancer_biology",
+    "description": "bioRxiv cancer biology preprints",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/cancer-biology"
+  },
+  {
+    "name": "bioRxiv Cell Biology",
+    "slug": "biorxiv-cell-biology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=cell_biology",
+    "description": "bioRxiv cell biology preprints",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/cell-biology"
+  },
+  {
+    "name": "bioRxiv Developmental Biology",
+    "slug": "biorxiv-dev-bio",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=developmental_biology",
+    "description": "bioRxiv developmental biology preprints",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/developmental-biology"
+  },
+  {
+    "name": "bioRxiv Microbiology",
+    "slug": "biorxiv-microbiology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=microbiology",
+    "description": "bioRxiv microbiology preprints",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/microbiology"
+  },
+  {
+    "name": "bioRxiv Molecular Biology",
+    "slug": "biorxiv-molecular-biology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=molecular_biology",
+    "description": "bioRxiv molecular biology preprints",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://www.biorxiv.org/collection/molecular-biology"
   }
 ]
