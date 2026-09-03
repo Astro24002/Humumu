@@ -1,5 +1,5 @@
 <template>
-  <n-button quaternary @click="router.back()" style="margin-bottom: 16px;">← 返回</n-button>
+  <n-button quaternary @click="goBack" style="margin-bottom: 16px;">← 返回</n-button>
 
   <div v-if="loading"><n-spin /></div>
   <n-result v-else-if="loadError" status="404" :title="loadError" description="可能是私有源或已删除">
@@ -158,6 +158,11 @@ const message = useMessage()
 const dialog = useDialog()
 const auth = useAuthStore()
 const isLoggedIn = computed(() => auth.isLoggedIn)
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/journals')
+}
 const journal = ref<Journal | null>(null)
 const articles = ref<Article[]>([])
 const loading = ref(true)

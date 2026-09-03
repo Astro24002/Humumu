@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { updatePushFrequency } from '@/api/subscriptions'
 import {
@@ -68,6 +68,7 @@ const dialog = useDialog()
 const frequency = ref(auth.user?.push_frequency || 'daily')
 const savedFrequency = ref(frequency.value)
 const saving = ref(false)
+const leaveArmed = ref(false)
 
 const accountHasEmail = computed(() => {
   const u = auth.user
@@ -114,10 +115,30 @@ function handleLogout() {
     positiveText: '退出',
     negativeText: '取消',
     onPositiveClick: () => {
+      leaveArmed.value = true
       auth.logout()
       message.success('已退出')
       router.push('/')
     },
   })
 }
+
+onBeforeRouteLeave((_to, _from, next) => {
+  if (leaveArmed.value || !frequencyDirty.value) {
+    next()
+    return
+  }
+  dialog.warning({
+    title: '未保存的更改',
+    content: '推送频率已修改但尚未保存，确定离开？',
+    positiveText: '离开',
+    negativeText: '留下',
+    onPositiveClick: () => {
+      leaveArmed.value = true
+      next()
+    },
+    onNegativeClick: () => next(false),
+    onClose: () => next(false),
+  })
+})
 </script>
