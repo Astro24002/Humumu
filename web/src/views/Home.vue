@@ -96,6 +96,7 @@ import { getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
+import { doiUrl } from '@/utils/url'
 import {
   NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton, NAlert,
   NRadioGroup, NRadioButton, useMessage,
@@ -131,10 +132,6 @@ function clearFilters() {
   loadArticles()
 }
 
-function doiUrl(doi: string): string {
-  if (doi.startsWith('http')) return doi
-  return `https://doi.org/${doi}`
-}
 
 function onContentTypeChange() {
   page.value = 1

@@ -102,7 +102,7 @@ import { getArticle, type Article } from '@/api/articles'
 import { getArticleStatus, updateArticleStatus, recordOriginalClick, type ArticleStatus } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
 import { cleanAbstract } from '@/utils/abstract'
-import { shortUrl } from '@/utils/url'
+import { shortUrl, doiUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
 import {
   NH2, NH4, NButton, NSpin, NTag, NResult,
@@ -133,10 +133,6 @@ const status = ref<ArticleStatus>({
   original_clicked_at: null,
 })
 
-function doiUrl(doi: string): string {
-  if (doi.startsWith('http')) return doi
-  return `https://doi.org/${doi}`
-}
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
   if (!article.value) return

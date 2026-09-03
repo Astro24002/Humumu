@@ -1,45 +1,50 @@
 <template>
   <n-layout position="absolute" style="height: 100%">
-    <n-layout-header bordered style="padding: 0 24px; display: flex; align-items: center; height: 56px;">
-      <n-h3 style="margin: 0; cursor: pointer" @click="goHome">📓 Humumu</n-h3>
-      <div style="flex: 1" />
-      <n-button
-        quaternary
-        :type="isActive('/') ? 'primary' : 'default'"
-        @click="router.push('/')"
-      >广场</n-button>
-      <n-button
-        quaternary
-        :type="isActive('/journals') ? 'primary' : 'default'"
-        @click="router.push('/journals')"
-      >期刊</n-button>
-      <template v-if="auth.isLoggedIn">
+    <n-layout-header
+      bordered
+      style="padding: 0 16px; display: flex; align-items: center; gap: 4px; min-height: 56px; flex-wrap: wrap;"
+    >
+      <n-h3 style="margin: 0; cursor: pointer; white-space: nowrap;" @click="goHome">📓 Humumu</n-h3>
+      <div style="flex: 1; min-width: 8px;" />
+      <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 2px;">
         <n-button
           quaternary
-          :type="isActive('/my', true) ? 'primary' : 'default'"
-          @click="router.push('/my')"
-        >我的更新</n-button>
+          :type="isActive('/') ? 'primary' : 'default'"
+          @click="router.push('/')"
+        >广场</n-button>
         <n-button
           quaternary
-          :type="isActive('/my/subscriptions') ? 'primary' : 'default'"
-          @click="router.push('/my/subscriptions')"
-        >订阅</n-button>
-        <n-dropdown trigger="click" :options="userMenuOptions" @select="onUserMenuSelect">
-          <n-button quaternary>{{ auth.user?.name || '用户' }}</n-button>
-        </n-dropdown>
-      </template>
-      <template v-else>
-        <n-button
-          quaternary
-          :type="isActive('/login') ? 'primary' : 'default'"
-          @click="router.push('/login')"
-        >登录</n-button>
-        <n-button
-          quaternary
-          :type="isActive('/register') ? 'primary' : 'default'"
-          @click="router.push('/register')"
-        >注册</n-button>
-      </template>
+          :type="isActive('/journals') ? 'primary' : 'default'"
+          @click="router.push('/journals')"
+        >期刊</n-button>
+        <template v-if="auth.isLoggedIn">
+          <n-button
+            quaternary
+            :type="isActive('/my', true) ? 'primary' : 'default'"
+            @click="router.push('/my')"
+          >我的更新</n-button>
+          <n-button
+            quaternary
+            :type="isActive('/my/subscriptions') ? 'primary' : 'default'"
+            @click="router.push('/my/subscriptions')"
+          >订阅</n-button>
+          <n-dropdown trigger="click" :options="userMenuOptions" @select="onUserMenuSelect">
+            <n-button quaternary>{{ auth.user?.name || '用户' }}</n-button>
+          </n-dropdown>
+        </template>
+        <template v-else>
+          <n-button
+            quaternary
+            :type="isActive('/login') ? 'primary' : 'default'"
+            @click="router.push('/login')"
+          >登录</n-button>
+          <n-button
+            quaternary
+            :type="isActive('/register') ? 'primary' : 'default'"
+            @click="router.push('/register')"
+          >注册</n-button>
+        </template>
+      </div>
     </n-layout-header>
 
     <n-layout-content style="padding: 24px; max-width: 960px; margin: 0 auto;">

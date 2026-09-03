@@ -39,7 +39,7 @@
       </view>
 
       <view class="actions">
-        <button class="btn-link" v-if="article.doi" @click="openOriginal(`https://doi.org/${article.doi}`)">
+        <button class="btn-link" v-if="article.doi" @click="openOriginal(doiUrl(article.doi))">
           查看原文
         </button>
         <button class="btn-link" v-else-if="article.url" @click="openOriginal(article.url)">
@@ -65,7 +65,7 @@ import {
   type ArticleStatus,
 } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
-import { formatDate } from '@/utils/format'
+import { formatDate, doiUrl } from '@/utils/format'
 import { cleanAbstract } from '@/utils/abstract'
 
 const auth = useAuthStore()
@@ -148,11 +148,7 @@ async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
 
 function originalUrl(): string {
   if (!article.value) return ''
-  if (article.value.doi) {
-    return article.value.doi.startsWith('http')
-      ? article.value.doi
-      : `https://doi.org/${article.value.doi}`
-  }
+  if (article.value.doi) return doiUrl(article.value.doi)
   return article.value.url || ''
 }
 

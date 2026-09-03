@@ -10,3 +10,12 @@ export function shortUrl(url: string, max = 48): string {
     return url.length > max ? `${url.slice(0, max)}…` : url
   }
 }
+
+/** Normalize bare DOI to https://doi.org/...; pass through full URLs. */
+export function doiUrl(doi: string): string {
+  if (!doi) return ''
+  const s = doi.trim()
+  if (!s) return ''
+  if (/^https?:\/\//i.test(s)) return s
+  return `https://doi.org/${s.replace(/^doi:\s*/i, '')}`
+}
