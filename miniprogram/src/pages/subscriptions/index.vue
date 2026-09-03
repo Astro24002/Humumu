@@ -13,6 +13,26 @@
       </view>
 
       <view v-if="tab === 'journals'">
+        <view class="add-feed">
+          <input v-model="feedUrl" placeholder="粘贴 RSS/Atom URL" class="add-input" />
+          <input v-model="feedName" placeholder="名称（可选，预览后自动填充）" class="add-input" />
+          <view class="add-feed-row">
+            <label class="vis-opt" @click="feedVisibility = 'private'">
+              <text :class="['radio', feedVisibility === 'private' && 'on']" />
+              <text>私有</text>
+            </label>
+            <label class="vis-opt" @click="feedVisibility = 'apply_public'">
+              <text :class="['radio', feedVisibility === 'apply_public' && 'on']" />
+              <text>申请公开</text>
+            </label>
+            <button class="btn-add" size="mini" :loading="addingFeed" @click="addFeed">添加源</button>
+          </view>
+          <view v-if="previewItems.length" class="preview-box">
+            <text class="preview-title">预览 · {{ feedName || '未命名' }}</text>
+            <text v-for="(it, i) in previewItems" :key="i" class="preview-item">· {{ it.title }}</text>
+          </view>
+        </view>
+
         <view v-if="loadingJournals" class="loading"><text>加载中...</text></view>
         <view v-else-if="journals.length === 0" class="empty"><text>尚未关注任何期刊</text></view>
         <view v-else class="list">
@@ -67,6 +87,7 @@ import {
   getKeywords, addKeyword as addKeywordApi, removeKeyword as removeKeywordApi,
   type SubscribedJournal, type AuthorTracking, type KeywordSubscription,
 } from '@/api/subscriptions'
+import { addMyJournal, previewJournal, type PreviewItem } from '@/api/journals'
 
 const auth = useAuthStore()
 const tab = ref('journals')
@@ -77,6 +98,12 @@ const authors = ref<AuthorTracking[]>([])
 const keywords = ref<KeywordSubscription[]>([])
 const newAuthor = ref('')
 const newKeyword = ref('')
+
+const feedUrl = ref('')
+const feedName = ref('')
+const feedVisibility = ref<'private' | 'apply_public'>('private')
+const previewItems = ref<PreviewItem[]>([])
+const addingFeed = ref(false)
 
 const FREQ_CYCLE = ['default', 'realtime', 'daily'] as const
 
@@ -128,6 +155,38 @@ async function unsubscribe(id: string) {
     uni.showToast({ title: '已取消关注', icon: 'success' })
   } catch (e: any) {
     uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+  }
+}
+
+async function addFeed() {
+  const url = feedUrl.value.trim()
+  if (!url) {
+    uni.showToast({ title: '请填写 RSS URL', icon: 'none' })
+    return
+  }
+  addingFeed.value = true
+  try {
+    if (!feedName.value.trim() || !previewItems.value.length) {
+      const preview = await previewJournal(url)
+      if (!feedName.value.trim()) feedName.value = preview.name || ''
+      previewItems.value = preview.items || []
+    }
+    const name = feedName.value.trim() || 'My Feed'
+    const visibility = feedVisibility.value
+    await addMyJournal(name, url, visibility)
+    feedUrl.value = ''
+    feedName.value = ''
+    feedVisibility.value = 'private'
+    previewItems.value = []
+    journals.value = (await getSubscribedJournals()).journals
+    uni.showToast({
+      title: visibility === 'apply_public' ? '已添加并申请公开' : '已添加私有源',
+      icon: 'success',
+    })
+  } catch (e: any) {
+    uni.showToast({ title: e.message || '添加失败', icon: 'none' })
+  } finally {
+    addingFeed.value = false
   }
 }
 
@@ -187,8 +246,16 @@ async function removeKeyword(id: string) {
 .btn-prefs { color: #3a7bd5; font-size: 26rpx; }
 .btn-unsub { color: #e74c3c; font-size: 26rpx; }
 .add-bar { display: flex; gap: 16rpx; padding: 20rpx 30rpx; background: #fff; }
-.add-input { flex: 1; border: 1rpx solid #ddd; border-radius: 8rpx; padding: 16rpx 20rpx; font-size: 28rpx; }
+.add-input { flex: 1; border: 1rpx solid #ddd; border-radius: 8rpx; padding: 16rpx 20rpx; font-size: 28rpx; margin-bottom: 12rpx; width: 100%; box-sizing: border-box; }
 .btn-add { background: #3cc51f; color: #fff; border: none; border-radius: 8rpx; padding: 16rpx 30rpx; font-size: 28rpx; }
+.add-feed { padding: 20rpx 30rpx; background: #fff; border-bottom: 1rpx solid #f0f0f0; }
+.add-feed-row { display: flex; align-items: center; gap: 24rpx; margin-top: 8rpx; }
+.vis-opt { display: flex; align-items: center; gap: 8rpx; font-size: 26rpx; color: #666; }
+.radio { width: 24rpx; height: 24rpx; border-radius: 50%; border: 2rpx solid #ccc; display: inline-block; }
+.radio.on { border-color: #3cc51f; background: #3cc51f; }
+.preview-box { margin-top: 16rpx; padding: 16rpx; background: #f7f7f7; border-radius: 8rpx; }
+.preview-title { font-size: 24rpx; color: #666; display: block; margin-bottom: 8rpx; }
+.preview-item { font-size: 22rpx; color: #999; display: block; line-height: 1.5; }
 .tag-list { display: flex; flex-wrap: wrap; padding: 20rpx 30rpx; gap: 16rpx; }
 .tag-item { background: #e8f8e0; color: #3cc51f; padding: 12rpx 20rpx; border-radius: 8rpx; font-size: 26rpx; display: flex; align-items: center; gap: 12rpx; }
 .tag-close { color: #999; font-size: 32rpx; }

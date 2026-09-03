@@ -360,7 +360,7 @@ GET /api/v1/my/updates
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/admin/stats | 概览计数 |
+| GET | /api/v1/admin/stats | 概览计数（含 `pending_directory_reviews` 待审公开源） |
 | GET/POST | /api/v1/admin/journals | 全量列表 / 创建（含 content_type、directory_status、homepage_url） |
 | PUT/DELETE | /api/v1/admin/journals/{id} | 更新 / 删除 |
 | POST | /api/v1/admin/journals/{id}/directory_status | 设置 public/private/pending_review/rejected/hidden |
