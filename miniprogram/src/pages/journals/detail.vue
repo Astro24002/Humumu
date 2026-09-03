@@ -24,8 +24,8 @@
 
       <view class="subscribe-bar">
         <template v-if="auth.isLoggedIn">
-          <button v-if="isSubscribed" class="btn-unsub" @click="unsubscribe">取消订阅</button>
-          <button v-else class="btn-sub" @click="subscribe">订阅</button>
+          <button v-if="isSubscribed" class="btn-unsub" :disabled="subBusy" @click="unsubscribe">取消订阅</button>
+          <button v-else class="btn-sub" :disabled="subBusy" @click="subscribe">{{ subBusy ? '处理中...' : '订阅' }}</button>
         </template>
         <button v-else class="btn-sub" @click="goLogin">登录后订阅</button>
       </view>
@@ -64,6 +64,7 @@ const loadingMore = ref(false)
 const articlesLoading = ref(false)
 const loadError = ref('')
 const isSubscribed = ref(false)
+const subBusy = ref(false)
 const journalId = ref('')
 const offset = ref(0)
 const limit = 20
@@ -155,12 +156,16 @@ async function subscribe() {
     goLogin()
     return
   }
+  if (subBusy.value) return
+  subBusy.value = true
   try {
     await subscribeJournal(journal.value!.id)
     isSubscribed.value = true
     uni.showToast({ title: '订阅成功', icon: 'success' })
   } catch (e: any) {
     uni.showToast({ title: e.message || '订阅失败', icon: 'none' })
+  } finally {
+    subBusy.value = false
   }
 }
 
@@ -177,7 +182,7 @@ function openHome() {
 }
 
 function unsubscribe() {
-  if (!journal.value) return
+  if (!journal.value || subBusy.value) return
   const name = journal.value.name
   uni.showModal({
     title: '取消订阅',
@@ -185,13 +190,16 @@ function unsubscribe() {
     confirmText: '取消订阅',
     cancelText: '返回',
     success: async (res) => {
-      if (!res.confirm || !journal.value) return
+      if (!res.confirm || !journal.value || subBusy.value) return
+      subBusy.value = true
       try {
         await unsubscribeJournal(journal.value.id)
         isSubscribed.value = false
         uni.showToast({ title: '已取消订阅', icon: 'success' })
       } catch (e: any) {
         uni.showToast({ title: e.message || '操作失败', icon: 'none' })
+      } finally {
+        subBusy.value = false
       }
     },
   })
@@ -222,4 +230,5 @@ function unsubscribe() {
 .loading, .empty { text-align: center; padding: 60rpx; color: #999; }
 .more-wrap { padding: 24rpx 30rpx 40rpx; text-align: center; }
 .btn-more { background: #f5f5f5; color: #666; border: none; }
+button:disabled { opacity: 0.55; }
 </style>

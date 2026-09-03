@@ -38,7 +38,7 @@
             </div>
             <n-space size="small" align="center">
               <n-tag :type="n.channel === 'email' ? 'primary' : 'success'" size="small">
-                {{ n.channel === 'wechat' ? '微信' : n.channel === 'email' ? '邮件' : n.channel }}
+                {{ channelLabel(n.channel) }}
               </n-tag>
               <n-tag
                 :type="n.status === 'sent' ? 'success' : n.status === 'failed' ? 'error' : 'warning'"
@@ -80,7 +80,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getNotifications, type Notification } from '@/api/notifications'
 import { formatDateTime } from '@/utils/datetime'
-import { reasonLabel, notifStatusLabel } from '@/utils/labels'
+import { reasonLabel, notifStatusLabel, channelLabel } from '@/utils/labels'
 import {
   NH2, NSpin, NEmpty, NList, NListItem, NThing, NTag, NSpace, NButton,
   NRadioGroup, NRadioButton, useMessage,

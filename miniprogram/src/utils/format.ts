@@ -121,3 +121,10 @@ export function healthStatusLabel(s?: string | null): string {
   return s || ''
 }
 
+/** Notification / push channel label. */
+export function channelLabel(c?: string | null): string {
+  if (c === 'email') return '邮件'
+  if (c === 'wechat') return '微信'
+  return c || ''
+}
+

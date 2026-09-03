@@ -28,7 +28,7 @@
           <text v-if="n.article_title" class="title">{{ n.article_title }}</text>
           <view class="notif-header">
             <text :class="['tag', n.channel === 'wechat' ? 'tag-wechat' : 'tag-email']">
-              {{ n.channel === 'wechat' ? '微信' : '邮件' }}
+              {{ channelLabel(n.channel) }}
             </text>
             <text :class="['status', n.status]">{{ notifStatusLabel(n.status) }}</text>
             <text v-for="r in (n.match_reasons || [])" :key="r" class="reason">{{ reasonLabel(r) }}</text>
@@ -48,7 +48,7 @@ import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
 import { getNotifications, type Notification } from '@/api/notifications'
-import { formatDateTime, reasonLabel, notifStatusLabel } from '@/utils/format'
+import { formatDateTime, reasonLabel, notifStatusLabel, channelLabel } from '@/utils/format'
 
 const auth = useAuthStore()
 const notifications = ref<Notification[]>([])
