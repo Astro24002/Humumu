@@ -213,6 +213,7 @@ async function handleUnsubscribe() {
 async function loadArticlesPage(p: number) {
   const id = route.params.id as string
   articlesPage.value = p
+  window.scrollTo({ top: 0, behavior: 'smooth' })
   articlesLoading.value = true
   try {
     const ar = await getArticles({

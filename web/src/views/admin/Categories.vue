@@ -16,6 +16,16 @@
   </n-space>
 
   <n-data-table :columns="columns" :data="filtered" :loading="loading" :pagination="{ pageSize: 20 }" />
+  <n-empty
+    v-if="!loading && !filtered.length"
+    style="margin-top: 24px;"
+    :description="yearFilter ? '该年份暂无分类' : '暂无 CAS 分类，可先新增后挂载期刊'"
+  >
+    <template #extra>
+      <n-button v-if="yearFilter" @click="yearFilter = null">清除年份筛选</n-button>
+      <n-button v-else type="primary" @click="showCreate = true">新增分类</n-button>
+    </template>
+  </n-empty>
 
   <n-modal v-model:show="showCreate">
     <n-card style="width: 480px;" title="新增 CAS 分类" role="dialog">
@@ -84,7 +94,7 @@
 import { computed, h, onMounted, ref } from 'vue'
 import { useMessage } from 'naive-ui'
 import {
-  NButton, NCard, NDataTable, NDivider, NForm, NFormItem, NH2, NH3,
+  NButton, NCard, NDataTable, NDivider, NEmpty, NForm, NFormItem, NH2, NH3,
   NInput, NInputNumber, NModal, NSelect, NSpace, NSwitch, NTag,
 } from 'naive-ui'
 import { getCasCategories, type CasCategory } from '@/api/categories'

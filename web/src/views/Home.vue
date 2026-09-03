@@ -163,6 +163,7 @@ async function loadArticles() {
 
 function loadPage(p: number) {
   page.value = p
+  window.scrollTo({ top: 0, behavior: 'smooth' })
   loadArticles()
 }
 
