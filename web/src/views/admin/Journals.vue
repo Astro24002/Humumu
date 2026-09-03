@@ -33,6 +33,16 @@
   </n-space>
 
   <n-data-table :columns="columns" :data="filteredJournals" :loading="loading" :pagination="{ pageSize: 20 }" />
+  <n-empty
+    v-if="!loading && !filteredJournals.length"
+    style="margin-top: 24px;"
+    :description="hasClientFilters ? '当前筛选下暂无期刊' : '暂无期刊'"
+  >
+    <template #extra>
+      <n-button v-if="hasClientFilters" @click="clearClientFilters">清除筛选</n-button>
+      <n-button v-else type="primary" @click="openAdd">新增期刊</n-button>
+    </template>
+  </n-empty>
 
   <n-modal v-model:show="showModal">
     <n-card style="width: 500px;" :title="editingId ? '编辑期刊' : '新增期刊'" role="dialog">
@@ -76,7 +86,7 @@ import { useRoute } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import {
   NButton, NTag, NSpace, NPopconfirm, NDataTable, NModal, NCard, NForm, NFormItem,
-  NInput, NSelect, NSwitch, NH2, NDropdown,
+  NInput, NSelect, NSwitch, NH2, NDropdown, NEmpty,
 } from 'naive-ui'
 import { getAllJournals, createJournal, updateJournal, deleteJournal, setDirectoryStatus } from '@/api/admin'
 import type { Journal } from '@/api/journals'
@@ -104,6 +114,16 @@ const filteredJournals = computed(() => {
     return true
   })
 })
+
+const hasClientFilters = computed(() =>
+  Boolean(nameFilter.value.trim() || statusFilter.value || contentFilter.value),
+)
+
+function clearClientFilters() {
+  nameFilter.value = ''
+  statusFilter.value = ''
+  contentFilter.value = ''
+}
 
 const directoryOptions = [
   { label: '公开 public', value: 'public' },
