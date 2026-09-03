@@ -61,7 +61,7 @@
                 预印本
               </n-tag>
               <n-tag :type="a.journal_source_type === 'arxiv' ? 'info' : 'success'" size="tiny" :bordered="false">
-                {{ a.journal_source_type }}
+                {{ sourceTypeLabel(a.journal_source_type) }}
               </n-tag>
             </div>
             <span style="color: #888; font-size: 13px;">作者：{{ formatAuthors(a.authors) }}</span>
@@ -97,7 +97,7 @@ import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
 import { doiUrl } from '@/utils/url'
-import { formatAuthors } from '@/utils/labels'
+import { formatAuthors, sourceTypeLabel } from '@/utils/labels'
 import {
   NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton, NAlert,
   NRadioGroup, NRadioButton, useMessage,

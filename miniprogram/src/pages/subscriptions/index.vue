@@ -44,7 +44,7 @@
               <view class="item-main" @click="goJournal(j.id)">
                 <text class="item-name">{{ j.name }}</text>
                 <text class="item-meta">
-                  {{ j.source_type }}
+                  {{ sourceTypeLabel(j.source_type) }}
                   <text v-if="j.content_type === 'preprint'"> · 预印本</text>
                   <text v-if="j.directory_status && j.directory_status !== 'public'"> · {{ dirStatusLabel(j.directory_status) }}</text>
                   <text v-if="j.health_status === 'paused'" class="meta-paused"> · 抓取暂停</text>
@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { dirStatusLabel } from '@/utils/format'
+import { dirStatusLabel, sourceTypeLabel } from '@/utils/format'
 import { ref, onMounted } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'

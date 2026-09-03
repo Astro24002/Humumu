@@ -72,7 +72,7 @@
             <n-space size="small">
               <n-tag v-if="j.content_type === 'preprint'" type="info" size="small" :bordered="false">预印本</n-tag>
               <n-tag :type="j.source_type === 'arxiv' ? 'info' : 'success'" size="small">
-                {{ j.source_type }}
+                {{ sourceTypeLabel(j.source_type) }}
               </n-tag>
               <n-tag
                 v-if="j.health_status === 'paused'"
@@ -173,6 +173,7 @@ import {
 } from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
 import { shortUrl } from '@/utils/url'
+import { sourceTypeLabel } from '@/utils/labels'
 import { formatDate } from '@/utils/datetime'
 import {
   NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace, NSpin,

@@ -22,7 +22,7 @@
             </template>
             <template #description>
               <n-space size="small" style="margin-top: 4px;">
-                <n-tag size="tiny" :bordered="false">{{ j.source_type }}</n-tag>
+                <n-tag size="tiny" :bordered="false">{{ sourceTypeLabel(j.source_type) }}</n-tag>
                 <n-tag v-if="j.content_type === 'preprint'" size="tiny" type="info" :bordered="false">预印本</n-tag>
                 <n-tag
                   v-if="j.directory_status && j.directory_status !== 'public'"
@@ -184,7 +184,7 @@ import {
   type KeywordSubscription,
 } from '@/api/subscriptions'
 import { previewJournal, addMyJournal, type PreviewItem } from '@/api/journals'
-import { dirStatusLabel, dirStatusType, freqLabel } from '@/utils/labels'
+import { dirStatusLabel, dirStatusType, freqLabel, sourceTypeLabel } from '@/utils/labels'
 import {
   NH2, NButton, NTabs, NTabPane, NSpin, NEmpty, NList, NListItem, NThing, NInput, NTag,
   NModal, NCard, NForm, NFormItem, NAlert, NSpace, NRadio, NRadioGroup, NCheckbox,

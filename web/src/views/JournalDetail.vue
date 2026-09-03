@@ -13,7 +13,7 @@
       <n-h2 style="margin-bottom: 0;">{{ journal.name }}</n-h2>
       <n-tag v-if="journal.content_type === 'preprint'" type="info" size="small" :bordered="false">预印本</n-tag>
       <n-tag :type="journal.source_type === 'arxiv' ? 'info' : 'success'" size="small">
-        {{ journal.source_type }}
+        {{ sourceTypeLabel(journal.source_type) }}
       </n-tag>
       <n-tag
         v-if="journal.directory_status && journal.directory_status !== 'public'"
@@ -146,7 +146,7 @@ import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { shortUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
-import { formatAuthors, dirStatusLabel, dirStatusType } from '@/utils/labels'
+import { formatAuthors, dirStatusLabel, dirStatusType, sourceTypeLabel } from '@/utils/labels'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty, NResult,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,

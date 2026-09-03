@@ -105,3 +105,11 @@ export function contentTypeLabel(t?: string | null): string {
   if (t === 'journal') return '期刊'
   return t || ''
 }
+
+/** Journal/article source_type display. */
+export function sourceTypeLabel(t?: string | null): string {
+  if (!t) return ''
+  if (t === 'arxiv') return 'arXiv'
+  if (t === 'rss') return 'RSS'
+  return t
+}

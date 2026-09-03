@@ -16,7 +16,7 @@
         预印本
       </n-tag>
       <n-tag :type="article.journal_source_type === 'arxiv' ? 'info' : 'success'" size="small" :bordered="false">
-        {{ article.journal_source_type }}
+        {{ sourceTypeLabel(article.journal_source_type) }}
       </n-tag>
     </div>
 
@@ -102,7 +102,7 @@ import { useAuthStore } from '@/stores/auth'
 import { cleanAbstract } from '@/utils/abstract'
 import { shortUrl, doiUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
-import { formatAuthors } from '@/utils/labels'
+import { formatAuthors, sourceTypeLabel } from '@/utils/labels'
 import {
   NH2, NH4, NButton, NSpin, NTag, NResult,
   NDescriptions, NDescriptionsItem, useMessage,

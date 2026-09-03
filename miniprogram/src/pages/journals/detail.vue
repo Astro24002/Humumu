@@ -8,7 +8,7 @@
     <template v-else-if="journal">
       <view class="header">
         <text class="name">{{ journal.name }}</text>
-        <text class="tag">{{ journal.source_type }}</text>
+        <text class="tag">{{ sourceTypeLabel(journal.source_type) }}</text>
         <text v-if="journal.content_type === 'preprint'" class="tag preprint">预印本</text>
         <text
           v-if="journal.directory_status && journal.directory_status !== 'public'"
@@ -53,7 +53,7 @@ import { goLogin } from '@/utils/nav'
 import { getJournal, type Journal } from '@/api/journals'
 import { getArticles, type Article } from '@/api/articles'
 import { subscribeJournal, unsubscribeJournal, getSubscribedJournals } from '@/api/subscriptions'
-import { dirStatusLabel, shortUrl } from '@/utils/format'
+import { dirStatusLabel, shortUrl, sourceTypeLabel } from '@/utils/format'
 import ArticleCard from '@/components/ArticleCard.vue'
 
 const auth = useAuthStore()

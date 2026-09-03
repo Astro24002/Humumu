@@ -85,7 +85,7 @@
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted } from 'vue'
-import { dirStatusLabel, dirStatusType, contentTypeLabel } from '@/utils/labels'
+import { dirStatusLabel, dirStatusType, contentTypeLabel, sourceTypeLabel } from '@/utils/labels'
 import { useRoute } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
@@ -168,7 +168,7 @@ const columns = [
     key: 'source_type',
     render: (row: Journal) => h(NSpace, { size: 'small' }, {
       default: () => [
-        h(NTag, { size: 'small' }, { default: () => row.source_type }),
+        h(NTag, { size: 'small' }, { default: () => sourceTypeLabel(row.source_type) }),
         row.content_type === 'preprint'
           ? h(NTag, { size: 'small', type: 'info' }, { default: () => contentTypeLabel('preprint') })
           : null,
