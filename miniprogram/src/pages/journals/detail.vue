@@ -29,7 +29,7 @@
 
       <view class="section-title"><text>最新论文</text></view>
       <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
-      <view v-if="articles.length === 0" class="empty"><text>暂无论文</text></view>
+      <view v-if="articles.length === 0" class="empty"><text>{{ journal.health_status === 'paused' ? '暂无论文（抓取已暂停）' : '暂无论文' }}</text></view>
       <view v-if="hasMore" class="more-wrap">
         <button class="btn-more" size="mini" :loading="loadingMore" @click="loadMore">加载更多</button>
       </view>

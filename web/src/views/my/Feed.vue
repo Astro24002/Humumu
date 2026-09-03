@@ -28,7 +28,14 @@
         </template>
         <template #description>
           <n-space size="small" style="margin-top: 4px;">
-            <n-tag size="tiny" :bordered="false">{{ u.journal_name }}</n-tag>
+            <router-link
+              v-if="u.journal_id"
+              :to="`/journals/${u.journal_id}`"
+              style="text-decoration: none;"
+            >
+              <n-tag size="tiny" :bordered="false">{{ u.journal_name }}</n-tag>
+            </router-link>
+            <n-tag v-else size="tiny" :bordered="false">{{ u.journal_name }}</n-tag>
             <n-tag v-if="u.content_type === 'preprint'" size="tiny" type="info" :bordered="false">预印本</n-tag>
             <n-tag v-for="r in u.reasons" :key="r" size="tiny" type="warning" :bordered="false">{{ reasonLabel(r) }}</n-tag>
             <span style="color: #888; font-size: 12px;">{{ u.publish_date || '' }}</span>
