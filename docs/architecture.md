@@ -95,3 +95,11 @@ Humumu（原 Journal Monitor）是一个 Python/FastAPI 单体服务，同时提
 | 邮件 | SMTP | 标准协议 |
 | 微信 | 微信 REST API | 订阅消息推送 |
 | 前端 | Vue 3 + Vite | SPA，由 FastAPI 静态托管 |
+
+## 可见性与访问控制（Product v1）
+
+- **公开目录**（`GET /journals`、无 `journal_id` 的 `GET /articles`）：仅 `directory_status=public`。
+- **详情**（期刊/文章）与 **按 `journal_id` 的文章列表**：公开源匿名可读；非公开源需有效 Bearer，且调用者为 `created_by` **或已订阅**（同 URL 复用后的订阅者）。
+- **订阅** `POST /subscriptions/journals/:id`：公开源或本人创建的非公开源；否则 404。
+- **My Updates**：已订阅期刊新文 + 通知命中；可见性含公开、本人创建、已订阅（含私有复用）。
+- 同 URL 复用响应会脱敏：非创建者看不到原 `created_by`，非公开状态对外映射为 `private`。
