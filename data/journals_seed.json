@@ -588,5 +588,255 @@
     "content_type": "journal",
     "homepage_url": "https://dl.acm.org/journal/tods",
     "fetch_interval_minutes": 360
+  },
+  {
+    "name": "arXiv cs.PL",
+    "slug": "arxiv-cs-pl",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.PL",
+    "description": "arXiv Programming Languages",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.PL/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.OS",
+    "slug": "arxiv-cs-os",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.OS",
+    "description": "arXiv Operating Systems",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.OS/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.MM",
+    "slug": "arxiv-cs-mm",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.MM",
+    "description": "arXiv Multimedia",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.MM/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.GT",
+    "slug": "arxiv-cs-gt",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.GT",
+    "description": "arXiv Computer Science and Game Theory",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.GT/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.LO",
+    "slug": "arxiv-cs-lo",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.LO",
+    "description": "arXiv Logic in Computer Science",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.LO/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.CG",
+    "slug": "arxiv-cs-cg",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.CG",
+    "description": "arXiv Computational Geometry",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.CG/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.DS",
+    "slug": "arxiv-cs-ds",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.DS",
+    "description": "arXiv Data Structures and Algorithms",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.DS/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.IT",
+    "slug": "arxiv-cs-it",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.IT",
+    "description": "arXiv Information Theory",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.IT/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.FL",
+    "slug": "arxiv-cs-fl",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.FL",
+    "description": "arXiv Formal Languages and Automata Theory",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.FL/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.CC",
+    "slug": "arxiv-cs-cc",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.CC",
+    "description": "arXiv Computational Complexity",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.CC/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv stat.ME",
+    "slug": "arxiv-stat-me",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/stat.ME",
+    "description": "arXiv Methodology (Statistics)",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/stat.ME/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv stat.TH",
+    "slug": "arxiv-stat-th",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/stat.TH",
+    "description": "arXiv Statistics Theory",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/stat.TH/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv math.ST",
+    "slug": "arxiv-math-st",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.ST",
+    "description": "arXiv Statistics Theory (Math)",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/math.ST/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv math.PR",
+    "slug": "arxiv-math-pr",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.PR",
+    "description": "arXiv Probability",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/math.PR/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv q-bio.QM",
+    "slug": "arxiv-q-bio-qm",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.QM",
+    "description": "arXiv Quantitative Methods",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/q-bio.QM/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv physics.soc-ph",
+    "slug": "arxiv-physics-soc-ph",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/physics.soc-ph",
+    "description": "arXiv Physics and Society",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/physics.soc-ph/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cond-mat.dis-nn",
+    "slug": "arxiv-cond-mat-dis-nn",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cond-mat.dis-nn",
+    "description": "arXiv Disordered Systems and Neural Networks",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cond-mat.dis-nn/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "bioRxiv Systems Biology",
+    "slug": "biorxiv-systems-biology",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=systems_biology",
+    "description": "bioRxiv Systems Biology",
+    "content_type": "preprint",
+    "homepage_url": "https://www.biorxiv.org/collection/systems-biology",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "bioRxiv Biophysics",
+    "slug": "biorxiv-biophysics",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=biophysics",
+    "description": "bioRxiv Biophysics",
+    "content_type": "preprint",
+    "homepage_url": "https://www.biorxiv.org/collection/biophysics",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "medRxiv Health Informatics",
+    "slug": "medrxiv-health-informatics",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=health_informatics",
+    "description": "medRxiv Health Informatics",
+    "content_type": "preprint",
+    "homepage_url": "https://www.medrxiv.org/collection/health-informatics",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "PLOS Digital Health",
+    "slug": "plos-digital-health",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/digitalhealth/feed/atom",
+    "description": "PLOS Digital Health Atom",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/digitalhealth/",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Nature Machine Intelligence",
+    "slug": "nature-machine-intelligence",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/natmachintell.rss",
+    "description": "Nature Machine Intelligence RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/natmachintell",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "npj Digital Medicine",
+    "slug": "npj-digital-medicine",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/npjdigitalmed.rss",
+    "description": "npj Digital Medicine RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/npjdigitalmed",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Big Data",
+    "slug": "frontiers-big-data",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/big-data/rss",
+    "description": "Frontiers in Big Data RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/big-data",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Digital Health",
+    "slug": "frontiers-digital-health",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/digital-health/rss",
+    "description": "Frontiers in Digital Health RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/digital-health",
+    "fetch_interval_minutes": 360
   }
 ]
