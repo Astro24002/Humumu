@@ -3,18 +3,42 @@
     <n-layout-header bordered style="padding: 0 24px; display: flex; align-items: center; height: 56px;">
       <n-h3 style="margin: 0; cursor: pointer" @click="goHome">📓 Humumu</n-h3>
       <div style="flex: 1" />
-      <n-button quaternary @click="router.push('/')">广场</n-button>
-      <n-button quaternary @click="router.push('/journals')">期刊</n-button>
+      <n-button
+        quaternary
+        :type="isActive('/') ? 'primary' : 'default'"
+        @click="router.push('/')"
+      >广场</n-button>
+      <n-button
+        quaternary
+        :type="isActive('/journals') ? 'primary' : 'default'"
+        @click="router.push('/journals')"
+      >期刊</n-button>
       <template v-if="auth.isLoggedIn">
-        <n-button quaternary @click="router.push('/my')">我的更新</n-button>
-        <n-button quaternary @click="router.push('/my/subscriptions')">订阅</n-button>
+        <n-button
+          quaternary
+          :type="isActive('/my', true) ? 'primary' : 'default'"
+          @click="router.push('/my')"
+        >我的更新</n-button>
+        <n-button
+          quaternary
+          :type="isActive('/my/subscriptions') ? 'primary' : 'default'"
+          @click="router.push('/my/subscriptions')"
+        >订阅</n-button>
         <n-dropdown trigger="click" :options="userMenuOptions" @select="onUserMenuSelect">
           <n-button quaternary>{{ auth.user?.name || '用户' }}</n-button>
         </n-dropdown>
       </template>
       <template v-else>
-        <n-button quaternary @click="router.push('/login')">登录</n-button>
-        <n-button quaternary @click="router.push('/register')">注册</n-button>
+        <n-button
+          quaternary
+          :type="isActive('/login') ? 'primary' : 'default'"
+          @click="router.push('/login')"
+        >登录</n-button>
+        <n-button
+          quaternary
+          :type="isActive('/register') ? 'primary' : 'default'"
+          @click="router.push('/register')"
+        >注册</n-button>
       </template>
     </n-layout-header>
 
@@ -26,7 +50,7 @@
 
 <script setup lang="ts">
 import { computed, h } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { NLayout, NLayoutHeader, NLayoutContent, NButton, NH3, NDropdown, NIcon } from 'naive-ui'
 import {
@@ -34,10 +58,18 @@ import {
 } from '@vicons/ionicons5'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 
 function goHome() {
   router.push(auth.isLoggedIn ? '/my' : '/')
+}
+
+/** Highlight current section. exact=true matches only that path. */
+function isActive(path: string, exact = false): boolean {
+  if (exact) return route.path === path
+  if (path === '/') return route.path === '/'
+  return route.path === path || route.path.startsWith(`${path}/`)
 }
 
 const userMenuOptions = computed(() => {

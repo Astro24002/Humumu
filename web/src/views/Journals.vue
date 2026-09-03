@@ -101,7 +101,7 @@
                 :loading="busyId === j.id"
                 @click.stop="handleUnsubscribe(j)"
               >
-                已订阅
+                取消订阅
               </n-button>
               <n-button
                 v-else
@@ -114,6 +114,15 @@
                 订阅
               </n-button>
             </template>
+            <n-button
+              v-else
+              size="small"
+              type="primary"
+              ghost
+              @click.stop="router.push({ path: '/login', query: { redirect: `/journals/${j.id}` } })"
+            >
+              登录后订阅
+            </n-button>
             <n-button size="small" quaternary @click.stop="router.push(`/journals/${j.id}`)">
               浏览论文
             </n-button>

@@ -33,9 +33,10 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getStats, type AdminStats } from '@/api/admin'
-import { NH2, NGrid, NGi, NStatistic, NCard } from 'naive-ui'
+import { NH2, NGrid, NGi, NStatistic, NCard, useMessage } from 'naive-ui'
 
 const router = useRouter()
+const message = useMessage()
 const stats = ref<AdminStats>({
   journal_count: 0,
   article_count: 0,
@@ -51,6 +52,8 @@ function goPendingDirectory() {
 onMounted(async () => {
   try {
     stats.value = await getStats()
-  } catch {}
+  } catch (e: any) {
+    message.error(e?.message || '加载概览失败')
+  }
 })
 </script>

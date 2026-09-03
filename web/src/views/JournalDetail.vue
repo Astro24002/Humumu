@@ -224,6 +224,8 @@ async function loadArticlesPage(p: number) {
     })
     articles.value = ar.articles
     articlesTotal.value = ar.total ?? ar.articles.length
+  } catch (e: any) {
+    message.error(e?.message || '加载论文列表失败')
   } finally {
     articlesLoading.value = false
   }
