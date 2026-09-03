@@ -128,7 +128,7 @@ POST /api/v1/admin/users/{user_id}/admin
 
 - 公开目录 API 只返回 `directory_status=public` 的期刊
 - 用户自建源默认 `private`；`visibility=apply_public` → `pending_review`，管理员可改为 `public` / `rejected` / `hidden`
-- 私有源仅创建者可订阅/抓取可见，不泄露其他创建者身份
+- 非公开源：创建者可订阅；详情/按 `journal_id` 列表对创建者与**已订阅者**可见；同 URL 复用不泄露原创建者身份
 
 ## 环境变量
 

@@ -34,7 +34,10 @@
         </view>
 
         <view v-if="loadingJournals" class="loading"><text>加载中...</text></view>
-        <view v-else-if="journals.length === 0" class="empty"><text>尚未关注任何期刊</text></view>
+        <view v-else-if="journals.length === 0" class="empty">
+          <text>尚未关注任何期刊</text>
+          <button size="mini" class="btn-empty-cta" @click="goJournalsPlaza">浏览期刊</button>
+        </view>
         <view v-else class="list">
           <view v-for="j in journals" :key="j.id" class="list-item-block">
             <view class="list-item">
@@ -166,6 +169,10 @@ async function loadData() {
 }
 
 function goLogin() { uni.navigateTo({ url: '/pages/login/index' }) }
+
+function goJournalsPlaza() {
+  uni.switchTab({ url: '/pages/journals/index' })
+}
 
 async function cycleFreq(j: SubscribedJournal) {
   const cur = j.push_frequency || 'default'

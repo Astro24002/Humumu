@@ -133,16 +133,16 @@ make docker-build
 
 | 路径 | 页面 | 权限 |
 |------|------|------|
-| `/` | 首页文章流 | 公开 |
+| `/` | 公开广场（文章流） | 公开 |
 | `/journals` | 期刊广场 | 公开 |
-| `/journals/:id` | 期刊详情 | 公开 |
-| `/articles/:id` | 文章详情 | 公开 |
+| `/journals/:id` | 期刊详情（非公开源需创建者/订阅者） | 公开 / 登录 |
+| `/articles/:id` | 文章详情（同上） | 公开 / 登录 |
 | `/login` | 登录 | 公开 |
 | `/register` | 注册 | 公开 |
-| `/my` | 我的订阅 Feed | 登录 |
+| `/my` | 我的更新（登录默认落地） | 登录 |
 | `/my/subscriptions` | 订阅管理 | 登录 |
 | `/my/notifications` | 通知历史 | 登录 |
-| `/settings` | 个人设置 | 登录 |
+| `/settings` | 个人设置（账号 + 推送频率） | 登录 |
 | `/admin` | 管理后台概览 | 管理员 |
 | `/admin/journals` | 期刊管理 | 管理员 |
 | `/admin/requests` | 申请审核 | 管理员 |
