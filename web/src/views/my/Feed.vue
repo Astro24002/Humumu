@@ -49,6 +49,17 @@
               {{ u.status.is_later ? '取消稍后再看' : '稍后再看' }}
             </n-button>
             <router-link :to="`/articles/${u.article_id}`">详情</router-link>
+            <n-button
+              v-if="u.original_url || u.url"
+              size="tiny"
+              quaternary
+              tag="a"
+              :href="u.original_url || u.url"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              原文
+            </n-button>
           </n-space>
         </template>
       </n-thing>

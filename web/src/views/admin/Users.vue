@@ -1,11 +1,19 @@
 <template>
-  <n-h2>用户管理</n-h2>
-  <n-data-table :columns="columns" :data="users" :loading="loading" />
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+    <n-h2 style="margin: 0;">用户管理</n-h2>
+    <n-input
+      v-model:value="nameFilter"
+      clearable
+      placeholder="搜索邮箱 / 昵称"
+      style="width: 240px"
+    />
+  </div>
+  <n-data-table :columns="columns" :data="filteredUsers" :loading="loading" :pagination="{ pageSize: 20 }" />
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
-import { NTag, NDataTable, NH2, NButton, NSpace, useMessage } from 'naive-ui'
+import { ref, h, computed, onMounted } from 'vue'
+import { NTag, NDataTable, NH2, NButton, NSpace, NInput, useMessage } from 'naive-ui'
 import { getUsers, setUserAdmin, type User } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
 
@@ -14,6 +22,16 @@ const auth = useAuthStore()
 const users = ref<User[]>([])
 const loading = ref(true)
 const busyId = ref<string | null>(null)
+const nameFilter = ref('')
+
+const filteredUsers = computed(() => {
+  const q = nameFilter.value.trim().toLowerCase()
+  if (!q) return users.value
+  return users.value.filter((u) => {
+    const hay = `${u.email || ''} ${u.name || ''}`.toLowerCase()
+    return hay.includes(q)
+  })
+})
 
 const columns = [
   { title: '邮箱', key: 'email' },

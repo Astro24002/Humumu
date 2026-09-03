@@ -28,13 +28,20 @@ import { computed, h } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { NLayout, NLayoutHeader, NLayoutContent, NButton, NH3, NDropdown, NIcon } from 'naive-ui'
-import { SettingsOutline, LogOutOutline, ShieldOutline } from '@vicons/ionicons5'
+import {
+  SettingsOutline, LogOutOutline, ShieldOutline, NotificationsOutline,
+} from '@vicons/ionicons5'
 
 const router = useRouter()
 const auth = useAuthStore()
 
 const userMenuOptions = computed(() => {
   const opts = [
+    {
+      key: 'notifications',
+      label: '通知历史',
+      icon: () => h(NIcon, null, { default: () => h(NotificationsOutline) }),
+    },
     { key: 'settings', label: '设置', icon: () => h(NIcon, null, { default: () => h(SettingsOutline) }) },
   ]
   if (auth.isAdmin) {
@@ -53,6 +60,7 @@ const userMenuOptions = computed(() => {
 })
 
 function onUserMenuSelect(key: string) {
+  if (key === 'notifications') router.push('/my/notifications')
   if (key === 'settings') router.push('/settings')
   if (key === 'admin') router.push('/admin')
   if (key === 'logout') { auth.logout(); router.push('/') }
