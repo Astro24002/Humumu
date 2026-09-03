@@ -1,7 +1,10 @@
 <template>
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">期刊管理</n-h2>
-    <n-button type="primary" @click="openAdd">新增期刊</n-button>
+    <n-space>
+      <n-button :loading="loading" @click="load">刷新</n-button>
+      <n-button type="primary" @click="openAdd">新增期刊</n-button>
+    </n-space>
   </div>
 
   <n-space style="margin-bottom: 12px;" align="center">

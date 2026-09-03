@@ -24,6 +24,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { safeRedirect } from '@/utils/url'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { NCard, NForm, NFormItem, NInput, NButton } from 'naive-ui'
 
@@ -42,7 +43,7 @@ const rules: FormRules = {
 
 onMounted(() => {
   if (auth.isLoggedIn) {
-    const redirect = (route.query.redirect as string) || '/my'
+    const redirect = safeRedirect(route.query.redirect)
     router.replace(redirect)
   }
 })
@@ -57,7 +58,7 @@ async function handleLogin() {
   try {
     await auth.login(form.email, form.password)
     message.success('登录成功')
-    const redirect = (route.query.redirect as string) || '/my'
+    const redirect = safeRedirect(route.query.redirect)
     router.push(redirect)
   } catch (e: any) {
     message.error(e.message || '登录失败')

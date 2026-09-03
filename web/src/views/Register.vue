@@ -27,6 +27,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { safeRedirect } from '@/utils/url'
 import { useMessage, type FormInst, type FormRules } from 'naive-ui'
 import { NCard, NForm, NFormItem, NInput, NButton } from 'naive-ui'
 
@@ -45,7 +46,7 @@ const rules: FormRules = {
 
 onMounted(() => {
   if (auth.isLoggedIn) {
-    const redirect = (route.query.redirect as string) || '/my'
+    const redirect = safeRedirect(route.query.redirect)
     router.replace(redirect)
   }
 })
@@ -60,7 +61,7 @@ async function handleRegister() {
   try {
     await auth.register(form.email, form.password, form.name)
     message.success('注册成功')
-    const redirect = (route.query.redirect as string) || '/my'
+    const redirect = safeRedirect(route.query.redirect)
     router.push(redirect)
   } catch (e: any) {
     message.error(e.message || '注册失败')

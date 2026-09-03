@@ -49,6 +49,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { goLogin } from '@/utils/nav'
 import { getJournal, type Journal } from '@/api/journals'
 import { getArticles, type Article } from '@/api/articles'
 import { subscribeJournal, unsubscribeJournal, getSubscribedJournals } from '@/api/subscriptions'
@@ -148,30 +149,6 @@ onMounted(async () => {
   }
 })
 
-function goLogin() {
-  const pages = getCurrentPages()
-  const cur = pages[pages.length - 1] as any
-  let from = ''
-  if (cur) {
-    const route = String(cur.route || '').replace(/^\/+/, '')
-    const opts = cur.options || {}
-    const qs = Object.keys(opts)
-      .filter((k) => opts[k] != null && opts[k] !== '')
-      .map((k) => `${k}=${encodeURIComponent(String(opts[k]))}`)
-      .join('&')
-    const fullPath = cur.$page && cur.$page.fullPath
-      ? String(cur.$page.fullPath).replace(/^\/+/, '')
-      : ''
-    if (fullPath) {
-      from = fullPath.startsWith('pages/') ? fullPath : `pages/${fullPath}`
-    } else if (route) {
-      const base = route.startsWith('pages/') ? route : `pages/${route}`
-      from = qs ? `${base}?${qs}` : base
-    }
-  }
-  const q = from ? `?from=${encodeURIComponent(from)}` : ''
-  uni.navigateTo({ url: `/pages/login/index${q}` })
-}
 
 async function subscribe() {
   if (!auth.isLoggedIn) {

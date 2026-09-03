@@ -19,3 +19,20 @@ export function doiUrl(doi: string): string {
   if (/^https?:\/\//i.test(s)) return s
   return `https://doi.org/${s.replace(/^doi:\s*/i, '')}`
 }
+
+/** Only allow same-app relative paths as post-login redirects (block open redirects). */
+export function safeRedirect(raw: unknown, fallback = '/my'): string {
+  if (raw == null) return fallback
+  const s = String(raw).trim()
+  if (!s) return fallback
+  // Must be a relative path starting with single /
+  if (!s.startsWith('/') || s.startsWith('//')) return fallback
+  if (s.startsWith('/\\')) return fallback
+  // Reject protocol-like and external
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(s)) return fallback
+  // Avoid bouncing back to auth pages
+  if (s === '/login' || s === '/register' || s.startsWith('/login?') || s.startsWith('/register?')) {
+    return fallback
+  }
+  return s
+}

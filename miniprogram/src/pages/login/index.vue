@@ -35,6 +35,7 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { wechatLogin, bindAccount } from '@/api/auth'
+import { TAB_PAGES } from '@/utils/nav'
 
 const auth = useAuthStore()
 const loading = ref(false)
@@ -44,13 +45,6 @@ const wxCode = ref('')
 const form = ref({ email: '', password: '' })
 /** Optional return path (no leading slash), e.g. pages/article/detail?id=... */
 const returnTo = ref('')
-
-const TAB_PAGES = new Set([
-  'pages/index/index',
-  'pages/journals/index',
-  'pages/subscriptions/index',
-  'pages/profile/index',
-])
 
 function normalizePath(raw?: string | null): string {
   if (!raw) return ''

@@ -1,12 +1,15 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">用户管理</n-h2>
-    <n-input
-      v-model:value="nameFilter"
-      clearable
-      placeholder="搜索邮箱 / 昵称"
-      style="width: 240px"
-    />
+    <n-space align="center">
+      <n-input
+        v-model:value="nameFilter"
+        clearable
+        placeholder="搜索邮箱 / 昵称"
+        style="width: 240px"
+      />
+      <n-button :loading="loading" @click="load">刷新</n-button>
+    </n-space>
   </div>
   <n-data-table :columns="columns" :data="filteredUsers" :loading="loading" :pagination="{ pageSize: 20 }" />
   <n-empty
@@ -115,7 +118,8 @@ async function toggleAdmin(row: User, isAdmin: boolean) {
   }
 }
 
-onMounted(async () => {
+async function load() {
+  loading.value = true
   try {
     users.value = (await getUsers()).users
   } catch (e: any) {
@@ -123,5 +127,7 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-})
+}
+
+onMounted(load)
 </script>
