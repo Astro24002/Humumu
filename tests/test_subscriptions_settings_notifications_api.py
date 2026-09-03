@@ -91,7 +91,7 @@ async def test_subscribe_journal_message_shape(client, authed_user_id):
     jid = str(uuid.uuid4())
     with (
         patch(
-            "app.routers.subscriptions.sub_service.journal_exists",
+            "app.routers.subscriptions.sub_service.can_subscribe",
             new_callable=AsyncMock,
             return_value=True,
         ),
@@ -112,7 +112,7 @@ async def test_subscribe_journal_message_shape(client, authed_user_id):
 async def test_subscribe_missing_journal_404(client, authed_user_id):
     jid = str(uuid.uuid4())
     with patch(
-        "app.routers.subscriptions.sub_service.journal_exists",
+        "app.routers.subscriptions.sub_service.can_subscribe",
         new_callable=AsyncMock,
         return_value=False,
     ):

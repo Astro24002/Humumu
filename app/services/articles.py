@@ -88,12 +88,19 @@ def _article_filter_stmt(
     public_only: bool = True,
     journal_id: str | UUID | None = None,
     content_type: str | None = None,
+    viewer_user_id: str | UUID | None = None,
 ) -> Any | None:
     """Build filtered article+journal select without limit/offset.
 
     Returns None when journal_id is present but invalid (caller should treat as empty).
+
+    public_only visibility:
+    - Catalog (no journal_id): only directory_status=public.
+    - With journal_id + viewer: public OR journal.created_by == viewer
+      (so private-source owners can list articles on journal detail).
     """
-    stmt = _base_article_select(public_only=public_only)
+    # Apply public filter ourselves so we can add the owner exception.
+    stmt = _base_article_select(public_only=False)
     if journal_id is not None and str(journal_id) != "":
         uid = _parse_uuid(journal_id)
         if uid is None:
@@ -101,6 +108,15 @@ def _article_filter_stmt(
         stmt = stmt.where(Article.journal_id == uid)
     if content_type and str(content_type).strip():
         stmt = stmt.where(Journal.content_type == str(content_type).strip())
+    if public_only:
+        viewer = _parse_uuid(viewer_user_id) if viewer_user_id is not None else None
+        if viewer is not None and journal_id is not None and str(journal_id) != "":
+            stmt = stmt.where(
+                (Journal.directory_status == "public")
+                | (Journal.created_by == viewer)
+            )
+        else:
+            stmt = stmt.where(Journal.directory_status == "public")
     return stmt
 
 
@@ -112,8 +128,13 @@ async def list_articles(
     journal_id: str | UUID | None = None,
     content_type: str | None = None,
     public_only: bool = True,
+    viewer_user_id: str | UUID | None = None,
 ) -> list[ArticleOut]:
-    """Public article list: articles from public journals, optional journal_id filter."""
+    """Public article list: articles from public journals, optional journal_id filter.
+
+    When journal_id is set and viewer_user_id owns a non-public journal, that
+    journal's articles are included (owner journal-detail case).
+    """
     limit = _clamp_limit(limit)
     if offset < 0:
         offset = 0
@@ -122,6 +143,7 @@ async def list_articles(
         public_only=public_only,
         journal_id=journal_id,
         content_type=content_type,
+        viewer_user_id=viewer_user_id,
     )
     if stmt is None:
         return []
@@ -137,12 +159,14 @@ async def count_list_articles(
     journal_id: str | UUID | None = None,
     content_type: str | None = None,
     public_only: bool = True,
+    viewer_user_id: str | UUID | None = None,
 ) -> int:
     """Count articles matching the same filters as list_articles."""
     base = _article_filter_stmt(
         public_only=public_only,
         journal_id=journal_id,
         content_type=content_type,
+        viewer_user_id=viewer_user_id,
     )
     if base is None:
         return 0

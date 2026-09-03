@@ -193,7 +193,7 @@ GET /api/v1/categories/cas
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | /api/v1/subscriptions/journals | 已关注期刊列表 |
-| POST | /api/v1/subscriptions/journals/:id | 关注期刊 |
+| POST | /api/v1/subscriptions/journals/:id | 关注期刊（公开源，或本人创建的非公开源；否则 404） |
 | PATCH | /api/v1/subscriptions/journals/:id | 更新推送偏好 |
 | DELETE | /api/v1/subscriptions/journals/:id | 取消关注 |
 
@@ -243,10 +243,10 @@ GET /api/v1/categories/cas
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/articles | 公开目录文章列表（`directory_status=public`） |
+| GET | /api/v1/articles | 公开目录文章列表（`directory_status=public`）；带 `journal_id` + Bearer 时，创建者可见自己非公开源下的文章 |
 | GET | /api/v1/articles/:id | 文章详情：公开源匿名可读；非公开源仅创建者（Bearer）可读，否则 404 |
 
-列表**无需登录**。详情可选登录：带 Bearer 时，私有/待审等源的创建者可打开自己源下的文章。个性化流请用 `GET /api/v1/my/updates`。
+列表默认**无需登录**（仅公开源）。详情与按 `journal_id` 过滤的列表可选 Bearer：私有/待审等源的创建者可看自己源。个性化流请用 `GET /api/v1/my/updates`。
 
 **查询参数:**
 - `journal_id` — 按期刊过滤

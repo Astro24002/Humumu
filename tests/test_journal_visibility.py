@@ -173,6 +173,39 @@ async def test_get_article_anonymous_passes_none_viewer(client):
     assert m.await_args.kwargs.get("viewer_user_id") is None
 
 
+@pytest.mark.asyncio
+async def test_list_articles_passes_viewer_with_journal_id(client):
+    from app.deps import get_optional_user_id
+
+    uid = str(uuid.uuid4())
+    jid = str(uuid.uuid4())
+
+    async def override_opt():
+        return uid
+
+    app.dependency_overrides[get_optional_user_id] = override_opt
+    try:
+        with (
+            patch(
+                "app.routers.articles.article_service.list_articles",
+                new_callable=AsyncMock,
+                return_value=[],
+            ) as mock_list,
+            patch(
+                "app.routers.articles.article_service.count_list_articles",
+                new_callable=AsyncMock,
+                return_value=0,
+            ) as mock_count,
+        ):
+            r = await client.get(f"/api/v1/articles?journal_id={jid}")
+        assert r.status_code == 200
+        assert mock_list.await_args.kwargs.get("viewer_user_id") == uid
+        assert mock_list.await_args.kwargs.get("journal_id") == jid
+        assert mock_count.await_args.kwargs.get("viewer_user_id") == uid
+    finally:
+        app.dependency_overrides.pop(get_optional_user_id, None)
+
+
 def _result_one(row):
     result = MagicMock()
     result.one_or_none.return_value = row
@@ -318,3 +351,46 @@ async def test_service_get_journal_private_stranger_none():
     session.execute = AsyncMock(return_value=_result_one((journal, 0, None)))
     assert await journal_service.get_journal(session, jid, viewer_user_id=stranger) is None
     assert await journal_service.get_journal(session, jid, viewer_user_id=None) is None
+
+
+def test_article_filter_stmt_catalog_public_only():
+    stmt = article_service._article_filter_stmt(public_only=True, viewer_user_id=str(uuid.uuid4()))
+    sql = str(stmt.compile(compile_kwargs={"literal_binds": False}))
+    assert "directory_status" in sql.lower() or "journals" in sql.lower()
+
+
+def test_article_filter_stmt_owner_with_journal_id_allows_created_by():
+    owner = uuid.uuid4()
+    jid = uuid.uuid4()
+    stmt = article_service._article_filter_stmt(
+        public_only=True,
+        journal_id=jid,
+        viewer_user_id=owner,
+    )
+    compiled = str(stmt.compile(compile_kwargs={"literal_binds": True}))
+    assert "created_by" in compiled.lower()
+    assert "public" in compiled.lower()
+
+
+@pytest.mark.asyncio
+async def test_can_subscribe_public_ok():
+    from app.services import subscriptions as sub_service
+
+    jid = uuid.uuid4()
+    uid = uuid.uuid4()
+    session = AsyncMock()
+    session.execute = AsyncMock(return_value=_result_one(("public", None)))
+    assert await sub_service.can_subscribe(session, uid, jid) is True
+
+
+@pytest.mark.asyncio
+async def test_can_subscribe_private_owner_ok_stranger_no():
+    from app.services import subscriptions as sub_service
+
+    jid = uuid.uuid4()
+    owner = uuid.uuid4()
+    stranger = uuid.uuid4()
+    session = AsyncMock()
+    session.execute = AsyncMock(return_value=_result_one(("private", owner)))
+    assert await sub_service.can_subscribe(session, owner, jid) is True
+    assert await sub_service.can_subscribe(session, stranger, jid) is False

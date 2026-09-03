@@ -37,10 +37,10 @@ async def subscribe_journal(
     session: AsyncSession = Depends(get_session),
 ) -> MessageResponse:
     try:
-        exists = await sub_service.journal_exists(session, journal_id)
+        allowed = await sub_service.can_subscribe(session, user_id, journal_id)
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to subscribe") from exc
-    if not exists:
+    if not allowed:
         raise HTTPException(status_code=404, detail="journal not found")
 
     try:

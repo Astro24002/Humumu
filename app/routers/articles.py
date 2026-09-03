@@ -16,6 +16,7 @@ async def list_articles(
     journal_id: str | None = Query(default=None),
     content_type: str | None = Query(default=None),
     session: AsyncSession = Depends(get_session),
+    viewer_id: str | None = Depends(get_optional_user_id),
 ) -> ArticlesResponse:
     try:
         articles = await article_service.list_articles(
@@ -24,11 +25,13 @@ async def list_articles(
             offset=offset,
             journal_id=journal_id,
             content_type=content_type,
+            viewer_user_id=viewer_id,
         )
         total = await article_service.count_list_articles(
             session,
             journal_id=journal_id,
             content_type=content_type,
+            viewer_user_id=viewer_id,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch articles") from exc

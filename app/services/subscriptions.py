@@ -71,11 +71,39 @@ async def list_subscribed_journals(
 
 
 async def journal_exists(session: AsyncSession, journal_id: str | UUID) -> bool:
+    """True if a journal row exists (any directory_status). Prefer can_subscribe."""
     uid = _parse_uuid(journal_id)
     if uid is None:
         return False
     result = await session.execute(select(Journal.id).where(Journal.id == uid))
     return result.scalar_one_or_none() is not None
+
+
+async def can_subscribe(
+    session: AsyncSession,
+    user_id: str | UUID,
+    journal_id: str | UUID,
+) -> bool:
+    """Subscribe allowed for public directory journals, or journals created by user.
+
+    Non-public sources are not discoverable; strangers must not subscribe by UUID.
+    """
+    uid = _parse_uuid(user_id)
+    jid = _parse_uuid(journal_id)
+    if uid is None or jid is None:
+        return False
+    result = await session.execute(
+        select(Journal.directory_status, Journal.created_by).where(Journal.id == jid)
+    )
+    row = result.one_or_none()
+    if row is None:
+        return False
+    status, created_by = row[0], row[1]
+    status_s = (status or "public").strip().lower()
+    if status_s == "public":
+        return True
+    owner = created_by if isinstance(created_by, UUID) else _parse_uuid(created_by)
+    return owner is not None and owner == uid
 
 
 async def subscribe_journal(
