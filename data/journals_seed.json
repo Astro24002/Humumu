@@ -278,5 +278,315 @@
     "content_type": "journal",
     "homepage_url": "https://peerj.com/",
     "fetch_interval_minutes": 360
+  },
+  {
+    "name": "arXiv cs.NE",
+    "slug": "arxiv-cs-ne",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.NE",
+    "description": "arXiv Neural and Evolutionary Computing",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.NE/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.SI",
+    "slug": "arxiv-cs-si",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.SI",
+    "description": "arXiv Social and Information Networks",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.SI/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.CY",
+    "slug": "arxiv-cs-cy",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.CY",
+    "description": "arXiv Computers and Society",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.CY/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.DC",
+    "slug": "arxiv-cs-dc",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.DC",
+    "description": "arXiv Distributed, Parallel, and Cluster Computing",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.DC/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv cs.NI",
+    "slug": "arxiv-cs-ni",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/cs.NI",
+    "description": "arXiv Networking and Internet Architecture",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/cs.NI/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv eess.SP",
+    "slug": "arxiv-eess-sp",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/eess.SP",
+    "description": "arXiv Signal Processing",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/eess.SP/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv math.OC",
+    "slug": "arxiv-math-oc",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/math.OC",
+    "description": "arXiv Optimization and Control",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/math.OC/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv q-bio.GN",
+    "slug": "arxiv-q-bio-gn",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-bio.GN",
+    "description": "arXiv Genomics",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/q-bio.GN/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv stat.AP",
+    "slug": "arxiv-stat-ap",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/stat.AP",
+    "description": "arXiv Applications (Statistics)",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/stat.AP/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv econ.EM",
+    "slug": "arxiv-econ-em",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/econ.EM",
+    "description": "arXiv Econometrics",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/econ.EM/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "arXiv q-fin.ST",
+    "slug": "arxiv-q-fin-st",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-fin.ST",
+    "description": "arXiv Statistical Finance",
+    "content_type": "preprint",
+    "homepage_url": "https://arxiv.org/list/q-fin.ST/recent",
+    "fetch_interval_minutes": 60
+  },
+  {
+    "name": "bioRxiv Bioinformatics",
+    "slug": "biorxiv-bioinformatics",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=bioinformatics",
+    "description": "bioRxiv Bioinformatics subject feed",
+    "content_type": "preprint",
+    "homepage_url": "https://www.biorxiv.org/collection/bioinformatics",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "bioRxiv Neuroscience",
+    "slug": "biorxiv-neuroscience",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=neuroscience",
+    "description": "bioRxiv Neuroscience subject feed",
+    "content_type": "preprint",
+    "homepage_url": "https://www.biorxiv.org/collection/neuroscience",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "bioRxiv Genomics",
+    "slug": "biorxiv-genomics",
+    "source_type": "rss",
+    "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=genomics",
+    "description": "bioRxiv Genomics subject feed",
+    "content_type": "preprint",
+    "homepage_url": "https://www.biorxiv.org/collection/genomics",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "medRxiv Epidemiology",
+    "slug": "medrxiv-epidemiology",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=epidemiology",
+    "description": "medRxiv Epidemiology subject feed",
+    "content_type": "preprint",
+    "homepage_url": "https://www.medrxiv.org/collection/epidemiology",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "medRxiv Infectious Diseases",
+    "slug": "medrxiv-infectious-diseases",
+    "source_type": "rss",
+    "source_url": "https://connect.medrxiv.org/medrxiv_xml.php?subject=infectious_diseases",
+    "description": "medRxiv Infectious Diseases subject feed",
+    "content_type": "preprint",
+    "homepage_url": "https://www.medrxiv.org/collection/infectious-diseases",
+    "fetch_interval_minutes": 120
+  },
+  {
+    "name": "PLOS Genetics",
+    "slug": "plos-genetics",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/plosgenetics/feed/atom",
+    "description": "PLOS Genetics Atom feed",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/plosgenetics/",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "PLOS Pathogens",
+    "slug": "plos-pathogens",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/plospathogens/feed/atom",
+    "description": "PLOS Pathogens Atom feed",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/plospathogens/",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "PLOS Neglected Tropical Diseases",
+    "slug": "plos-ntds",
+    "source_type": "rss",
+    "source_url": "https://journals.plos.org/plosntds/feed/atom",
+    "description": "PLOS Neglected Tropical Diseases Atom feed",
+    "content_type": "journal",
+    "homepage_url": "https://journals.plos.org/plosntds/",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Nature Communications",
+    "slug": "nature-communications",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/ncomms.rss",
+    "description": "Nature Communications RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/ncomms",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Scientific Reports",
+    "slug": "scientific-reports",
+    "source_type": "rss",
+    "source_url": "https://www.nature.com/srep.rss",
+    "description": "Scientific Reports RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.nature.com/srep",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Science (AAAS)",
+    "slug": "science-aaas",
+    "source_type": "rss",
+    "source_url": "https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=science",
+    "description": "Science journal current issue RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.science.org/journal/science",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Science Advances",
+    "slug": "science-advances",
+    "source_type": "rss",
+    "source_url": "https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=sciadv",
+    "description": "Science Advances RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.science.org/journal/sciadv",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Cell (in press)",
+    "slug": "cell-inpress",
+    "source_type": "rss",
+    "source_url": "https://www.cell.com/cell/inpress.rss",
+    "description": "Cell in-press RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.cell.com/cell/home",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Cell Reports (in press)",
+    "slug": "cell-reports-inpress",
+    "source_type": "rss",
+    "source_url": "https://www.cell.com/cell-reports/inpress.rss",
+    "description": "Cell Reports in-press RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.cell.com/cell-reports/home",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "PNAS",
+    "slug": "pnas",
+    "source_type": "rss",
+    "source_url": "https://www.pnas.org/action/showFeed?type=ax1&feed=rss",
+    "description": "Proceedings of the National Academy of Sciences RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.pnas.org/",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Artificial Intelligence",
+    "slug": "frontiers-ai",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/artificial-intelligence/rss",
+    "description": "Frontiers in Artificial Intelligence RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/artificial-intelligence",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Neuroscience",
+    "slug": "frontiers-neuroscience",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/neuroscience/rss",
+    "description": "Frontiers in Neuroscience RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/neuroscience",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Psychology",
+    "slug": "frontiers-psychology",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/psychology/rss",
+    "description": "Frontiers in Psychology RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/psychology",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "Frontiers in Public Health",
+    "slug": "frontiers-public-health",
+    "source_type": "rss",
+    "source_url": "https://www.frontiersin.org/journals/public-health/rss",
+    "description": "Frontiers in Public Health RSS",
+    "content_type": "journal",
+    "homepage_url": "https://www.frontiersin.org/journals/public-health",
+    "fetch_interval_minutes": 360
+  },
+  {
+    "name": "ACM TODS",
+    "slug": "acm-tods",
+    "source_type": "rss",
+    "source_url": "https://dl.acm.org/action/showFeed?type=etoc&feed=rss&jc=tods",
+    "description": "ACM Transactions on Database Systems RSS",
+    "content_type": "journal",
+    "homepage_url": "https://dl.acm.org/journal/tods",
+    "fetch_interval_minutes": 360
   }
 ]
