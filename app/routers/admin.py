@@ -22,7 +22,13 @@ from app.schemas.admin import (
     MessageResponse,
     ReviewRequest,
 )
+from app.schemas.category import (
+    AttachCasCategoriesRequest,
+    CasCategoryOut,
+    CreateCasCategoryRequest,
+)
 from app.services import articles as article_service
+from app.services import categories as cat_service
 from app.services import journals as journal_service
 from app.services import users as user_service
 
@@ -191,3 +197,43 @@ async def admin_list_users(
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch users") from exc
     return AdminUsersResponse(users=[AdminUserOut.model_validate(u) for u in users])
+
+
+@router.post("/cas/categories", response_model=CasCategoryOut, status_code=201)
+async def admin_create_cas_category(
+    body: CreateCasCategoryRequest,
+    _user_id: str = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+) -> CasCategoryOut:
+    try:
+        cat = await cat_service.create_category(
+            session,
+            year=body.year,
+            major=body.major,
+            minor=body.minor,
+            zone=body.zone,
+            is_top=body.is_top,
+        )
+        await session.commit()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="failed to create category") from exc
+    return cat
+
+
+@router.post("/journals/{journal_id}/cas", response_model=MessageResponse)
+async def admin_attach_cas_categories(
+    journal_id: str,
+    body: AttachCasCategoriesRequest,
+    _user_id: str = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+) -> MessageResponse:
+    try:
+        await cat_service.attach_categories(session, journal_id, body.category_ids)
+        await session.commit()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="failed to attach categories") from exc
+    return MessageResponse(message="categories attached")

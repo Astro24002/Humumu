@@ -98,11 +98,17 @@ async def list_journals(
     public_only: bool = True,
     content_type: str | None = None,
     q: str | None = None,
+    major: str | None = None,
+    minor: str | None = None,
+    zone: int | None = None,
+    top: bool | None = None,
+    year: int | None = None,
 ) -> list[JournalOut]:
     """List journals ordered by name, with article_count and last_article_date.
 
     public_only=True (default) restricts to directory_status=public and is_active.
     Admin callers should pass public_only=False.
+    Optional CAS filters: major/minor/zone/top/year.
     """
     stats = _stats_subquery()
     stmt = (
@@ -121,6 +127,18 @@ async def list_journals(
         stmt = stmt.where(Journal.content_type == content_type)
     if q and q.strip():
         stmt = stmt.where(Journal.name.ilike(f"%{q.strip()}%"))
+
+    # CAS facet filters (no-op when none provided)
+    from app.services.categories import journal_ids_for_filters
+
+    cas_ids = await journal_ids_for_filters(
+        session, year=year, major=major, minor=minor, zone=zone, top=top
+    )
+    if cas_ids is not None:
+        if not cas_ids:
+            return []
+        stmt = stmt.where(Journal.id.in_(cas_ids))
+
     stmt = stmt.order_by(Journal.name)
     result = await session.execute(stmt)
     rows = result.all()
