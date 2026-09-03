@@ -2168,5 +2168,95 @@
     "content_type": "preprint",
     "fetch_interval_minutes": 60,
     "homepage_url": "https://arxiv.org/list/cs.DL/recent"
+  },
+  {
+    "name": "Wellcome Open Research",
+    "slug": "wellcome-open",
+    "source_type": "rss",
+    "source_url": "https://wellcomeopenresearch.org/rss/articles",
+    "description": "Wellcome Open Research",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://wellcomeopenresearch.org/"
+  },
+  {
+    "name": "F1000Research",
+    "slug": "f1000research",
+    "source_type": "rss",
+    "source_url": "https://f1000research.com/rss/articles",
+    "description": "F1000Research",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://f1000research.com/"
+  },
+  {
+    "name": "Physical Review Letters",
+    "slug": "prl",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prl.xml",
+    "description": "Physical Review Letters",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prl/"
+  },
+  {
+    "name": "Physical Review X",
+    "slug": "prx",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prx.xml",
+    "description": "Physical Review X",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prx/"
+  },
+  {
+    "name": "Physical Review B",
+    "slug": "prb",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prb.xml",
+    "description": "Physical Review B",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prb/"
+  },
+  {
+    "name": "Physical Review E",
+    "slug": "pre",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/pre.xml",
+    "description": "Physical Review E",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/pre/"
+  },
+  {
+    "name": "Physical Review Research",
+    "slug": "prresearch",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prresearch.xml",
+    "description": "Physical Review Research",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prresearch/"
+  },
+  {
+    "name": "PRX Quantum",
+    "slug": "prx-quantum",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/prxquantum.xml",
+    "description": "PRX Quantum",
+    "content_type": "journal",
+    "fetch_interval_minutes": 120,
+    "homepage_url": "https://journals.aps.org/prxquantum/"
+  },
+  {
+    "name": "Reviews of Modern Physics",
+    "slug": "rmp",
+    "source_type": "rss",
+    "source_url": "https://feeds.aps.org/rss/recent/rmp.xml",
+    "description": "Reviews of Modern Physics",
+    "content_type": "journal",
+    "fetch_interval_minutes": 180,
+    "homepage_url": "https://journals.aps.org/rmp/"
   }
 ]
