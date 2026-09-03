@@ -4,7 +4,29 @@
     <n-button type="primary" @click="openAdd">新增期刊</n-button>
   </div>
 
-  <n-data-table :columns="columns" :data="journals" :loading="loading" :pagination="false" />
+  <n-space style="margin-bottom: 12px;" align="center">
+    <n-select
+      v-model:value="statusFilter"
+      clearable
+      placeholder="目录状态"
+      style="width: 200px"
+      :options="[{ label: '全部', value: '' }, ...directoryOptions]"
+    />
+    <n-select
+      v-model:value="contentFilter"
+      clearable
+      placeholder="内容类型"
+      style="width: 140px"
+      :options="[
+        { label: '全部', value: '' },
+        { label: '期刊', value: 'journal' },
+        { label: '预印本', value: 'preprint' },
+      ]"
+    />
+    <span style="color: #888; font-size: 13px;">{{ filteredJournals.length }} / {{ journals.length }}</span>
+  </n-space>
+
+  <n-data-table :columns="columns" :data="filteredJournals" :loading="loading" :pagination="{ pageSize: 20 }" />
 
   <n-modal v-model:show="showModal">
     <n-card style="width: 500px;" :title="editingId ? '编辑期刊' : '新增期刊'" role="dialog">
@@ -43,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
+import { ref, h, computed, onMounted } from 'vue'
 import { useMessage } from 'naive-ui'
 import {
   NButton, NTag, NSpace, NPopconfirm, NDataTable, NModal, NCard, NForm, NFormItem,
@@ -58,6 +80,16 @@ const loading = ref(true)
 const showModal = ref(false)
 const editingId = ref<string | null>(null)
 const saving = ref(false)
+const statusFilter = ref<string>('')
+const contentFilter = ref<string>('')
+
+const filteredJournals = computed(() => {
+  return journals.value.filter((j) => {
+    if (statusFilter.value && (j.directory_status || 'public') !== statusFilter.value) return false
+    if (contentFilter.value && (j.content_type || 'journal') !== contentFilter.value) return false
+    return true
+  })
+})
 
 const directoryOptions = [
   { label: '公开 public', value: 'public' },
