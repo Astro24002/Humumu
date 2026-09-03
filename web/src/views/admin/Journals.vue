@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { ref, h, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { useMessage } from 'naive-ui'
+import { useMessage, useDialog } from 'naive-ui'
 import {
   NButton, NTag, NSpace, NPopconfirm, NDataTable, NModal, NCard, NForm, NFormItem,
   NInput, NSelect, NSwitch, NH2, NDropdown, NEmpty,
@@ -93,6 +93,7 @@ import type { Journal } from '@/api/journals'
 
 const route = useRoute()
 const message = useMessage()
+const dialog = useDialog()
 const journals = ref<Journal[]>([])
 const loading = ref(true)
 const showModal = ref(false)
@@ -205,7 +206,7 @@ const columns = [
         h(NButton, { size: 'small', onClick: () => edit(row) }, { default: () => '编辑' }),
         h(NDropdown, {
           options: statusMenu,
-          onSelect: (key: string) => changeStatus(row.id, key),
+          onSelect: (key: string) => confirmChangeStatus(row, key),
         }, {
           default: () => h(NButton, { size: 'small', ghost: true }, { default: () => '目录状态' }),
         }),
@@ -239,10 +240,41 @@ function edit(row: Journal) {
   showModal.value = true
 }
 
+const statusLabels: Record<string, string> = {
+  public: '公开',
+  private: '私有',
+  pending_review: '待审',
+  rejected: '拒绝',
+  hidden: '隐藏',
+}
+
+function confirmChangeStatus(row: Journal, status: string) {
+  const current = row.directory_status || 'public'
+  if (current === status) {
+    message.info(`已是「${statusLabels[status] || status}」`)
+    return
+  }
+  const label = row.name || row.slug || row.id
+  const nextLabel = statusLabels[status] || status
+  const dangerous = status === 'rejected' || status === 'hidden'
+  const content = dangerous
+    ? `确认将「${label}」设为${nextLabel}？广场将不再展示该源。`
+    : `确认将「${label}」的目录状态改为「${nextLabel}」？`
+  const opts = {
+    title: `目录状态 → ${nextLabel}`,
+    content,
+    positiveText: dangerous ? `确认${nextLabel}` : '确认',
+    negativeText: '返回',
+    onPositiveClick: () => changeStatus(row.id, status),
+  }
+  if (dangerous) dialog.warning(opts)
+  else dialog.info(opts)
+}
+
 async function changeStatus(id: string, status: string) {
   try {
     await setDirectoryStatus(id, status)
-    message.success(`目录状态 → ${status}`)
+    message.success(`目录状态 → ${statusLabels[status] || status}`)
     load()
   } catch (e: any) {
     message.error(e.message)
