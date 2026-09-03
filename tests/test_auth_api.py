@@ -213,6 +213,70 @@ async def test_login_returns_is_admin_true_for_admin(client, user_store):
 
 
 @pytest.mark.asyncio
+async def test_me_401_without_token(client):
+    r = await client.get("/api/v1/auth/me")
+    assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_me_returns_profile_with_is_admin(client):
+    from unittest.mock import AsyncMock, patch
+
+    from app.deps import get_current_user_id
+
+    admin = FakeUser(
+        email="admin@example.com",
+        password_hash=hash_password("secret1"),
+        name="Admin",
+    )
+    admin.is_admin = True
+    uid = str(admin.id)
+
+    async def override_uid():
+        return uid
+
+    app.dependency_overrides[get_current_user_id] = override_uid
+    try:
+        with patch(
+            "app.routers.auth.user_service.get_by_id",
+            new_callable=AsyncMock,
+            return_value=admin,
+        ):
+            r = await client.get("/api/v1/auth/me")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["user"]["email"] == "admin@example.com"
+        assert body["user"]["is_admin"] is True
+        assert body["has_email"] is True
+        assert "token" not in body
+        assert "password_hash" not in body["user"]
+    finally:
+        app.dependency_overrides.pop(get_current_user_id, None)
+
+
+@pytest.mark.asyncio
+async def test_me_401_when_user_missing(client):
+    from unittest.mock import AsyncMock, patch
+
+    from app.deps import get_current_user_id
+
+    async def override_uid():
+        return str(uuid.uuid4())
+
+    app.dependency_overrides[get_current_user_id] = override_uid
+    try:
+        with patch(
+            "app.routers.auth.user_service.get_by_id",
+            new_callable=AsyncMock,
+            return_value=None,
+        ):
+            r = await client.get("/api/v1/auth/me")
+        assert r.status_code == 401
+    finally:
+        app.dependency_overrides.pop(get_current_user_id, None)
+
+
+@pytest.mark.asyncio
 async def test_login_invalid_password_401(client, user_store):
     user_store["login@example.com"] = FakeUser(
         email="login@example.com",

@@ -1,26 +1,37 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { login as apiLogin, register as apiRegister, type AuthResponse } from '@/api/auth'
+import {
+  getMe,
+  login as apiLogin,
+  register as apiRegister,
+  type AuthResponse,
+  type AuthUser,
+} from '@/api/auth'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token') || '')
-  const user = ref<AuthResponse['user'] | null>(null)
+  const user = ref<AuthUser | null>(null)
+  const bootstrapped = ref(false)
 
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => !!user.value?.is_admin)
 
-  function setAuth(res: AuthResponse) {
-    token.value = res.token
-    user.value = res.user
-    localStorage.setItem('token', res.token)
-    localStorage.setItem('user', JSON.stringify(res.user))
+  function setUser(u: AuthUser) {
+    user.value = u
+    localStorage.setItem('user', JSON.stringify(u))
   }
 
-  // Restore user profile (incl. is_admin) across reloads when token exists.
+  function setAuth(res: AuthResponse) {
+    token.value = res.token
+    setUser(res.user)
+    localStorage.setItem('token', res.token)
+  }
+
+  // Restore cached profile immediately so first paint has name/is_admin.
   try {
     const raw = localStorage.getItem('user')
     if (token.value && raw) {
-      user.value = JSON.parse(raw) as AuthResponse['user']
+      user.value = JSON.parse(raw) as AuthUser
     }
   } catch {
     /* ignore corrupt cache */
@@ -36,6 +47,22 @@ export const useAuthStore = defineStore('auth', () => {
     setAuth(res)
   }
 
+  async function refreshMe() {
+    if (!token.value) {
+      bootstrapped.value = true
+      return
+    }
+    try {
+      const res = await getMe()
+      setUser(res.user)
+    } catch {
+      // Stale/invalid token — clear local session.
+      logout()
+    } finally {
+      bootstrapped.value = true
+    }
+  }
+
   function logout() {
     token.value = ''
     user.value = null
@@ -43,5 +70,15 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('user')
   }
 
-  return { token, user, isLoggedIn, isAdmin, login, register, logout }
+  return {
+    token,
+    user,
+    isLoggedIn,
+    isAdmin,
+    bootstrapped,
+    login,
+    register,
+    logout,
+    refreshMe,
+  }
 })

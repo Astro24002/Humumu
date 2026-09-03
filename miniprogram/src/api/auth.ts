@@ -1,4 +1,4 @@
-import { post } from './client'
+import { get, post } from './client'
 
 export interface User {
   id: string
@@ -24,4 +24,8 @@ export function wechatLogin(code: string): Promise<AuthResponse> {
 
 export function bindAccount(code: string, email: string, password: string): Promise<AuthResponse> {
   return post('/auth/bind-account', { code, email, password })
+}
+
+export function getMe(): Promise<{ user: User; has_email: boolean }> {
+  return get('/auth/me')
 }

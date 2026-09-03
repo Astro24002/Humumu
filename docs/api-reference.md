@@ -49,6 +49,29 @@ POST /api/v1/auth/login
 
 **响应** `200 OK`: 同注册格式。
 
+### 当前用户资料
+
+```
+GET /api/v1/auth/me
+```
+
+需要 `Authorization: Bearer <token>`。用于页面刷新后同步 `is_admin`、推送偏好等。
+
+**响应** `200 OK`:
+```json
+{
+  "user": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "name": "用户名",
+    "push_frequency": "daily",
+    "is_admin": false,
+    "created_at": "2026-01-01T00:00:00Z"
+  },
+  "has_email": true
+}
+```
+
 ### 微信登录
 
 ```

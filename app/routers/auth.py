@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.db import get_session
+from app.deps import get_current_user_id
 from app.schemas.auth import (
     AuthResponse,
     AuthUser,
@@ -18,6 +20,11 @@ from app.services import users as user_service
 from app.services.wechat_api import WeChatAPIError, code_to_openid
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
+
+
+class MeResponse(BaseModel):
+    user: AuthUser
+    has_email: bool = True
 
 
 def _auth_response(user, token: str) -> AuthResponse:
@@ -76,6 +83,20 @@ async def login(
     settings = get_settings()
     token = create_access_token(str(user.id), user.email, settings.jwt_secret)
     return _auth_response(user, token)
+
+
+@router.get("/me", response_model=MeResponse)
+async def me(
+    user_id: str = Depends(get_current_user_id),
+    session: AsyncSession = Depends(get_session),
+) -> MeResponse:
+    user = await user_service.get_by_id(session, user_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="invalid or expired token")
+    return MeResponse(
+        user=AuthUser.model_validate(user),
+        has_email=has_email(user.email),
+    )
 
 
 @router.post("/wechat", response_model=AuthResponse)
