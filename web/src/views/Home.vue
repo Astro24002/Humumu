@@ -6,6 +6,11 @@
       <n-button text type="primary" @click="router.push('/my')">我的更新</n-button>
       查看订阅命中与阅读状态。
     </n-alert>
+    <n-alert v-else type="default" style="margin-bottom: 16px;" :bordered="false">
+      浏览公开论文与期刊；
+      <n-button text type="primary" @click="router.push('/login')">登录</n-button>
+      后可订阅、标记已读并接收推送。
+    </n-alert>
     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
       <n-radio-group v-model:value="filterContentType" size="small" @update:value="onContentTypeChange">
         <n-radio-button value="">全部</n-radio-button>
@@ -61,7 +66,7 @@
             </div>
             <span style="color: #888; font-size: 13px;">作者：{{ a.authors?.slice(0, 3).join(', ') }}{{ a.authors?.length > 3 ? ' 等' : '' }}</span>
             <br>
-            <span style="color: #aaa; font-size: 12px;">{{ a.publish_date || '' }}</span>
+            <span style="color: #aaa; font-size: 12px;">{{ formatDate(a.publish_date) }}</span>
           </template>
           <template #action>
             <div style="display: flex; gap: 4px;">
@@ -90,6 +95,7 @@ import { getArticles, type Article } from '@/api/articles'
 import { getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
+import { formatDate } from '@/utils/datetime'
 import {
   NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton, NAlert,
   NRadioGroup, NRadioButton, useMessage,

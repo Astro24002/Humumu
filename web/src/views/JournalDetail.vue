@@ -104,7 +104,7 @@
             </n-tag>
             <span style="color: #888; font-size: 13px;">作者：{{ a.authors?.slice(0, 3).join(', ') }}{{ a.authors?.length > 3 ? ' 等' : '' }}</span>
             <br>
-            <span style="color: #aaa; font-size: 12px;">{{ a.publish_date || '' }}</span>
+            <span style="color: #aaa; font-size: 12px;">{{ formatDate(a.publish_date) }}</span>
             <p
               v-if="a.abstract"
               style="color: #999; font-size: 12px; line-height: 1.6; margin: 6px 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"

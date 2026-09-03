@@ -63,7 +63,7 @@
         </view>
         <text class="title" :class="{ unread: a.unread }">{{ a.title }}</text>
         <text class="authors" v-if="a.authors?.length">{{ a.authors.slice(0, 3).join(', ') }}</text>
-        <text class="date" v-if="a.publish_date">{{ a.publish_date }}</text>
+        <text class="date" v-if="a.publish_date">{{ formatDate(a.publish_date) }}</text>
         <text class="snippet" v-if="a.abstract">{{ truncateAbstract(a.abstract) }}</text>
       </view>
       <view class="loading-more" v-if="hasMore"><text>加载更多...</text></view>
@@ -77,6 +77,7 @@ import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
 import { truncateAbstract } from '@/utils/abstract'
+import { formatDate } from '@/utils/format'
 
 interface FeedItem {
   id: string
