@@ -29,6 +29,7 @@ const router = createRouter({
       children: [
         { path: '', name: 'AdminDashboard', component: () => import('@/views/admin/Dashboard.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
         { path: 'journals', name: 'AdminJournals', component: () => import('@/views/admin/Journals.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
+        { path: 'categories', name: 'AdminCategories', component: () => import('@/views/admin/Categories.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
         { path: 'requests', name: 'AdminRequests', component: () => import('@/views/admin/Requests.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
         { path: 'users', name: 'AdminUsers', component: () => import('@/views/admin/Users.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
       ],

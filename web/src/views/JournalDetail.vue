@@ -21,6 +21,9 @@
       <n-descriptions-item label="最新论文">
         {{ journal.last_article_date ? formatDate(journal.last_article_date) : '暂无' }}
       </n-descriptions-item>
+      <n-descriptions-item v-if="journal.homepage_url" label="主页">
+        <a :href="journal.homepage_url" target="_blank" rel="noopener noreferrer">{{ journal.homepage_url }}</a>
+      </n-descriptions-item>
     </n-descriptions>
 
     <n-card v-if="journal.description" size="small" style="margin-bottom: 16px;">

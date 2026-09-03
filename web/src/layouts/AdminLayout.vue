@@ -23,7 +23,7 @@
 import { computed, h } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NButton, NH4, NMenu, NIcon } from 'naive-ui'
-import { BarChart, BookOutline, PeopleOutline, ClipboardOutline } from '@vicons/ionicons5'
+import { BarChart, BookOutline, PeopleOutline, ClipboardOutline, GridOutline } from '@vicons/ionicons5'
 
 const router = useRouter()
 const route = useRoute()
@@ -33,6 +33,7 @@ const activeKey = computed(() => route.path)
 const menuOptions = [
   { key: '/admin', label: '概览', icon: () => h(NIcon, null, { default: () => h(BarChart) }) },
   { key: '/admin/journals', label: '期刊管理', icon: () => h(NIcon, null, { default: () => h(BookOutline) }) },
+  { key: '/admin/categories', label: 'CAS 分类', icon: () => h(NIcon, null, { default: () => h(GridOutline) }) },
   { key: '/admin/requests', label: '申请审核', icon: () => h(NIcon, null, { default: () => h(ClipboardOutline) }) },
   { key: '/admin/users', label: '用户管理', icon: () => h(NIcon, null, { default: () => h(PeopleOutline) }) },
 ]

@@ -62,3 +62,26 @@ export function reviewRequest(id: string, status: string): Promise<void> {
 export function getUsers(): Promise<{ users: User[] }> {
   return get('/admin/users')
 }
+
+export interface CasCategory {
+  id: string
+  year: number
+  major: string
+  minor: string
+  zone: number
+  is_top: boolean
+}
+
+export function createCasCategory(data: {
+  year: number
+  major: string
+  minor: string
+  zone: number
+  is_top?: boolean
+}): Promise<CasCategory> {
+  return post('/admin/cas/categories', data)
+}
+
+export function attachCasCategories(journalId: string, categoryIds: string[]): Promise<{ message: string }> {
+  return post(`/admin/journals/${journalId}/cas`, { category_ids: categoryIds })
+}
