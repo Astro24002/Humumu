@@ -43,11 +43,14 @@ const router = createRouter({
 
 router.beforeEach((to, _from) => {
   const auth = useAuthStore()
-  if (to.meta.requiresAuth && !auth.isLoggedIn) {
+  const needsAuth = to.matched.some((r) => r.meta.requiresAuth)
+  const needsAdmin = to.matched.some((r) => r.meta.requiresAdmin)
+  if (needsAuth && !auth.isLoggedIn) {
     return { name: 'Login', query: { redirect: to.fullPath } }
   }
-  if (to.meta.requiresAdmin && !auth.isAdmin) {
-    return { name: 'Home' }
+  if (needsAdmin && !auth.isAdmin) {
+    // Logged-in non-admins land on personal home, not the public plaza.
+    return auth.isLoggedIn ? { name: 'MyFeed' } : { name: 'Home' }
   }
 })
 

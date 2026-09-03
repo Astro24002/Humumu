@@ -385,6 +385,8 @@ onMounted(async () => {
     journals.value = (await getSubscribedJournals()).journals
     authors.value = (await getAuthors()).authors
     keywords.value = (await getKeywords()).keywords
+  } catch (e: any) {
+    message.error(e?.message || '加载订阅失败')
   } finally {
     loadingJournals.value = false
   }
