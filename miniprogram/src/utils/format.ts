@@ -98,3 +98,10 @@ export function freqLabel(f?: string | null): string {
   if (f === 'daily') return '每日'
   return '跟随全局'
 }
+
+/** content_type display: journal/preprint. */
+export function contentTypeLabel(t?: string | null): string {
+  if (t === 'preprint') return '预印本'
+  if (t === 'journal') return '期刊'
+  return t || ''
+}

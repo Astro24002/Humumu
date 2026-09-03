@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { onPullDownRefresh } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getNotifications, type Notification } from '@/api/notifications'
 import { formatDateTime, reasonLabel, notifStatusLabel } from '@/utils/format'
@@ -72,6 +72,14 @@ function goSubscriptions() {
 onMounted(() => {
   if (auth.isLoggedIn) fetchNotifications(true)
   else loading.value = false
+})
+
+onShow(() => {
+  if (auth.isLoggedIn) fetchNotifications(true)
+  else {
+    notifications.value = []
+    loading.value = false
+  }
 })
 
 onPullDownRefresh(async () => {

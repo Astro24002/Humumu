@@ -82,7 +82,7 @@
 
 <script setup lang="ts">
 import { ref, h, computed, onMounted } from 'vue'
-import { dirStatusLabel, dirStatusType } from '@/utils/labels'
+import { dirStatusLabel, dirStatusType, contentTypeLabel } from '@/utils/labels'
 import { useRoute } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
@@ -167,7 +167,7 @@ const columns = [
       default: () => [
         h(NTag, { size: 'small' }, { default: () => row.source_type }),
         row.content_type === 'preprint'
-          ? h(NTag, { size: 'small', type: 'info' }, { default: () => 'preprint' })
+          ? h(NTag, { size: 'small', type: 'info' }, { default: () => contentTypeLabel('preprint') })
           : null,
       ],
     }),
