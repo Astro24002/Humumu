@@ -22,9 +22,12 @@
         <text class="home-link">{{ journal.homepage_url }}</text>
       </view>
 
-      <view class="subscribe-bar" v-if="auth.isLoggedIn">
-        <button v-if="isSubscribed" class="btn-unsub" @click="unsubscribe">取消订阅</button>
-        <button v-else class="btn-sub" @click="subscribe">订阅</button>
+      <view class="subscribe-bar">
+        <template v-if="auth.isLoggedIn">
+          <button v-if="isSubscribed" class="btn-unsub" @click="unsubscribe">取消订阅</button>
+          <button v-else class="btn-sub" @click="subscribe">订阅</button>
+        </template>
+        <button v-else class="btn-sub" @click="goLogin">登录后订阅</button>
       </view>
 
       <view class="section-title"><text>最新论文</text></view>
@@ -133,9 +136,13 @@ onMounted(async () => {
   }
 })
 
+function goLogin() {
+  uni.navigateTo({ url: '/pages/login/index' })
+}
+
 async function subscribe() {
   if (!auth.isLoggedIn) {
-    uni.navigateTo({ url: '/pages/login/index' })
+    goLogin()
     return
   }
   try {

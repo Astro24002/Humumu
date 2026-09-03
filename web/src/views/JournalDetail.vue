@@ -69,6 +69,14 @@
           订阅此期刊
         </n-button>
       </template>
+      <n-button
+        v-else
+        type="primary"
+        ghost
+        @click="router.push({ path: '/login', query: { redirect: route.fullPath } })"
+      >
+        登录后订阅
+      </n-button>
     </div>
 
     <n-divider />
