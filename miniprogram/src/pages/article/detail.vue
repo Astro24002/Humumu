@@ -72,6 +72,7 @@ import { cleanAbstract } from '@/utils/abstract'
 const auth = useAuthStore()
 const article = ref<Article | null>(null)
 const loading = ref(true)
+const statusBusy = ref(false)
 const loadError = ref('')
 const status = ref<ArticleStatus>({
   user_id: '',
@@ -129,13 +130,16 @@ onMounted(async () => {
 })
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
-  if (!article.value || !auth.isLoggedIn) return
+  if (!article.value || !auth.isLoggedIn || statusBusy.value) return
+  statusBusy.value = true
   try {
     status.value = await updateArticleStatus(article.value.id, {
       [field]: !status.value[field],
     })
   } catch (e: any) {
     uni.showToast({ title: e.message || '更新失败', icon: 'none' })
+  } finally {
+    statusBusy.value = false
   }
 }
 

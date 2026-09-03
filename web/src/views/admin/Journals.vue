@@ -105,6 +105,7 @@ const showModal = ref(false)
 const editingId = ref<string | null>(null)
 const saving = ref(false)
 const statusBusy = ref(false)
+const deleteBusy = ref(false)
 const statusFilter = ref<string>(typeof route.query.status === 'string' ? route.query.status : '')
 const contentFilter = ref<string>('')
 const nameFilter = ref('')
@@ -309,12 +310,16 @@ async function save() {
 }
 
 async function remove(id: string) {
+  if (deleteBusy.value) return
+  deleteBusy.value = true
   try {
     await deleteJournal(id)
     message.success('已删除')
-    load()
+    await load()
   } catch (e: any) {
     message.error(e.message)
+  } finally {
+    deleteBusy.value = false
   }
 }
 
