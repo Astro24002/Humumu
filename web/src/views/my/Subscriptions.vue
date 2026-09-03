@@ -184,7 +184,7 @@ import {
   type KeywordSubscription,
 } from '@/api/subscriptions'
 import { previewJournal, addMyJournal, type PreviewItem } from '@/api/journals'
-import { dirStatusLabel, dirStatusType } from '@/utils/labels'
+import { dirStatusLabel, dirStatusType, freqLabel } from '@/utils/labels'
 import {
   NH2, NButton, NTabs, NTabPane, NSpin, NEmpty, NList, NListItem, NThing, NInput, NTag,
   NModal, NCard, NForm, NFormItem, NAlert, NSpace, NRadio, NRadioGroup, NCheckbox,
@@ -223,11 +223,6 @@ const addError = ref('')
 const previewLoading = ref(false)
 const addLoading = ref(false)
 
-function freqLabel(f?: string): string {
-  if (f === 'realtime') return '实时'
-  if (f === 'daily') return '每日'
-  return '跟随全局'
-}
 
 
 

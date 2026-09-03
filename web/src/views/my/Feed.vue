@@ -72,8 +72,7 @@
               quaternary
               tag="a"
               :href="u.original_url || u.url"
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               @click="onOriginalClick(u)"
             >
               原文

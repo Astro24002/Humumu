@@ -98,8 +98,7 @@
           <p style="color: #888; font-size: 12px; word-break: break-all;">
             <a
               :href="j.homepage_url || j.source_url"
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               @click.stop
             >{{ shortUrl(j.homepage_url || j.source_url) }}</a>
           </p>

@@ -52,8 +52,7 @@
         type="primary"
         tag="a"
         :href="article.url"
-        target="_blank"
-        rel="noopener noreferrer"
+        target="_blank" rel="noopener noreferrer"
         @click="onOriginalClick"
       >
         查看原文
@@ -64,8 +63,7 @@
         :quaternary="!!article.url"
         tag="a"
         :href="doiUrl(article.doi)"
-        target="_blank"
-        rel="noopener noreferrer"
+        target="_blank" rel="noopener noreferrer"
         @click="onOriginalClick"
       >
         DOI 原文

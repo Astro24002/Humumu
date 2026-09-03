@@ -91,3 +91,10 @@ export function notifStatusLabel(s?: string | null): string {
   if (s === 'failed') return '失败'
   return s || ''
 }
+
+/** Push frequency label (subscription override or global). */
+export function freqLabel(f?: string | null): string {
+  if (f === 'realtime') return '实时'
+  if (f === 'daily') return '每日'
+  return '跟随全局'
+}
