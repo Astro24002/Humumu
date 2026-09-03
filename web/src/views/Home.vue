@@ -12,8 +12,15 @@
         <n-radio-button value="journal">期刊</n-radio-button>
         <n-radio-button value="preprint">预印本</n-radio-button>
       </n-radio-group>
-      <n-select v-if="journals.length" v-model:value="filterJournalId" :options="journalOptions"
-        placeholder="筛选期刊" clearable style="max-width: 300px;" />
+      <n-select
+        v-if="journals.length"
+        v-model:value="filterJournalId"
+        :options="journalOptions"
+        placeholder="筛选期刊"
+        clearable
+        filterable
+        style="max-width: 300px;"
+      />
       <n-tag v-if="!loading" :bordered="false">{{ total }} 篇</n-tag>
     </div>
 

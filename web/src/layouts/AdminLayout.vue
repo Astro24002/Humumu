@@ -9,7 +9,7 @@
       <n-layout-header bordered style="padding: 0 24px; display: flex; align-items: center; height: 56px;">
         <span style="font-weight: 600;">管理面板</span>
         <div style="flex: 1" />
-        <n-button quaternary size="small" @click="router.push('/')">返回前台</n-button>
+        <n-button quaternary size="small" @click="goFront">返回前台</n-button>
       </n-layout-header>
 
       <n-layout-content style="padding: 24px;">
@@ -22,11 +22,13 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NButton, NH4, NMenu, NIcon } from 'naive-ui'
 import { BarChart, BookOutline, PeopleOutline, ClipboardOutline, GridOutline } from '@vicons/ionicons5'
 
 const router = useRouter()
 const route = useRoute()
+const auth = useAuthStore()
 
 const activeKey = computed(() => route.path)
 
@@ -37,6 +39,10 @@ const menuOptions = [
   { key: '/admin/requests', label: '申请审核', icon: () => h(NIcon, null, { default: () => h(ClipboardOutline) }) },
   { key: '/admin/users', label: '用户管理', icon: () => h(NIcon, null, { default: () => h(PeopleOutline) }) },
 ]
+
+function goFront() {
+  router.push(auth.isLoggedIn ? '/my' : '/')
+}
 
 function onMenuSelect(key: string) {
   router.push(key)
