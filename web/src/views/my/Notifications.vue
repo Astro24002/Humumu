@@ -62,9 +62,10 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getNotifications, type Notification } from '@/api/notifications'
-import { NH2, NSpin, NEmpty, NList, NListItem, NThing, NTag, NSpace, NButton } from 'naive-ui'
+import { NH2, NSpin, NEmpty, NList, NListItem, NThing, NTag, NSpace, NButton, useMessage } from 'naive-ui'
 
 const router = useRouter()
+const message = useMessage()
 const notifs = ref<Notification[]>([])
 const loading = ref(true)
 const loadingMore = ref(false)
@@ -104,6 +105,8 @@ async function fetchPage(reset: boolean) {
     notifs.value.push(...res.notifications)
     offset.value += res.notifications.length
     hasMore.value = res.notifications.length >= limit
+  } catch (e: any) {
+    message.error(e?.message || '加载失败')
   } finally {
     loading.value = false
     loadingMore.value = false

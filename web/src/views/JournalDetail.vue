@@ -85,8 +85,9 @@
       <n-h3 style="margin: 0;">论文列表</n-h3>
       <n-tag v-if="articlesTotal > 0" size="small" :bordered="false">{{ articlesTotal }} 篇</n-tag>
     </div>
+    <div v-if="articlesLoading && !articles.length" style="padding: 24px 0; text-align: center;"><n-spin /></div>
     <n-empty
-      v-if="!articles.length && !articlesLoading"
+      v-else-if="!articles.length"
       :description="journal.health_status === 'paused' ? '暂无文章（抓取已暂停）' : '暂无文章'"
     />
     <n-list v-else>
