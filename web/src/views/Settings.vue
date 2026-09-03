@@ -28,7 +28,7 @@
     </p>
   </n-card>
 
-  <n-card title="默认推送频率">
+  <n-card title="默认推送频率" style="margin-bottom: 16px;">
     <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
       新订阅默认跟随此设置；可在「订阅管理」中按期刊覆盖。
     </p>
@@ -38,18 +38,25 @@
     </n-radio-group>
     <n-button style="margin-top: 16px;" @click="saveFrequency" :loading="saving">保存</n-button>
   </n-card>
+
+  <n-card title="会话">
+    <n-button type="error" ghost @click="handleLogout">退出登录</n-button>
+  </n-card>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { updatePushFrequency } from '@/api/subscriptions'
 import {
-  NH2, NCard, NRadio, NRadioGroup, NButton, NDescriptions, NDescriptionsItem, NTag, useMessage,
+  NH2, NCard, NRadio, NRadioGroup, NButton, NDescriptions, NDescriptionsItem, NTag, useMessage, useDialog,
 } from 'naive-ui'
 
+const router = useRouter()
 const auth = useAuthStore()
 const message = useMessage()
+const dialog = useDialog()
 const frequency = ref(auth.user?.push_frequency || 'daily')
 const saving = ref(false)
 
@@ -85,5 +92,19 @@ async function saveFrequency() {
   } finally {
     saving.value = false
   }
+}
+
+function handleLogout() {
+  dialog.warning({
+    title: '确认退出',
+    content: '退出后需要重新登录才能管理订阅与阅读状态。',
+    positiveText: '退出',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      auth.logout()
+      message.success('已退出')
+      router.push('/')
+    },
+  })
 }
 </script>

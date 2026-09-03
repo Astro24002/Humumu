@@ -24,6 +24,12 @@
           <n-radio-button value="journal">期刊</n-radio-button>
           <n-radio-button value="preprint">预印本</n-radio-button>
         </n-radio-group>
+        <n-select
+          v-model:value="sortBy"
+          size="small"
+          style="width: 140px;"
+          :options="sortOptions"
+        />
         <template v-if="categories.length">
           <n-select
             v-model:value="major"
@@ -60,7 +66,7 @@
 
     <div v-if="loading" style="padding: 48px 0; text-align: center;"><n-spin /></div>
     <n-grid v-else :cols="2" :y-gap="16" :x-gap="16">
-      <n-gi v-for="j in journals" :key="j.id">
+      <n-gi v-for="j in displayedJournals" :key="j.id">
         <n-card :title="j.name" hoverable @click="router.push(`/journals/${j.id}`)">
           <template #header-extra>
             <n-space size="small">
@@ -166,6 +172,7 @@ const journals = ref<Journal[]>([])
 const loading = ref(true)
 const q = ref('')
 const contentType = ref('')
+const sortBy = ref<'name' | 'articles' | 'updated'>('name')
 const major = ref<string | null>(null)
 const minor = ref<string | null>(null)
 const zone = ref<string | null>(null)
@@ -173,6 +180,28 @@ const topOnly = ref(false)
 const categories = ref<CasCategory[]>([])
 const subscribedIds = ref<Set<string>>(new Set())
 const busyId = ref<string | null>(null)
+
+const sortOptions = [
+  { label: '按名称', value: 'name' },
+  { label: '按论文数', value: 'articles' },
+  { label: '按最近更新', value: 'updated' },
+]
+
+const displayedJournals = computed(() => {
+  const list = [...journals.value]
+  if (sortBy.value === 'articles') {
+    list.sort((a, b) => (b.article_count || 0) - (a.article_count || 0) || a.name.localeCompare(b.name))
+  } else if (sortBy.value === 'updated') {
+    list.sort((a, b) => {
+      const da = a.last_article_date || ''
+      const db = b.last_article_date || ''
+      return db.localeCompare(da) || a.name.localeCompare(b.name)
+    })
+  } else {
+    list.sort((a, b) => a.name.localeCompare(b.name))
+  }
+  return list
+})
 
 const hasActiveFilters = computed(() =>
   Boolean(q.value.trim() || contentType.value || major.value || minor.value || zone.value || topOnly.value),

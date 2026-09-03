@@ -11,6 +11,11 @@
         <text :class="['chip', contentType === 'journal' && 'on']" @click="setType('journal')">期刊</text>
         <text :class="['chip', contentType === 'preprint' && 'on']" @click="setType('preprint')">预印本</text>
       </view>
+      <view class="filters">
+        <text :class="['chip', sortBy === 'name' && 'on']" @click="sortBy = 'name'">名称</text>
+        <text :class="['chip', sortBy === 'articles' && 'on']" @click="sortBy = 'articles'">论文数</text>
+        <text :class="['chip', sortBy === 'updated' && 'on']" @click="sortBy = 'updated'">最近更新</text>
+      </view>
     </view>
     <view v-if="loading" class="loading"><text>加载中...</text></view>
     <view v-else-if="journals.length === 0" class="empty">
@@ -19,7 +24,7 @@
       <button v-else size="mini" class="btn-empty" @click="goEmptyCta">{{ emptyCtaLabel }}</button>
     </view>
     <scroll-view v-else scroll-y class="scroll-view">
-      <JournalCard v-for="j in journals" :key="j.id" :journal="j" />
+      <JournalCard v-for="j in displayedJournals" :key="j.id" :journal="j" />
     </scroll-view>
   </view>
 </template>
@@ -35,6 +40,7 @@ const journals = ref<Journal[]>([])
 const loading = ref(true)
 const search = ref('')
 const contentType = ref('')
+const sortBy = ref<'name' | 'articles' | 'updated'>('name')
 
 const hasActiveFilters = computed(() => Boolean(search.value.trim() || contentType.value))
 const emptyHint = computed(() =>
@@ -43,6 +49,22 @@ const emptyHint = computed(() =>
 const emptyCtaLabel = computed(() =>
   auth.isLoggedIn ? '去添加源' : '登录后添加源',
 )
+
+const displayedJournals = computed(() => {
+  const list = [...journals.value]
+  if (sortBy.value === 'articles') {
+    list.sort((a, b) => (b.article_count || 0) - (a.article_count || 0) || a.name.localeCompare(b.name))
+  } else if (sortBy.value === 'updated') {
+    list.sort((a, b) => {
+      const da = a.last_article_date || ''
+      const db = b.last_article_date || ''
+      return db.localeCompare(da) || a.name.localeCompare(b.name)
+    })
+  } else {
+    list.sort((a, b) => a.name.localeCompare(b.name))
+  }
+  return list
+})
 
 function setType(t: string) {
   contentType.value = t
