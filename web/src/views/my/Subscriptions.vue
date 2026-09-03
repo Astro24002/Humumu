@@ -60,7 +60,11 @@
         <n-input v-model:value="newAuthor" placeholder="作者姓名" />
         <n-button @click="addAuthor" :disabled="!newAuthor.trim()">添加</n-button>
       </div>
-      <n-empty v-if="!authors.length" description="尚未追踪任何作者" />
+      <n-empty v-if="!authors.length" description="尚未追踪任何作者">
+        <template #extra>
+          <span style="color: #888; font-size: 13px;">在上方输入作者姓名后点击添加</span>
+        </template>
+      </n-empty>
       <n-tag v-for="a in authors" :key="a.id" closable @close="removeAuthor(a.id)" style="margin: 4px;">
         {{ a.author_name }}
       </n-tag>
@@ -71,7 +75,11 @@
         <n-input v-model:value="newKeyword" placeholder="关键词" />
         <n-button @click="addKeyword" :disabled="!newKeyword.trim()">添加</n-button>
       </div>
-      <n-empty v-if="!keywords.length" description="尚未订阅任何关键词" />
+      <n-empty v-if="!keywords.length" description="尚未订阅任何关键词">
+        <template #extra>
+          <span style="color: #888; font-size: 13px;">在上方输入关键词后点击添加</span>
+        </template>
+      </n-empty>
       <n-tag v-for="k in keywords" :key="k.id" closable @close="removeKeyword(k.id)" style="margin: 4px;">
         {{ k.keyword }}
       </n-tag>

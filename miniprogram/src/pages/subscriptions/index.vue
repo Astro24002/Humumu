@@ -73,7 +73,7 @@
           <input v-model="newAuthor" placeholder="作者姓名" class="add-input" />
           <button @click="addAuthor" :disabled="!newAuthor.trim()" class="btn-add">添加</button>
         </view>
-        <view v-if="authors.length === 0" class="empty"><text>尚未追踪任何作者</text></view>
+        <view v-if="authors.length === 0" class="empty"><text>尚未追踪任何作者</text><text class="hint">在上方输入姓名后添加</text></view>
         <view v-else class="tag-list">
           <view v-for="a in authors" :key="a.id" class="tag-item">
             <text>{{ a.author_name }}</text>
@@ -87,7 +87,7 @@
           <input v-model="newKeyword" placeholder="关键词" class="add-input" />
           <button @click="addKeyword" :disabled="!newKeyword.trim()" class="btn-add">添加</button>
         </view>
-        <view v-if="keywords.length === 0" class="empty"><text>尚未订阅任何关键词</text></view>
+        <view v-if="keywords.length === 0" class="empty"><text>尚未订阅任何关键词</text><text class="hint">在上方输入关键词后添加</text></view>
         <view v-else class="tag-list">
           <view v-for="k in keywords" :key="k.id" class="tag-item">
             <text>{{ k.keyword }}</text>
@@ -294,6 +294,7 @@ async function removeKeyword(id: string) {
 .login-prompt { text-align: center; padding: 200rpx 40rpx; color: #999; font-size: 28rpx; }
 .btn-login { margin-top: 30rpx; background: #3cc51f; color: #fff; border: none; border-radius: 12rpx; padding: 20rpx 60rpx; }
 .loading, .empty { text-align: center; padding: 80rpx; color: #999; font-size: 28rpx; }
+.hint { display: block; margin-top: 12rpx; font-size: 24rpx; color: #bbb; }
 .list-item-block { background: #fff; border-bottom: 1rpx solid #f0f0f0; }
 .list-item { display: flex; align-items: center; padding: 24rpx 30rpx 8rpx; gap: 16rpx; }
 .item-main { flex: 1; min-width: 0; }

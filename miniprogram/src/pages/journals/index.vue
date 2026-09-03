@@ -5,7 +5,7 @@
         <text class="page-title">期刊广场</text>
         <text v-if="!loading" class="count-badge">{{ journals.length }} 源</text>
       </view>
-      <input class="search-input" v-model="search" placeholder="搜索期刊" confirm-type="search" @confirm="reload" />
+      <input class="search-input" v-model="search" placeholder="搜索名称 / 描述 / slug" confirm-type="search" @confirm="reload" />
       <view class="filters">
         <text :class="['chip', contentType === '' && 'on']" @click="setType('')">全部</text>
         <text :class="['chip', contentType === 'journal' && 'on']" @click="setType('journal')">期刊</text>

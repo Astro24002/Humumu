@@ -9,7 +9,7 @@
       <n-input
         v-model:value="q"
         clearable
-        placeholder="搜索期刊名称 / 描述"
+        placeholder="搜索名称 / 描述 / slug"
         style="max-width: 360px;"
         @keyup.enter="reload"
         @clear="reload"
