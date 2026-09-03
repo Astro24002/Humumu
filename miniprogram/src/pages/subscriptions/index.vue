@@ -113,7 +113,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import {
   getSubscribedJournals, unsubscribeJournal, updateJournalSubscriptionPrefs,
@@ -176,6 +176,14 @@ onShow(() => {
     return
   }
   loadData()
+})
+
+onPullDownRefresh(async () => {
+  try {
+    if (auth.isLoggedIn) await loadData()
+  } finally {
+    uni.stopPullDownRefresh()
+  }
 })
 
 async function loadData() {

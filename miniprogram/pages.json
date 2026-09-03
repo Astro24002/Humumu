@@ -1,13 +1,58 @@
 {
   "pages": [
-    {"path": "pages/index/index", "style": {"navigationBarTitleText": "我的更新"}},
-    {"path": "pages/journals/index", "style": {"navigationBarTitleText": "期刊广场"}},
-    {"path": "pages/journals/detail", "style": {"navigationBarTitleText": "期刊详情"}},
-    {"path": "pages/article/detail", "style": {"navigationBarTitleText": "论文详情"}},
-    {"path": "pages/subscriptions/index", "style": {"navigationBarTitleText": "订阅管理"}},
-    {"path": "pages/notifications/index", "style": {"navigationBarTitleText": "通知历史"}},
-    {"path": "pages/profile/index", "style": {"navigationBarTitleText": "我的"}},
-    {"path": "pages/login/index", "style": {"navigationBarTitleText": "登录"}}
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "我的更新",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/journals/index",
+      "style": {
+        "navigationBarTitleText": "期刊广场",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/journals/detail",
+      "style": {
+        "navigationBarTitleText": "期刊详情"
+      }
+    },
+    {
+      "path": "pages/article/detail",
+      "style": {
+        "navigationBarTitleText": "论文详情"
+      }
+    },
+    {
+      "path": "pages/subscriptions/index",
+      "style": {
+        "navigationBarTitleText": "订阅管理",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/notifications/index",
+      "style": {
+        "navigationBarTitleText": "通知历史",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
@@ -21,10 +66,30 @@
     "borderStyle": "black",
     "backgroundColor": "#ffffff",
     "list": [
-      {"pagePath": "pages/index/index", "text": "更新", "iconPath": "static/tab/home.png", "selectedIconPath": "static/tab/home-active.png"},
-      {"pagePath": "pages/journals/index", "text": "期刊", "iconPath": "static/tab/journals.png", "selectedIconPath": "static/tab/journals-active.png"},
-      {"pagePath": "pages/subscriptions/index", "text": "订阅", "iconPath": "static/tab/sub.png", "selectedIconPath": "static/tab/sub-active.png"},
-      {"pagePath": "pages/profile/index", "text": "我的", "iconPath": "static/tab/profile.png", "selectedIconPath": "static/tab/profile-active.png"}
+      {
+        "pagePath": "pages/index/index",
+        "text": "更新",
+        "iconPath": "static/tab/home.png",
+        "selectedIconPath": "static/tab/home-active.png"
+      },
+      {
+        "pagePath": "pages/journals/index",
+        "text": "期刊",
+        "iconPath": "static/tab/journals.png",
+        "selectedIconPath": "static/tab/journals-active.png"
+      },
+      {
+        "pagePath": "pages/subscriptions/index",
+        "text": "订阅",
+        "iconPath": "static/tab/sub.png",
+        "selectedIconPath": "static/tab/sub-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "static/tab/profile.png",
+        "selectedIconPath": "static/tab/profile-active.png"
+      }
     ]
   }
 }

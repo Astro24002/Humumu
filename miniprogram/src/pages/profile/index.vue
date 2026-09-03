@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getTemplateSetting, updateTemplateSetting, getTemplateIds } from '@/api/wechat'
 
@@ -73,6 +73,14 @@ async function hydrateProfile() {
 
 onMounted(() => { hydrateProfile() })
 onShow(() => { hydrateProfile() })
+
+onPullDownRefresh(async () => {
+  try {
+    await hydrateProfile()
+  } finally {
+    uni.stopPullDownRefresh()
+  }
+})
 
 async function loadTemplateSetting() {
   try {

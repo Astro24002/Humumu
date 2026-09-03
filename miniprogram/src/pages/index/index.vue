@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
@@ -127,6 +127,17 @@ onShow(() => {
     tab.value = 'all'
   }
   fetchItems()
+})
+
+onPullDownRefresh(async () => {
+  try {
+    items.value = []
+    offset.value = 0
+    hasMore.value = true
+    await fetchItems()
+  } finally {
+    uni.stopPullDownRefresh()
+  }
 })
 
 
