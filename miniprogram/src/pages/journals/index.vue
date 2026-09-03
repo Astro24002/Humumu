@@ -1,6 +1,10 @@
 <template>
   <view class="container">
     <view class="search-bar">
+      <view class="title-row">
+        <text class="page-title">期刊广场</text>
+        <text v-if="!loading" class="count-badge">{{ journals.length }} 源</text>
+      </view>
       <input class="search-input" v-model="search" placeholder="搜索期刊" confirm-type="search" @confirm="reload" />
       <view class="filters">
         <text :class="['chip', contentType === '' && 'on']" @click="setType('')">全部</text>
@@ -58,6 +62,12 @@ onMounted(reload)
 <style scoped>
 .container { min-height: 100vh; }
 .search-bar { padding: 16rpx 30rpx; background: #f8f8f8; }
+.title-row { display: flex; align-items: center; gap: 16rpx; margin-bottom: 16rpx; }
+.page-title { font-size: 32rpx; font-weight: 600; color: #333; }
+.count-badge {
+  font-size: 22rpx; color: #666; background: #eee; padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+}
 .search-input {
   background: #fff;
   border-radius: 40rpx;

@@ -24,35 +24,37 @@
           <n-radio-button value="journal">期刊</n-radio-button>
           <n-radio-button value="preprint">预印本</n-radio-button>
         </n-radio-group>
-        <n-select
-          v-model:value="major"
-          clearable
-          placeholder="CAS 大类"
-          :options="majorOptions"
-          style="width: 160px;"
-          size="small"
-          @update:value="onMajorChange"
-        />
-        <n-select
-          v-model:value="minor"
-          clearable
-          placeholder="CAS 小类"
-          :options="minorOptions"
-          style="width: 160px;"
-          size="small"
-          :disabled="!major"
-          @update:value="reload"
-        />
-        <n-select
-          v-model:value="zone"
-          clearable
-          placeholder="分区"
-          :options="zoneOptions"
-          style="width: 100px;"
-          size="small"
-          @update:value="reload"
-        />
-        <n-checkbox v-model:checked="topOnly" @update:checked="reload">仅 Top</n-checkbox>
+        <template v-if="categories.length">
+          <n-select
+            v-model:value="major"
+            clearable
+            placeholder="CAS 大类"
+            :options="majorOptions"
+            style="width: 160px;"
+            size="small"
+            @update:value="onMajorChange"
+          />
+          <n-select
+            v-model:value="minor"
+            clearable
+            placeholder="CAS 小类"
+            :options="minorOptions"
+            style="width: 160px;"
+            size="small"
+            :disabled="!major"
+            @update:value="reload"
+          />
+          <n-select
+            v-model:value="zone"
+            clearable
+            placeholder="分区"
+            :options="zoneOptions"
+            style="width: 100px;"
+            size="small"
+            @update:value="reload"
+          />
+          <n-checkbox v-model:checked="topOnly" @update:checked="reload">仅 Top</n-checkbox>
+        </template>
       </n-space>
     </n-space>
 
