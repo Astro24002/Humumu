@@ -75,6 +75,24 @@ def _rows_to_articles(rows: list[Any]) -> list[ArticleOut]:
     ]
 
 
+def _article_filter_stmt(
+    *,
+    public_only: bool = True,
+    journal_id: str | UUID | None = None,
+) -> Any | None:
+    """Build filtered article+journal select without limit/offset.
+
+    Returns None when journal_id is present but invalid (caller should treat as empty).
+    """
+    stmt = _base_article_select(public_only=public_only)
+    if journal_id is not None and str(journal_id) != "":
+        uid = _parse_uuid(journal_id)
+        if uid is None:
+            return None
+        stmt = stmt.where(Article.journal_id == uid)
+    return stmt
+
+
 async def list_articles(
     session: AsyncSession,
     *,
@@ -88,17 +106,29 @@ async def list_articles(
     if offset < 0:
         offset = 0
 
-    stmt = _base_article_select(public_only=public_only)
-
-    if journal_id is not None and str(journal_id) != "":
-        uid = _parse_uuid(journal_id)
-        if uid is None:
-            return []
-        stmt = stmt.where(Article.journal_id == uid)
+    stmt = _article_filter_stmt(public_only=public_only, journal_id=journal_id)
+    if stmt is None:
+        return []
 
     stmt = stmt.limit(limit).offset(offset)
     result = await session.execute(stmt)
     return _rows_to_articles(list(result.all()))
+
+
+async def count_list_articles(
+    session: AsyncSession,
+    *,
+    journal_id: str | UUID | None = None,
+    public_only: bool = True,
+) -> int:
+    """Count articles matching the same filters as list_articles."""
+    base = _article_filter_stmt(public_only=public_only, journal_id=journal_id)
+    if base is None:
+        return 0
+    # Re-select count over the filtered join (drop ORDER BY for efficiency).
+    stmt = select(func.count()).select_from(base.order_by(None).subquery())
+    result = await session.execute(stmt)
+    return int(result.scalar_one() or 0)
 
 
 async def get_article(

@@ -64,6 +64,10 @@ export function getUsers(): Promise<{ users: User[] }> {
   return get('/admin/users')
 }
 
+export function setUserAdmin(userId: string, isAdmin: boolean): Promise<User> {
+  return post(`/admin/users/${userId}/admin`, { is_admin: isAdmin })
+}
+
 export interface CasCategory {
   id: string
   year: number

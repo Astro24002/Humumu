@@ -113,3 +113,19 @@ async def count_users(session: AsyncSession) -> int:
 async def list_all_users(session: AsyncSession) -> list[User]:
     result = await session.execute(select(User).order_by(User.created_at.desc()))
     return list(result.scalars().all())
+
+
+async def set_admin(
+    session: AsyncSession,
+    user_id: UUID | str,
+    is_admin: bool,
+) -> User | None:
+    """Set users.is_admin. Returns the updated user, or None if missing."""
+    user = await get_by_id(session, user_id)
+    if user is None:
+        return None
+    user.is_admin = bool(is_admin)
+    user.updated_at = datetime.now(timezone.utc)
+    await session.flush()
+    await session.refresh(user)
+    return user

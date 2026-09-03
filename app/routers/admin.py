@@ -12,6 +12,7 @@ from app.deps import require_admin
 from app.schemas.admin import (
     AdminJournalCreate,
     AdminJournalUpdate,
+    AdminSetAdminRequest,
     AdminStatsResponse,
     AdminUserOut,
     AdminUsersResponse,
@@ -204,6 +205,31 @@ async def admin_list_users(
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch users") from exc
     return AdminUsersResponse(users=[AdminUserOut.model_validate(u) for u in users])
+
+
+@router.post("/users/{target_user_id}/admin", response_model=AdminUserOut)
+async def admin_set_user_admin(
+    target_user_id: str,
+    body: AdminSetAdminRequest,
+    actor_id: str = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+) -> AdminUserOut:
+    """Grant or revoke is_admin. Admins cannot demote themselves (avoid lockout)."""
+    if str(target_user_id) == str(actor_id) and body.is_admin is False:
+        raise HTTPException(
+            status_code=400,
+            detail="cannot revoke your own admin role",
+        )
+    try:
+        user = await user_service.set_admin(session, target_user_id, body.is_admin)
+        if user is None:
+            raise HTTPException(status_code=404, detail="user not found")
+        await session.commit()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="failed to update admin role") from exc
+    return AdminUserOut.model_validate(user)
 
 
 @router.post("/cas/categories", response_model=CasCategoryOut, status_code=201)

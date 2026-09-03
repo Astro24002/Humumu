@@ -34,6 +34,7 @@ class ArticleOut(BaseModel):
 
 class ArticlesResponse(BaseModel):
     articles: list[ArticleOut]
+    total: int = 0
 
 
 class ArticleWithJournal(ArticleOut):

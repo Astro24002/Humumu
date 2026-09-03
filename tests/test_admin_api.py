@@ -327,6 +327,55 @@ async def test_admin_users_omit_password_hash(client, authed_user_id):
 
 
 @pytest.mark.asyncio
+async def test_admin_set_user_admin_success(client, authed_user_id):
+    target = _sample_user(is_admin=False)
+    promoted = _sample_user(id=target.id, email=target.email, name=target.name, is_admin=True)
+    with patch(
+        "app.routers.admin.user_service.set_admin",
+        new_callable=AsyncMock,
+        return_value=promoted,
+    ) as mock_set:
+        r = await client.post(
+            f"/api/v1/admin/users/{target.id}/admin",
+            json={"is_admin": True},
+        )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["id"] == target.id
+    assert body["is_admin"] is True
+    assert "password_hash" not in body
+    mock_set.assert_awaited_once()
+    assert mock_set.await_args.args[1] == target.id
+    assert mock_set.await_args.args[2] is True
+
+
+@pytest.mark.asyncio
+async def test_admin_cannot_demote_self(client, authed_user_id):
+    r = await client.post(
+        f"/api/v1/admin/users/{authed_user_id}/admin",
+        json={"is_admin": False},
+    )
+    assert r.status_code == 400
+    assert "error" in r.json()
+
+
+@pytest.mark.asyncio
+async def test_admin_set_user_admin_not_found(client, authed_user_id):
+    missing = str(uuid.uuid4())
+    with patch(
+        "app.routers.admin.user_service.set_admin",
+        new_callable=AsyncMock,
+        return_value=None,
+    ):
+        r = await client.post(
+            f"/api/v1/admin/users/{missing}/admin",
+            json={"is_admin": True},
+        )
+    assert r.status_code == 404
+    assert "error" in r.json()
+
+
+@pytest.mark.asyncio
 async def test_admin_set_directory_status_success(client, authed_user_id):
     jid = str(uuid.uuid4())
     with patch(

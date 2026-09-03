@@ -44,6 +44,10 @@ class AdminUsersResponse(BaseModel):
     users: list[AdminUserOut]
 
 
+class AdminSetAdminRequest(BaseModel):
+    is_admin: bool
+
+
 class ReviewRequest(BaseModel):
     status: str
 
@@ -61,6 +65,7 @@ __all__ = [
     "AdminStatsResponse",
     "AdminUserOut",
     "AdminUsersResponse",
+    "AdminSetAdminRequest",
     "AdminJournalCreate",
     "AdminJournalUpdate",
     "DirectoryStatusRequest",

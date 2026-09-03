@@ -99,13 +99,20 @@ docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 humumu
 | `014_user_article_status.sql` | 已读/星标/稍后再看 |
 | `015_notifications_retry.sql` | 通知重试字段 + `match_reasons` |
 
-**设置管理员**（SQL，迁移后）：
+**设置首个管理员**（SQL，迁移后；之后可在管理后台「用户」页互相授予）：
 
 ```sql
 UPDATE users SET is_admin = true WHERE email = 'you@example.com';
 ```
 
-管理 API 走 `require_admin`（JWT + `is_admin`），不再依赖硬编码邮箱列表。
+也可由已有管理员调用：
+
+```
+POST /api/v1/admin/users/{user_id}/admin
+{"is_admin": true}
+```
+
+不可撤销自己的管理员身份，避免锁死。管理 API 走 `require_admin`（JWT + `is_admin`），不再依赖硬编码邮箱列表。
 
 ### 调度器任务
 

@@ -90,7 +90,7 @@ POST /api/v1/auth/wechat
 
 ## 期刊
 
-所有期刊接口需要 `Authorization: Bearer <token>` 头。
+公开目录接口（列表/详情、CAS 分类）**无需登录**。订阅、申请、自建源等写操作需要 `Authorization: Bearer <token>`。
 
 ### 获取期刊列表
 
@@ -241,8 +241,10 @@ GET /api/v1/categories/cas
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/articles | 文章列表（已订阅期刊的文章） |
-| GET | /api/v1/articles/:id | 文章详情 |
+| GET | /api/v1/articles | 公开目录文章列表（`directory_status=public`） |
+| GET | /api/v1/articles/:id | 文章详情（仅公开源；私有源对非创建者 404） |
+
+**无需登录。** 个性化流请用 `GET /api/v1/my/updates`。
 
 **查询参数:**
 - `journal_id` — 按期刊过滤
@@ -263,7 +265,8 @@ GET /api/v1/categories/cas
       "publish_date": "2026-01-15",
       "url": "https://doi.org/10.1234/example"
     }
-  ]
+  ],
+  "total": 42
 }
 ```
 
@@ -366,6 +369,7 @@ GET /api/v1/my/updates
 | POST | /api/v1/admin/journals/{id}/directory_status | 设置 public/private/pending_review/rejected/hidden |
 | GET/PUT | /api/v1/admin/requests | 申请队列与审核（`approved` 会创建/复用公开期刊并订阅申请人） |
 | GET | /api/v1/admin/users | 用户列表（含 is_admin） |
+| POST | /api/v1/admin/users/{id}/admin | 授予/撤销管理员（`{"is_admin": true\|false}`；不可撤销自己） |
 | POST | /api/v1/admin/cas/categories | 创建 CAS 分类 |
 | POST | /api/v1/admin/journals/{id}/cas | 挂载 CAS 分类到期刊 |
 

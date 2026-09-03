@@ -9,7 +9,7 @@
     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
       <n-select v-if="journals.length" v-model:value="filterJournalId" :options="journalOptions"
         placeholder="筛选期刊" clearable style="max-width: 300px;" />
-      <n-tag v-if="!loading" :bordered="false">{{ articles.length }} 篇</n-tag>
+      <n-tag v-if="!loading" :bordered="false">{{ total }} 篇</n-tag>
     </div>
 
     <div v-if="loading"><n-spin /></div>
@@ -96,7 +96,8 @@ async function loadArticles() {
     if (filterJournalId.value) params.journal_id = filterJournalId.value
     const res = await getArticles(params)
     articles.value = res.articles
-    total.value = res.articles.length
+    // Prefer server total; fall back to page length only when absent.
+    total.value = typeof res.total === 'number' ? res.total : res.articles.length
   } finally {
     loading.value = false
   }

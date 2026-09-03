@@ -16,6 +16,7 @@ export interface Article {
 
 export interface ArticlesResponse {
   articles: Article[]
+  total?: number
 }
 
 export function getArticles(params?: { journal_id?: string; limit?: string; offset?: string }): Promise<ArticlesResponse> {

@@ -136,15 +136,23 @@ async def test_get_missing_journal_404(client):
 @pytest.mark.asyncio
 async def test_list_articles_shape(client):
     a = _sample_article()
-    with patch(
-        "app.routers.articles.article_service.list_articles",
-        new_callable=AsyncMock,
-        return_value=[a],
-    ) as mock_list:
+    with (
+        patch(
+            "app.routers.articles.article_service.list_articles",
+            new_callable=AsyncMock,
+            return_value=[a],
+        ) as mock_list,
+        patch(
+            "app.routers.articles.article_service.count_list_articles",
+            new_callable=AsyncMock,
+            return_value=42,
+        ) as mock_count,
+    ):
         r = await client.get("/api/v1/articles?limit=10&offset=0")
     assert r.status_code == 200
     body = r.json()
     assert "articles" in body
+    assert body["total"] == 42
     assert len(body["articles"]) == 1
     assert body["articles"][0]["title"] == "Sample Article"
     assert body["articles"][0]["journal_name"] == "Nature"
@@ -152,19 +160,27 @@ async def test_list_articles_shape(client):
     kwargs = mock_list.await_args.kwargs
     assert kwargs["limit"] == 10
     assert kwargs["offset"] == 0
+    mock_count.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_list_articles_with_journal_id(client):
     jid = str(uuid.uuid4())
-    with patch(
-        "app.routers.articles.article_service.list_articles",
-        new_callable=AsyncMock,
-        return_value=[],
-    ) as mock_list:
+    with (
+        patch(
+            "app.routers.articles.article_service.list_articles",
+            new_callable=AsyncMock,
+            return_value=[],
+        ) as mock_list,
+        patch(
+            "app.routers.articles.article_service.count_list_articles",
+            new_callable=AsyncMock,
+            return_value=0,
+        ),
+    ):
         r = await client.get(f"/api/v1/articles?journal_id={jid}")
     assert r.status_code == 200
-    assert r.json() == {"articles": []}
+    assert r.json() == {"articles": [], "total": 0}
     assert mock_list.await_args.kwargs["journal_id"] == jid
 
 

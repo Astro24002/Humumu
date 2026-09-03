@@ -23,9 +23,13 @@ async def list_articles(
             offset=offset,
             journal_id=journal_id,
         )
+        total = await article_service.count_list_articles(
+            session,
+            journal_id=journal_id,
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch articles") from exc
-    return ArticlesResponse(articles=articles)
+    return ArticlesResponse(articles=articles, total=total)
 
 
 @router.get("/articles/{article_id}", response_model=ArticleOut)
@@ -58,4 +62,5 @@ async def my_feed(
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch articles") from exc
-    return ArticlesResponse(articles=articles)
+    # Legacy feed has no separate total; report page size for schema compatibility.
+    return ArticlesResponse(articles=articles, total=len(articles))
