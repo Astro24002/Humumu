@@ -1,6 +1,6 @@
 {
   "pages": [
-    {"path": "pages/index/index", "style": {"navigationBarTitleText": "最新论文"}},
+    {"path": "pages/index/index", "style": {"navigationBarTitleText": "我的更新"}},
     {"path": "pages/journals/index", "style": {"navigationBarTitleText": "期刊广场"}},
     {"path": "pages/journals/detail", "style": {"navigationBarTitleText": "期刊详情"}},
     {"path": "pages/article/detail", "style": {"navigationBarTitleText": "论文详情"}},
@@ -11,7 +11,7 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "期刊监控",
+    "navigationBarTitleText": "Humumu",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
   },

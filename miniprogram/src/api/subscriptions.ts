@@ -1,4 +1,4 @@
-import { get, post, put, del } from './client'
+import { get, post, put, del, patch } from './client'
 import type { Journal } from './journals'
 
 export interface AuthorTracking {
@@ -15,7 +15,22 @@ export interface KeywordSubscription {
   created_at: string
 }
 
-export function getSubscribedJournals(): Promise<{ journals: Journal[] }> {
+export interface SubscribedJournal extends Journal {
+  push_frequency?: string
+  email_enabled?: boolean
+  wechat_enabled?: boolean
+}
+
+export interface JournalSubscriptionPrefs {
+  user_id: string
+  journal_id: string
+  created_at: string
+  push_frequency: string
+  email_enabled: boolean
+  wechat_enabled: boolean
+}
+
+export function getSubscribedJournals(): Promise<{ journals: SubscribedJournal[] }> {
   return get('/subscriptions/journals')
 }
 
@@ -25,6 +40,17 @@ export function subscribeJournal(id: string): Promise<void> {
 
 export function unsubscribeJournal(id: string): Promise<void> {
   return del(`/subscriptions/journals/${id}`)
+}
+
+export function updateJournalSubscriptionPrefs(
+  journalId: string,
+  prefs: {
+    push_frequency?: string
+    email_enabled?: boolean
+    wechat_enabled?: boolean
+  },
+): Promise<JournalSubscriptionPrefs> {
+  return patch(`/subscriptions/journals/${journalId}`, prefs)
 }
 
 export function getAuthors(): Promise<{ authors: AuthorTracking[] }> {

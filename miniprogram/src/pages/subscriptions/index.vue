@@ -1,6 +1,5 @@
 <template>
   <view class="container">
-    <!-- Check login -->
     <view v-if="!auth.isLoggedIn" class="login-prompt">
       <text>登录后可管理订阅</text>
       <button @click="goLogin" class="btn-login">去登录</button>
@@ -13,20 +12,21 @@
         <text :class="['tab', tab === 'keywords' && 'active']" @click="tab='keywords'">关键词</text>
       </view>
 
-      <!-- Journals tab -->
       <view v-if="tab === 'journals'">
         <view v-if="loadingJournals" class="loading"><text>加载中...</text></view>
         <view v-else-if="journals.length === 0" class="empty"><text>尚未关注任何期刊</text></view>
         <view v-else class="list">
           <view v-for="j in journals" :key="j.id" class="list-item">
-            <text class="item-name">{{ j.name }}</text>
-            <text class="item-type">{{ j.source_type }}</text>
-            <text class="btn-unsub" @click="unsubscribe(j.id)">取消关注</text>
+            <view class="item-main">
+              <text class="item-name">{{ j.name }}</text>
+              <text class="item-meta">{{ j.source_type }} · {{ freqLabel(j.push_frequency) }}</text>
+            </view>
+            <text class="btn-prefs" @click="cycleFreq(j)">频率</text>
+            <text class="btn-unsub" @click="unsubscribe(j.id)">取消</text>
           </view>
         </view>
       </view>
 
-      <!-- Authors tab -->
       <view v-if="tab === 'authors'">
         <view class="add-bar">
           <input v-model="newAuthor" placeholder="作者姓名" class="add-input" />
@@ -41,7 +41,6 @@
         </view>
       </view>
 
-      <!-- Keywords tab -->
       <view v-if="tab === 'keywords'">
         <view class="add-bar">
           <input v-model="newKeyword" placeholder="关键词" class="add-input" />
@@ -63,22 +62,29 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import {
-  getSubscribedJournals, unsubscribeJournal,
+  getSubscribedJournals, unsubscribeJournal, updateJournalSubscriptionPrefs,
   getAuthors, addAuthor as addAuthorApi, removeAuthor as removeAuthorApi,
   getKeywords, addKeyword as addKeywordApi, removeKeyword as removeKeywordApi,
+  type SubscribedJournal, type AuthorTracking, type KeywordSubscription,
 } from '@/api/subscriptions'
-import type { Journal } from '@/api/journals'
-import type { AuthorTracking, KeywordSubscription } from '@/api/subscriptions'
 
 const auth = useAuthStore()
 const tab = ref('journals')
 
-const journals = ref<Journal[]>([])
+const journals = ref<SubscribedJournal[]>([])
 const loadingJournals = ref(true)
 const authors = ref<AuthorTracking[]>([])
 const keywords = ref<KeywordSubscription[]>([])
 const newAuthor = ref('')
 const newKeyword = ref('')
+
+const FREQ_CYCLE = ['default', 'realtime', 'daily'] as const
+
+function freqLabel(f?: string): string {
+  if (f === 'realtime') return '实时'
+  if (f === 'daily') return '每日'
+  return '跟随全局'
+}
 
 onMounted(() => {
   if (!auth.isLoggedIn) return
@@ -101,6 +107,19 @@ async function loadData() {
 }
 
 function goLogin() { uni.navigateTo({ url: '/pages/login/index' }) }
+
+async function cycleFreq(j: SubscribedJournal) {
+  const cur = j.push_frequency || 'default'
+  const idx = Math.max(0, FREQ_CYCLE.indexOf(cur as any))
+  const next = FREQ_CYCLE[(idx + 1) % FREQ_CYCLE.length]
+  try {
+    const updated = await updateJournalSubscriptionPrefs(j.id, { push_frequency: next })
+    j.push_frequency = updated.push_frequency
+    uni.showToast({ title: `频率 → ${freqLabel(next)}`, icon: 'none' })
+  } catch (e: any) {
+    uni.showToast({ title: e.message || '更新失败', icon: 'none' })
+  }
+}
 
 async function unsubscribe(id: string) {
   try {
@@ -161,9 +180,11 @@ async function removeKeyword(id: string) {
 .login-prompt { text-align: center; padding: 200rpx 40rpx; color: #999; font-size: 28rpx; }
 .btn-login { margin-top: 30rpx; background: #3cc51f; color: #fff; border: none; border-radius: 12rpx; padding: 20rpx 60rpx; }
 .loading, .empty { text-align: center; padding: 80rpx; color: #999; font-size: 28rpx; }
-.list-item { display: flex; align-items: center; padding: 24rpx 30rpx; background: #fff; border-bottom: 1rpx solid #f0f0f0; }
-.item-name { flex: 1; font-size: 28rpx; }
-.item-type { font-size: 22rpx; color: #999; margin-right: 20rpx; }
+.list-item { display: flex; align-items: center; padding: 24rpx 30rpx; background: #fff; border-bottom: 1rpx solid #f0f0f0; gap: 16rpx; }
+.item-main { flex: 1; min-width: 0; }
+.item-name { font-size: 28rpx; display: block; }
+.item-meta { font-size: 22rpx; color: #999; margin-top: 4rpx; display: block; }
+.btn-prefs { color: #3a7bd5; font-size: 26rpx; }
 .btn-unsub { color: #e74c3c; font-size: 26rpx; }
 .add-bar { display: flex; gap: 16rpx; padding: 20rpx 30rpx; background: #fff; }
 .add-input { flex: 1; border: 1rpx solid #ddd; border-radius: 8rpx; padding: 16rpx 20rpx; font-size: 28rpx; }

@@ -16,11 +16,17 @@
         <text class="abstract">{{ article.abstract }}</text>
       </view>
 
+      <view class="status-row" v-if="auth.isLoggedIn">
+        <text :class="['chip', status.is_read && 'on']" @click="toggle('is_read')">{{ status.is_read ? '已读' : '标已读' }}</text>
+        <text :class="['chip', status.is_starred && 'on']" @click="toggle('is_starred')">{{ status.is_starred ? '已星标' : '星标' }}</text>
+        <text :class="['chip', status.is_later && 'on']" @click="toggle('is_later')">{{ status.is_later ? '稍后再看' : '稍后' }}</text>
+      </view>
+
       <view class="actions">
-        <button class="btn-link" v-if="article.doi" @click="openURL(`https://doi.org/${article.doi}`)">
+        <button class="btn-link" v-if="article.doi" @click="openOriginal(`https://doi.org/${article.doi}`)">
           查看原文
         </button>
-        <button class="btn-link" v-else-if="article.url" @click="openURL(article.url)">
+        <button class="btn-link" v-else-if="article.url" @click="openOriginal(article.url)">
           查看原文
         </button>
       </view>
@@ -31,10 +37,26 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getArticle, type Article } from '@/api/articles'
+import {
+  getArticleStatus,
+  updateArticleStatus,
+  recordOriginalClick,
+  type ArticleStatus,
+} from '@/api/reading'
+import { useAuthStore } from '@/stores/auth'
 import { formatDate } from '@/utils/format'
 
+const auth = useAuthStore()
 const article = ref<Article | null>(null)
 const loading = ref(true)
+const status = ref<ArticleStatus>({
+  user_id: '',
+  article_id: '',
+  is_read: false,
+  is_starred: false,
+  is_later: false,
+  original_clicked_at: null,
+})
 
 onMounted(async () => {
   const pages = getCurrentPages()
@@ -44,12 +66,40 @@ onMounted(async () => {
 
   try {
     article.value = await getArticle(id)
+    if (auth.isLoggedIn) {
+      try {
+        status.value = await getArticleStatus(id)
+        if (!status.value.is_read) {
+          status.value = await updateArticleStatus(id, { is_read: true })
+        }
+      } catch {
+        // optional
+      }
+    }
   } finally {
     loading.value = false
   }
 })
 
-function openURL(url: string) {
+async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
+  if (!article.value || !auth.isLoggedIn) return
+  try {
+    status.value = await updateArticleStatus(article.value.id, {
+      [field]: !status.value[field],
+    })
+  } catch (e: any) {
+    uni.showToast({ title: e.message || '更新失败', icon: 'none' })
+  }
+}
+
+async function openOriginal(url: string) {
+  if (auth.isLoggedIn && article.value) {
+    try {
+      await recordOriginalClick(article.value.id)
+    } catch {
+      // non-blocking
+    }
+  }
   uni.setClipboardData({ data: url, success: () => uni.showToast({ title: '链接已复制', icon: 'none' }) })
 }
 </script>
@@ -63,7 +113,13 @@ function openURL(url: string) {
 .section { margin-top: 40rpx; }
 .section-title { font-size: 30rpx; font-weight: 500; display: block; margin-bottom: 12rpx; }
 .abstract { font-size: 28rpx; color: #444; line-height: 1.8; }
-.actions { margin-top: 50rpx; }
+.status-row { display: flex; gap: 16rpx; margin-top: 36rpx; flex-wrap: wrap; }
+.chip {
+  font-size: 24rpx; padding: 10rpx 20rpx; border-radius: 8rpx;
+  background: #f5f5f5; color: #666;
+}
+.chip.on { background: #e8f8e0; color: #3cc51f; }
+.actions { margin-top: 40rpx; }
 .btn-link {
   width: 100%; padding: 24rpx; background: #3cc51f; color: #fff;
   border: none; border-radius: 12rpx; font-size: 30rpx; text-align: center;

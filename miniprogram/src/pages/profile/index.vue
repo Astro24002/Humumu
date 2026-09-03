@@ -48,12 +48,13 @@ import { getTemplateSetting, updateTemplateSetting, getTemplateIds } from '@/api
 
 const auth = useAuthStore()
 const templateSubscribed = ref(false)
-const freqOptions = ['实时推送', '每日汇总']
+const freqOptions = ['每日汇总', '实时推送']
 const freqIndex = ref(0)
 
 onMounted(() => {
   if (!auth.isLoggedIn) return
-  freqIndex.value = auth.user?.push_frequency === 'daily' ? 1 : 0
+  // default daily (index 0); realtime is index 1
+  freqIndex.value = auth.user?.push_frequency === 'realtime' ? 1 : 0
   loadTemplateSetting()
 })
 
@@ -73,7 +74,7 @@ function goNotifications() {
 async function onFreqChange(e: any) {
   const val = e.detail.value as number
   freqIndex.value = val
-  const freq = val === 0 ? 'realtime' : 'daily'
+  const freq = val === 0 ? 'daily' : 'realtime'
   try {
     const { updatePushFrequency } = await import('@/api/subscriptions')
     await updatePushFrequency(freq)

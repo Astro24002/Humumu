@@ -18,7 +18,7 @@ export function buildQuery(params: Record<string, string | number | undefined>):
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   data?: any
 }
 
@@ -34,7 +34,7 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
   return new Promise((resolve, reject) => {
     uni.request({
       url: BASE_URL + path,
-      method: opts.method || 'GET',
+      method: (opts.method || 'GET') as any,
       data: opts.data,
       header,
       success(res) {
@@ -65,6 +65,10 @@ export function post<T>(path: string, data?: any): Promise<T> {
 
 export function put<T>(path: string, data?: any): Promise<T> {
   return request<T>(path, { method: 'PUT', data })
+}
+
+export function patch<T>(path: string, data?: any): Promise<T> {
+  return request<T>(path, { method: 'PATCH', data })
 }
 
 export function del<T>(path: string): Promise<T> {
