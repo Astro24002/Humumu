@@ -1358,5 +1358,35 @@
     "content_type": "journal",
     "fetch_interval_minutes": 180,
     "homepage_url": "https://www.nature.com/npjcompumats"
+  },
+  {
+    "name": "arXiv q-fin.PM",
+    "slug": "arxiv-qfin-pm",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-fin.PM",
+    "description": "Portfolio Management — arXiv q-fin.PM",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-fin.PM/recent"
+  },
+  {
+    "name": "arXiv q-fin.RM",
+    "slug": "arxiv-qfin-rm",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/q-fin.RM",
+    "description": "Risk Management — arXiv q-fin.RM",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/q-fin.RM/recent"
+  },
+  {
+    "name": "arXiv econ.GN",
+    "slug": "arxiv-econ-gn",
+    "source_type": "rss",
+    "source_url": "https://rss.arxiv.org/rss/econ.GN",
+    "description": "General Economics — arXiv econ.GN",
+    "content_type": "preprint",
+    "fetch_interval_minutes": 60,
+    "homepage_url": "https://arxiv.org/list/econ.GN/recent"
   }
 ]
