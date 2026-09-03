@@ -28,6 +28,7 @@
           <n-select v-model:value="form.directory_status" :options="directoryOptions" />
         </n-form-item>
         <n-form-item label="源 URL"><n-input v-model:value="form.source_url" /></n-form-item>
+        <n-form-item label="主页 URL"><n-input v-model:value="form.homepage_url" placeholder="https://" /></n-form-item>
         <n-form-item label="介绍"><n-input v-model:value="form.description" type="textarea" :rows="2" /></n-form-item>
         <n-form-item label="启用">
           <n-switch v-model:value="form.is_active" />
@@ -71,6 +72,7 @@ const form = ref<Partial<Journal>>({
   slug: '',
   source_type: 'rss',
   source_url: '',
+  homepage_url: '',
   content_type: 'journal',
   directory_status: 'public',
   is_active: true,
@@ -152,6 +154,7 @@ function openAdd() {
     slug: '',
     source_type: 'rss',
     source_url: '',
+    homepage_url: '',
     content_type: 'journal',
     directory_status: 'public',
     is_active: true,

@@ -333,9 +333,30 @@ GET /api/v1/my/updates
 
 ### 管理端（需 is_admin）
 
+认证响应中的 `user.is_admin` 标识管理员；Web 端据此守卫 `/admin` 路由。
+
 | 方法 | 路径 | 说明 |
 |------|------|------|
+| GET | /api/v1/admin/stats | 概览计数 |
+| GET/POST | /api/v1/admin/journals | 全量列表 / 创建（含 content_type、directory_status、homepage_url） |
+| PUT/DELETE | /api/v1/admin/journals/{id} | 更新 / 删除 |
 | POST | /api/v1/admin/journals/{id}/directory_status | 设置 public/private/pending_review/rejected/hidden |
-| POST | /api/v1/admin/categories/... | CAS 大类/小类创建与期刊挂载 |
+| GET/PUT | /api/v1/admin/requests | 申请队列与审核 |
+| GET | /api/v1/admin/users | 用户列表（含 is_admin） |
+| POST | /api/v1/admin/cas/categories | 创建 CAS 分类 |
+| POST | /api/v1/admin/journals/{id}/cas | 挂载 CAS 分类到期刊 |
+
+**创建期刊示例:**
+```json
+{
+  "name": "bioRxiv",
+  "source_url": "https://connect.biorxiv.org/biorxiv_xml.php?subject=all",
+  "content_type": "preprint",
+  "directory_status": "public",
+  "homepage_url": "https://www.biorxiv.org/"
+}
+```
+
+兼容路径：`GET /api/v1/my/feed` 仍返回订阅期刊文章列表；产品 UI 使用 `GET /api/v1/my/updates`。
 
 通知发送与抓取解耦：pipeline 只写 `notifications(status=pending, match_reasons=...)`；`notify_dispatch` 定时重试发送。
