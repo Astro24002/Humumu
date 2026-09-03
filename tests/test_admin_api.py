@@ -150,7 +150,7 @@ async def test_admin_list_journals(client, authed_user_id):
     with patch(
         "app.routers.admin.journal_service.list_journals",
         new_callable=AsyncMock,
-        return_value=[j],
+        return_value=([j], 1),
     ):
         r = await client.get("/api/v1/admin/journals")
     assert r.status_code == 200

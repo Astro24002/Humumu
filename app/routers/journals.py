@@ -19,9 +19,11 @@ async def list_journals(
     zone: int | None = Query(default=None),
     top: bool | None = Query(default=None),
     year: int | None = Query(default=None),
+    limit: int | None = Query(default=None, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
 ) -> JournalsResponse:
     try:
-        journals = await journal_service.list_journals(
+        journals, total = await journal_service.list_journals(
             session,
             content_type=content_type,
             q=q,
@@ -30,10 +32,12 @@ async def list_journals(
             zone=zone,
             top=top,
             year=year,
+            limit=limit,
+            offset=offset,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch journals") from exc
-    return JournalsResponse(journals=journals)
+    return JournalsResponse(journals=journals, total=total)
 
 
 @router.get("/{journal_id}", response_model=JournalOut)

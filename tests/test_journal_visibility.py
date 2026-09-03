@@ -78,7 +78,7 @@ async def test_public_list_calls_list_journals_public_only(client):
     with patch(
         "app.routers.journals.journal_service.list_journals",
         new_callable=AsyncMock,
-        return_value=[_j(directory_status="public")],
+        return_value=([_j(directory_status="public")], 1),
     ) as m:
         r = await client.get("/api/v1/journals")
     assert r.status_code == 200
@@ -103,7 +103,7 @@ async def test_admin_list_passes_public_only_false(client):
     with patch(
         "app.routers.admin.journal_service.list_journals",
         new_callable=AsyncMock,
-        return_value=[_j(directory_status="private")],
+        return_value=([_j(directory_status="private")], 1),
     ) as m:
         r = await client.get("/api/v1/admin/journals")
     assert r.status_code == 200

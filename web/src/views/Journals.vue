@@ -2,7 +2,7 @@
   <div>
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
       <n-h2 style="margin: 0;">期刊广场</n-h2>
-      <n-tag v-if="!loading" size="small" :bordered="false">{{ journals.length }} 源</n-tag>
+      <n-tag v-if="!loading" size="small" :bordered="false">{{ serverPaging ? total : journals.length }} 源</n-tag>
     </div>
 
     <n-space vertical style="margin-bottom: 16px;">
@@ -206,6 +206,9 @@ const sortOptions = [
   { label: '按最近更新', value: 'updated' },
 ]
 
+const total = ref(0)
+const serverPaging = computed(() => sortBy.value === 'name')
+
 const displayedJournals = computed(() => {
   const list = [...journals.value]
   if (sortBy.value === 'articles') {
@@ -217,14 +220,21 @@ const displayedJournals = computed(() => {
       return db.localeCompare(da) || a.name.localeCompare(b.name)
     })
   } else {
+    // Server already orders by name when paginating
     list.sort((a, b) => a.name.localeCompare(b.name))
   }
   return list
 })
 
-const pageCount = computed(() => Math.ceil(displayedJournals.value.length / pageSize) || 1)
+const pageCount = computed(() => {
+  const n = serverPaging.value
+    ? (typeof total.value === 'number' ? total.value : displayedJournals.value.length)
+    : displayedJournals.value.length
+  return Math.ceil(n / pageSize) || 1
+})
 
 const pageJournals = computed(() => {
+  if (serverPaging.value) return displayedJournals.value
   const start = (page.value - 1) * pageSize
   return displayedJournals.value.slice(start, start + pageSize)
 })
@@ -240,6 +250,7 @@ const emptyDescription = computed(() =>
 function onPageChange(p: number) {
   page.value = p
   window.scrollTo({ top: 0, behavior: 'smooth' })
+  if (serverPaging.value) fetchJournals()
 }
 
 function clearFilters() {
@@ -332,16 +343,27 @@ async function doUnsubscribe(j: Journal) {
 async function reload() {
   loading.value = true
   page.value = 1
+  await fetchJournals()
+}
+
+async function fetchJournals() {
+  loading.value = true
   try {
-    const res = await getJournals({
+    const params: Record<string, string | number | undefined> = {
       q: q.value.trim() || undefined,
       content_type: contentType.value || undefined,
       major: major.value || undefined,
       minor: minor.value || undefined,
       zone: zone.value || undefined,
       top: topOnly.value ? 'true' : undefined,
-    })
+    }
+    if (sortBy.value === 'name') {
+      params.limit = pageSize
+      params.offset = (page.value - 1) * pageSize
+    }
+    const res = await getJournals(params)
     journals.value = res.journals
+    total.value = typeof res.total === 'number' ? res.total : res.journals.length
   } catch (e: any) {
     message.error(e.message || '加载失败')
   } finally {
@@ -351,6 +373,7 @@ async function reload() {
 
 watch(sortBy, () => {
   page.value = 1
+  reload()
 })
 
 watch(pageCount, (n) => {

@@ -22,6 +22,7 @@ export interface Journal {
 
 export interface JournalsResponse {
   journals: Journal[]
+  total?: number
 }
 
 export interface JournalListParams {
@@ -32,6 +33,8 @@ export interface JournalListParams {
   zone?: string
   top?: string
   year?: string
+  limit?: string | number
+  offset?: string | number
 }
 
 export function getJournals(params?: JournalListParams): Promise<JournalsResponse> {

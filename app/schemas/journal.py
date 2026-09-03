@@ -60,6 +60,7 @@ class JournalOut(BaseModel):
 
 class JournalsResponse(BaseModel):
     journals: list[JournalOut]
+    total: int | None = None
 
 
 class CreateJournalRequest(BaseModel):

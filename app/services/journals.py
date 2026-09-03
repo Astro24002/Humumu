@@ -92,6 +92,16 @@ def _stats_subquery() -> Any:
     )
 
 
+def _clamp_journal_limit(limit: int | None) -> int | None:
+    if limit is None:
+        return None
+    if limit < 1:
+        return 1
+    if limit > 200:
+        return 200
+    return limit
+
+
 async def list_journals(
     session: AsyncSession,
     *,
@@ -103,13 +113,21 @@ async def list_journals(
     zone: int | None = None,
     top: bool | None = None,
     year: int | None = None,
-) -> list[JournalOut]:
+    limit: int | None = None,
+    offset: int = 0,
+) -> tuple[list[JournalOut], int]:
     """List journals ordered by name, with article_count and last_article_date.
 
     public_only=True (default) restricts to directory_status=public and is_active.
     Admin callers should pass public_only=False.
     Optional CAS filters: major/minor/zone/top/year.
+    Optional limit/offset for pagination (limit None = return all).
+    Returns (journals, total_matching).
     """
+    limit = _clamp_journal_limit(limit)
+    if offset < 0:
+        offset = 0
+
     stats = _stats_subquery()
     stmt = (
         select(
@@ -143,16 +161,22 @@ async def list_journals(
     )
     if cas_ids is not None:
         if not cas_ids:
-            return []
+            return [], 0
         stmt = stmt.where(Journal.id.in_(cas_ids))
 
+    count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
+    total = int((await session.execute(count_stmt)).scalar_one() or 0)
+
     stmt = stmt.order_by(Journal.name)
+    if limit is not None:
+        stmt = stmt.limit(limit).offset(offset)
     result = await session.execute(stmt)
     rows = result.all()
-    return [
+    journals = [
         _journal_out(row[0], article_count=row[1], last_article_date=row[2])
         for row in rows
     ]
+    return journals, total
 
 
 async def get_journal(

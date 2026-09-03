@@ -78,7 +78,7 @@ async def test_list_journals_has_journals_key(client):
     with patch(
         "app.routers.journals.journal_service.list_journals",
         new_callable=AsyncMock,
-        return_value=[j],
+        return_value=([j], 1),
     ):
         r = await client.get("/api/v1/journals")
     assert r.status_code == 200
@@ -97,11 +97,32 @@ async def test_list_journals_empty(client):
     with patch(
         "app.routers.journals.journal_service.list_journals",
         new_callable=AsyncMock,
-        return_value=[],
+        return_value=([], 0),
     ):
         r = await client.get("/api/v1/journals")
     assert r.status_code == 200
-    assert r.json() == {"journals": []}
+    body = r.json()
+    assert body["journals"] == []
+    assert body.get("total", 0) == 0
+
+
+@pytest.mark.asyncio
+async def test_list_journals_pagination_params(client):
+    j = _sample_journal()
+    with patch(
+        "app.routers.journals.journal_service.list_journals",
+        new_callable=AsyncMock,
+        return_value=([j], 12),
+    ) as mock_list:
+        r = await client.get("/api/v1/journals?limit=5&offset=10")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total"] == 12
+    assert len(body["journals"]) == 1
+    kwargs = mock_list.await_args.kwargs
+    assert kwargs.get("limit") == 5
+    assert kwargs.get("offset") == 10
+
 
 
 @pytest.mark.asyncio
