@@ -1,4 +1,4 @@
-"""Fetch → dedup → insert → match → notify pipeline for active journals.
+"""Fetch → dedup → insert → match → enqueue pipeline for active journals.
 
 Only enqueue notifications (status=pending) — sending is decoupled to notify_dispatch.
 """
@@ -6,11 +6,12 @@ Only enqueue notifications (status=pending) — sending is decoupled to notify_d
 from __future__ import annotations
 
 import logging
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.config import Settings, get_settings
@@ -26,6 +27,8 @@ from app.services.matcher import match_article
 
 logger = logging.getLogger(__name__)
 
+_AUTO_PAUSE_FAILURES = 10
+
 
 def _parse_publish_date(raw: str) -> date | None:
     s = (raw or "").strip()
@@ -37,10 +40,10 @@ def _parse_publish_date(raw: str) -> date | None:
         return None
 
 
-def _empty_doi_to_none(doi: str | None) -> str | None:
-    if doi is None:
+def _empty_to_none(value: str | None) -> str | None:
+    if value is None:
         return None
-    s = str(doi).strip()
+    s = str(value).strip()
     return s or None
 
 
@@ -84,6 +87,46 @@ async def _journal_subscriber_ids(session: AsyncSession, journal_id: UUID) -> li
     return [str(r[0]) for r in rows]
 
 
+async def record_fetch_success(
+    session: AsyncSession,
+    journal: Journal,
+    *,
+    etag: str | None = None,
+    last_modified: str | None = None,
+) -> None:
+    now = datetime.now(timezone.utc)
+    journal.last_fetched_at = now
+    journal.last_success_at = now
+    journal.consecutive_failures = 0
+    journal.last_error = None
+    if etag is not None:
+        journal.etag = etag or None
+    if last_modified is not None:
+        journal.last_modified = last_modified or None
+    await session.commit()
+
+
+async def record_fetch_failure(
+    session: AsyncSession,
+    journal: Journal,
+    error: str,
+    *,
+    auto_pause_after: int = _AUTO_PAUSE_FAILURES,
+) -> None:
+    now = datetime.now(timezone.utc)
+    journal.last_fetched_at = now
+    journal.consecutive_failures = int(journal.consecutive_failures or 0) + 1
+    journal.last_error = (error or "")[:1000] or None
+    if journal.consecutive_failures >= auto_pause_after:
+        journal.is_active = False
+        logger.warning(
+            "pipeline: auto-paused journal %s after %d failures",
+            journal.name,
+            journal.consecutive_failures,
+        )
+    await session.commit()
+
+
 async def process_raw_article(
     session: AsyncSession,
     *,
@@ -94,15 +137,17 @@ async def process_raw_article(
     """Dedup, insert, match, and enqueue pending notifications (no inline send)."""
     r = get_redis()
     journal_id = str(journal.id)
-    doi = _empty_doi_to_none(raw.get("doi"))
+    doi = _empty_to_none(raw.get("doi"))
+    guid = _empty_to_none(raw.get("guid"))
     url = raw.get("url") or ""
 
-    is_new = await is_duplicate_and_mark(r, journal_id, doi, url)
+    is_new = await is_duplicate_and_mark(r, journal_id, doi, url, guid=guid)
     if not is_new:
         return
 
     article = Article(
-        doi=doi,  # empty → NULL
+        doi=doi,
+        guid=guid,
         title=raw.get("title") or "",
         authors=list(raw.get("authors") or []),
         abstract=raw.get("abstract") or "",
@@ -113,11 +158,19 @@ async def process_raw_article(
     session.add(article)
     try:
         await session.flush()
+    except IntegrityError:
+        logger.info(
+            "pipeline: DB unique hit (dup) [%s/%s]",
+            journal.name,
+            doi or guid or url,
+        )
+        await session.rollback()
+        return
     except Exception as exc:  # noqa: BLE001
         logger.warning(
             "pipeline: save article failed [%s/%s]: %s",
             journal.name,
-            doi or url,
+            doi or guid or url,
             exc,
         )
         await session.rollback()
@@ -154,7 +207,7 @@ async def run_fetch_pipeline(
     settings: Settings | None = None,
 ) -> None:
     """Run one full fetch cycle over all active journals."""
-    settings = settings or get_settings()
+    _ = settings or get_settings()
 
     logger.info("scheduler: starting fetch cycle")
     async with session_factory() as session:
@@ -172,7 +225,22 @@ async def run_fetch_pipeline(
             raws = await fetch_articles(journal.source_url, journal.source_type)
         except Exception as exc:  # noqa: BLE001
             logger.warning("scheduler: fetch failed [%s]: %s", journal.name, exc)
+            try:
+                async with session_factory() as session:
+                    j = await session.get(Journal, journal.id)
+                    if j is not None:
+                        await record_fetch_failure(session, j, str(exc))
+            except Exception as rec_exc:  # noqa: BLE001
+                logger.warning("scheduler: failed to record fetch failure: %s", rec_exc)
             continue
+
+        try:
+            async with session_factory() as session:
+                j = await session.get(Journal, journal.id)
+                if j is not None:
+                    await record_fetch_success(session, j)
+        except Exception as rec_exc:  # noqa: BLE001
+            logger.warning("scheduler: failed to record fetch success: %s", rec_exc)
 
         logger.info(
             "scheduler: fetched %d articles from %s",
@@ -182,7 +250,6 @@ async def run_fetch_pipeline(
         for raw in raws:
             try:
                 async with session_factory() as session:
-                    # re-bind journal into this session
                     j = await session.get(Journal, journal.id)
                     if j is None:
                         continue
@@ -196,6 +263,6 @@ async def run_fetch_pipeline(
                 logger.warning(
                     "scheduler: process article error [%s/%s]: %s",
                     journal.name,
-                    raw.get("doi") or raw.get("url"),
+                    raw.get("doi") or raw.get("guid") or raw.get("url"),
                     exc,
                 )
