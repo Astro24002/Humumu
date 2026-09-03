@@ -30,7 +30,10 @@ async function saveFrequency() {
   saving.value = true
   try {
     await updatePushFrequency(frequency.value)
-    if (auth.user) auth.user.push_frequency = frequency.value
+    if (auth.user) {
+      auth.user.push_frequency = frequency.value
+      localStorage.setItem('user', JSON.stringify(auth.user))
+    }
     message.success('设置已保存')
   } catch (e: any) {
     message.error(e.message)

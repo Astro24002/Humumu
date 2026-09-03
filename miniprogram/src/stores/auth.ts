@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { getMe } from '@/api/auth'
 
 interface User {
   id: string
@@ -36,6 +37,17 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function refreshMe() {
+    if (!token.value) return
+    try {
+      const res = await getMe()
+      user.value = res.user
+      uni.setStorageSync('user', JSON.stringify(res.user))
+    } catch {
+      logout()
+    }
+  }
+
   function logout() {
     token.value = ''
     user.value = null
@@ -44,5 +56,5 @@ export const useAuthStore = defineStore('auth', () => {
     uni.reLaunch({ url: '/pages/index/index' })
   }
 
-  return { token, user, isLoggedIn, hasEmail, save, restore, logout }
+  return { token, user, isLoggedIn, hasEmail, save, restore, refreshMe, logout }
 })
