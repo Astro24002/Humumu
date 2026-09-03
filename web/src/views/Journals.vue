@@ -56,7 +56,8 @@
       </n-space>
     </n-space>
 
-    <n-grid :cols="2" :y-gap="16" :x-gap="16">
+    <div v-if="loading" style="padding: 48px 0; text-align: center;"><n-spin /></div>
+    <n-grid v-else :cols="2" :y-gap="16" :x-gap="16">
       <n-gi v-for="j in journals" :key="j.id">
         <n-card :title="j.name" hoverable @click="router.push(`/journals/${j.id}`)">
           <template #header-extra>
@@ -139,7 +140,7 @@ import {
 } from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
 import {
-  NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace,
+  NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace, NSpin,
   NRadioGroup, NRadioButton, NSelect, NCheckbox, useMessage,
 } from 'naive-ui'
 
