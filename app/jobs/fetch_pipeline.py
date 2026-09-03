@@ -23,7 +23,7 @@ from app.models.user import User
 from app.redis_client import get_redis
 from app.services.dedup import is_duplicate_and_mark
 from app.services.fetcher import RawArticle, fetch_articles
-from app.services.matcher import match_article
+from app.services.matcher import effective_push_frequency, expand_channels, match_article
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def _empty_to_none(value: str | None) -> str | None:
 
 
 async def _load_match_context(session: AsyncSession) -> dict[str, Any]:
-    """Load authors, keywords, and user openids once per cycle."""
+    """Load authors, keywords, user prefs, and openids once per cycle."""
     authors_rows = (
         await session.execute(select(AuthorTracking.user_id, AuthorTracking.author_name))
     ).all()
@@ -61,30 +61,52 @@ async def _load_match_context(session: AsyncSession) -> dict[str, Any]:
     ).all()
     keywords = [(str(uid), kw) for uid, kw in kw_rows]
 
-    user_rows = (await session.execute(select(User.id, User.wechat_openid, User.email))).all()
+    user_rows = (
+        await session.execute(
+            select(User.id, User.wechat_openid, User.email, User.push_frequency)
+        )
+    ).all()
     user_openid: dict[str, str | None] = {
-        str(uid): openid for uid, openid, _email in user_rows
+        str(uid): openid for uid, openid, _email, _freq in user_rows
     }
     user_email: dict[str, str] = {
-        str(uid): (email or "") for uid, _openid, email in user_rows
+        str(uid): (email or "") for uid, _openid, email, _freq in user_rows
+    }
+    user_push_freq: dict[str, str] = {
+        str(uid): (freq or "daily") for uid, _openid, _email, freq in user_rows
     }
     return {
         "tracked_authors": tracked_authors,
         "keywords": keywords,
         "user_openid": user_openid,
         "user_email": user_email,
+        "user_push_freq": user_push_freq,
     }
 
 
-async def _journal_subscriber_ids(session: AsyncSession, journal_id: UUID) -> list[str]:
+async def _journal_subscriber_rows(
+    session: AsyncSession, journal_id: UUID
+) -> list[tuple[str, str, bool, bool]]:
+    """Return (user_id, push_frequency, email_enabled, wechat_enabled) for subscribers."""
     rows = (
         await session.execute(
-            select(JournalSubscription.user_id).where(
-                JournalSubscription.journal_id == journal_id
-            )
+            select(
+                JournalSubscription.user_id,
+                JournalSubscription.push_frequency,
+                JournalSubscription.email_enabled,
+                JournalSubscription.wechat_enabled,
+            ).where(JournalSubscription.journal_id == journal_id)
         )
     ).all()
-    return [str(r[0]) for r in rows]
+    return [
+        (
+            str(uid),
+            (freq or "default"),
+            bool(email_on if email_on is not None else True),
+            bool(wechat_on if wechat_on is not None else True),
+        )
+        for uid, freq, email_on, wechat_on in rows
+    ]
 
 
 async def record_fetch_success(
@@ -176,16 +198,42 @@ async def process_raw_article(
         await session.rollback()
         return
 
-    subscribers = await _journal_subscriber_ids(session, journal.id)
+    sub_rows = await _journal_subscriber_rows(session, journal.id)
+    # Realtime path: only journal subscribers whose effective frequency is realtime.
+    # Author/keyword hits still notify (user-level default applied in expand step).
+    user_freq = match_ctx.get("user_push_freq") or {}
+    realtime_subscribers: list[str] = []
+    channel_prefs: dict[str, tuple[bool, bool]] = {}
+    for uid, sub_freq, email_on, wechat_on in sub_rows:
+        channel_prefs[uid] = (email_on, wechat_on)
+        if effective_push_frequency(sub_freq, user_freq.get(uid)) == "realtime":
+            realtime_subscribers.append(uid)
+
     matches = match_article(
         article_id=str(article.id),
-        journal_subscriber_ids=subscribers,
+        journal_subscriber_ids=realtime_subscribers,
         article_authors=list(article.authors or []),
         title=article.title or "",
         abstract=article.abstract or "",
         tracked_authors=match_ctx["tracked_authors"],
         keywords=match_ctx["keywords"],
         user_openid=match_ctx["user_openid"],
+    )
+    # Drop pure-journal matches already gated; author/keyword may include daily users —
+    # keep them only if effective user frequency is realtime (author/keyword have no sub row).
+    filtered = []
+    for m in matches:
+        if "journal" in (m.reasons or ()):
+            filtered.append(m)
+            continue
+        # author/keyword: respect user-level push frequency
+        if effective_push_frequency("default", user_freq.get(m.user_id)) == "realtime":
+            filtered.append(m)
+    matches = expand_channels(
+        filtered,
+        user_openid=match_ctx["user_openid"],
+        user_email=match_ctx.get("user_email") or {},
+        channel_prefs=channel_prefs,
     )
 
     for m in matches:

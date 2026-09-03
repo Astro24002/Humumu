@@ -61,14 +61,17 @@ def test_keyword_empty_fields():
 
 def test_dedupe_users():
     results = [
-        MatchResult(user_id="u1", article_id="a1"),
-        MatchResult(user_id="u2", article_id="a1"),
-        MatchResult(user_id="u1", article_id="a1"),
-        MatchResult(user_id="u3", article_id="a1"),
-        MatchResult(user_id="u2", article_id="a1"),
+        MatchResult(user_id="u1", article_id="a1", reasons=("journal",)),
+        MatchResult(user_id="u2", article_id="a1", reasons=("keyword",)),
+        MatchResult(user_id="u1", article_id="a1", reasons=("author",)),
+        MatchResult(user_id="u3", article_id="a1", reasons=("keyword",)),
+        MatchResult(user_id="u2", article_id="a1", reasons=("journal",)),
     ]
     deduped = dedupe_by_user(results)
     assert [r.user_id for r in deduped] == ["u1", "u2", "u3"]
+    by_user = {r.user_id: r for r in deduped}
+    assert set(by_user["u1"].reasons) == {"journal", "author"}
+    assert set(by_user["u2"].reasons) == {"keyword", "journal"}
 
 
 def test_resolve_channel():
@@ -114,3 +117,15 @@ def test_match_article_union_and_dedupe():
     assert by_user["u2"].channel == "email"
     assert by_user["u4"].channel == "wechat"
     assert all(r.article_id == "art-1" for r in results)
+    assert set(by_user["u1"].reasons) == {"journal", "author"}
+    assert set(by_user["u2"].reasons) == {"journal", "keyword"}
+    assert by_user["u4"].reasons == ("keyword",)
+
+
+def test_effective_push_frequency():
+    from app.services.matcher import effective_push_frequency
+
+    assert effective_push_frequency("realtime", "daily") == "realtime"
+    assert effective_push_frequency("default", "realtime") == "realtime"
+    assert effective_push_frequency("default", "daily") == "daily"
+    assert effective_push_frequency(None, None) == "daily"
