@@ -167,8 +167,13 @@ const columns = [
     key: 'health',
     render: (row: Journal) => {
       const fails = row.consecutive_failures || 0
-      if (fails > 0) return `${fails} 失败`
-      return row.is_active ? '正常' : '停用'
+      const hs = row.health_status || (fails >= 10 || !row.is_active ? 'paused' : 'ok')
+      const label = fails > 0 ? `${fails} 失败` : (hs === 'paused' || !row.is_active ? '停用' : '正常')
+      const type = fails > 0 || hs === 'paused' ? 'error' : 'success'
+      const tip = row.last_error
+        ? `${label}${row.last_success_at ? ` · 上次成功 ${String(row.last_success_at).slice(0, 19)}` : ''}\n${row.last_error}`
+        : (row.last_success_at ? `上次成功 ${String(row.last_success_at).slice(0, 19)}` : label)
+      return h(NTag, { size: 'small', type, title: tip }, { default: () => label })
     },
   },
   { title: '状态', key: 'is_active', render: (row: Journal) => row.is_active ? '启用' : '禁用' },

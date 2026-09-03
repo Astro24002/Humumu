@@ -13,18 +13,19 @@
       <n-button type="primary" block :loading="loading" attr-type="submit">注册</n-button>
     </n-form>
     <p style="margin-top: 12px; text-align: center; color: #888;">
-      已有账号？<router-link to="/login">登录</router-link>
+      已有账号？<router-link :to="{ path: '/login', query: route.query }">登录</router-link>
     </p>
   </n-card>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useMessage } from 'naive-ui'
 import { NCard, NForm, NFormItem, NInput, NButton } from 'naive-ui'
 
+const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const message = useMessage()
@@ -41,7 +42,8 @@ async function handleRegister() {
   try {
     await auth.register(form.email, form.password, form.name)
     message.success('注册成功')
-    router.push('/')
+    const redirect = (route.query.redirect as string) || '/'
+    router.push(redirect)
   } catch (e: any) {
     message.error(e.message || '注册失败')
   } finally {
