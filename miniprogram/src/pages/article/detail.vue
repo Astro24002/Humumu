@@ -17,7 +17,7 @@
       </view>
       <text class="title">{{ article.title }}</text>
       <text class="authors" v-if="article.authors?.length">
-        {{ article.authors.join(', ') }}
+        {{ authorsLabel }}
       </text>
       <text class="date" v-if="article.publish_date">
         {{ formatDate(article.publish_date) }}
@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getArticle, type Article } from '@/api/articles'
 import {
   getArticleStatus,
@@ -79,6 +79,13 @@ const status = ref<ArticleStatus>({
   is_starred: false,
   is_later: false,
   original_clicked_at: null,
+})
+
+const authorsLabel = computed(() => {
+  const authors = article.value?.authors || []
+  if (!authors.length) return ''
+  const head = authors.slice(0, 8).join(', ')
+  return authors.length > 8 ? `${head} 等 ${authors.length} 人` : head
 })
 
 function goLogin() {

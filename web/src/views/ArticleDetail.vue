@@ -24,7 +24,7 @@
 
     <n-descriptions label-placement="left" :column="2" size="small" bordered style="margin-bottom: 16px;">
       <n-descriptions-item label="作者">
-        {{ article.authors?.join(', ') || '未知' }}
+        {{ authorsLabel }}
       </n-descriptions-item>
       <n-descriptions-item label="发表日期">
         {{ article.publish_date || '未知' }}
@@ -98,6 +98,12 @@ const message = useMessage()
 const auth = useAuthStore()
 const isLoggedIn = computed(() => auth.isLoggedIn)
 const article = ref<Article | null>(null)
+const authorsLabel = computed(() => {
+  const authors = article.value?.authors || []
+  if (!authors.length) return '未知'
+  const head = authors.slice(0, 8).join(', ')
+  return authors.length > 8 ? `${head} 等 ${authors.length} 人` : head
+})
 const loading = ref(true)
 const loadError = ref('')
 const statusSaving = ref(false)
