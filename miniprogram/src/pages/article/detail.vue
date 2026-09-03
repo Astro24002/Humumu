@@ -57,6 +57,7 @@ import {
 } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
 import { formatDate } from '@/utils/format'
+import { cleanAbstract } from '@/utils/abstract'
 
 const auth = useAuthStore()
 const article = ref<Article | null>(null)
@@ -70,11 +71,6 @@ const status = ref<ArticleStatus>({
   is_later: false,
   original_clicked_at: null,
 })
-
-function cleanAbstract(text?: string): string {
-  if (!text) return ''
-  return text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
-}
 
 function goBack() {
   uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/index/index' }) })

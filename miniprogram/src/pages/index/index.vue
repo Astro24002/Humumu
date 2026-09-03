@@ -25,6 +25,18 @@
         class="btn-empty"
         @click="clearFilter"
       >查看全部更新</button>
+      <button
+        v-else-if="tab === 'all' && contentType"
+        size="mini"
+        class="btn-empty"
+        @click="clearContentType"
+      >清除筛选</button>
+      <button
+        v-else-if="tab === 'all'"
+        size="mini"
+        class="btn-empty"
+        @click="goJournals"
+      >浏览期刊</button>
     </view>
     <scroll-view v-else scroll-y @scrolltolower="loadMore" class="scroll-view">
       <view
@@ -58,6 +70,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
+import { truncateAbstract } from '@/utils/abstract'
 
 interface FeedItem {
   id: string
@@ -89,6 +102,7 @@ const emptyHint = computed(() => {
     if (filter.value === 'later') return '稍后再看列表为空'
     return '暂无更新，去订阅期刊或关键词吧'
   }
+  if (contentType.value) return '当前筛选下暂无论文'
   return '暂无论文'
 })
 
@@ -102,11 +116,6 @@ function reasonLabel(r: string): string {
   if (r === 'author') return '作者'
   if (r === 'keyword') return '关键词'
   return r
-}
-
-function truncateAbstract(text: string): string {
-  const cleaned = text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
-  return cleaned.length > 120 ? cleaned.slice(0, 120) + '…' : cleaned
 }
 
 function goJournals() {
@@ -127,6 +136,11 @@ function setFilter(f: string) {
 
 function clearFilter() {
   filter.value = ''
+  resetAndFetch()
+}
+
+function clearContentType() {
+  contentType.value = ''
   resetAndFetch()
 }
 

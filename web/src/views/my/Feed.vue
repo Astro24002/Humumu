@@ -48,7 +48,7 @@
             v-if="u.abstract"
             style="color: #999; font-size: 12px; line-height: 1.6; margin: 6px 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
           >
-            {{ truncateAbstract(u.abstract) }}
+            {{ truncateAbstract(u.abstract, 220) }}
           </p>
         </template>
         <template #footer>
@@ -92,6 +92,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getMyUpdates, type MyUpdateItem } from '@/api/myUpdates'
 import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
+import { truncateAbstract } from '@/utils/abstract'
 import {
   NH2, NSpin, NEmpty, NButton, NList, NListItem, NThing, NTag, NSpace,
   NRadioGroup, NRadioButton, useMessage,
@@ -121,11 +122,6 @@ function reasonLabel(r: string): string {
     keyword: '关键词',
   }
   return map[r] || r
-}
-
-function truncateAbstract(text: string): string {
-  const cleaned = text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
-  return cleaned.length > 220 ? cleaned.slice(0, 220) + '…' : cleaned
 }
 
 async function fetchPage(reset: boolean) {

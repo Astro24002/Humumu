@@ -22,11 +22,7 @@
 <script setup lang="ts">
 import type { Article } from '@/api/articles'
 import { formatDate } from '@/utils/format'
-
-function cleanAbstract(text?: string): string {
-  if (!text) return ''
-  return text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
-}
+import { cleanAbstract } from '@/utils/abstract'
 
 const props = defineProps<{ article: Article }>()
 

@@ -73,6 +73,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getArticle, type Article } from '@/api/articles'
 import { getArticleStatus, updateArticleStatus, recordOriginalClick, type ArticleStatus } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
+import { cleanAbstract } from '@/utils/abstract'
 import {
   NH2, NH4, NButton, NSpin, NTag, NResult,
   NDescriptions, NDescriptionsItem, useMessage,
@@ -103,10 +104,6 @@ function doiUrl(doi: string): string {
 
 function formatDate(d: string): string {
   return d.slice(0, 10)
-}
-
-function cleanAbstract(text: string): string {
-  return text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
 }
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {

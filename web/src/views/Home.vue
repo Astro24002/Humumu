@@ -77,6 +77,7 @@ import { useRouter } from 'vue-router'
 import { getArticles, type Article } from '@/api/articles'
 import { getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
+import { truncateAbstract } from '@/utils/abstract'
 import {
   NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton, NAlert,
   NRadioGroup, NRadioButton,
@@ -114,12 +115,6 @@ function clearFilters() {
 function doiUrl(doi: string): string {
   if (doi.startsWith('http')) return doi
   return `https://doi.org/${doi}`
-}
-
-function truncateAbstract(text: string): string {
-  // Remove arXiv prefix "arXiv:... Announce Type: ... \nAbstract:"
-  const cleaned = text.replace(/^arXiv:\S+ Announce Type: \S+\s*\n\s*Abstract:\s*/i, '')
-  return cleaned.length > 200 ? cleaned.slice(0, 200) + '...' : cleaned
 }
 
 function onContentTypeChange() {
