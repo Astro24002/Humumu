@@ -1,6 +1,9 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
-    <n-h2 style="margin: 0;">我的更新</n-h2>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <n-h2 style="margin: 0;">我的更新</n-h2>
+      <n-tag v-if="!loading && total != null" size="small" :bordered="false">{{ total }} 条</n-tag>
+    </div>
     <n-button size="small" :loading="loading && !!updates.length" @click="reload">刷新</n-button>
   </div>
 

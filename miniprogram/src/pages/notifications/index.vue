@@ -66,6 +66,8 @@ const limit = 20
 const total = ref<number | null>(null)
 const statusFilter = ref('')
 const channelFilter = ref('')
+/** Drop stale notification list responses when filters race mid-flight. */
+let notifLoadSeq = 0
 
 const hasActiveFilters = computed(() => Boolean(statusFilter.value || channelFilter.value))
 
@@ -117,6 +119,7 @@ function clearFilters() {
 }
 
 async function fetchNotifications(reset = false) {
+  const seq = ++notifLoadSeq
   if (reset) {
     offset.value = 0
     notifications.value = []
@@ -135,6 +138,7 @@ async function fetchNotifications(reset = false) {
       status: statusFilter.value || undefined,
       channel: channelFilter.value || undefined,
     })
+    if (seq !== notifLoadSeq) return
     notifications.value.push(...res.notifications)
     offset.value += res.notifications.length
     if (typeof res.total === 'number') total.value = res.total
@@ -142,10 +146,13 @@ async function fetchNotifications(reset = false) {
       ? notifications.value.length < total.value
       : res.notifications.length === limit
   } catch (e: any) {
+    if (seq !== notifLoadSeq) return
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
   } finally {
-    loading.value = false
-    loadingMore.value = false
+    if (seq === notifLoadSeq) {
+      loading.value = false
+      loadingMore.value = false
+    }
   }
 }
 

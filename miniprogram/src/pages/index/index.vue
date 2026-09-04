@@ -120,6 +120,8 @@ const loadingMore = ref(false)
 const hasMore = ref(true)
 const offset = ref(0)
 const limit = 20
+/** Drop stale feed responses when tab/filter races mid-flight. */
+let feedLoadSeq = 0
 /** Prefer my-updates once after login; don't thrash tab on every onShow. */
 const didPreferUpdates = ref(false)
 
@@ -210,6 +212,7 @@ function resetAndFetch() {
 }
 
 async function fetchItems(isLoadMore = false) {
+  const seq = ++feedLoadSeq
   if (isLoadMore) {
     if (!hasMore.value || loadingMore.value || loading.value) return
     loadingMore.value = true
@@ -223,6 +226,7 @@ async function fetchItems(isLoadMore = false) {
         offset: offset.value,
         filter: filter.value || undefined,
       })
+      if (seq !== feedLoadSeq) return
       const mapped: FeedItem[] = res.updates.map(u => ({
         id: u.article_id,
         title: u.title,
@@ -251,6 +255,7 @@ async function fetchItems(isLoadMore = false) {
         content_type: contentType.value || undefined,
         source_type: sourceType.value || undefined,
       })
+      if (seq !== feedLoadSeq) return
       const mapped: FeedItem[] = res.articles.map(a => ({
         id: a.id,
         title: a.title,
@@ -273,10 +278,13 @@ async function fetchItems(isLoadMore = false) {
         : res.articles.length === limit
     }
   } catch (e: any) {
+    if (seq !== feedLoadSeq) return
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
   } finally {
-    loading.value = false
-    loadingMore.value = false
+    if (seq === feedLoadSeq) {
+      loading.value = false
+      loadingMore.value = false
+    }
   }
 }
 

@@ -59,6 +59,8 @@ const offset = ref(0)
 const total = ref(0)
 const loadingMore = ref(false)
 const hasMore = computed(() => journals.value.length < total.value)
+/** Drop stale plaza list responses when filters race mid-flight. */
+let journalsLoadSeq = 0
 
 const hasActiveFilters = computed(() => Boolean(search.value.trim() || contentType.value || sourceType.value))
 const emptyHint = computed(() =>
@@ -98,31 +100,37 @@ function clearFilters() {
 
 async function loadMore() {
   if (!hasMore.value || loadingMore.value || loading.value) return
+  const seq = ++journalsLoadSeq
   loadingMore.value = true
   try {
     const res = await getJournals(listParams({ offset: offset.value }))
+    if (seq !== journalsLoadSeq) return
     journals.value = [...journals.value, ...res.journals]
     offset.value += res.journals.length
     total.value = typeof res.total === 'number' ? res.total : journals.value.length
   } catch (e: any) {
+    if (seq !== journalsLoadSeq) return
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
   } finally {
-    loadingMore.value = false
+    if (seq === journalsLoadSeq) loadingMore.value = false
   }
 }
 
 async function reload() {
+  const seq = ++journalsLoadSeq
   loading.value = true
   offset.value = 0
   try {
     const res = await getJournals(listParams({ offset: 0 }))
+    if (seq !== journalsLoadSeq) return
     journals.value = res.journals
     offset.value = res.journals.length
     total.value = typeof res.total === 'number' ? res.total : res.journals.length
   } catch (e: any) {
+    if (seq !== journalsLoadSeq) return
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
   } finally {
-    loading.value = false
+    if (seq === journalsLoadSeq) loading.value = false
   }
 }
 
