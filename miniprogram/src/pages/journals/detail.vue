@@ -42,7 +42,7 @@
           <button size="mini" class="btn-more" @click="goPlaza">返回期刊广场</button>
         </view>
         <view v-if="hasMore" class="more-wrap">
-          <button class="btn-more" size="mini" :loading="loadingMore" :disabled="loadingMore || articlesLoading" @click="loadMore">
+          <button class="btn-more" size="mini" :loading="loadingMore" :disabled="loadingMore || articlesLoading || subBusy" @click="loadMore">
             {{ loadingMore ? '加载中...' : '加载更多' }}
           </button>
         </view>
@@ -97,7 +97,7 @@ async function loadArticles(reset: boolean) {
     articlesTotal.value = 0
     articlesLoading.value = true
   } else {
-    if (loadingMore.value || articlesLoading.value) return
+    if (loadingMore.value || articlesLoading.value || subBusy.value) return
     loadingMore.value = true
   }
   const seq = ++articlesLoadSeq
@@ -128,7 +128,7 @@ async function loadArticles(reset: boolean) {
 }
 
 function loadMore() {
-  if (!hasMore.value || loadingMore.value || articlesLoading.value) return
+  if (!hasMore.value || loadingMore.value || articlesLoading.value || subBusy.value) return
   loadArticles(false)
 }
 

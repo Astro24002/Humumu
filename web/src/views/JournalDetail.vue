@@ -97,7 +97,7 @@
       <n-button
         size="small"
         :loading="articlesLoading && !!articles.length"
-        :disabled="articlesLoading"
+        :disabled="articlesBusy"
         @click="reloadArticles"
       >刷新</n-button>
     </div>
@@ -166,9 +166,9 @@
       v-if="articlesPageCount > 1 && !articlesLoading"
       :page="articlesPage"
       :page-count="articlesPageCount"
-      :disabled="articlesLoading"
+      :disabled="articlesBusy"
       style="margin-top: 16px;"
-      @update:page="loadArticlesPage"
+      @update:page="(p: number) => loadArticlesPage(p)"
     />
   </template>
 </template>
@@ -217,6 +217,8 @@ const articlesLimit = 20
 const articlesPageCount = computed(() => Math.ceil(articlesTotal.value / articlesLimit) || 1)
 const isSubscribed = ref(false)
 const subBusy = ref(false)
+/** Paper list controls locked while articles load or subscribe mutates. */
+const articlesBusy = computed(() => articlesLoading.value || subBusy.value)
 /** Drop stale article-list responses when route id / page changes mid-flight. */
 let articlesLoadSeq = 0
 const originalClickBusy = new Set<string>()
@@ -302,12 +304,12 @@ async function doUnsubscribe() {
 }
 
 function reloadArticles() {
-  if (articlesLoading.value) return
+  if (articlesBusy.value) return
   loadArticlesPage(articlesPage.value)
 }
 
 async function loadArticlesPage(p: number, opts: { fromQuery?: boolean } = {}) {
-  if (articlesLoading.value && !opts.fromQuery) return
+  if ((articlesLoading.value || subBusy.value) && !opts.fromQuery) return
   const id = route.params.id as string
   const seq = ++articlesLoadSeq
   articlesPage.value = p

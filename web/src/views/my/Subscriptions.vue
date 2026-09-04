@@ -52,8 +52,8 @@
           </n-thing>
           <template #suffix>
             <n-space>
-              <n-button size="small" ghost :disabled="unsubBusyId === j.id" @click="openPrefs(j)">推送设置</n-button>
-              <n-button size="small" type="error" ghost :loading="unsubBusyId === j.id" :disabled="unsubBusyId === j.id" @click="confirmUnsubscribe(j)">取消订阅</n-button>
+              <n-button size="small" ghost :disabled="tabsBusy || unsubBusyId === j.id" @click="openPrefs(j)">推送设置</n-button>
+              <n-button size="small" type="error" ghost :loading="unsubBusyId === j.id" :disabled="tabsBusy || unsubBusyId === j.id" @click="confirmUnsubscribe(j)">取消订阅</n-button>
             </n-space>
           </template>
         </n-list-item>
@@ -352,7 +352,7 @@ function onPrefsModalShow(show: boolean) {
 }
 
 function openPrefs(j: SubscribedJournal) {
-  if (unsubBusyId.value === j.id || prefsSaving.value) return
+  if (tabsBusy.value || unsubBusyId.value === j.id) return
   prefsJournal.value = j
   prefsForm.value = {
     push_frequency: j.push_frequency || 'default',
@@ -387,6 +387,7 @@ async function savePrefs() {
 }
 
 function confirmUnsubscribe(j: { id: string; name: string }) {
+  if (tabsBusy.value) return
   dialog.warning({
     title: '取消订阅',
     content: `确认取消订阅「${j.name}」？之后将不再收到该源的更新推送。`,
@@ -397,7 +398,7 @@ function confirmUnsubscribe(j: { id: string; name: string }) {
 }
 
 async function unsubscribe(id: string) {
-  if (unsubBusyId.value === id) return
+  if (unsubBusyId.value === id || prefsSaving.value || addLoading.value || previewLoading.value) return
   unsubBusyId.value = id
   try {
     await unsubscribeJournal(id)
