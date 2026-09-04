@@ -120,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, watch, onMounted } from 'vue'
+import { ref, h, computed, watch, onMounted, inject } from 'vue'
 import { dirStatusLabel, dirStatusType, contentTypeLabel, sourceTypeLabel, sourceTypeTagType, healthStatusLabel } from '@/utils/labels'
 import { useRoute, useRouter } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
@@ -146,6 +146,7 @@ const editingId = ref<string | null>(null)
 const saving = ref(false)
 /** Per-row lock for directory-status / delete so other rows stay clickable. */
 const busyId = ref<string | null>(null)
+const refreshAdminPending = inject<() => void>('refreshAdminPending', () => {})
 const statusFilter = ref<string>('')
 const contentFilter = ref<string>('')
 const sourceFilter = ref<string>('')
@@ -403,6 +404,7 @@ async function changeStatus(id: string, status: string) {
     await setDirectoryStatus(id, status)
     message.success(`目录状态 → ${dirStatusLabel(status)}`)
     await load()
+    refreshAdminPending()
   } catch (e: any) {
     message.error(e.message)
   } finally {
@@ -439,7 +441,8 @@ async function save() {
     }
     showModal.value = false
     editingId.value = null
-    load()
+    await load()
+    refreshAdminPending()
   } catch (e: any) {
     message.error(e.message)
   } finally {
@@ -454,6 +457,7 @@ async function remove(id: string) {
     await deleteJournal(id)
     message.success('已删除')
     await load()
+    refreshAdminPending()
   } catch (e: any) {
     message.error(e.message)
   } finally {

@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, h, onMounted, onUnmounted, provide, ref, watch, type Component } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getStats } from '@/api/admin'
@@ -79,28 +79,46 @@ function updateViewport() {
   collapsed.value = mobile
 }
 
-function pendingBadge(count: number) {
+/** Icon badge works when sider is collapsed; extra label badge when expanded. */
+function menuIcon(icon: Component, count: number) {
+  const inner = () => h(NIcon, null, { default: () => h(icon) })
+  if (count <= 0) return inner
+  return () => h(
+    NBadge,
+    { value: count, max: 99, type: 'warning', offset: [2, -2] },
+    { default: inner },
+  )
+}
+
+function pendingExtra(count: number) {
   if (count <= 0) return undefined
   return () => h(NBadge, { value: count, max: 99, type: 'warning' })
 }
 
-const menuOptions = computed(() => [
-  { key: '/admin', label: '概览', icon: () => h(NIcon, null, { default: () => h(BarChart) }) },
-  {
-    key: '/admin/journals',
-    label: '期刊管理',
-    icon: () => h(NIcon, null, { default: () => h(BookOutline) }),
-    extra: pendingBadge(pendingDirectory.value),
-  },
-  { key: '/admin/categories', label: 'CAS 分类', icon: () => h(NIcon, null, { default: () => h(GridOutline) }) },
-  {
-    key: '/admin/requests',
-    label: '申请审核',
-    icon: () => h(NIcon, null, { default: () => h(ClipboardOutline) }),
-    extra: pendingBadge(pendingRequests.value),
-  },
-  { key: '/admin/users', label: '用户管理', icon: () => h(NIcon, null, { default: () => h(PeopleOutline) }) },
-])
+const menuOptions = computed(() => {
+  // Collapsed: badge on icon. Expanded: badge as menu extra (avoid double).
+  const dirCount = pendingDirectory.value
+  const reqCount = pendingRequests.value
+  const dirIconCount = collapsed.value ? dirCount : 0
+  const reqIconCount = collapsed.value ? reqCount : 0
+  return [
+    { key: '/admin', label: '概览', icon: menuIcon(BarChart, 0) },
+    {
+      key: '/admin/journals',
+      label: '期刊管理',
+      icon: menuIcon(BookOutline, dirIconCount),
+      extra: collapsed.value ? undefined : pendingExtra(dirCount),
+    },
+    { key: '/admin/categories', label: 'CAS 分类', icon: menuIcon(GridOutline, 0) },
+    {
+      key: '/admin/requests',
+      label: '申请审核',
+      icon: menuIcon(ClipboardOutline, reqIconCount),
+      extra: collapsed.value ? undefined : pendingExtra(reqCount),
+    },
+    { key: '/admin/users', label: '用户管理', icon: menuIcon(PeopleOutline, 0) },
+  ]
+})
 
 async function loadPendingCounts() {
   const seq = ++pendingLoadSeq
@@ -113,6 +131,8 @@ async function loadPendingCounts() {
     // badges are best-effort; leave last known counts
   }
 }
+
+provide('refreshAdminPending', loadPendingCounts)
 
 onMounted(() => {
   updateViewport()

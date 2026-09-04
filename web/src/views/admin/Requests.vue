@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, watch, onMounted } from 'vue'
+import { ref, h, computed, watch, onMounted, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
@@ -57,6 +57,7 @@ const loading = ref(true)
 let requestsLoadSeq = 0
 /** Per-row lock so reviewing one request does not disable sibling rows. */
 const busyId = ref<string | null>(null)
+const refreshAdminPending = inject<() => void>('refreshAdminPending', () => {})
 
 function statusFromQuery(): string {
   const raw = route.query.status
@@ -187,6 +188,7 @@ async function review(id: string, status: string) {
     await reviewRequest(id, status)
     message.success(status === 'approved' ? '已通过（将创建/复用公开期刊）' : '已拒绝')
     await load()
+    refreshAdminPending()
   } catch (e: any) {
     message.error(e.message)
   } finally {
