@@ -47,7 +47,7 @@ import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
-import { freqLabel } from '@/utils/format'
+import { freqLabel, isWechatPlaceholderEmail } from '@/utils/format'
 import { getTemplateSetting, updateTemplateSetting, getTemplateIds } from '@/api/wechat'
 
 const auth = useAuthStore()
@@ -59,7 +59,9 @@ const templateBusy = ref(false)
 
 const accountEmailLabel = computed(() => {
   if (!auth.user) return ''
-  if (auth.hasEmail) return auth.user.email
+  if (auth.hasEmail && auth.user.email && !isWechatPlaceholderEmail(auth.user.email)) {
+    return auth.user.email
+  }
   return '未绑定邮箱（微信登录）'
 })
 

@@ -142,6 +142,10 @@ onMounted(async () => {
       auth.isLoggedIn ? getSubscribedJournals() : Promise.resolve(null),
     ])
     journal.value = jr
+    // Prefer journal.article_count until the paged list reports total.
+    if (typeof jr?.article_count === 'number' && jr.article_count > 0 && !articlesTotal.value) {
+      articlesTotal.value = jr.article_count
+    }
     if (jr?.name) {
       uni.setNavigationBarTitle({ title: jr.name.length > 16 ? `${jr.name.slice(0, 16)}…` : jr.name })
     }

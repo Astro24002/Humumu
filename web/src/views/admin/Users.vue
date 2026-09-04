@@ -44,7 +44,7 @@ import {
 import { getUsers, setUserAdmin, type User } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
 import { formatDateTime } from '@/utils/datetime'
-import { freqLabel } from '@/utils/labels'
+import { freqLabel, isWechatPlaceholderEmail } from '@/utils/labels'
 
 const message = useMessage()
 const dialog = useDialog()
@@ -65,10 +65,6 @@ watch(pageCount, (n) => {
     load()
   }
 })
-
-function isWechatPlaceholderEmail(email: string | undefined | null): boolean {
-  return !!email && email.endsWith('@wechat.user')
-}
 
 function emailCell(row: User) {
   if (isWechatPlaceholderEmail(row.email)) {

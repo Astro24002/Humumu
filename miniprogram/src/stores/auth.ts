@@ -19,7 +19,10 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
 
   const isLoggedIn = computed(() => !!token.value)
-  const hasEmail = computed(() => user.value?.email ? !user.value.email.endsWith('@wechat.user') : false)
+  const hasEmail = computed(() => {
+    const email = user.value?.email
+    return email ? !email.endsWith('@wechat.user') : false
+  })
 
   function save(t: string, u: User) {
     token.value = t

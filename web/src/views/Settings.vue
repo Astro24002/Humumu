@@ -57,7 +57,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { updatePushFrequency } from '@/api/subscriptions'
-import { freqLabel } from '@/utils/labels'
+import { freqLabel, isWechatPlaceholderEmail } from '@/utils/labels'
 import {
   NH2, NCard, NRadio, NRadioGroup, NButton, NDescriptions, NDescriptionsItem, NTag, useMessage, useDialog,
 } from 'naive-ui'
@@ -75,7 +75,7 @@ const accountHasEmail = computed(() => {
   const u = auth.user
   if (!u) return false
   if (typeof u.has_email === 'boolean') return u.has_email
-  return !!(u.email && !u.email.endsWith('@wechat.user'))
+  return !!(u.email && !isWechatPlaceholderEmail(u.email))
 })
 
 const frequencyDirty = computed(() => frequency.value !== savedFrequency.value)

@@ -122,3 +122,8 @@ export function requestStatusTagType(s?: string | null): 'success' | 'error' | '
   return 'default'
 }
 
+/** Synthetic email assigned to WeChat-only accounts (not a real inbox). */
+export function isWechatPlaceholderEmail(email?: string | null): boolean {
+  return !!email && email.endsWith('@wechat.user')
+}
+

@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
         ? hasEmail
         : typeof u.has_email === 'boolean'
           ? u.has_email
-          : !!(u.email && !u.email.endsWith('@wechat.user'))
+          : !!(u.email && !u.email.endsWith('@wechat.user')) // keep inline to avoid circular util import in store bootstrap
     return { ...u, has_email: derived }
   }
 

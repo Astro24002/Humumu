@@ -144,3 +144,8 @@ export function requestStatusLabel(s?: string | null): string {
   return s || ''
 }
 
+/** Synthetic email assigned to WeChat-only accounts (not a real inbox). */
+export function isWechatPlaceholderEmail(email?: string | null): boolean {
+  return !!email && email.endsWith('@wechat.user')
+}
+
