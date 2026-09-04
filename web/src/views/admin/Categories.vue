@@ -31,7 +31,7 @@
 
   <n-modal v-model:show="showCreate">
     <n-card style="width: 480px;" title="新增 CAS 分类" role="dialog">
-      <n-form :model="form">
+      <n-form :model="form" :disabled="saving">
         <n-form-item label="年份">
           <n-input-number v-model:value="form.year" :min="2000" :max="2100" style="width: 100%" />
         </n-form-item>

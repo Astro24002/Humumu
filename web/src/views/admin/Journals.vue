@@ -80,7 +80,7 @@
 
   <n-modal v-model:show="showModal">
     <n-card style="width: 500px;" :title="editingId ? '编辑期刊' : '新增期刊'" role="dialog">
-      <n-form :model="form">
+      <n-form :model="form" :disabled="saving">
         <n-form-item label="名称"><n-input v-model:value="form.name" /></n-form-item>
         <n-form-item label="标识"><n-input v-model:value="form.slug" /></n-form-item>
         <n-form-item label="源类型">

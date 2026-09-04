@@ -72,8 +72,8 @@
         <text class="date" v-if="a.publish_date">{{ formatDate(a.publish_date) }}</text>
         <text class="snippet" v-if="a.abstract">{{ truncateAbstract(a.abstract) }}</text>
         <view v-if="a.doi || a.original_url || a.url" class="actions" @click.stop>
-          <text v-if="a.doi" class="action-link" @click="copyLink(doiUrl(a.doi))">DOI</text>
-          <text v-if="a.original_url || a.url" class="action-link" @click="copyLink(a.original_url || a.url || '')">原文</text>
+          <text v-if="a.doi" class="action-link" @click="copyLink(doiUrl(a.doi), a)">DOI</text>
+          <text v-if="a.original_url || a.url" class="action-link" @click="copyLink(a.original_url || a.url || '', a)">原文</text>
         </view>
       </view>
       <view v-if="loadingMore" class="loading-more"><text>加载中...</text></view>
@@ -89,6 +89,7 @@ import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
+import { recordOriginalClick, updateArticleStatus } from '@/api/reading'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate, reasonLabel, formatAuthors, contentTypeLabel, sourceTypeLabel, doiUrl } from '@/utils/format'
 
@@ -301,8 +302,24 @@ function goJournal(id?: string) {
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
 }
 
-function copyLink(url: string) {
+const originalClickBusy = new Set<string>()
+
+async function copyLink(url: string, item?: FeedItem) {
   if (!url) return
+  if (auth.isLoggedIn && item?.id && tab.value === 'updates' && !originalClickBusy.has(item.id)) {
+    originalClickBusy.add(item.id)
+    try {
+      await recordOriginalClick(item.id)
+      if (item.unread) {
+        await updateArticleStatus(item.id, { is_read: true })
+        item.unread = false
+      }
+    } catch {
+      // non-blocking
+    } finally {
+      originalClickBusy.delete(item.id)
+    }
+  }
   uni.setClipboardData({
     data: url,
     success: () => uni.showToast({ title: '链接已复制', icon: 'none' }),
