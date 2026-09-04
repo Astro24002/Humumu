@@ -42,6 +42,7 @@ class AdminUserOut(BaseModel):
 
 class AdminUsersResponse(BaseModel):
     users: list[AdminUserOut]
+    total: int = 0
 
 
 class AdminSetAdminRequest(BaseModel):

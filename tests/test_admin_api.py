@@ -346,18 +346,38 @@ async def test_admin_users_omit_password_hash(client, authed_user_id):
     with patch(
         "app.routers.admin.user_service.list_all_users",
         new_callable=AsyncMock,
-        return_value=[user],
+        return_value=([user], 1),
     ):
         r = await client.get("/api/v1/admin/users")
     assert r.status_code == 200
     body = r.json()
     assert "users" in body
+    assert body.get("total") == 1
     assert len(body["users"]) == 1
     u = body["users"][0]
     assert u["email"] == "admin@example.com"
     assert u["name"] == "Admin"
     assert "password_hash" not in u
     assert "password" not in u
+
+
+@pytest.mark.asyncio
+async def test_admin_users_pagination_and_q(client, authed_user_id):
+    user = _sample_user()
+    with patch(
+        "app.routers.admin.user_service.list_all_users",
+        new_callable=AsyncMock,
+        return_value=([user], 42),
+    ) as mock_list:
+        r = await client.get("/api/v1/admin/users?q=admin&limit=10&offset=20")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total"] == 42
+    assert len(body["users"]) == 1
+    kwargs = mock_list.await_args.kwargs
+    assert kwargs.get("q") == "admin"
+    assert kwargs.get("limit") == 10
+    assert kwargs.get("offset") == 20
 
 
 @pytest.mark.asyncio

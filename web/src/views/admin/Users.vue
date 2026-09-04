@@ -1,31 +1,46 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-    <n-h2 style="margin: 0;">用户管理</n-h2>
+    <n-space size="small" align="center">
+      <n-h2 style="margin: 0;">用户管理</n-h2>
+      <n-tag v-if="!loading" size="small" :bordered="false">{{ total }} 人</n-tag>
+    </n-space>
     <n-space align="center">
       <n-input
         v-model:value="nameFilter"
         clearable
         placeholder="搜索邮箱 / 昵称"
         style="width: 240px"
+        @keyup.enter="reload"
+        @clear="reload"
       />
-      <n-button :loading="loading" @click="load">刷新</n-button>
+      <n-button :loading="loading" @click="reload">刷新</n-button>
     </n-space>
   </div>
-  <n-data-table :columns="columns" :data="filteredUsers" :loading="loading" :pagination="{ pageSize: 20 }" />
+  <n-data-table :columns="columns" :data="users" :loading="loading" :pagination="false" />
   <n-empty
-    v-if="!loading && !filteredUsers.length"
+    v-if="!loading && !users.length"
     style="margin-top: 24px;"
     :description="nameFilter.trim() ? '没有匹配的用户' : '暂无用户'"
   >
     <template #extra>
-      <n-button v-if="nameFilter.trim()" @click="nameFilter = ''">清除搜索</n-button>
+      <n-button v-if="nameFilter.trim()" @click="clearFilter">清除搜索</n-button>
     </template>
   </n-empty>
+  <n-pagination
+    v-if="pageCount > 1 && !loading"
+    style="margin-top: 16px;"
+    :page="page"
+    :page-count="pageCount"
+    @update:page="onPageChange"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, onMounted } from 'vue'
-import { NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, useMessage, useDialog } from 'naive-ui'
+import { ref, h, computed, watch, onMounted } from 'vue'
+import {
+  NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, NPagination,
+  useMessage, useDialog,
+} from 'naive-ui'
 import { getUsers, setUserAdmin, type User } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
 import { formatDateTime } from '@/utils/datetime'
@@ -35,17 +50,20 @@ const message = useMessage()
 const dialog = useDialog()
 const auth = useAuthStore()
 const users = ref<User[]>([])
+const total = ref(0)
 const loading = ref(true)
 const busyId = ref<string | null>(null)
 const nameFilter = ref('')
+const page = ref(1)
+const pageSize = 20
 
-const filteredUsers = computed(() => {
-  const q = nameFilter.value.trim().toLowerCase()
-  if (!q) return users.value
-  return users.value.filter((u) => {
-    const hay = `${u.email || ''} ${u.name || ''}`.toLowerCase()
-    return hay.includes(q)
-  })
+const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
+
+watch(pageCount, (n) => {
+  if (page.value > n) {
+    page.value = n
+    load()
+  }
 })
 
 const columns = [
@@ -119,10 +137,31 @@ async function toggleAdmin(row: User, isAdmin: boolean) {
   }
 }
 
+function clearFilter() {
+  nameFilter.value = ''
+  reload()
+}
+
+function onPageChange(p: number) {
+  page.value = p
+  load()
+}
+
+function reload() {
+  page.value = 1
+  load()
+}
+
 async function load() {
   loading.value = true
   try {
-    users.value = (await getUsers()).users
+    const res = await getUsers({
+      q: nameFilter.value.trim() || undefined,
+      limit: pageSize,
+      offset: (page.value - 1) * pageSize,
+    })
+    users.value = res.users
+    total.value = typeof res.total === 'number' ? res.total : res.users.length
   } catch (e: any) {
     message.error(e?.message || '加载失败')
   } finally {

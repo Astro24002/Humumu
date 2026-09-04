@@ -224,12 +224,20 @@ async def admin_review_request(
 async def admin_list_users(
     _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
+    q: str | None = Query(default=None),
+    limit: int | None = Query(default=None, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
 ) -> AdminUsersResponse:
     try:
-        users = await user_service.list_all_users(session)
+        users, total = await user_service.list_all_users(
+            session, q=q, limit=limit, offset=offset
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch users") from exc
-    return AdminUsersResponse(users=[AdminUserOut.model_validate(u) for u in users])
+    return AdminUsersResponse(
+        users=[AdminUserOut.model_validate(u) for u in users],
+        total=total,
+    )
 
 
 @router.post("/users/{target_user_id}/admin", response_model=AdminUserOut)

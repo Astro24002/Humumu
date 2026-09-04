@@ -81,8 +81,21 @@ export function reviewRequest(id: string, status: string): Promise<void> {
   return put(`/admin/requests/${id}`, { status })
 }
 
-export function getUsers(): Promise<{ users: User[] }> {
-  return get('/admin/users')
+export interface AdminUserListParams {
+  q?: string
+  limit?: number
+  offset?: number
+}
+
+export function getUsers(
+  params?: AdminUserListParams,
+): Promise<{ users: User[]; total?: number }> {
+  const qs = new URLSearchParams()
+  if (params?.q) qs.set('q', params.q)
+  if (params?.limit != null) qs.set('limit', String(params.limit))
+  if (params?.offset != null) qs.set('offset', String(params.offset))
+  const suffix = qs.toString() ? `?${qs.toString()}` : ''
+  return get(`/admin/users${suffix}`)
 }
 
 export function setUserAdmin(userId: string, isAdmin: boolean): Promise<User> {

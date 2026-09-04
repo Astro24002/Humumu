@@ -392,7 +392,7 @@ GET /api/v1/my/updates
 | PUT/DELETE | /api/v1/admin/journals/{id} | 更新 / 删除 |
 | POST | /api/v1/admin/journals/{id}/directory_status | 设置 public/private/pending_review/rejected/hidden |
 | GET/PUT | /api/v1/admin/requests | 申请队列与审核（`approved` 会创建/复用公开期刊并订阅申请人） |
-| GET | /api/v1/admin/users | 用户列表（含 is_admin） |
+| GET | /api/v1/admin/users | 用户列表（含 is_admin；可选 `q`/`limit`/`offset`，带 `limit` 时含 `total`） |
 | POST | /api/v1/admin/users/{id}/admin | 授予/撤销管理员（`{"is_admin": true\|false}`；不可撤销自己） |
 | POST | /api/v1/admin/cas/categories | 创建 CAS 分类 |
 | POST | /api/v1/admin/journals/{id}/cas | 挂载 CAS 分类到期刊 |

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
@@ -110,9 +110,39 @@ async def count_users(session: AsyncSession) -> int:
     return int(result.scalar_one() or 0)
 
 
-async def list_all_users(session: AsyncSession) -> list[User]:
-    result = await session.execute(select(User).order_by(User.created_at.desc()))
-    return list(result.scalars().all())
+async def list_all_users(
+    session: AsyncSession,
+    *,
+    q: str | None = None,
+    limit: int | None = None,
+    offset: int = 0,
+) -> tuple[list[User], int]:
+    """Return (users, total_matching). Optional q matches email/name (ilike)."""
+    if offset < 0:
+        offset = 0
+    if limit is not None:
+        if limit > 200:
+            limit = 200
+        if limit < 1:
+            limit = 1
+
+    conditions = []
+    if q and q.strip():
+        term = f"%{q.strip()}%"
+        conditions.append(or_(User.email.ilike(term), User.name.ilike(term)))
+
+    count_stmt = select(func.count()).select_from(User)
+    if conditions:
+        count_stmt = count_stmt.where(*conditions)
+    total = int((await session.execute(count_stmt)).scalar_one() or 0)
+
+    stmt = select(User).order_by(User.created_at.desc())
+    if conditions:
+        stmt = stmt.where(*conditions)
+    if limit is not None:
+        stmt = stmt.limit(limit).offset(offset)
+    result = await session.execute(stmt)
+    return list(result.scalars().all()), total
 
 
 async def set_admin(
