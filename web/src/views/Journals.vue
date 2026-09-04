@@ -206,6 +206,8 @@ const major = ref<string | null>(null)
 const minor = ref<string | null>(null)
 const zone = ref<string | null>(null)
 const topOnly = ref(false)
+/** Latest CAS year used for facet options and list filters. */
+const casYear = ref<number | null>(null)
 const categories = ref<CasCategory[]>([])
 const subscribedIds = ref<Set<string>>(new Set())
 const busyId = ref<string | null>(null)
@@ -334,6 +336,7 @@ async function reload() {
 async function fetchJournals() {
   loading.value = true
   try {
+    const hasCasFacet = Boolean(major.value || minor.value || zone.value || topOnly.value)
     const params: Record<string, string | number | undefined> = {
       q: q.value.trim() || undefined,
       content_type: contentType.value || undefined,
@@ -342,6 +345,8 @@ async function fetchJournals() {
       minor: minor.value || undefined,
       zone: zone.value || undefined,
       top: topOnly.value ? 'true' : undefined,
+      // Align CAS journal filter with the year the facet options came from.
+      year: hasCasFacet && casYear.value != null ? casYear.value : undefined,
       sort: sortBy.value,
       limit: pageSize,
       offset: (page.value - 1) * pageSize,
@@ -377,9 +382,11 @@ onMounted(async () => {
       : [...new Set(cas.categories.map((c) => c.year))].sort((a, b) => b - a)
     const latest = years[0]
     if (latest != null) {
+      casYear.value = latest
       const scoped = await getCasCategories({ year: latest })
       categories.value = scoped.categories
     } else {
+      casYear.value = null
       categories.value = cas.categories
     }
   } catch {
