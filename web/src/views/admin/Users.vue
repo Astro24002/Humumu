@@ -29,6 +29,7 @@ import { NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, useMessage, use
 import { getUsers, setUserAdmin, type User } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
 import { formatDateTime } from '@/utils/datetime'
+import { freqLabel } from '@/utils/labels'
 
 const message = useMessage()
 const dialog = useDialog()
@@ -53,7 +54,7 @@ const columns = [
   {
     title: '推送频率', key: 'push_frequency',
     render: (row: User) => h(NTag, { size: 'small' }, {
-      default: () => row.push_frequency === 'realtime' ? '实时' : '每日',
+      default: () => freqLabel(row.push_frequency || 'daily'),
     }),
   },
   {

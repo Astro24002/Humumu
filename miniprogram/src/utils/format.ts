@@ -111,6 +111,7 @@ export function sourceTypeLabel(t?: string | null): string {
   if (!t) return ''
   if (t === 'arxiv') return 'arXiv'
   if (t === 'rss') return 'RSS'
+  if (t === 'cnki') return '知网'
   return t
 }
 

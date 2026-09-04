@@ -28,8 +28,8 @@
       style="width: 140px"
       :options="[
         { label: '全部', value: '' },
-        { label: '期刊', value: 'journal' },
-        { label: '预印本', value: 'preprint' },
+        { label: contentTypeLabel('journal'), value: 'journal' },
+        { label: contentTypeLabel('preprint'), value: 'preprint' },
       ]"
     />
     <span style="color: #888; font-size: 13px;">{{ filteredJournals.length }} / {{ journals.length }}</span>
@@ -54,15 +54,15 @@
         <n-form-item label="标识"><n-input v-model:value="form.slug" /></n-form-item>
         <n-form-item label="源类型">
           <n-select v-model:value="form.source_type" :options="[
-            { label: 'RSS', value: 'rss' },
-            { label: 'arXiv', value: 'arxiv' },
-            { label: '知网 CNKI', value: 'cnki' },
+            { label: sourceTypeLabel('rss'), value: 'rss' },
+            { label: sourceTypeLabel('arxiv'), value: 'arxiv' },
+            { label: sourceTypeLabel('cnki'), value: 'cnki' },
           ]" />
         </n-form-item>
         <n-form-item label="内容类型">
           <n-select v-model:value="form.content_type" :options="[
-            { label: '期刊', value: 'journal' },
-            { label: '预印本', value: 'preprint' },
+            { label: contentTypeLabel('journal'), value: 'journal' },
+            { label: contentTypeLabel('preprint'), value: 'preprint' },
           ]" />
         </n-form-item>
         <n-form-item label="目录状态">
@@ -134,11 +134,11 @@ function clearClientFilters() {
 }
 
 const directoryOptions = [
-  { label: '公开 public', value: 'public' },
-  { label: '私有 private', value: 'private' },
-  { label: '待审 pending_review', value: 'pending_review' },
-  { label: '拒绝 rejected', value: 'rejected' },
-  { label: '隐藏 hidden', value: 'hidden' },
+  { label: dirStatusLabel('public'), value: 'public' },
+  { label: dirStatusLabel('private'), value: 'private' },
+  { label: dirStatusLabel('pending_review'), value: 'pending_review' },
+  { label: dirStatusLabel('rejected'), value: 'rejected' },
+  { label: dirStatusLabel('hidden'), value: 'hidden' },
 ]
 
 const form = ref<Partial<Journal>>({
@@ -153,11 +153,11 @@ const form = ref<Partial<Journal>>({
 })
 
 const statusMenu = [
-  { label: '设为公开', key: 'public' },
-  { label: '设为私有', key: 'private' },
-  { label: '待审', key: 'pending_review' },
-  { label: '拒绝', key: 'rejected' },
-  { label: '隐藏', key: 'hidden' },
+  { label: `设为${dirStatusLabel('public')}`, key: 'public' },
+  { label: `设为${dirStatusLabel('private')}`, key: 'private' },
+  { label: dirStatusLabel('pending_review'), key: 'pending_review' },
+  { label: dirStatusLabel('rejected'), key: 'rejected' },
+  { label: dirStatusLabel('hidden'), key: 'hidden' },
 ]
 
 
@@ -202,21 +202,39 @@ const columns = [
   {
     title: '操作',
     key: 'actions',
-    render: (row: Journal) => h(NSpace, null, {
-      default: () => [
-        h(NButton, { size: 'small', onClick: () => edit(row) }, { default: () => '编辑' }),
-        h(NDropdown, {
-          options: statusMenu,
-          onSelect: (key: string) => confirmChangeStatus(row, key),
-        }, {
-          default: () => h(NButton, { size: 'small', ghost: true }, { default: () => '目录状态' }),
-        }),
-        h(NPopconfirm, { onPositiveClick: () => remove(row.id) }, {
-          default: () => '确认删除？',
-          trigger: () => h(NButton, { size: 'small', type: 'error', ghost: true }, { default: () => '删除' }),
-        }),
-      ],
-    }),
+    render: (row: Journal) => {
+      const rowBusy = statusBusy.value || deleteBusy.value
+      return h(NSpace, null, {
+        default: () => [
+          h(NButton, { size: 'small', disabled: rowBusy, onClick: () => edit(row) }, { default: () => '编辑' }),
+          h(NDropdown, {
+            options: statusMenu,
+            disabled: rowBusy,
+            onSelect: (key: string) => confirmChangeStatus(row, key),
+          }, {
+            default: () => h(NButton, {
+              size: 'small',
+              ghost: true,
+              loading: statusBusy.value,
+              disabled: rowBusy,
+            }, { default: () => '目录状态' }),
+          }),
+          h(NPopconfirm, {
+            disabled: rowBusy,
+            onPositiveClick: () => remove(row.id),
+          }, {
+            default: () => '确认删除？',
+            trigger: () => h(NButton, {
+              size: 'small',
+              type: 'error',
+              ghost: true,
+              loading: deleteBusy.value,
+              disabled: rowBusy,
+            }, { default: () => '删除' }),
+          }),
+        ],
+      })
+    },
   },
 ]
 
@@ -241,22 +259,14 @@ function edit(row: Journal) {
   showModal.value = true
 }
 
-const statusLabels: Record<string, string> = {
-  public: '公开',
-  private: '私有',
-  pending_review: '待审',
-  rejected: '拒绝',
-  hidden: '隐藏',
-}
-
 function confirmChangeStatus(row: Journal, status: string) {
   const current = row.directory_status || 'public'
   if (current === status) {
-    message.info(`已是「${statusLabels[status] || status}」`)
+    message.info(`已是「${dirStatusLabel(status)}」`)
     return
   }
   const label = row.name || row.slug || row.id
-  const nextLabel = statusLabels[status] || status
+  const nextLabel = dirStatusLabel(status)
   const dangerous = status === 'rejected' || status === 'hidden'
   const content = dangerous
     ? `确认将「${label}」设为${nextLabel}？广场将不再展示该源。`
@@ -277,7 +287,7 @@ async function changeStatus(id: string, status: string) {
   statusBusy.value = true
   try {
     await setDirectoryStatus(id, status)
-    message.success(`目录状态 → ${statusLabels[status] || status}`)
+    message.success(`目录状态 → ${dirStatusLabel(status)}`)
     await load()
   } catch (e: any) {
     message.error(e.message)

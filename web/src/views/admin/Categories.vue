@@ -100,6 +100,7 @@ import {
 import { getCasCategories, type CasCategory } from '@/api/categories'
 import { attachCasCategories, createCasCategory, getAllJournals } from '@/api/admin'
 import type { Journal } from '@/api/journals'
+import { sourceTypeLabel } from '@/utils/labels'
 
 const message = useMessage()
 const loading = ref(true)
@@ -125,7 +126,15 @@ const attachCategoryIds = ref<string[]>([])
 
 const yearOptions = computed(() => years.value.map(y => ({ label: String(y), value: y })))
 const journalOptions = computed(() =>
-  journals.value.map(j => ({ label: j.name, value: j.id })),
+  [...journals.value]
+    .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'zh'))
+    .map(j => {
+      const src = sourceTypeLabel(j.source_type)
+      return {
+        label: src ? `${j.name}（${src}）` : j.name,
+        value: j.id,
+      }
+    }),
 )
 const categoryOptions = computed(() =>
   categories.value.map(c => ({
