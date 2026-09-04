@@ -306,14 +306,12 @@ const originalClickBusy = new Set<string>()
 
 async function copyLink(url: string, item?: FeedItem) {
   if (!url) return
-  if (auth.isLoggedIn && item?.id && tab.value === 'updates' && !originalClickBusy.has(item.id)) {
+  if (auth.isLoggedIn && item?.id && !originalClickBusy.has(item.id)) {
     originalClickBusy.add(item.id)
     try {
       await recordOriginalClick(item.id)
-      if (item.unread) {
-        await updateArticleStatus(item.id, { is_read: true })
-        item.unread = false
-      }
+      await updateArticleStatus(item.id, { is_read: true })
+      if (item.unread) item.unread = false
     } catch {
       // non-blocking
     } finally {
