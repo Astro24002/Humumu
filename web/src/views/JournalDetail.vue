@@ -262,8 +262,14 @@ async function loadArticlesPage(p: number) {
   }
 }
 
-onMounted(async () => {
-  const id = route.params.id as string
+async function loadJournal(id: string) {
+  loading.value = true
+  loadError.value = ''
+  journal.value = null
+  articles.value = []
+  articlesTotal.value = 0
+  articlesPage.value = 1
+  isSubscribed.value = false
   try {
     const [jr, , subRes] = await Promise.all([
       getJournal(id),
@@ -280,5 +286,17 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+}
+
+watch(
+  () => route.params.id,
+  (id) => {
+    if (typeof id === 'string' && id) loadJournal(id)
+  },
+)
+
+onMounted(() => {
+  const id = route.params.id as string
+  if (id) loadJournal(id)
 })
 </script>

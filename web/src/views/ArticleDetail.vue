@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getArticle, type Article } from '@/api/articles'
 import { getArticleStatus, updateArticleStatus, recordOriginalClick, type ArticleStatus } from '@/api/reading'
@@ -196,8 +196,18 @@ async function copyLink() {
   }
 }
 
-onMounted(async () => {
-  const id = route.params.id as string
+async function loadArticle(id: string) {
+  loading.value = true
+  loadError.value = ''
+  article.value = null
+  status.value = {
+    user_id: '',
+    article_id: '',
+    is_read: false,
+    is_starred: false,
+    is_later: false,
+    original_clicked_at: null,
+  }
   try {
     article.value = await getArticle(id)
     if (article.value?.title) {
@@ -222,5 +232,17 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+}
+
+watch(
+  () => route.params.id,
+  (id) => {
+    if (typeof id === 'string' && id) loadArticle(id)
+  },
+)
+
+onMounted(() => {
+  const id = route.params.id as string
+  if (id) loadArticle(id)
 })
 </script>
