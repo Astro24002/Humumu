@@ -106,3 +106,19 @@ export function channelTagType(c?: string | null): 'primary' | 'success' | 'defa
   return 'default'
 }
 
+/** Journal-request review status label (admin / user request queues). */
+export function requestStatusLabel(s?: string | null): string {
+  if (s === 'pending') return '待审批'
+  if (s === 'approved') return '已通过'
+  if (s === 'rejected') return '已拒绝'
+  return s || ''
+}
+
+/** Naive tag type for journal-request review status. */
+export function requestStatusTagType(s?: string | null): 'success' | 'error' | 'warning' | 'default' {
+  if (s === 'approved') return 'success'
+  if (s === 'rejected') return 'error'
+  if (s === 'pending') return 'warning'
+  return 'default'
+}
+

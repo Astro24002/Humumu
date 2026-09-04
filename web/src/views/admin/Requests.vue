@@ -6,10 +6,10 @@
     </n-space>
     <n-space align="center" style="flex-wrap: wrap;">
       <n-radio-group v-model:value="statusFilter" size="small" @update:value="reload">
-        <n-radio-button value="pending">待审</n-radio-button>
+        <n-radio-button value="pending">{{ requestStatusLabel('pending') }}</n-radio-button>
         <n-radio-button value="">全部</n-radio-button>
-        <n-radio-button value="approved">已通过</n-radio-button>
-        <n-radio-button value="rejected">已拒绝</n-radio-button>
+        <n-radio-button value="approved">{{ requestStatusLabel('approved') }}</n-radio-button>
+        <n-radio-button value="rejected">{{ requestStatusLabel('rejected') }}</n-radio-button>
       </n-radio-group>
       <n-button size="small" :loading="loading" @click="reload">刷新</n-button>
     </n-space>
@@ -43,6 +43,7 @@ import {
 import { getRequests, reviewRequest, type JournalRequest } from '@/api/admin'
 import { formatDateTime } from '@/utils/datetime'
 import { shortUrl } from '@/utils/url'
+import { requestStatusLabel, requestStatusTagType } from '@/utils/labels'
 
 const message = useMessage()
 const dialog = useDialog()
@@ -87,13 +88,10 @@ const columns = [
   },
   {
     title: '状态', key: 'status',
-    render: (row: JournalRequest) => {
-      const map: Record<string, string> = { pending: '待审批', approved: '已通过', rejected: '已拒绝' }
-      return h(NTag, {
-        size: 'small',
-        type: row.status === 'approved' ? 'success' : row.status === 'rejected' ? 'error' : 'warning',
-      }, { default: () => map[row.status] || row.status })
-    },
+    render: (row: JournalRequest) => h(NTag, {
+      size: 'small',
+      type: requestStatusTagType(row.status),
+    }, { default: () => requestStatusLabel(row.status) }),
   },
   {
     title: '申请时间',

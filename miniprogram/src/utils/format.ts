@@ -136,3 +136,11 @@ export function channelLabel(c?: string | null): string {
   return c || ''
 }
 
+/** Journal-request review status label. */
+export function requestStatusLabel(s?: string | null): string {
+  if (s === 'pending') return '待审批'
+  if (s === 'approved') return '已通过'
+  if (s === 'rejected') return '已拒绝'
+  return s || ''
+}
+
