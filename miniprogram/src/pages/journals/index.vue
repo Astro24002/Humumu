@@ -229,7 +229,7 @@ async function loadMore() {
   }
 }
 
-async function reload() {
+async function fetchJournals() {
   const seq = ++journalsLoadSeq
   loading.value = true
   offset.value = 0
@@ -247,6 +247,11 @@ async function reload() {
   }
 }
 
+async function reload() {
+  if (loading.value) return
+  await fetchJournals()
+}
+
 function goEmptyCta() {
   if (auth.isLoggedIn) {
     uni.switchTab({ url: '/pages/subscriptions/index' })
@@ -262,14 +267,15 @@ watch(sortBy, () => {
 
 onShow(async () => {
   await ensureCasFacets()
-  reload()
+  await fetchJournals()
 })
 
 onPullDownRefresh(async () => {
   try {
     casLoaded = false
     await ensureCasFacets()
-    await reload()
+    // Pull-to-refresh always reloads even if a prior fetch is mid-flight.
+    await fetchJournals()
   } finally {
     uni.stopPullDownRefresh()
   }

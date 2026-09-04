@@ -2,7 +2,7 @@
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
       <n-h2 style="margin: 0;">公开广场</n-h2>
-      <n-button size="small" :loading="loading && !!articles.length" @click="loadArticles">刷新</n-button>
+      <n-button size="small" :loading="loading && !!articles.length" :disabled="loading" @click="reload">刷新</n-button>
     </div>
     <n-alert v-if="auth.isLoggedIn" type="info" style="margin-bottom: 16px;" :bordered="false">
       已登录用户可在
@@ -278,6 +278,11 @@ function clearFilters() {
 function onFilterChange() {
   page.value = 1
   syncFiltersToQuery()
+  loadArticles()
+}
+
+function reload() {
+  if (loading.value) return
   loadArticles()
 }
 

@@ -1,7 +1,7 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
     <n-h2 style="margin: 0;">系统概览</n-h2>
-    <n-button size="small" :loading="loading" @click="load">刷新</n-button>
+    <n-button size="small" :loading="loading" :disabled="loading" @click="reload">刷新</n-button>
   </div>
   <n-spin :show="loading">
     <n-grid :cols="6" :x-gap="16" responsive="screen" item-responsive>
@@ -112,6 +112,11 @@ function goPendingRequests() {
 
 /** Drop stale stats responses when refresh is clicked mid-flight. */
 let statsLoadSeq = 0
+
+function reload() {
+  if (loading.value) return
+  load()
+}
 
 async function load() {
   const seq = ++statsLoadSeq
