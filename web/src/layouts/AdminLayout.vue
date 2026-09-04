@@ -50,12 +50,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, onUnmounted, ref } from 'vue'
+import { computed, h, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { getStats } from '@/api/admin'
 import {
   NLayout, NLayoutSider, NLayoutHeader, NLayoutContent,
-  NButton, NH4, NMenu, NIcon,
+  NButton, NH4, NMenu, NIcon, NBadge,
 } from 'naive-ui'
 import { BarChart, BookOutline, PeopleOutline, ClipboardOutline, GridOutline } from '@vicons/ionicons5'
 
@@ -66,6 +67,10 @@ const auth = useAuthStore()
 const activeKey = computed(() => route.path)
 const isMobile = ref(false)
 const collapsed = ref(false)
+const pendingDirectory = ref(0)
+const pendingRequests = ref(0)
+/** Drop stale stats when route-driven refresh races. */
+let pendingLoadSeq = 0
 
 function updateViewport() {
   const mobile = window.innerWidth < 900
@@ -74,21 +79,57 @@ function updateViewport() {
   collapsed.value = mobile
 }
 
+function pendingBadge(count: number) {
+  if (count <= 0) return undefined
+  return () => h(NBadge, { value: count, max: 99, type: 'warning' })
+}
+
+const menuOptions = computed(() => [
+  { key: '/admin', label: '概览', icon: () => h(NIcon, null, { default: () => h(BarChart) }) },
+  {
+    key: '/admin/journals',
+    label: '期刊管理',
+    icon: () => h(NIcon, null, { default: () => h(BookOutline) }),
+    extra: pendingBadge(pendingDirectory.value),
+  },
+  { key: '/admin/categories', label: 'CAS 分类', icon: () => h(NIcon, null, { default: () => h(GridOutline) }) },
+  {
+    key: '/admin/requests',
+    label: '申请审核',
+    icon: () => h(NIcon, null, { default: () => h(ClipboardOutline) }),
+    extra: pendingBadge(pendingRequests.value),
+  },
+  { key: '/admin/users', label: '用户管理', icon: () => h(NIcon, null, { default: () => h(PeopleOutline) }) },
+])
+
+async function loadPendingCounts() {
+  const seq = ++pendingLoadSeq
+  try {
+    const stats = await getStats()
+    if (seq !== pendingLoadSeq) return
+    pendingDirectory.value = stats.pending_directory_reviews || 0
+    pendingRequests.value = stats.pending_requests || 0
+  } catch {
+    // badges are best-effort; leave last known counts
+  }
+}
+
 onMounted(() => {
   updateViewport()
   window.addEventListener('resize', updateViewport)
+  loadPendingCounts()
 })
 onUnmounted(() => {
   window.removeEventListener('resize', updateViewport)
 })
 
-const menuOptions = [
-  { key: '/admin', label: '概览', icon: () => h(NIcon, null, { default: () => h(BarChart) }) },
-  { key: '/admin/journals', label: '期刊管理', icon: () => h(NIcon, null, { default: () => h(BookOutline) }) },
-  { key: '/admin/categories', label: 'CAS 分类', icon: () => h(NIcon, null, { default: () => h(GridOutline) }) },
-  { key: '/admin/requests', label: '申请审核', icon: () => h(NIcon, null, { default: () => h(ClipboardOutline) }) },
-  { key: '/admin/users', label: '用户管理', icon: () => h(NIcon, null, { default: () => h(PeopleOutline) }) },
-]
+// Refresh queue badges when moving between admin sections (e.g. after review).
+watch(
+  () => route.path,
+  (path, prev) => {
+    if (path.startsWith('/admin') && path !== prev) loadPendingCounts()
+  },
+)
 
 function goFront() {
   router.push(auth.isLoggedIn ? '/my' : '/')
