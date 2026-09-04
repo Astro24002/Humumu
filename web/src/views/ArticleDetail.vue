@@ -172,8 +172,11 @@ async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
   }
 }
 
+let originalClickBusy = false
+
 async function onOriginalClick() {
-  if (!isLoggedIn.value || !article.value) return
+  if (!isLoggedIn.value || !article.value || originalClickBusy) return
+  originalClickBusy = true
   try {
     await recordOriginalClick(article.value.id)
     if (!status.value.is_read) {
@@ -181,6 +184,8 @@ async function onOriginalClick() {
     }
   } catch {
     // non-blocking
+  } finally {
+    originalClickBusy = false
   }
 }
 

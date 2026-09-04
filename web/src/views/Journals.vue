@@ -123,6 +123,7 @@
                 type="error"
                 ghost
                 :loading="busyId === j.id"
+                :disabled="busyId === j.id"
                 @click.stop="handleUnsubscribe(j)"
               >
                 取消订阅
@@ -133,6 +134,7 @@
                 type="primary"
                 ghost
                 :loading="busyId === j.id"
+                :disabled="busyId === j.id"
                 @click.stop="handleSubscribe(j)"
               >
                 订阅
@@ -350,6 +352,7 @@ async function refreshSubscribed() {
 }
 
 async function handleSubscribe(j: Journal) {
+  if (busyId.value === j.id) return
   busyId.value = j.id
   try {
     await subscribeJournal(j.id)
@@ -363,6 +366,7 @@ async function handleSubscribe(j: Journal) {
 }
 
 function handleUnsubscribe(j: Journal) {
+  if (busyId.value === j.id) return
   dialog.warning({
     title: '取消订阅',
     content: `确认取消订阅「${j.name}」？之后将不再收到该源的更新推送。`,
@@ -373,6 +377,7 @@ function handleUnsubscribe(j: Journal) {
 }
 
 async function doUnsubscribe(j: Journal) {
+  if (busyId.value === j.id) return
   busyId.value = j.id
   try {
     await unsubscribeJournal(j.id)

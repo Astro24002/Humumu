@@ -246,7 +246,11 @@ async function toggle(u: MyUpdateItem, field: 'is_read' | 'is_starred' | 'is_lat
   }
 }
 
+const originalClickBusy = new Set<string>()
+
 async function onOriginalClick(u: MyUpdateItem) {
+  if (originalClickBusy.has(u.article_id)) return
+  originalClickBusy.add(u.article_id)
   try {
     await recordOriginalClick(u.article_id)
     if (!u.status.is_read) {
@@ -256,6 +260,8 @@ async function onOriginalClick(u: MyUpdateItem) {
     }
   } catch {
     // non-blocking
+  } finally {
+    originalClickBusy.delete(u.article_id)
   }
 }
 

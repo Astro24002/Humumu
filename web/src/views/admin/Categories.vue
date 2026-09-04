@@ -57,8 +57,8 @@
         </n-form-item>
       </n-form>
       <template #footer>
-        <n-button @click="showCreate = false">取消</n-button>
-        <n-button type="primary" :loading="saving" @click="create">创建</n-button>
+        <n-button :disabled="saving" @click="showCreate = false">取消</n-button>
+        <n-button type="primary" :loading="saving" :disabled="saving" @click="create">创建</n-button>
       </template>
     </n-card>
   </n-modal>
@@ -91,7 +91,7 @@
       />
     </n-form-item>
     <n-form-item>
-      <n-button type="primary" :loading="attaching" :disabled="!attachJournalId || !attachCategoryIds.length" @click="attach">
+      <n-button type="primary" :loading="attaching" :disabled="attaching || !attachJournalId || !attachCategoryIds.length" @click="attach">
         挂载
       </n-button>
     </n-form-item>

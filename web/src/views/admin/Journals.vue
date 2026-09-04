@@ -107,8 +107,8 @@
         </n-form-item>
       </n-form>
       <template #footer>
-        <n-button @click="showModal = false">取消</n-button>
-        <n-button type="primary" @click="save" :loading="saving">保存</n-button>
+        <n-button :disabled="saving" @click="showModal = false">取消</n-button>
+        <n-button type="primary" @click="save" :loading="saving" :disabled="saving">保存</n-button>
       </template>
     </n-card>
   </n-modal>
@@ -400,6 +400,7 @@ async function changeStatus(id: string, status: string) {
 }
 
 async function save() {
+  if (saving.value) return
   saving.value = true
   try {
     if (editingId.value) {
