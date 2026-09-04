@@ -172,6 +172,7 @@ function goSubscriptions() {
 }
 
 function switchTab(t: 'all' | 'updates') {
+  if (loading.value || tab.value === t) return
   tab.value = t
   filter.value = ''
   contentType.value = ''
@@ -180,27 +181,32 @@ function switchTab(t: 'all' | 'updates') {
 }
 
 function setFilter(f: string) {
+  if (loading.value) return
   filter.value = filter.value === f ? '' : f
   resetAndFetch()
 }
 
 function clearFilter() {
+  if (loading.value) return
   filter.value = ''
   resetAndFetch()
 }
 
 function clearContentType() {
+  if (loading.value) return
   contentType.value = ''
   sourceType.value = ''
   resetAndFetch()
 }
 
 function setContentType(t: string) {
+  if (loading.value) return
   contentType.value = contentType.value === t ? '' : t
   resetAndFetch()
 }
 
 function setSourceType(t: string) {
+  if (loading.value) return
   sourceType.value = sourceType.value === t ? '' : t
   resetAndFetch()
 }

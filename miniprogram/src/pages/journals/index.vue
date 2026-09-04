@@ -129,16 +129,19 @@ function listParams(extra: { limit?: number; offset?: number } = {}) {
 }
 
 function setType(t: string) {
+  if (loading.value) return
   contentType.value = t
   reload()
 }
 
 function setSource(t: string) {
+  if (loading.value) return
   sourceType.value = t
   reload()
 }
 
 function setMajor(m: string) {
+  if (loading.value) return
   major.value = m
   if (!m) {
     zone.value = ''
@@ -148,16 +151,19 @@ function setMajor(m: string) {
 }
 
 function setZone(z: string) {
+  if (loading.value) return
   zone.value = z
   reload()
 }
 
 function toggleTop() {
+  if (loading.value) return
   topOnly.value = !topOnly.value
   reload()
 }
 
 function clearFilters() {
+  if (loading.value) return
   search.value = ''
   contentType.value = ''
   sourceType.value = ''
@@ -233,6 +239,7 @@ function goEmptyCta() {
 }
 
 watch(sortBy, () => {
+  if (loading.value) return
   reload()
 })
 

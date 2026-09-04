@@ -101,18 +101,19 @@ onPullDownRefresh(async () => {
 
 
 function setStatus(s: string) {
-  if (statusFilter.value === s) return
+  if (loading.value || statusFilter.value === s) return
   statusFilter.value = s
   fetchNotifications(true)
 }
 
 function setChannel(c: string) {
-  if (channelFilter.value === c) return
+  if (loading.value || channelFilter.value === c) return
   channelFilter.value = c
   fetchNotifications(true)
 }
 
 function clearFilters() {
+  if (loading.value) return
   statusFilter.value = ''
   channelFilter.value = ''
   fetchNotifications(true)
