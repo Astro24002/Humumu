@@ -66,9 +66,38 @@ watch(pageCount, (n) => {
   }
 })
 
+function isWechatPlaceholderEmail(email: string | undefined | null): boolean {
+  return !!email && email.endsWith('@wechat.user')
+}
+
+function emailCell(row: User) {
+  if (isWechatPlaceholderEmail(row.email)) {
+    return h(NSpace, { size: 'small', align: 'center' }, {
+      default: () => [
+        h('span', { style: 'color:#888' }, '未绑定邮箱'),
+        h(NTag, { size: 'tiny', type: 'warning', bordered: false }, { default: () => '微信' }),
+      ],
+    })
+  }
+  return row.email || '—'
+}
+
 const columns = [
-  { title: '邮箱', key: 'email' },
+  {
+    title: '邮箱',
+    key: 'email',
+    ellipsis: { tooltip: true },
+    render: (row: User) => emailCell(row),
+  },
   { title: '昵称', key: 'name' },
+  {
+    title: '微信',
+    key: 'wechat_openid',
+    width: 90,
+    render: (row: User) => row.wechat_openid
+      ? h(NTag, { size: 'small', type: 'success', bordered: false }, { default: () => '已关联' })
+      : h('span', { style: 'color:#bbb' }, '—'),
+  },
   {
     title: '推送频率', key: 'push_frequency',
     render: (row: User) => h(NTag, { size: 'small' }, {
@@ -111,8 +140,14 @@ const columns = [
   },
 ]
 
+function displayUserLabel(row: User): string {
+  if (row.name) return row.name
+  if (row.email && !isWechatPlaceholderEmail(row.email)) return row.email
+  return row.id.slice(0, 8)
+}
+
 function confirmToggleAdmin(row: User, isAdmin: boolean) {
-  const label = row.name || row.email || row.id
+  const label = displayUserLabel(row)
   dialog.warning({
     title: isAdmin ? '设为管理员' : '取消管理员',
     content: isAdmin
