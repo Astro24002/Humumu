@@ -22,6 +22,26 @@
         <text :class="['chip', sortBy === 'articles' && 'on']" @click="sortBy = 'articles'">论文数</text>
         <text :class="['chip', sortBy === 'updated' && 'on']" @click="sortBy = 'updated'">最近更新</text>
       </view>
+      <view v-if="majorOptions.length" class="filters cas-row">
+        <text class="cas-label">CAS{{ casYear != null ? ` ${casYear}` : '' }}</text>
+        <text :class="['chip', major === '' && 'on']" @click="setMajor('')">全部大类</text>
+        <text
+          v-for="m in majorOptions"
+          :key="m"
+          :class="['chip', major === m && 'on']"
+          @click="setMajor(m)"
+        >{{ m }}</text>
+      </view>
+      <view v-if="major" class="filters">
+        <text :class="['chip', zone === '' && 'on']" @click="setZone('')">全部区</text>
+        <text
+          v-for="z in zoneOptions"
+          :key="z"
+          :class="['chip', zone === String(z) && 'on']"
+          @click="setZone(String(z))"
+        >{{ z }}区</text>
+        <text :class="['chip', topOnly && 'on']" @click="toggleTop">Top</text>
+      </view>
     </view>
     <view v-if="loading" class="loading"><text>加载中...</text></view>
     <view v-else-if="!total && !journals.length" class="empty">
@@ -42,6 +62,7 @@
 import { ref, computed, watch } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { getJournals, type Journal } from '@/api/journals'
+import { getCasCategories, type CasCategory } from '@/api/categories'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
 import { contentTypeLabel, sourceTypeLabel } from '@/utils/format'
@@ -54,6 +75,11 @@ const search = ref('')
 const contentType = ref('')
 const sourceType = ref('')
 const sortBy = ref<'name' | 'articles' | 'updated'>('name')
+const major = ref('')
+const zone = ref('')
+const topOnly = ref(false)
+const casYear = ref<number | null>(null)
+const casCategories = ref<CasCategory[]>([])
 const pageSize = 30
 const offset = ref(0)
 const total = ref(0)
@@ -61,8 +87,24 @@ const loadingMore = ref(false)
 const hasMore = computed(() => journals.value.length < total.value)
 /** Drop stale plaza list responses when filters race mid-flight. */
 let journalsLoadSeq = 0
+let casLoaded = false
 
-const hasActiveFilters = computed(() => Boolean(search.value.trim() || contentType.value || sourceType.value))
+const majorOptions = computed(() => {
+  const set = new Set(casCategories.value.map((c) => c.major).filter(Boolean))
+  return [...set].sort()
+})
+const zoneOptions = [1, 2, 3, 4]
+
+const hasActiveFilters = computed(() =>
+  Boolean(
+    search.value.trim()
+    || contentType.value
+    || sourceType.value
+    || major.value
+    || zone.value
+    || topOnly.value,
+  ),
+)
 const emptyHint = computed(() =>
   hasActiveFilters.value ? '当前筛选下暂无期刊' : '暂无期刊',
 )
@@ -71,10 +113,15 @@ const emptyCtaLabel = computed(() =>
 )
 
 function listParams(extra: { limit?: number; offset?: number } = {}) {
+  const hasCas = Boolean(major.value || zone.value || topOnly.value)
   return {
     q: search.value.trim() || undefined,
     content_type: contentType.value || undefined,
     source_type: sourceType.value || undefined,
+    major: major.value || undefined,
+    zone: zone.value || undefined,
+    top: topOnly.value ? 'true' : undefined,
+    year: hasCas && casYear.value != null ? casYear.value : undefined,
     sort: sortBy.value,
     limit: extra.limit ?? pageSize,
     offset: extra.offset ?? 0,
@@ -91,11 +138,54 @@ function setSource(t: string) {
   reload()
 }
 
+function setMajor(m: string) {
+  major.value = m
+  if (!m) {
+    zone.value = ''
+    topOnly.value = false
+  }
+  reload()
+}
+
+function setZone(z: string) {
+  zone.value = z
+  reload()
+}
+
+function toggleTop() {
+  topOnly.value = !topOnly.value
+  reload()
+}
+
 function clearFilters() {
   search.value = ''
   contentType.value = ''
   sourceType.value = ''
+  major.value = ''
+  zone.value = ''
+  topOnly.value = false
   reload()
+}
+
+async function ensureCasFacets() {
+  if (casLoaded) return
+  try {
+    const cas = await getCasCategories()
+    const years = cas.years?.length
+      ? cas.years
+      : [...new Set(cas.categories.map((c) => c.year))].sort((a, b) => b - a)
+    const latest = years[0]
+    if (latest != null) {
+      casYear.value = latest
+      const scoped = await getCasCategories({ year: latest })
+      casCategories.value = scoped.categories
+    } else {
+      casCategories.value = cas.categories
+    }
+    casLoaded = true
+  } catch {
+    // CAS facets are optional; list still works without them.
+  }
 }
 
 async function loadMore() {
@@ -146,12 +236,15 @@ watch(sortBy, () => {
   reload()
 })
 
-onShow(() => {
+onShow(async () => {
+  await ensureCasFacets()
   reload()
 })
 
 onPullDownRefresh(async () => {
   try {
+    casLoaded = false
+    await ensureCasFacets()
     await reload()
   } finally {
     uni.stopPullDownRefresh()
@@ -175,7 +268,11 @@ onPullDownRefresh(async () => {
   font-size: 28rpx;
   border: 1rpx solid #eee;
 }
-.filters { display: flex; gap: 16rpx; margin-top: 16rpx; }
+.filters {
+  display: flex; gap: 16rpx; margin-top: 16rpx; flex-wrap: wrap; align-items: center;
+}
+.cas-row { max-height: 140rpx; overflow-y: auto; }
+.cas-label { font-size: 22rpx; color: #888; flex-shrink: 0; }
 .chip {
   font-size: 24rpx; padding: 8rpx 20rpx; border-radius: 24rpx;
   background: #fff; color: #666; border: 1rpx solid #eee;
@@ -183,6 +280,6 @@ onPullDownRefresh(async () => {
 .chip.on { background: #e8f8e0; color: #3cc51f; border-color: #3cc51f; }
 .loading, .empty { text-align: center; padding: 100rpx 40rpx; color: #999; }
 .btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
-.scroll-view { height: calc(100vh - 280rpx); }
+.scroll-view { height: calc(100vh - 360rpx); }
 .loading-more { text-align: center; padding: 24rpx; color: #999; font-size: 24rpx; }
 </style>

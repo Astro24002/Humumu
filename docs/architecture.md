@@ -100,7 +100,7 @@ Humumu（原 Journal Monitor）是一个 Python/FastAPI 单体服务，同时提
 ## 可见性与访问控制（Product v1）
 
 - **公开目录**（`GET /journals`、无 `journal_id` 的 `GET /articles`）：仅 `directory_status=public`。
-- **期刊列表分页**：`GET /journals` 与 `GET /admin/journals` 均支持可选 `sort=name|articles|updated`、`source_type=rss|arxiv|cnki` 与 `limit`/`offset`（admin 另支持 `directory_status`）；带 `limit` 时响应含 `total`。Web 广场与管理端、小程序目录均走服务端分页。
+- **期刊列表分页**：`GET /journals` 与 `GET /admin/journals` 均支持可选 `sort=name|articles|updated`、`source_type=rss|arxiv|cnki`、CAS `major|zone|top`/`year` 与 `limit`/`offset`（admin 另支持 `directory_status`）；带 `limit` 时响应含 `total`。Web 广场与管理端、小程序目录均走服务端分页；小程序期刊广场提供 CAS 大类/分区/Top 轻量筛选（对齐最新 year）。
 - **Web 可分享筛选 URL**：公开广场（`/`：`content_type`/`source_type`/`journal_id`/`page`）、期刊广场（`/journals`：`q`/`content_type`/`source_type`/`sort`/CAS `major|minor|zone|top`/`page`）、我的更新（`/my?filter=`）、订阅管理（`/my/subscriptions?tab=`）、通知（`/my/notifications`：`status`/`channel`）、期刊详情论文分页（`/journals/:id?page=`），以及管理端 journals/users/requests 列表筛选与 `page`、CAS 分类 `year`，均通过 `router.replace` 同步 query，支持深链与刷新保持。
 - **通知列表分页**：`GET /notifications` 响应含 `total`（当前 status/channel 筛选下全量匹配数）；Web/小程序用其驱动「加载更多」与条数展示。
 - **管理端用户/申请分页**：`GET /admin/users` 支持 `q`/`limit`/`offset`+`total`；`GET /admin/requests` 支持 `status`/`limit`/`offset`+`total`。
