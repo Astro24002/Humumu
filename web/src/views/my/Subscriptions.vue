@@ -94,7 +94,7 @@
   <!-- Per-subscription prefs -->
   <n-modal v-model:show="showPrefsModal">
     <n-card style="width: 420px;" :title="prefsJournal ? `推送设置 · ${prefsJournal.name}` : '推送设置'" role="dialog">
-      <n-form>
+      <n-form :disabled="prefsSaving">
         <n-form-item label="推送频率">
           <n-radio-group v-model:value="prefsForm.push_frequency">
             <n-radio value="default">{{ freqLabel('default') }}</n-radio>

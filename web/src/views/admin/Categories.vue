@@ -66,7 +66,7 @@
   <n-divider />
 
   <n-h3 style="margin-top: 8px;">挂载分类到期刊</n-h3>
-  <n-form label-placement="left" :label-width="90" style="max-width: 640px;">
+  <n-form label-placement="left" :label-width="90" style="max-width: 640px;" :disabled="attaching">
     <n-form-item label="期刊">
       <n-select
         v-model:value="attachJournalId"

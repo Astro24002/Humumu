@@ -10,23 +10,23 @@
         <n-button
           quaternary
           :type="isActive('/') ? 'primary' : 'default'"
-          @click="router.push('/')"
+          @click="router.push({ path: '/', query: {} })"
         >广场</n-button>
         <n-button
           quaternary
           :type="isActive('/journals') ? 'primary' : 'default'"
-          @click="router.push('/journals')"
+          @click="router.push({ path: '/journals', query: {} })"
         >期刊</n-button>
         <template v-if="auth.isLoggedIn">
           <n-button
             quaternary
             :type="isActive('/my', true) ? 'primary' : 'default'"
-            @click="router.push('/my')"
+            @click="router.push({ path: '/my', query: {} })"
           >我的更新</n-button>
           <n-button
             quaternary
             :type="isActive('/my/subscriptions') ? 'primary' : 'default'"
-            @click="router.push('/my/subscriptions')"
+            @click="router.push({ path: '/my/subscriptions', query: {} })"
           >订阅</n-button>
           <n-dropdown trigger="click" :options="userMenuOptions" @select="onUserMenuSelect">
             <n-button quaternary>{{ auth.user?.name || '用户' }}</n-button>
@@ -71,7 +71,7 @@ const dialog = useDialog()
 const message = useMessage()
 
 function goHome() {
-  router.push(auth.isLoggedIn ? '/my' : '/')
+  router.push(auth.isLoggedIn ? { path: '/my', query: {} } : { path: '/', query: {} })
 }
 
 /** Highlight current section. exact=true matches only that path. */
@@ -106,7 +106,7 @@ const userMenuOptions = computed(() => {
 })
 
 function onUserMenuSelect(key: string) {
-  if (key === 'notifications') router.push('/my/notifications')
+  if (key === 'notifications') router.push({ path: '/my/notifications', query: {} })
   if (key === 'settings') router.push('/settings')
   if (key === 'admin') router.push('/admin')
   if (key === 'logout') {
@@ -118,7 +118,7 @@ function onUserMenuSelect(key: string) {
       onPositiveClick: () => {
         auth.logout()
         message.success('已退出')
-        router.push('/')
+        router.push({ path: '/', query: {} })
       },
     })
   }
