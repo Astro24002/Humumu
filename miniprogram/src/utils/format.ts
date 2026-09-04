@@ -84,6 +84,13 @@ export function dirStatusLabel(s?: string | null): string {
   return s || ''
 }
 
+/** CSS modifier class for directory status badges (info/warn/err). */
+export function dirStatusClass(s?: string | null): string {
+  if (s === 'pending_review') return 'warn'
+  if (s === 'rejected' || s === 'hidden') return 'err'
+  return 'info'
+}
+
 /** Notification delivery status label. */
 export function notifStatusLabel(s?: string | null): string {
   if (s === 'sent') return '已发送'

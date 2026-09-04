@@ -47,6 +47,14 @@ export function notifStatusLabel(s?: string | null): string {
   }
 }
 
+/** Naive tag type for notification delivery status. */
+export function notifStatusTagType(s?: string | null): 'success' | 'error' | 'warning' | 'default' {
+  if (s === 'sent') return 'success'
+  if (s === 'failed') return 'error'
+  if (s === 'pending') return 'warning'
+  return 'default'
+}
+
 /** Push frequency label (subscription override or global). */
 export function freqLabel(f?: string | null): string {
   if (f === 'realtime') return '实时'
@@ -89,5 +97,12 @@ export function channelLabel(c?: string | null): string {
   if (c === 'email') return '邮件'
   if (c === 'wechat') return '微信'
   return c || ''
+}
+
+/** Naive tag type for notification / push channel. */
+export function channelTagType(c?: string | null): 'primary' | 'success' | 'default' {
+  if (c === 'email') return 'primary'
+  if (c === 'wechat') return 'success'
+  return 'default'
 }
 

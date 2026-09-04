@@ -37,13 +37,10 @@
               <template v-else>{{ n.article_title }}</template>
             </div>
             <n-space size="small" align="center">
-              <n-tag :type="n.channel === 'email' ? 'primary' : 'success'" size="small">
+              <n-tag :type="channelTagType(n.channel)" size="small">
                 {{ channelLabel(n.channel) }}
               </n-tag>
-              <n-tag
-                :type="n.status === 'sent' ? 'success' : n.status === 'failed' ? 'error' : 'warning'"
-                size="small"
-              >
+              <n-tag :type="notifStatusTagType(n.status)" size="small">
                 {{ notifStatusLabel(n.status) }}
               </n-tag>
               <n-tag
@@ -78,7 +75,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getNotifications, type Notification } from '@/api/notifications'
 import { formatDateTime } from '@/utils/datetime'
-import { reasonLabel, notifStatusLabel, channelLabel } from '@/utils/labels'
+import { reasonLabel, notifStatusLabel, notifStatusTagType, channelLabel, channelTagType } from '@/utils/labels'
 import {
   NH2, NSpin, NEmpty, NList, NListItem, NThing, NTag, NSpace, NButton,
   NRadioGroup, NRadioButton, useMessage,

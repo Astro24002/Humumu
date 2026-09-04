@@ -12,7 +12,7 @@
         <text v-if="journal.content_type === 'preprint'" class="tag preprint">{{ contentTypeLabel(journal.content_type) }}</text>
         <text
           v-if="journal.directory_status && journal.directory_status !== 'public'"
-          :class="['tag', 'dir', dirClass(journal.directory_status)]"
+          :class="['tag', 'dir', dirStatusClass(journal.directory_status)]"
         >{{ dirStatusLabel(journal.directory_status) }}</text>
         <text v-if="journal.health_status === 'paused'" class="tag paused">{{ healthStatusLabel(journal.health_status) }}</text>
       </view>
@@ -53,7 +53,7 @@ import { goLogin } from '@/utils/nav'
 import { getJournal, type Journal } from '@/api/journals'
 import { getArticles, type Article } from '@/api/articles'
 import { subscribeJournal, unsubscribeJournal, getSubscribedJournals } from '@/api/subscriptions'
-import { dirStatusLabel, shortUrl, sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/format'
+import { dirStatusLabel, dirStatusClass, shortUrl, sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/format'
 import ArticleCard from '@/components/ArticleCard.vue'
 
 const auth = useAuthStore()
@@ -76,13 +76,6 @@ function goPlaza() {
 
 function goBack() {
   uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/journals/index' }) })
-}
-
-
-function dirClass(s?: string): string {
-  if (s === 'pending_review') return 'warn'
-  if (s === 'rejected' || s === 'hidden') return 'err'
-  return 'info'
 }
 
 async function loadArticles(reset: boolean) {

@@ -25,7 +25,7 @@
             </template>
             <template #description>
               <n-space size="small" style="margin-top: 4px;">
-                <n-tag size="tiny" :bordered="false">{{ sourceTypeLabel(j.source_type) }}</n-tag>
+                <n-tag size="tiny" :type="sourceTypeTagType(j.source_type)" :bordered="false">{{ sourceTypeLabel(j.source_type) }}</n-tag>
                 <n-tag v-if="j.content_type === 'preprint'" size="tiny" type="info" :bordered="false">{{ contentTypeLabel(j.content_type) }}</n-tag>
                 <n-tag
                   v-if="j.directory_status && j.directory_status !== 'public'"
@@ -45,8 +45,8 @@
                   {{ healthStatusLabel(j.health_status) }}
                 </n-tag>
                 <n-tag size="tiny" type="warning" :bordered="false">{{ freqLabel(j.push_frequency) }}</n-tag>
-                <n-tag v-if="j.email_enabled !== false" size="tiny" :bordered="false">{{ channelLabel('email') }}</n-tag>
-                <n-tag v-if="j.wechat_enabled !== false" size="tiny" type="success" :bordered="false">{{ channelLabel('wechat') }}</n-tag>
+                <n-tag v-if="j.email_enabled !== false" size="tiny" :type="channelTagType('email')" :bordered="false">{{ channelLabel('email') }}</n-tag>
+                <n-tag v-if="j.wechat_enabled !== false" size="tiny" :type="channelTagType('wechat')" :bordered="false">{{ channelLabel('wechat') }}</n-tag>
               </n-space>
             </template>
           </n-thing>
@@ -189,7 +189,7 @@ import {
   type KeywordSubscription,
 } from '@/api/subscriptions'
 import { previewJournal, addMyJournal, type PreviewItem } from '@/api/journals'
-import { dirStatusLabel, dirStatusType, freqLabel, sourceTypeLabel, contentTypeLabel, healthStatusLabel, channelLabel } from '@/utils/labels'
+import { dirStatusLabel, dirStatusType, freqLabel, sourceTypeLabel, sourceTypeTagType, contentTypeLabel, healthStatusLabel, channelLabel, channelTagType } from '@/utils/labels'
 import {
   NH2, NButton, NTabs, NTabPane, NSpin, NEmpty, NList, NListItem, NThing, NInput, NTag,
   NModal, NCard, NForm, NFormItem, NAlert, NSpace, NRadio, NRadioGroup, NCheckbox,

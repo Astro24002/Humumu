@@ -63,13 +63,13 @@
         </template>
         <template #footer>
           <n-space>
-            <n-button size="tiny" quaternary :loading="isBusy(u.article_id)" :disabled="isBusy(u.article_id)" @click="toggle(u, 'is_read')">
+            <n-button size="tiny" quaternary :loading="isBusy(u.article_id, 'is_read')" :disabled="isRowBusy(u.article_id)" @click="toggle(u, 'is_read')">
               {{ u.status.is_read ? '标为未读' : '标为已读' }}
             </n-button>
-            <n-button size="tiny" quaternary :type="u.status.is_starred ? 'warning' : 'default'" :loading="isBusy(u.article_id)" :disabled="isBusy(u.article_id)" @click="toggle(u, 'is_starred')">
+            <n-button size="tiny" quaternary :type="u.status.is_starred ? 'warning' : 'default'" :loading="isBusy(u.article_id, 'is_starred')" :disabled="isRowBusy(u.article_id)" @click="toggle(u, 'is_starred')">
               {{ u.status.is_starred ? '取消星标' : '星标' }}
             </n-button>
-            <n-button size="tiny" quaternary :type="u.status.is_later ? 'info' : 'default'" :loading="isBusy(u.article_id)" :disabled="isBusy(u.article_id)" @click="toggle(u, 'is_later')">
+            <n-button size="tiny" quaternary :type="u.status.is_later ? 'info' : 'default'" :loading="isBusy(u.article_id, 'is_later')" :disabled="isRowBusy(u.article_id)" @click="toggle(u, 'is_later')">
               {{ u.status.is_later ? '取消稍后再看' : '稍后再看' }}
             </n-button>
             <router-link :to="`/articles/${u.article_id}`">详情</router-link>
@@ -122,7 +122,8 @@ import {
 const router = useRouter()
 const message = useMessage()
 const updates = ref<MyUpdateItem[]>([])
-const busyIds = ref<Set<string>>(new Set())
+/** articleId → field currently in-flight (per-field spinner, row-level disable). */
+const busyMap = ref<Record<string, 'is_read' | 'is_starred' | 'is_later'>>({})
 const loading = ref(true)
 const loadingMore = ref(false)
 const filter = ref('')
@@ -173,14 +174,18 @@ async function loadMore() {
   await fetchPage(false)
 }
 
-function isBusy(id: string) {
-  return busyIds.value.has(id)
+function isRowBusy(id: string) {
+  return Boolean(busyMap.value[id])
+}
+
+function isBusy(id: string, field: 'is_read' | 'is_starred' | 'is_later') {
+  return busyMap.value[id] === field
 }
 
 async function toggle(u: MyUpdateItem, field: 'is_read' | 'is_starred' | 'is_later') {
-  if (busyIds.value.has(u.article_id)) return
+  if (busyMap.value[u.article_id]) return
   const next = !u.status[field]
-  busyIds.value = new Set(busyIds.value).add(u.article_id)
+  busyMap.value = { ...busyMap.value, [u.article_id]: field }
   try {
     const status = await updateArticleStatus(u.article_id, { [field]: next })
     u.status.is_read = status.is_read
@@ -189,9 +194,8 @@ async function toggle(u: MyUpdateItem, field: 'is_read' | 'is_starred' | 'is_lat
   } catch (e: any) {
     message.error(e.message || '更新失败')
   } finally {
-    const nextSet = new Set(busyIds.value)
-    nextSet.delete(u.article_id)
-    busyIds.value = nextSet
+    const { [u.article_id]: _, ...rest } = busyMap.value
+    busyMap.value = rest
   }
 }
 
