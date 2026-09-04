@@ -7,7 +7,7 @@
     </n-space>
   </div>
 
-  <n-tabs v-model:value="activeTab" style="margin-top: 16px;" @update:value="onTabChange">
+  <n-tabs :value="activeTab" style="margin-top: 16px;" @update:value="onTabChange">
     <n-tab-pane name="journals" :tab="journalsTabLabel">
       <div v-if="loadingJournals"><n-spin /></div>
       <n-empty v-else-if="!journals.length" description="尚未订阅任何期刊">
@@ -542,7 +542,21 @@ async function reloadAll() {
 }
 
 function onTabChange(name: string) {
-  activeTab.value = TAB_VALUES.has(name) ? name : 'journals'
+  if (
+    loadingJournals.value
+    || prefsSaving.value
+    || addLoading.value
+    || previewLoading.value
+    || authorBusy.value
+    || keywordBusy.value
+    || !!unsubBusyId.value
+    || !!removeBusyId.value
+  ) {
+    return
+  }
+  const next = TAB_VALUES.has(name) ? name : 'journals'
+  if (activeTab.value === next) return
+  activeTab.value = next
   syncTabToQuery()
 }
 
