@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_session
@@ -66,9 +66,28 @@ async def admin_stats(
 async def admin_list_journals(
     _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
+    q: str | None = Query(default=None),
+    content_type: str | None = Query(default=None),
+    directory_status: str | None = Query(default=None),
+    sort: str | None = Query(
+        default=None,
+        description="name | articles | updated",
+        pattern="^(name|articles|updated)$",
+    ),
+    limit: int | None = Query(default=None, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
 ) -> JournalsResponse:
     try:
-        journals, total = await journal_service.list_journals(session, public_only=False)
+        journals, total = await journal_service.list_journals(
+            session,
+            public_only=False,
+            q=q,
+            content_type=content_type,
+            directory_status=directory_status,
+            sort=sort,
+            limit=limit,
+            offset=offset,
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch journals") from exc
     return JournalsResponse(journals=journals, total=total)

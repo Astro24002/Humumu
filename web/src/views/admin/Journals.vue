@@ -2,7 +2,7 @@
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">期刊管理</n-h2>
     <n-space>
-      <n-button :loading="loading" @click="load">刷新</n-button>
+      <n-button :loading="loading" @click="reload">刷新</n-button>
       <n-button type="primary" @click="openAdd">新增期刊</n-button>
     </n-space>
   </div>
@@ -13,6 +13,8 @@
       clearable
       placeholder="搜索名称 / slug / URL"
       style="width: 240px"
+      @keyup.enter="reload"
+      @clear="reload"
     />
     <n-select
       v-model:value="statusFilter"
@@ -20,6 +22,7 @@
       placeholder="目录状态"
       style="width: 200px"
       :options="[{ label: '全部', value: '' }, ...directoryOptions]"
+      @update:value="reload"
     />
     <n-select
       v-model:value="contentFilter"
@@ -31,21 +34,36 @@
         { label: contentTypeLabel('journal'), value: 'journal' },
         { label: contentTypeLabel('preprint'), value: 'preprint' },
       ]"
+      @update:value="reload"
     />
-    <span style="color: #888; font-size: 13px;">{{ filteredJournals.length }} / {{ journals.length }}</span>
+    <n-select
+      v-model:value="sortBy"
+      size="small"
+      style="width: 140px"
+      :options="sortOptions"
+      @update:value="reload"
+    />
+    <span style="color: #888; font-size: 13px;">{{ total }} 源</span>
   </n-space>
 
-  <n-data-table :columns="columns" :data="filteredJournals" :loading="loading" :pagination="{ pageSize: 20 }" />
+  <n-data-table :columns="columns" :data="journals" :loading="loading" :pagination="false" />
   <n-empty
-    v-if="!loading && !filteredJournals.length"
+    v-if="!loading && !journals.length"
     style="margin-top: 24px;"
-    :description="hasClientFilters ? '当前筛选下暂无期刊' : '暂无期刊'"
+    :description="hasServerFilters ? '当前筛选下暂无期刊' : '暂无期刊'"
   >
     <template #extra>
-      <n-button v-if="hasClientFilters" @click="clearClientFilters">清除筛选</n-button>
+      <n-button v-if="hasServerFilters" @click="clearFilters">清除筛选</n-button>
       <n-button v-else type="primary" @click="openAdd">新增期刊</n-button>
     </template>
   </n-empty>
+  <n-pagination
+    v-if="pageCount > 1 && !loading"
+    :page="page"
+    :page-count="pageCount"
+    style="margin-top: 16px;"
+    @update:page="onPageChange"
+  />
 
   <n-modal v-model:show="showModal">
     <n-card style="width: 500px;" :title="editingId ? '编辑期刊' : '新增期刊'" role="dialog">
@@ -90,7 +108,7 @@ import { useRoute } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
   NButton, NTag, NSpace, NPopconfirm, NDataTable, NModal, NCard, NForm, NFormItem,
-  NInput, NSelect, NSwitch, NH2, NDropdown, NEmpty,
+  NInput, NSelect, NSwitch, NH2, NDropdown, NEmpty, NPagination,
 } from 'naive-ui'
 import { getAllJournals, createJournal, updateJournal, deleteJournal, setDirectoryStatus } from '@/api/admin'
 import type { Journal } from '@/api/journals'
@@ -100,6 +118,7 @@ const route = useRoute()
 const message = useMessage()
 const dialog = useDialog()
 const journals = ref<Journal[]>([])
+const total = ref(0)
 const loading = ref(true)
 const showModal = ref(false)
 const editingId = ref<string | null>(null)
@@ -109,28 +128,28 @@ const deleteBusy = ref(false)
 const statusFilter = ref<string>(typeof route.query.status === 'string' ? route.query.status : '')
 const contentFilter = ref<string>('')
 const nameFilter = ref('')
+const sortBy = ref<'name' | 'articles' | 'updated'>('name')
+const page = ref(1)
+const pageSize = 20
 
-const filteredJournals = computed(() => {
-  const q = nameFilter.value.trim().toLowerCase()
-  return journals.value.filter((j) => {
-    if (statusFilter.value && (j.directory_status || 'public') !== statusFilter.value) return false
-    if (contentFilter.value && (j.content_type || 'journal') !== contentFilter.value) return false
-    if (q) {
-      const hay = `${j.name || ''} ${j.slug || ''} ${j.source_url || ''} ${j.homepage_url || ''}`.toLowerCase()
-      if (!hay.includes(q)) return false
-    }
-    return true
-  })
-})
+const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
 
-const hasClientFilters = computed(() =>
+const hasServerFilters = computed(() =>
   Boolean(nameFilter.value.trim() || statusFilter.value || contentFilter.value),
 )
 
-function clearClientFilters() {
+const sortOptions = [
+  { label: '按名称', value: 'name' },
+  { label: '按论文数', value: 'articles' },
+  { label: '按最近更新', value: 'updated' },
+]
+
+function clearFilters() {
   nameFilter.value = ''
   statusFilter.value = ''
   contentFilter.value = ''
+  page.value = 1
+  load()
 }
 
 const directoryOptions = [
@@ -333,10 +352,29 @@ async function remove(id: string) {
   }
 }
 
+function onPageChange(p: number) {
+  page.value = p
+  load()
+}
+
+function reload() {
+  page.value = 1
+  load()
+}
+
 async function load() {
   loading.value = true
   try {
-    journals.value = (await getAllJournals()).journals
+    const res = await getAllJournals({
+      q: nameFilter.value.trim() || undefined,
+      content_type: contentFilter.value || undefined,
+      directory_status: statusFilter.value || undefined,
+      sort: sortBy.value,
+      limit: pageSize,
+      offset: (page.value - 1) * pageSize,
+    })
+    journals.value = res.journals
+    total.value = typeof res.total === 'number' ? res.total : res.journals.length
   } catch (e: any) {
     message.error(e?.message || '加载失败')
   } finally {

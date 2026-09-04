@@ -161,6 +161,40 @@ async def test_admin_list_journals(client, authed_user_id):
 
 
 @pytest.mark.asyncio
+async def test_admin_list_journals_pagination_and_filters(client, authed_user_id):
+    j = _sample_journal()
+    with patch(
+        "app.routers.admin.journal_service.list_journals",
+        new_callable=AsyncMock,
+        return_value=([j], 42),
+    ) as mock_list:
+        r = await client.get(
+            "/api/v1/admin/journals"
+            "?q=nat&content_type=journal&directory_status=pending_review"
+            "&sort=articles&limit=20&offset=40"
+        )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total"] == 42
+    kwargs = mock_list.await_args.kwargs
+    assert kwargs.get("public_only") is False
+    assert kwargs.get("q") == "nat"
+    assert kwargs.get("content_type") == "journal"
+    assert kwargs.get("directory_status") == "pending_review"
+    assert kwargs.get("sort") == "articles"
+    assert kwargs.get("limit") == 20
+    assert kwargs.get("offset") == 40
+
+    with patch(
+        "app.routers.admin.journal_service.list_journals",
+        new_callable=AsyncMock,
+        return_value=([j], 1),
+    ):
+        r = await client.get("/api/v1/admin/journals?sort=nope")
+    assert r.status_code == 400
+
+
+@pytest.mark.asyncio
 async def test_admin_create_journal_201_bare(client, authed_user_id):
     j = _sample_journal(name="Science", slug="science", fetch_interval=3600)
     with patch(

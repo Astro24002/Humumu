@@ -32,8 +32,27 @@ export function getStats(): Promise<AdminStats> {
   return get('/admin/stats')
 }
 
-export function getAllJournals(): Promise<{ journals: Journal[] }> {
-  return get('/admin/journals')
+export interface AdminJournalListParams {
+  q?: string
+  content_type?: string
+  directory_status?: string
+  sort?: 'name' | 'articles' | 'updated'
+  limit?: number
+  offset?: number
+}
+
+export function getAllJournals(
+  params?: AdminJournalListParams,
+): Promise<{ journals: Journal[]; total?: number }> {
+  const qs = new URLSearchParams()
+  if (params?.q) qs.set('q', params.q)
+  if (params?.content_type) qs.set('content_type', params.content_type)
+  if (params?.directory_status) qs.set('directory_status', params.directory_status)
+  if (params?.sort) qs.set('sort', params.sort)
+  if (params?.limit != null) qs.set('limit', String(params.limit))
+  if (params?.offset != null) qs.set('offset', String(params.offset))
+  const suffix = qs.toString() ? `?${qs.toString()}` : ''
+  return get(`/admin/journals${suffix}`)
 }
 
 export function createJournal(data: Partial<Journal>): Promise<void> {

@@ -99,7 +99,7 @@ Humumu（原 Journal Monitor）是一个 Python/FastAPI 单体服务，同时提
 ## 可见性与访问控制（Product v1）
 
 - **公开目录**（`GET /journals`、无 `journal_id` 的 `GET /articles`）：仅 `directory_status=public`。
-- **期刊列表分页**：`GET /journals` 支持可选 `sort=name|articles|updated` 与 `limit`/`offset`；带 `limit` 时响应含 `total`。Web/小程序目录均走服务端分页，避免全量拉取。
+- **期刊列表分页**：`GET /journals` 与 `GET /admin/journals` 均支持可选 `sort=name|articles|updated` 与 `limit`/`offset`（admin 另支持 `directory_status`）；带 `limit` 时响应含 `total`。Web 广场与管理端、小程序目录均走服务端分页。
 - **详情**（期刊/文章）与 **按 `journal_id` 的文章列表**：公开源匿名可读；非公开源需有效 Bearer，且调用者为 `created_by` **或已订阅**（同 URL 复用后的订阅者）。
 - **订阅** `POST /subscriptions/journals/:id`：公开源或本人创建的非公开源；否则 404。
 - **My Updates**：已订阅期刊新文 + 通知命中；可见性含公开、本人创建、已订阅（含私有复用）。卡片含 `journal_source_type` 供客户端展示 RSS/arXiv 等源标签。

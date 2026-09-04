@@ -384,7 +384,7 @@ GET /api/v1/my/updates
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | /api/v1/admin/stats | 概览计数（含 `pending_directory_reviews` 待审公开源） |
-| GET/POST | /api/v1/admin/journals | 全量列表 / 创建（含 content_type、directory_status、homepage_url） |
+| GET/POST | /api/v1/admin/journals | 列表（`q`/`content_type`/`directory_status`/`sort`/`limit`/`offset`，带 `limit` 时含 `total`）/ 创建 |
 | PUT/DELETE | /api/v1/admin/journals/{id} | 更新 / 删除 |
 | POST | /api/v1/admin/journals/{id}/directory_status | 设置 public/private/pending_review/rejected/hidden |
 | GET/PUT | /api/v1/admin/requests | 申请队列与审核（`approved` 会创建/复用公开期刊并订阅申请人） |
