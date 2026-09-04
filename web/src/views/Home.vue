@@ -21,13 +21,17 @@
         <n-radio-button value="preprint">{{ contentTypeLabel('preprint') }}</n-radio-button>
       </n-radio-group>
       <n-select
-        v-if="journals.length"
         v-model:value="filterJournalId"
         :options="journalOptions"
         placeholder="筛选期刊"
         clearable
         filterable
+        remote
+        :loading="journalSearchLoading"
+        :reset-menu-on-options-change="false"
         style="max-width: 300px;"
+        @search="onJournalSearch"
+        @focus="onJournalFocus"
       />
       <n-tag v-if="!loading" :bordered="false">{{ total }} 篇</n-tag>
     </div>
@@ -117,18 +121,52 @@ const message = useMessage()
 const auth = useAuthStore()
 const articles = ref<Article[]>([])
 const journals = ref<Journal[]>([])
+const journalSearchLoading = ref(false)
 const total = ref(0)
 const loading = ref(true)
 const page = ref(1)
 const limit = 20
 const filterJournalId = ref<string | null>(null)
 const filterContentType = ref('')
+let journalSearchSeq = 0
 
 const pageCount = computed(() => Math.ceil(total.value / limit) || 1)
 
 const journalOptions = computed(() =>
   journals.value.map(j => ({ label: `${j.name} (${j.article_count}篇)`, value: j.id }))
 )
+
+async function fetchJournalOptions(q = '') {
+  const seq = ++journalSearchSeq
+  journalSearchLoading.value = true
+  try {
+    const res = await getJournals({
+      q: q.trim() || undefined,
+      sort: 'name',
+      limit: 50,
+      offset: 0,
+    })
+    if (seq !== journalSearchSeq) return
+    const keepId = filterJournalId.value
+    const keep = keepId ? journals.value.find(j => j.id === keepId) : undefined
+    journals.value = res.journals
+    if (keep && !journals.value.some(j => j.id === keep.id)) {
+      journals.value = [keep, ...journals.value]
+    }
+  } catch {
+    // filter is optional
+  } finally {
+    if (seq === journalSearchSeq) journalSearchLoading.value = false
+  }
+}
+
+function onJournalSearch(q: string) {
+  fetchJournalOptions(q)
+}
+
+function onJournalFocus() {
+  if (!journals.value.length) fetchJournalOptions('')
+}
 
 const emptyDescription = computed(() => {
   if (filterJournalId.value || filterContentType.value) return '当前筛选下暂无文章'
@@ -177,12 +215,8 @@ function loadPage(p: number) {
 watch(filterJournalId, () => { page.value = 1; loadArticles() })
 
 onMounted(async () => {
-  try {
-    // Name-sorted page is enough for the filter dropdown; avoid full catalog pull.
-    journals.value = (await getJournals({ sort: 'name', limit: 200, offset: 0 })).journals
-  } catch {
-    // journal filter is optional; articles load still proceeds
-  }
+  // Remote-search dropdown; seed first page so the control isn't empty on open.
+  await fetchJournalOptions('')
   loadArticles()
 })
 </script>
