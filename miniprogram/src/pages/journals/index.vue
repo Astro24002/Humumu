@@ -8,8 +8,8 @@
       <input class="search-input" v-model="search" placeholder="搜索名称 / 描述 / slug" confirm-type="search" @confirm="reload" />
       <view class="filters">
         <text :class="['chip', contentType === '' && 'on']" @click="setType('')">全部</text>
-        <text :class="['chip', contentType === 'journal' && 'on']" @click="setType('journal')">期刊</text>
-        <text :class="['chip', contentType === 'preprint' && 'on']" @click="setType('preprint')">预印本</text>
+        <text :class="['chip', contentType === 'journal' && 'on']" @click="setType('journal')">{{ contentTypeLabel('journal') }}</text>
+        <text :class="['chip', contentType === 'preprint' && 'on']" @click="setType('preprint')">{{ contentTypeLabel('preprint') }}</text>
       </view>
       <view class="filters">
         <text :class="['chip', sortBy === 'name' && 'on']" @click="sortBy = 'name'">名称</text>
@@ -38,6 +38,7 @@ import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
+import { contentTypeLabel } from '@/utils/format'
 import JournalCard from '@/components/JournalCard.vue'
 
 const auth = useAuthStore()

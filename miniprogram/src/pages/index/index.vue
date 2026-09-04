@@ -3,8 +3,8 @@
     <view class="tabs">
       <text :class="['tab', tab === 'all' && 'active']" @click="switchTab('all')">全部</text>
       <text v-if="auth.isLoggedIn" :class="['tab', tab === 'updates' && 'active']" @click="switchTab('updates')">我的更新</text>
-      <text v-if="tab === 'all'" :class="['tab', contentType === 'journal' && 'active']" @click="setContentType('journal')">期刊</text>
-      <text v-if="tab === 'all'" :class="['tab', contentType === 'preprint' && 'active']" @click="setContentType('preprint')">预印本</text>
+      <text v-if="tab === 'all'" :class="['tab', contentType === 'journal' && 'active']" @click="setContentType('journal')">{{ contentTypeLabel('journal') }}</text>
+      <text v-if="tab === 'all'" :class="['tab', contentType === 'preprint' && 'active']" @click="setContentType('preprint')">{{ contentTypeLabel('preprint') }}</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'unread' && 'active']" @click="setFilter('unread')">未读</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'starred' && 'active']" @click="setFilter('starred')">星标</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'later' && 'active']" @click="setFilter('later')">稍后再看</text>
@@ -106,6 +106,8 @@ const loading = ref(true)
 const hasMore = ref(true)
 const offset = ref(0)
 const limit = 20
+/** Prefer my-updates once after login; don't thrash tab on every onShow. */
+const didPreferUpdates = ref(false)
 
 const emptyHint = computed(() => {
   if (tab.value === 'updates') {

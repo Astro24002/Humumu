@@ -14,8 +14,8 @@
     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
       <n-radio-group v-model:value="filterContentType" size="small" @update:value="onContentTypeChange">
         <n-radio-button value="">全部</n-radio-button>
-        <n-radio-button value="journal">期刊</n-radio-button>
-        <n-radio-button value="preprint">预印本</n-radio-button>
+        <n-radio-button value="journal">{{ contentTypeLabel('journal') }}</n-radio-button>
+        <n-radio-button value="preprint">{{ contentTypeLabel('preprint') }}</n-radio-button>
       </n-radio-group>
       <n-select
         v-if="journals.length"
