@@ -55,7 +55,8 @@ const total = ref(0)
 const loading = ref(true)
 /** Drop stale admin request list responses when status/page change mid-flight. */
 let requestsLoadSeq = 0
-const reviewBusy = ref(false)
+/** Per-row lock so reviewing one request does not disable sibling rows. */
+const busyId = ref<string | null>(null)
 
 function statusFromQuery(): string {
   const raw = route.query.status
@@ -140,12 +141,29 @@ const columns = [
   },
   {
     title: '操作', key: 'actions',
-    render: (row: JournalRequest) => row.status === 'pending' ? h(NSpace, null, {
-      default: () => [
-        h(NButton, { size: 'small', type: 'success', loading: reviewBusy.value, disabled: reviewBusy.value, onClick: () => confirmReview(row, 'approved') }, { default: () => '通过' }),
-        h(NButton, { size: 'small', type: 'error', ghost: true, loading: reviewBusy.value, disabled: reviewBusy.value, onClick: () => confirmReview(row, 'rejected') }, { default: () => '拒绝' }),
-      ],
-    }) : null,
+    render: (row: JournalRequest) => {
+      if (row.status !== 'pending') return null
+      const rowBusy = busyId.value === row.id
+      return h(NSpace, null, {
+        default: () => [
+          h(NButton, {
+            size: 'small',
+            type: 'success',
+            loading: rowBusy,
+            disabled: rowBusy,
+            onClick: () => confirmReview(row, 'approved'),
+          }, { default: () => '通过' }),
+          h(NButton, {
+            size: 'small',
+            type: 'error',
+            ghost: true,
+            loading: rowBusy,
+            disabled: rowBusy,
+            onClick: () => confirmReview(row, 'rejected'),
+          }, { default: () => '拒绝' }),
+        ],
+      })
+    },
   },
 ]
 
@@ -163,8 +181,8 @@ function confirmReview(row: JournalRequest, status: string) {
 }
 
 async function review(id: string, status: string) {
-  if (reviewBusy.value) return
-  reviewBusy.value = true
+  if (busyId.value === id) return
+  busyId.value = id
   try {
     await reviewRequest(id, status)
     message.success(status === 'approved' ? '已通过（将创建/复用公开期刊）' : '已拒绝')
@@ -172,7 +190,7 @@ async function review(id: string, status: string) {
   } catch (e: any) {
     message.error(e.message)
   } finally {
-    reviewBusy.value = false
+    busyId.value = null
   }
 }
 

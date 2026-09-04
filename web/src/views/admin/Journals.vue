@@ -139,8 +139,8 @@ let journalsLoadSeq = 0
 const showModal = ref(false)
 const editingId = ref<string | null>(null)
 const saving = ref(false)
-const statusBusy = ref(false)
-const deleteBusy = ref(false)
+/** Per-row lock for directory-status / delete so other rows stay clickable. */
+const busyId = ref<string | null>(null)
 const statusFilter = ref<string>('')
 const contentFilter = ref<string>('')
 const sourceFilter = ref<string>('')
@@ -306,7 +306,7 @@ const columns = [
     title: '操作',
     key: 'actions',
     render: (row: Journal) => {
-      const rowBusy = statusBusy.value || deleteBusy.value
+      const rowBusy = busyId.value === row.id
       return h(NSpace, null, {
         default: () => [
           h(NButton, { size: 'small', disabled: rowBusy, onClick: () => edit(row) }, { default: () => '编辑' }),
@@ -318,7 +318,7 @@ const columns = [
             default: () => h(NButton, {
               size: 'small',
               ghost: true,
-              loading: statusBusy.value,
+              loading: rowBusy,
               disabled: rowBusy,
             }, { default: () => '目录状态' }),
           }),
@@ -331,7 +331,7 @@ const columns = [
               size: 'small',
               type: 'error',
               ghost: true,
-              loading: deleteBusy.value,
+              loading: rowBusy,
               disabled: rowBusy,
             }, { default: () => '删除' }),
           }),
@@ -392,8 +392,8 @@ function confirmChangeStatus(row: Journal, status: string) {
 }
 
 async function changeStatus(id: string, status: string) {
-  if (statusBusy.value) return
-  statusBusy.value = true
+  if (busyId.value === id) return
+  busyId.value = id
   try {
     await setDirectoryStatus(id, status)
     message.success(`目录状态 → ${dirStatusLabel(status)}`)
@@ -401,7 +401,7 @@ async function changeStatus(id: string, status: string) {
   } catch (e: any) {
     message.error(e.message)
   } finally {
-    statusBusy.value = false
+    busyId.value = null
   }
 }
 
@@ -443,8 +443,8 @@ async function save() {
 }
 
 async function remove(id: string) {
-  if (deleteBusy.value) return
-  deleteBusy.value = true
+  if (busyId.value === id) return
+  busyId.value = id
   try {
     await deleteJournal(id)
     message.success('已删除')
@@ -452,7 +452,7 @@ async function remove(id: string) {
   } catch (e: any) {
     message.error(e.message)
   } finally {
-    deleteBusy.value = false
+    busyId.value = null
   }
 }
 
