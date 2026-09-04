@@ -7,7 +7,7 @@
     </n-space>
   </div>
 
-  <n-tabs v-model:value="activeTab" style="margin-top: 16px;">
+  <n-tabs v-model:value="activeTab" style="margin-top: 16px;" @update:value="onTabChange">
     <n-tab-pane name="journals" :tab="journalsTabLabel">
       <div v-if="loadingJournals"><n-spin /></div>
       <n-empty v-else-if="!journals.length" description="尚未关注任何期刊">
@@ -186,8 +186,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
   getSubscribedJournals,
@@ -210,10 +210,33 @@ import {
   NModal, NCard, NForm, NFormItem, NAlert, NSpace, NRadio, NRadioGroup, NCheckbox,
 } from 'naive-ui'
 
+const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
+const TAB_VALUES = new Set(['journals', 'authors', 'keywords'])
 const activeTab = ref('journals')
+/** Skip one route→state write when we just pushed query ourselves. */
+let suppressTabQueryApply = false
+
+function tabFromQuery(): string {
+  const raw = route.query.tab
+  return typeof raw === 'string' && TAB_VALUES.has(raw) ? raw : 'journals'
+}
+
+function applyTabFromQuery() {
+  activeTab.value = tabFromQuery()
+}
+
+function syncTabToQuery() {
+  const next: Record<string, string> = {}
+  if (activeTab.value && activeTab.value !== 'journals') next.tab = activeTab.value
+  const cur = route.query
+  const same = (cur.tab || undefined) === next.tab
+  if (same) return
+  suppressTabQueryApply = true
+  router.replace({ query: next })
+}
 
 const journals = ref<SubscribedJournal[]>([])
 const loadingJournals = ref(true)
@@ -493,5 +516,24 @@ async function reloadAll() {
   }
 }
 
-onMounted(reloadAll)
+function onTabChange(name: string) {
+  activeTab.value = TAB_VALUES.has(name) ? name : 'journals'
+  syncTabToQuery()
+}
+
+watch(
+  () => route.query.tab,
+  () => {
+    if (suppressTabQueryApply) {
+      suppressTabQueryApply = false
+      return
+    }
+    applyTabFromQuery()
+  },
+)
+
+onMounted(() => {
+  applyTabFromQuery()
+  reloadAll()
+})
 </script>
