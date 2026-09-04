@@ -15,6 +15,20 @@
   },
   {
     "year": 2025,
+    "major": "数学",
+    "minor": "统计与概率",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "数学",
+    "minor": "运筹学与控制论",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
     "major": "物理学",
     "minor": "物理学",
     "zone": 1,
@@ -29,6 +43,20 @@
   },
   {
     "year": 2025,
+    "major": "物理学",
+    "minor": "粒子物理与核物理",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "物理学",
+    "minor": "光学",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
     "major": "化学",
     "minor": "化学",
     "zone": 1,
@@ -39,6 +67,20 @@
     "major": "化学",
     "minor": "分析化学",
     "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "化学",
+    "minor": "有机化学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "化学",
+    "minor": "物理化学",
+    "zone": 3,
     "is_top": false
   },
   {
@@ -64,9 +106,51 @@
   },
   {
     "year": 2025,
+    "major": "生物学",
+    "minor": "遗传学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "生物学",
+    "minor": "神经科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
+    "major": "生物学",
+    "minor": "微生物学",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
     "major": "地球科学",
     "minor": "地质学",
     "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "地球科学",
+    "minor": "地理学",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "地球科学",
+    "minor": "大气科学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "地球科学",
+    "minor": "海洋科学",
+    "zone": 3,
     "is_top": false
   },
   {
@@ -93,8 +177,36 @@
   {
     "year": 2025,
     "major": "工程技术",
+    "minor": "软件工程",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "工程技术",
     "minor": "电子与通信",
     "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "电气工程",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "机械工程",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "土木工程",
+    "zone": 4,
     "is_top": false
   },
   {
@@ -113,9 +225,44 @@
   },
   {
     "year": 2025,
+    "major": "医学",
+    "minor": "公共卫生与预防医学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "医学",
+    "minor": "药学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "医学",
+    "minor": "护理学",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
     "major": "环境科学与生态学",
     "minor": "环境科学",
     "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "环境科学与生态学",
+    "minor": "生态学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "环境科学与生态学",
+    "minor": "环境工程",
+    "zone": 3,
     "is_top": false
   },
   {
@@ -134,9 +281,30 @@
   },
   {
     "year": 2025,
+    "major": "材料科学",
+    "minor": "金属材料",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
     "major": "管理学",
     "minor": "管理科学与工程",
     "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "管理学",
+    "minor": "工商管理",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "管理学",
+    "minor": "公共管理",
+    "zone": 3,
     "is_top": false
   },
   {
@@ -148,9 +316,30 @@
   },
   {
     "year": 2025,
+    "major": "经济学",
+    "minor": "理论经济学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "经济学",
+    "minor": "金融学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
     "major": "信息科学与系统科学",
     "minor": "控制科学与工程",
     "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "信息科学与系统科学",
+    "minor": "系统科学",
+    "zone": 3,
     "is_top": false
   },
   {
@@ -162,9 +351,93 @@
   },
   {
     "year": 2025,
+    "major": "天文学",
+    "minor": "天体物理",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
     "major": "心理学",
     "minor": "心理学",
     "zone": 2,
     "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "心理学",
+    "minor": "应用心理学",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "农学",
+    "minor": "作物学",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "农学",
+    "minor": "园艺学",
+    "zone": 4,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "能源科学",
+    "minor": "能源与动力工程",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "能源科学",
+    "minor": "新能源",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2024,
+    "major": "数学",
+    "minor": "数学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2024,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2024,
+    "major": "生物学",
+    "minor": "分子生物学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2024,
+    "major": "医学",
+    "minor": "临床医学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2024,
+    "major": "化学",
+    "minor": "化学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2024,
+    "major": "物理学",
+    "minor": "物理学",
+    "zone": 1,
+    "is_top": true
   }
 ]
