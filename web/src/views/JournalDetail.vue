@@ -89,9 +89,17 @@
 
     <n-divider />
 
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-      <n-h3 style="margin: 0;">论文列表</n-h3>
-      <n-tag v-if="articlesTotal > 0" size="small" :bordered="false">{{ articlesTotal }} 篇</n-tag>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <n-h3 style="margin: 0;">论文列表</n-h3>
+        <n-tag v-if="!articlesLoading && articlesTotal > 0" size="small" :bordered="false">{{ articlesTotal }} 篇</n-tag>
+      </div>
+      <n-button
+        size="small"
+        :loading="articlesLoading && !!articles.length"
+        :disabled="articlesLoading"
+        @click="reloadArticles"
+      >刷新</n-button>
     </div>
     <div v-if="articlesLoading && !articles.length" style="padding: 24px 0; text-align: center;"><n-spin /></div>
     <n-empty
@@ -291,6 +299,11 @@ async function doUnsubscribe() {
   } finally {
     subBusy.value = false
   }
+}
+
+function reloadArticles() {
+  if (articlesLoading.value) return
+  loadArticlesPage(articlesPage.value)
 }
 
 async function loadArticlesPage(p: number, opts: { fromQuery?: boolean } = {}) {

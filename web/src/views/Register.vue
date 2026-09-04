@@ -33,7 +33,7 @@
       </n-form-item>
       <n-button type="primary" block :loading="loading" attr-type="submit">注册</n-button>
     </n-form>
-    <p style="margin-top: 12px; text-align: center; color: #888;">
+    <p style="margin-top: 12px; text-align: center; color: #888;" :style="loading ? 'pointer-events: none; opacity: 0.55;' : undefined">
       已有账号？<router-link :to="{ path: '/login', query: route.query }">登录</router-link>
     </p>
   </n-card>
