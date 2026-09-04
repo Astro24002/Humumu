@@ -74,6 +74,17 @@
             </n-button>
             <router-link :to="`/articles/${u.article_id}`">详情</router-link>
             <n-button
+              v-if="u.doi"
+              size="tiny"
+              quaternary
+              tag="a"
+              :href="doiUrl(u.doi)"
+              target="_blank" rel="noopener noreferrer"
+              @click="onOriginalClick(u)"
+            >
+              DOI
+            </n-button>
+            <n-button
               v-if="u.original_url || u.url"
               size="tiny"
               quaternary
@@ -103,6 +114,7 @@ import { getMyUpdates, type MyUpdateItem } from '@/api/myUpdates'
 import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
+import { doiUrl } from '@/utils/url'
 import { reasonLabel, formatAuthors, contentTypeLabel, sourceTypeLabel } from '@/utils/labels'
 import {
   NH2, NSpin, NEmpty, NButton, NList, NListItem, NThing, NTag, NSpace,

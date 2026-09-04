@@ -142,7 +142,7 @@
         </n-card>
       </n-gi>
     </n-grid>
-    <n-empty v-if="!journals.length && !loading" :description="emptyDescription">
+    <n-empty v-if="!loading && total === 0" :description="emptyDescription">
       <template #extra>
         <n-button v-if="hasActiveFilters" @click="clearFilters">清除筛选</n-button>
         <template v-else>

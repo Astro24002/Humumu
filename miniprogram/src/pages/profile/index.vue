@@ -26,7 +26,7 @@
 
         <view class="setting-item">
           <text>微信订阅消息</text>
-          <switch :checked="templateSubscribed" @change="onTemplateChange" />
+          <switch :checked="templateSubscribed" :disabled="templateBusy" @change="onTemplateChange" />
         </view>
       </view>
 
@@ -54,6 +54,7 @@ const templateSubscribed = ref(false)
 const freqOptions = ['每日汇总', '实时推送']
 const freqIndex = ref(0)
 const freqBusy = ref(false)
+const templateBusy = ref(false)
 
 const accountEmailLabel = computed(() => {
   if (!auth.user) return ''
@@ -116,33 +117,42 @@ async function onFreqChange(e: any) {
 }
 
 async function onTemplateChange(e: any) {
+  if (templateBusy.value) return
   const val = e.detail.value as boolean
-  if (val) {
-    try {
-      const { template_ids } = await getTemplateIds()
-      const nonEmpty = template_ids.filter(Boolean)
-      if (nonEmpty.length === 0) {
-        uni.showToast({ title: '未配置模板消息', icon: 'none' })
-        return
-      }
-      const { errMsg } = await uni.requestSubscribeMessage({
-        tmplIds: nonEmpty,
-      })
-      if (errMsg !== 'requestSubscribeMessage:ok') {
-        uni.showToast({ title: '授权失败', icon: 'none' })
-        return
-      }
-    } catch (_) {
-      uni.showToast({ title: '授权失败', icon: 'none' })
-      return
-    }
-  }
+  const prev = templateSubscribed.value
+  templateBusy.value = true
   try {
+    if (val) {
+      try {
+        const { template_ids } = await getTemplateIds()
+        const nonEmpty = template_ids.filter(Boolean)
+        if (nonEmpty.length === 0) {
+          uni.showToast({ title: '未配置模板消息', icon: 'none' })
+          templateSubscribed.value = prev
+          return
+        }
+        const { errMsg } = await uni.requestSubscribeMessage({
+          tmplIds: nonEmpty,
+        })
+        if (errMsg !== 'requestSubscribeMessage:ok') {
+          uni.showToast({ title: '授权失败', icon: 'none' })
+          templateSubscribed.value = prev
+          return
+        }
+      } catch (_) {
+        uni.showToast({ title: '授权失败', icon: 'none' })
+        templateSubscribed.value = prev
+        return
+      }
+    }
     await updateTemplateSetting(val)
     templateSubscribed.value = val
     uni.showToast({ title: val ? '已开启' : '已关闭', icon: 'success' })
   } catch (err: any) {
+    templateSubscribed.value = prev
     uni.showToast({ title: err.message || '操作失败', icon: 'none' })
+  } finally {
+    templateBusy.value = false
   }
 }
 
