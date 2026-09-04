@@ -8,14 +8,14 @@
     <template v-else>
       <view class="filters">
         <text :class="['chip', channelFilter === '' && 'on']" @click="setChannel('')">全部渠道</text>
-        <text :class="['chip', channelFilter === 'email' && 'on']" @click="setChannel('email')">邮件</text>
-        <text :class="['chip', channelFilter === 'wechat' && 'on']" @click="setChannel('wechat')">微信</text>
+        <text :class="['chip', channelFilter === 'email' && 'on']" @click="setChannel('email')">{{ channelLabel('email') }}</text>
+        <text :class="['chip', channelFilter === 'wechat' && 'on']" @click="setChannel('wechat')">{{ channelLabel('wechat') }}</text>
       </view>
       <view class="filters">
         <text :class="['chip', statusFilter === '' && 'on']" @click="setStatus('')">全部状态</text>
-        <text :class="['chip', statusFilter === 'sent' && 'on']" @click="setStatus('sent')">已发送</text>
-        <text :class="['chip', statusFilter === 'failed' && 'on']" @click="setStatus('failed')">失败</text>
-        <text :class="['chip', statusFilter === 'pending' && 'on']" @click="setStatus('pending')">等待中</text>
+        <text :class="['chip', statusFilter === 'sent' && 'on']" @click="setStatus('sent')">{{ notifStatusLabel('sent') }}</text>
+        <text :class="['chip', statusFilter === 'failed' && 'on']" @click="setStatus('failed')">{{ notifStatusLabel('failed') }}</text>
+        <text :class="['chip', statusFilter === 'pending' && 'on']" @click="setStatus('pending')">{{ notifStatusLabel('pending') }}</text>
       </view>
       <view v-if="loading && !notifications.length" class="loading"><text>加载中...</text></view>
       <view v-else-if="!notifications.length" class="empty">

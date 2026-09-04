@@ -31,9 +31,18 @@
       </view>
 
       <view class="status-row" v-if="auth.isLoggedIn">
-        <text :class="['chip', status.is_read && 'on']" @click="toggle('is_read')">{{ status.is_read ? '已读' : '标已读' }}</text>
-        <text :class="['chip', status.is_starred && 'on']" @click="toggle('is_starred')">{{ status.is_starred ? '已星标' : '星标' }}</text>
-        <text :class="['chip', status.is_later && 'on']" @click="toggle('is_later')">{{ status.is_later ? '稍后再看' : '稍后' }}</text>
+        <text
+          :class="['chip', status.is_read && 'on', statusBusy === 'is_read' && 'busy']"
+          @click="toggle('is_read')"
+        >{{ status.is_read ? '已读' : '标已读' }}</text>
+        <text
+          :class="['chip', status.is_starred && 'on', statusBusy === 'is_starred' && 'busy']"
+          @click="toggle('is_starred')"
+        >{{ status.is_starred ? '已星标' : '星标' }}</text>
+        <text
+          :class="['chip', status.is_later && 'on', statusBusy === 'is_later' && 'busy']"
+          @click="toggle('is_later')"
+        >{{ status.is_later ? '稍后再看' : '稍后' }}</text>
       </view>
       <view class="status-row" v-else>
         <text class="chip login" @click="goLogin">登录后管理阅读状态</text>
@@ -69,7 +78,7 @@ import { cleanAbstract } from '@/utils/abstract'
 const auth = useAuthStore()
 const article = ref<Article | null>(null)
 const loading = ref(true)
-const statusBusy = ref(false)
+const statusBusy = ref<'is_read' | 'is_starred' | 'is_later' | null>(null)
 const loadError = ref('')
 const status = ref<ArticleStatus>({
   user_id: '',
@@ -128,7 +137,7 @@ onMounted(async () => {
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
   if (!article.value || !auth.isLoggedIn || statusBusy.value) return
-  statusBusy.value = true
+  statusBusy.value = field
   try {
     status.value = await updateArticleStatus(article.value.id, {
       [field]: !status.value[field],
@@ -136,20 +145,24 @@ async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
   } catch (e: any) {
     uni.showToast({ title: e.message || '更新失败', icon: 'none' })
   } finally {
-    statusBusy.value = false
+    statusBusy.value = null
   }
 }
 
 function originalUrl(): string {
   if (!article.value) return ''
+  if (article.value.url) return article.value.url
   if (article.value.doi) return doiUrl(article.value.doi)
-  return article.value.url || ''
+  return ''
 }
 
 async function openOriginal(url: string) {
   if (auth.isLoggedIn && article.value) {
     try {
       await recordOriginalClick(article.value.id)
+      if (!status.value.is_read) {
+        status.value = await updateArticleStatus(article.value.id, { is_read: true })
+      }
     } catch {
       // non-blocking
     }
@@ -163,6 +176,9 @@ async function copyLink() {
   if (auth.isLoggedIn && article.value) {
     try {
       await recordOriginalClick(article.value.id)
+      if (!status.value.is_read) {
+        status.value = await updateArticleStatus(article.value.id, { is_read: true })
+      }
     } catch {
       // non-blocking
     }
@@ -191,6 +207,7 @@ async function copyLink() {
   background: #f5f5f5; color: #666;
 }
 .chip.on { background: #e8f8e0; color: #3cc51f; }
+.chip.busy { opacity: 0.55; }
 .chip.login { background: #e8f3ff; color: #2080f0; }
 .actions { margin-top: 40rpx; display: flex; flex-direction: column; gap: 16rpx; }
 .btn-link {

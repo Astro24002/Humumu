@@ -5,14 +5,14 @@
       <n-button size="small" :loading="loading && !!notifs.length" @click="reload">刷新</n-button>
       <n-radio-group v-model:value="channelFilter" size="small" @update:value="onFilterChange">
         <n-radio-button value="">全部渠道</n-radio-button>
-        <n-radio-button value="email">邮件</n-radio-button>
-        <n-radio-button value="wechat">微信</n-radio-button>
+        <n-radio-button value="email">{{ channelLabel('email') }}</n-radio-button>
+        <n-radio-button value="wechat">{{ channelLabel('wechat') }}</n-radio-button>
       </n-radio-group>
       <n-radio-group v-model:value="statusFilter" size="small" @update:value="onFilterChange">
         <n-radio-button value="">全部状态</n-radio-button>
-        <n-radio-button value="sent">已发送</n-radio-button>
-        <n-radio-button value="failed">失败</n-radio-button>
-        <n-radio-button value="pending">等待中</n-radio-button>
+        <n-radio-button value="sent">{{ notifStatusLabel('sent') }}</n-radio-button>
+        <n-radio-button value="failed">{{ notifStatusLabel('failed') }}</n-radio-button>
+        <n-radio-button value="pending">{{ notifStatusLabel('pending') }}</n-radio-button>
       </n-radio-group>
     </n-space>
   </div>

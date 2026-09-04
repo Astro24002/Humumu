@@ -72,13 +72,31 @@
         复制链接
       </n-button>
       <template v-if="isLoggedIn">
-        <n-button :type="status.is_read ? 'success' : 'default'" ghost @click="toggle('is_read')" :loading="statusSaving">
+        <n-button
+          :type="status.is_read ? 'success' : 'default'"
+          ghost
+          :loading="statusBusy === 'is_read'"
+          :disabled="!!statusBusy"
+          @click="toggle('is_read')"
+        >
           {{ status.is_read ? '已读' : '标为已读' }}
         </n-button>
-        <n-button :type="status.is_starred ? 'warning' : 'default'" ghost @click="toggle('is_starred')" :loading="statusSaving">
+        <n-button
+          :type="status.is_starred ? 'warning' : 'default'"
+          ghost
+          :loading="statusBusy === 'is_starred'"
+          :disabled="!!statusBusy"
+          @click="toggle('is_starred')"
+        >
           {{ status.is_starred ? '已星标' : '星标' }}
         </n-button>
-        <n-button :type="status.is_later ? 'info' : 'default'" ghost @click="toggle('is_later')" :loading="statusSaving">
+        <n-button
+          :type="status.is_later ? 'info' : 'default'"
+          ghost
+          :loading="statusBusy === 'is_later'"
+          :disabled="!!statusBusy"
+          @click="toggle('is_later')"
+        >
           {{ status.is_later ? '稍后再看中' : '稍后再看' }}
         </n-button>
       </template>
@@ -124,7 +142,7 @@ const article = ref<Article | null>(null)
 const authorsLabel = computed(() => formatAuthors(article.value?.authors || [], 8))
 const loading = ref(true)
 const loadError = ref('')
-const statusSaving = ref(false)
+const statusBusy = ref<'is_read' | 'is_starred' | 'is_later' | null>(null)
 const status = ref<ArticleStatus>({
   user_id: '',
   article_id: '',
@@ -136,14 +154,14 @@ const status = ref<ArticleStatus>({
 
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
-  if (!article.value) return
-  statusSaving.value = true
+  if (!article.value || statusBusy.value) return
+  statusBusy.value = field
   try {
     status.value = await updateArticleStatus(article.value.id, { [field]: !status.value[field] })
   } catch (e: any) {
     message.error(e.message || '更新失败')
   } finally {
-    statusSaving.value = false
+    statusBusy.value = null
   }
 }
 
