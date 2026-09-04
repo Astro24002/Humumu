@@ -1,9 +1,6 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-    <n-space size="small" align="center">
-      <n-h2 style="margin: 0;">CAS 分类</n-h2>
-      <n-tag v-if="!loading" size="small" :bordered="false">{{ filtered.length }} 条</n-tag>
-    </n-space>
+    <n-h2 style="margin: 0;">CAS 分类</n-h2>
     <n-button type="primary" @click="showCreate = true">新增分类</n-button>
   </div>
 
@@ -14,18 +11,20 @@
       placeholder="年份"
       style="width: 120px"
       :options="yearOptions"
+      @update:value="onYearFilterChange"
     />
     <n-button @click="load" :loading="loading">刷新</n-button>
+    <n-tag v-if="!loading" size="small" :bordered="false">{{ categories.length }} 条</n-tag>
   </n-space>
 
-  <n-data-table :columns="columns" :data="filtered" :loading="loading" :pagination="{ pageSize: 20 }" />
+  <n-data-table :columns="columns" :data="categories" :loading="loading" :pagination="{ pageSize: 20 }" />
   <n-empty
-    v-if="!loading && !filtered.length"
+    v-if="!loading && !categories.length"
     style="margin-top: 24px;"
     :description="yearFilter ? '该年份暂无分类' : '暂无 CAS 分类，可先新增后挂载期刊'"
   >
     <template #extra>
-      <n-button v-if="yearFilter" @click="yearFilter = null">清除年份筛选</n-button>
+      <n-button v-if="yearFilter" @click="clearYearFilter">清除年份筛选</n-button>
       <n-button v-else type="primary" @click="showCreate = true">新增分类</n-button>
     </template>
   </n-empty>
@@ -118,6 +117,8 @@ const attaching = ref(false)
 const showCreate = ref(false)
 
 const categories = ref<CasCategory[]>([])
+/** Unfiltered list for the attach multi-select (independent of year table filter). */
+const attachCategories = ref<CasCategory[]>([])
 const years = ref<number[]>([])
 const journals = ref<Journal[]>([])
 const journalSearchLoading = ref(false)
@@ -174,16 +175,11 @@ function onJournalFocus() {
   if (!journals.value.length) fetchJournalOptions('')
 }
 const categoryOptions = computed(() =>
-  categories.value.map(c => ({
+  attachCategories.value.map(c => ({
     label: `${c.year} · ${c.major}/${c.minor} · ${c.zone}区${c.is_top ? ' · Top' : ''}`,
     value: c.id,
   })),
 )
-
-const filtered = computed(() => {
-  if (!yearFilter.value) return categories.value
-  return categories.value.filter(c => c.year === yearFilter.value)
-})
 
 const columns = [
   { title: '年份', key: 'year', width: 80 },
@@ -205,16 +201,50 @@ const columns = [
   },
 ]
 
+function onYearFilterChange(v: number | null) {
+  yearFilter.value = v
+  load()
+}
+
+function clearYearFilter() {
+  yearFilter.value = null
+  load()
+}
+
+async function loadAttachCategories() {
+  try {
+    const cas = await getCasCategories()
+    attachCategories.value = cas.categories
+    if (cas.years?.length) {
+      years.value = cas.years
+    } else if (cas.categories.length) {
+      years.value = [...new Set(cas.categories.map(c => c.year))].sort((a, b) => b - a)
+    }
+  } catch {
+    // attach options are best-effort; table load surfaces errors
+  }
+}
+
 async function load() {
   loading.value = true
   try {
-    const cas = await getCasCategories()
+    const cas = await getCasCategories(
+      yearFilter.value != null ? { year: yearFilter.value } : undefined,
+    )
     categories.value = cas.categories
-    years.value = cas.years?.length
-      ? cas.years
-      : [...new Set(cas.categories.map(c => c.year))].sort((a, b) => b - a)
+    if (cas.years?.length) {
+      years.value = cas.years
+    } else if (!yearFilter.value) {
+      years.value = [...new Set(cas.categories.map(c => c.year))].sort((a, b) => b - a)
+    }
+    // Keep attach options complete even when the table is year-filtered.
+    if (!yearFilter.value) {
+      attachCategories.value = cas.categories
+    } else if (!attachCategories.value.length) {
+      await loadAttachCategories()
+    }
     // Journal attach dropdown loads on focus / remote search (paged).
-    await fetchJournalOptions('')
+    if (!journals.value.length) await fetchJournalOptions('')
   } catch (e: any) {
     message.error(e.message || '加载失败')
   } finally {
