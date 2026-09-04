@@ -26,12 +26,24 @@
         </n-card>
       </n-gi>
       <n-gi span="6 m:1">
-        <n-card size="small" hoverable style="cursor: pointer" @click="goPendingDirectory">
+        <n-card
+          size="small"
+          hoverable
+          style="cursor: pointer"
+          :class="{ 'stat-attention': (stats.pending_directory_reviews || 0) > 0 }"
+          @click="goPendingDirectory"
+        >
           <n-statistic title="待审公开源" :value="stats.pending_directory_reviews || 0" />
         </n-card>
       </n-gi>
       <n-gi span="6 m:1">
-        <n-card size="small" hoverable style="cursor: pointer" @click="goPendingRequests">
+        <n-card
+          size="small"
+          hoverable
+          style="cursor: pointer"
+          :class="{ 'stat-attention': stats.pending_requests > 0 }"
+          @click="goPendingRequests"
+        >
           <n-statistic title="待审申请" :value="stats.pending_requests" />
         </n-card>
       </n-gi>
@@ -114,3 +126,9 @@ async function load() {
 
 onMounted(load)
 </script>
+
+<style scoped>
+.stat-attention {
+  box-shadow: inset 3px 0 0 #f0a020;
+}
+</style>
