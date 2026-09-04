@@ -218,6 +218,7 @@ function onPageChange(p: number) {
 }
 
 function reload() {
+  if (loading.value || busyId.value) return
   page.value = 1
   syncFiltersToQuery()
   load()

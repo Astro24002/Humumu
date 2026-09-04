@@ -272,6 +272,7 @@ async function loadAttachCategories() {
 }
 
 async function load() {
+  if (saving.value || attaching.value) return
   const seq = ++categoriesLoadSeq
   loading.value = true
   try {
