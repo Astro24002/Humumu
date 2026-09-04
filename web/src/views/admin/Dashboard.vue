@@ -26,7 +26,7 @@
         </n-card>
       </n-gi>
       <n-gi span="5 m:1">
-        <n-card size="small" hoverable style="cursor: pointer" @click="router.push('/admin/requests')">
+        <n-card size="small" hoverable style="cursor: pointer" @click="goPendingRequests">
           <n-statistic title="待审申请" :value="stats.pending_requests" />
         </n-card>
       </n-gi>
@@ -53,6 +53,10 @@ const stats = ref<AdminStats>({
 
 function goPendingDirectory() {
   router.push({ path: '/admin/journals', query: { status: 'pending_review' } })
+}
+
+function goPendingRequests() {
+  router.push({ path: '/admin/requests', query: { status: 'pending' } })
 }
 
 async function load() {

@@ -5,7 +5,7 @@
       <n-tag v-if="!loading" size="small" :bordered="false">{{ total }} 条</n-tag>
     </n-space>
     <n-space align="center" style="flex-wrap: wrap;">
-      <n-radio-group v-model:value="statusFilter" size="small" @update:value="reload">
+      <n-radio-group v-model:value="statusFilter" size="small" @update:value="onStatusFilterChange">
         <n-radio-button value="pending">{{ requestStatusLabel('pending') }}</n-radio-button>
         <n-radio-button value="">全部</n-radio-button>
         <n-radio-button value="approved">{{ requestStatusLabel('approved') }}</n-radio-button>
@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import { ref, h, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
   NButton, NSpace, NTag, NDataTable, NH2, NRadioGroup, NRadioButton, NEmpty, NPagination,
@@ -45,13 +46,23 @@ import { formatDateTime } from '@/utils/datetime'
 import { shortUrl } from '@/utils/url'
 import { requestStatusLabel, requestStatusTagType } from '@/utils/labels'
 
+const route = useRoute()
+const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 const requests = ref<JournalRequest[]>([])
 const total = ref(0)
 const loading = ref(true)
 const reviewBusy = ref(false)
-const statusFilter = ref('pending')
+
+function statusFromQuery(): string {
+  const raw = route.query.status
+  if (typeof raw !== 'string') return 'pending'
+  if (raw === 'all') return ''
+  return raw
+}
+
+const statusFilter = ref(statusFromQuery())
 const page = ref(1)
 const pageSize = 20
 
@@ -63,6 +74,18 @@ watch(pageCount, (n) => {
     load()
   }
 })
+
+/** Dashboard deep-link ?status=pending (and menu without query → pending default). */
+watch(
+  () => route.query.status,
+  () => {
+    const next = statusFromQuery()
+    if (statusFilter.value === next) return
+    statusFilter.value = next
+    page.value = 1
+    load()
+  },
+)
 
 const columns = [
   { title: '期刊名', key: 'journal_name' },
@@ -136,9 +159,28 @@ async function review(id: string, status: string) {
   }
 }
 
+function syncStatusQuery() {
+  const current = typeof route.query.status === 'string' ? route.query.status : undefined
+  // Encode "all" explicitly so a bare /admin/requests still means pending default.
+  const next = statusFilter.value === '' ? 'all' : (statusFilter.value || 'pending')
+  if (current === next) return
+  const q = { ...route.query } as Record<string, string | string[] | undefined>
+  q.status = next
+  router.replace({ query: q })
+}
+
 function clearFilter() {
   statusFilter.value = ''
-  reload()
+  page.value = 1
+  syncStatusQuery()
+  load()
+}
+
+function onStatusFilterChange(v: string) {
+  statusFilter.value = v
+  page.value = 1
+  syncStatusQuery()
+  load()
 }
 
 function onPageChange(p: number) {
