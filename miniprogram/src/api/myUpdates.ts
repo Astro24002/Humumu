@@ -27,6 +27,7 @@ export interface MyUpdateItem {
 
 export interface MyUpdatesResponse {
   updates: MyUpdateItem[]
+  total?: number
 }
 
 export function getMyUpdates(params: {

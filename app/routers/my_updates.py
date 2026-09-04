@@ -22,7 +22,7 @@ async def list_my_updates(
     filter: str | None = Query(default=None, alias="filter"),
 ) -> MyUpdatesResponse:
     try:
-        rows = await updates_service.list_my_updates(
+        rows, total = await updates_service.list_my_updates(
             session,
             user_id,
             limit=limit,
@@ -59,4 +59,4 @@ async def list_my_updates(
                 ),
             )
         )
-    return MyUpdatesResponse(updates=items)
+    return MyUpdatesResponse(updates=items, total=total)

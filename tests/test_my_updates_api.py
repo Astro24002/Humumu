@@ -74,12 +74,13 @@ async def test_my_updates_shape(client, authed_user_id):
     with patch(
         "app.routers.my_updates.updates_service.list_my_updates",
         new_callable=AsyncMock,
-        return_value=[row],
+        return_value=([row], 1),
     ) as mock_list:
         r = await client.get("/api/v1/my/updates?limit=10&filter=starred")
     assert r.status_code == 200
     body = r.json()
     assert "updates" in body
+    assert body["total"] == 1
     item = body["updates"][0]
     assert item["title"] == "Quantum widgets"
     assert item.get("journal_source_type") == "rss"
@@ -95,11 +96,11 @@ async def test_my_updates_empty(client, authed_user_id):
     with patch(
         "app.routers.my_updates.updates_service.list_my_updates",
         new_callable=AsyncMock,
-        return_value=[],
+        return_value=([], 0),
     ):
         r = await client.get("/api/v1/my/updates")
     assert r.status_code == 200
-    assert r.json() == {"updates": []}
+    assert r.json() == {"updates": [], "total": 0}
 
 
 @pytest.mark.asyncio

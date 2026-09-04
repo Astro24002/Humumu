@@ -105,5 +105,5 @@ Humumu（原 Journal Monitor）是一个 Python/FastAPI 单体服务，同时提
 - **CAS 分类列表**：`GET /categories/cas` 支持可选 `year`/`major` 服务端筛选；`years` 始终返回全部可用年份。管理后台表格按年份查询，挂载多选保留完整分类列表。期刊广场 CAS 大类/小类选项与列表筛选对齐到最新 `year`。
 - **详情**（期刊/文章）与 **按 `journal_id` 的文章列表**：公开源匿名可读；非公开源需有效 Bearer，且调用者为 `created_by` **或已订阅**（同 URL 复用后的订阅者）。
 - **订阅** `POST /subscriptions/journals/:id`：公开源或本人创建的非公开源；否则 404。
-- **My Updates**：已订阅期刊新文 + 通知命中；可见性含公开、本人创建、已订阅（含私有复用）。卡片含 `journal_source_type` 供客户端展示 RSS/arXiv 等源标签。
+- **My Updates**：已订阅期刊新文 + 通知命中；可见性含公开、本人创建、已订阅（含私有复用）。卡片含 `journal_source_type` 供客户端展示 RSS/arXiv 等源标签。`GET /my/updates` 响应含去重后的 `total`，offset 按 distinct 文章分页。
 - 同 URL 复用响应会脱敏：非创建者看不到原 `created_by`，非公开状态对外映射为 `private`。

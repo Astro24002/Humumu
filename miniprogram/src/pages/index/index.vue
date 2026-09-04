@@ -241,7 +241,9 @@ async function fetchItems(isLoadMore = false) {
       }))
       items.value.push(...mapped)
       offset.value += res.updates.length
-      hasMore.value = res.updates.length === limit
+      hasMore.value = typeof res.total === 'number'
+        ? items.value.length < res.total
+        : res.updates.length === limit
     } else {
       const res = await getArticles({
         limit,

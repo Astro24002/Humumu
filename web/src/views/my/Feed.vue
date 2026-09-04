@@ -136,6 +136,7 @@ const filter = ref('')
 const offset = ref(0)
 const limit = 20
 const hasMore = ref(false)
+const total = ref<number | null>(null)
 /** Drop stale feed responses when filter/reset races mid-flight. */
 let feedLoadSeq = 0
 
@@ -151,6 +152,7 @@ async function fetchPage(reset: boolean) {
   if (reset) {
     loading.value = true
     offset.value = 0
+    total.value = null
   } else {
     loadingMore.value = true
   }
@@ -165,7 +167,10 @@ async function fetchPage(reset: boolean) {
     if (reset) updates.value = res.updates
     else updates.value.push(...res.updates)
     offset.value += res.updates.length
-    hasMore.value = res.updates.length >= limit
+    if (typeof res.total === 'number') total.value = res.total
+    hasMore.value = total.value != null
+      ? updates.value.length < total.value
+      : res.updates.length >= limit
   } catch (e: any) {
     if (seq !== feedLoadSeq) return
     message.error(e.message || '加载失败')

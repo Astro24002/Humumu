@@ -36,3 +36,4 @@ class MyUpdateItem(BaseModel):
 
 class MyUpdatesResponse(BaseModel):
     updates: list[MyUpdateItem]
+    total: int = 0

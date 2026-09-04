@@ -6,7 +6,7 @@ import uuid
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
@@ -34,30 +34,12 @@ def _clamp_limit(limit: int) -> int:
     return limit
 
 
-async def list_my_updates(
-    session: AsyncSession,
-    user_id: str | UUID,
+def _eligible_article_ids(
+    uid: UUID,
     *,
-    limit: int = 20,
-    offset: int = 0,
-    filter_name: str | None = None,
-) -> list[dict[str, Any]]:
-    """
-    Return article cards for the authenticated user.
-
-    Sources:
-      - articles from journals the user subscribes to
-      - articles that produced a notification for the user (author/keyword hits)
-
-    Visibility: subscribed journals always OK; else journal must be public or owned.
-    """
-    uid = _parse_uuid(user_id)
-    if uid is None:
-        return []
-    limit = _clamp_limit(limit)
-    if offset < 0:
-        offset = 0
-
+    filter_name: str | None,
+):
+    """Distinct article ids visible in the user's My Updates feed (with optional status filter)."""
     sub_articles = (
         select(Article.id.label("id"))
         .join(JournalSubscription, JournalSubscription.journal_id == Article.journal_id)
@@ -78,21 +60,14 @@ async def list_my_updates(
     )
 
     stmt = (
-        select(Article, Journal, status, Notification.match_reasons)
+        select(Article.id.label("id"), Article.fetched_at.label("fetched_at"))
         .join(article_ids_q, article_ids_q.c.id == Article.id)
         .join(Journal, Journal.id == Article.journal_id)
         .outerjoin(
             status,
             and_(status.user_id == uid, status.article_id == Article.id),
         )
-        .outerjoin(
-            Notification,
-            and_(Notification.user_id == uid, Notification.article_id == Article.id),
-        )
         .where(visibility)
-        .order_by(Article.fetched_at.desc())
-        .limit(limit * 3)  # headroom for notification dup rows before dedupe
-        .offset(offset)
     )
 
     filt = (filter_name or "").strip().lower()
@@ -103,44 +78,109 @@ async def list_my_updates(
     elif filt == "unread":
         stmt = stmt.where(or_(status.user_id.is_(None), status.is_read.is_(False)))
 
-    result = await session.execute(stmt)
-    rows = result.all()
+    # union already yields distinct ids; keep one row per article for ordering/count.
+    return stmt.distinct().subquery()
 
-    seen: set[str] = set()
-    out: list[dict[str, Any]] = []
-    for article, journal, st, match_reasons in rows:
+
+async def list_my_updates(
+    session: AsyncSession,
+    user_id: str | UUID,
+    *,
+    limit: int = 20,
+    offset: int = 0,
+    filter_name: str | None = None,
+) -> tuple[list[dict[str, Any]], int]:
+    """
+    Return (article cards, total_matching) for the authenticated user.
+
+    Sources:
+      - articles from journals the user subscribes to
+      - articles that produced a notification for the user (author/keyword hits)
+
+    Visibility: subscribed journals always OK; else journal must be public or owned.
+    """
+    uid = _parse_uuid(user_id)
+    if uid is None:
+        return [], 0
+    limit = _clamp_limit(limit)
+    if offset < 0:
+        offset = 0
+
+    eligible = _eligible_article_ids(uid, filter_name=filter_name)
+
+    total = int(
+        (await session.execute(select(func.count()).select_from(eligible))).scalar_one() or 0
+    )
+    if total == 0 or offset >= total:
+        return [], total
+
+    page_ids = list(
+        (
+            await session.execute(
+                select(eligible.c.id)
+                .order_by(eligible.c.fetched_at.desc().nullslast(), eligible.c.id.desc())
+                .limit(limit)
+                .offset(offset)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not page_ids:
+        return [], total
+
+    status = aliased(UserArticleStatus)
+    hydrate = await session.execute(
+        select(Article, Journal, status, Notification.match_reasons)
+        .join(Journal, Journal.id == Article.journal_id)
+        .outerjoin(
+            status,
+            and_(status.user_id == uid, status.article_id == Article.id),
+        )
+        .outerjoin(
+            Notification,
+            and_(Notification.user_id == uid, Notification.article_id == Article.id),
+        )
+        .where(Article.id.in_(page_ids))
+    )
+
+    by_id: dict[str, dict[str, Any]] = {}
+    for article, journal, st, match_reasons in hydrate.all():
         aid = str(article.id)
-        if aid in seen:
-            continue
-        seen.add(aid)
         reasons = [p for p in str(match_reasons or "").split(",") if p]
+        if aid in by_id:
+            # Merge notification reasons if multiple notification rows exist.
+            existing = by_id[aid]["reasons"]
+            for r in reasons:
+                if r not in existing:
+                    existing.append(r)
+            continue
         status_out = {
             "is_read": bool(st.is_read) if st is not None else False,
             "is_starred": bool(st.is_starred) if st is not None else False,
             "is_later": bool(st.is_later) if st is not None else False,
             "original_clicked_at": st.original_clicked_at if st is not None else None,
         }
-        out.append(
-            {
-                "article_id": aid,
-                "title": article.title or "",
-                "authors": list(article.authors or []),
-                "abstract": article.abstract or "",
-                "doi": article.doi,
-                "url": article.url or "",
-                "original_url": article.url or "",
-                "publish_date": article.publish_date.isoformat()
-                if article.publish_date
-                else None,
-                "fetched_at": article.fetched_at,
-                "journal_id": str(journal.id),
-                "journal_name": journal.name or "",
-                "journal_source_type": getattr(journal, "source_type", None) or "",
-                "content_type": getattr(journal, "content_type", None) or "journal",
-                "reasons": reasons,
-                "status": status_out,
-            }
-        )
-        if len(out) >= limit:
-            break
-    return out
+        by_id[aid] = {
+            "article_id": aid,
+            "title": article.title or "",
+            "authors": list(article.authors or []),
+            "abstract": article.abstract or "",
+            "doi": article.doi,
+            "url": article.url or "",
+            "original_url": article.url or "",
+            "publish_date": article.publish_date.isoformat()
+            if article.publish_date
+            else None,
+            "fetched_at": article.fetched_at,
+            "journal_id": str(journal.id),
+            "journal_name": journal.name or "",
+            "journal_source_type": getattr(journal, "source_type", None) or "",
+            "content_type": getattr(journal, "content_type", None) or "journal",
+            "reasons": reasons,
+            "status": status_out,
+        }
+
+    # Preserve page order from the ordered id query.
+    out = [by_id[str(aid)] for aid in page_ids if str(aid) in by_id]
+    return out, total

@@ -370,6 +370,8 @@ GET /api/v1/my/updates
 
 **查询参数:** `limit` / `offset` / `filter`（`unread` | `starred` | `later`）
 
+响应含 `updates` 与 **`total`**（当前 filter 下去重后的匹配总数）；Web/小程序用其驱动「加载更多」。
+
 每条更新含 `journal_id` / `journal_name` / `content_type` / **`journal_source_type`**（`rss` | `arxiv` | …，供客户端打源标签）以及 `reasons`、`status` 阅读状态。
 
 ### 阅读状态
