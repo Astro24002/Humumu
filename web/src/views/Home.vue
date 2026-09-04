@@ -15,12 +15,12 @@
       后可订阅、标记已读并接收推送。
     </n-alert>
     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
-      <n-radio-group v-model:value="filterContentType" size="small" @update:value="onFilterChange">
+      <n-radio-group v-model:value="filterContentType" size="small" :disabled="loading" @update:value="onFilterChange">
         <n-radio-button value="">全部</n-radio-button>
         <n-radio-button value="journal">{{ contentTypeLabel('journal') }}</n-radio-button>
         <n-radio-button value="preprint">{{ contentTypeLabel('preprint') }}</n-radio-button>
       </n-radio-group>
-      <n-radio-group v-model:value="filterSourceType" size="small" @update:value="onFilterChange">
+      <n-radio-group v-model:value="filterSourceType" size="small" :disabled="loading" @update:value="onFilterChange">
         <n-radio-button value="">全部源</n-radio-button>
         <n-radio-button value="rss">{{ sourceTypeLabel('rss') }}</n-radio-button>
         <n-radio-button value="arxiv">{{ sourceTypeLabel('arxiv') }}</n-radio-button>
@@ -33,6 +33,7 @@
         clearable
         filterable
         remote
+        :disabled="loading"
         :loading="journalSearchLoading"
         :reset-menu-on-options-change="false"
         style="max-width: 300px;"

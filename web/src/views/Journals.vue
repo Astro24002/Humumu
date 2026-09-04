@@ -14,20 +14,21 @@
         clearable
         placeholder="搜索名称 / 描述 / slug"
         style="max-width: 360px;"
+        :disabled="loading"
         @keyup.enter="reload"
         @clear="reload"
       >
         <template #suffix>
-          <n-button text type="primary" @click="reload">搜索</n-button>
+          <n-button text type="primary" :disabled="loading" @click="reload">搜索</n-button>
         </template>
       </n-input>
       <n-space align="center">
-        <n-radio-group v-model:value="contentType" size="small" @update:value="reload">
+        <n-radio-group v-model:value="contentType" size="small" :disabled="loading" @update:value="reload">
           <n-radio-button value="">全部</n-radio-button>
           <n-radio-button value="journal">{{ contentTypeLabel('journal') }}</n-radio-button>
           <n-radio-button value="preprint">{{ contentTypeLabel('preprint') }}</n-radio-button>
         </n-radio-group>
-        <n-radio-group v-model:value="sourceType" size="small" @update:value="reload">
+        <n-radio-group v-model:value="sourceType" size="small" :disabled="loading" @update:value="reload">
           <n-radio-button value="">全部源</n-radio-button>
           <n-radio-button value="rss">{{ sourceTypeLabel('rss') }}</n-radio-button>
           <n-radio-button value="arxiv">{{ sourceTypeLabel('arxiv') }}</n-radio-button>
@@ -38,6 +39,7 @@
           size="small"
           style="width: 140px;"
           :options="sortOptions"
+          :disabled="loading"
         />
         <template v-if="categories.length">
           <n-tag v-if="casYear != null" size="small" :bordered="false" type="info">
@@ -50,6 +52,7 @@
             :options="majorOptions"
             style="width: 160px;"
             size="small"
+            :disabled="loading"
             @update:value="onMajorChange"
           />
           <n-select
@@ -59,7 +62,7 @@
             :options="minorOptions"
             style="width: 160px;"
             size="small"
-            :disabled="!major"
+            :disabled="loading || !major"
             @update:value="reload"
           />
           <n-select
@@ -69,9 +72,10 @@
             :options="zoneOptions"
             style="width: 100px;"
             size="small"
+            :disabled="loading"
             @update:value="reload"
           />
-          <n-checkbox v-model:checked="topOnly" @update:checked="reload">仅 Top</n-checkbox>
+          <n-checkbox v-model:checked="topOnly" :disabled="loading" @update:checked="reload">仅 Top</n-checkbox>
         </template>
       </n-space>
     </n-space>

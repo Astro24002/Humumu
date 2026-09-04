@@ -10,6 +10,7 @@
       clearable
       placeholder="年份"
       style="width: 120px"
+      :disabled="loading"
       :options="yearOptions"
       @update:value="onYearFilterChange"
     />

@@ -13,6 +13,7 @@
       clearable
       placeholder="搜索名称 / slug / URL"
       style="width: 240px"
+      :disabled="loading"
       @keyup.enter="reload"
       @clear="reload"
     />
@@ -21,6 +22,7 @@
       clearable
       placeholder="目录状态"
       style="width: 200px"
+      :disabled="loading"
       :options="[{ label: '全部', value: '' }, ...directoryOptions]"
       @update:value="onStatusFilterChange"
     />
@@ -29,6 +31,7 @@
       clearable
       placeholder="内容类型"
       style="width: 140px"
+      :disabled="loading"
       :options="[
         { label: '全部', value: '' },
         { label: contentTypeLabel('journal'), value: 'journal' },
@@ -41,6 +44,7 @@
       clearable
       placeholder="源类型"
       style="width: 140px"
+      :disabled="loading"
       :options="[
         { label: '全部', value: '' },
         { label: sourceTypeLabel('rss'), value: 'rss' },
@@ -53,6 +57,7 @@
       v-model:value="sortBy"
       size="small"
       style="width: 140px"
+      :disabled="loading"
       :options="sortOptions"
       @update:value="reload"
     />

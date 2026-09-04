@@ -5,7 +5,7 @@
       <n-tag v-if="!loading" size="small" :bordered="false">{{ total }} 条</n-tag>
     </n-space>
     <n-space align="center" style="flex-wrap: wrap;">
-      <n-radio-group v-model:value="statusFilter" size="small" @update:value="onStatusFilterChange">
+      <n-radio-group v-model:value="statusFilter" size="small" :disabled="loading" @update:value="onStatusFilterChange">
         <n-radio-button value="pending">{{ requestStatusLabel('pending') }}</n-radio-button>
         <n-radio-button value="">全部</n-radio-button>
         <n-radio-button value="approved">{{ requestStatusLabel('approved') }}</n-radio-button>

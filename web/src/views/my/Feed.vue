@@ -8,7 +8,7 @@
   </div>
 
   <n-space style="margin-bottom: 16px;">
-    <n-radio-group v-model:value="filter" size="small" @update:value="reload">
+    <n-radio-group v-model:value="filter" size="small" :disabled="loading" @update:value="reload">
       <n-radio-button value="">全部</n-radio-button>
       <n-radio-button value="unread">未读</n-radio-button>
       <n-radio-button value="starred">星标</n-radio-button>

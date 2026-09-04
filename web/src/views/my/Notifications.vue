@@ -6,12 +6,12 @@
     </n-space>
     <n-space size="small" align="center" style="flex-wrap: wrap;">
       <n-button size="small" :loading="loading && !!notifs.length" @click="reload">刷新</n-button>
-      <n-radio-group v-model:value="channelFilter" size="small" @update:value="onFilterChange">
+      <n-radio-group v-model:value="channelFilter" size="small" :disabled="loading" @update:value="onFilterChange">
         <n-radio-button value="">全部渠道</n-radio-button>
         <n-radio-button value="email">{{ channelLabel('email') }}</n-radio-button>
         <n-radio-button value="wechat">{{ channelLabel('wechat') }}</n-radio-button>
       </n-radio-group>
-      <n-radio-group v-model:value="statusFilter" size="small" @update:value="onFilterChange">
+      <n-radio-group v-model:value="statusFilter" size="small" :disabled="loading" @update:value="onFilterChange">
         <n-radio-button value="">全部状态</n-radio-button>
         <n-radio-button value="sent">{{ notifStatusLabel('sent') }}</n-radio-button>
         <n-radio-button value="failed">{{ notifStatusLabel('failed') }}</n-radio-button>

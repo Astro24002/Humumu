@@ -10,6 +10,7 @@
         clearable
         placeholder="搜索邮箱 / 昵称"
         style="width: 240px"
+        :disabled="loading"
         @keyup.enter="reload"
         @clear="reload"
       />
