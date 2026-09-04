@@ -3,7 +3,7 @@
     <n-h2 style="margin: 0;">期刊管理</n-h2>
     <n-space>
       <n-button :loading="loading" :disabled="loading || saving || !!busyId" @click="reload">刷新</n-button>
-      <n-button type="primary" :disabled="loading || saving" @click="openAdd">新增期刊</n-button>
+      <n-button type="primary" :disabled="loading || saving || !!busyId" @click="openAdd">新增期刊</n-button>
     </n-space>
   </div>
 
@@ -72,7 +72,7 @@
   >
     <template #extra>
       <n-button v-if="hasServerFilters" :disabled="loading || saving || !!busyId" @click="clearFilters">清除筛选</n-button>
-      <n-button v-else type="primary" @click="openAdd">新增期刊</n-button>
+      <n-button v-else type="primary" :disabled="loading || saving || !!busyId" @click="openAdd">新增期刊</n-button>
     </template>
   </n-empty>
   <n-pagination
@@ -356,7 +356,7 @@ function onModalShow(show: boolean) {
 }
 
 function openAdd() {
-  if (loading.value || saving.value) return
+  if (loading.value || saving.value || busyId.value) return
   editingId.value = null
   form.value = {
     name: '',

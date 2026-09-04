@@ -4,11 +4,11 @@
       <n-h2 style="margin: 0;">我的更新</n-h2>
       <n-tag v-if="!loading && total != null" size="small" :bordered="false">{{ total }} 条</n-tag>
     </div>
-    <n-button size="small" :loading="loading && !!updates.length" :disabled="loading" @click="reload">刷新</n-button>
+    <n-button size="small" :loading="loading && !!updates.length" :disabled="listBusy" @click="reload">刷新</n-button>
   </div>
 
   <n-space style="margin-bottom: 16px;">
-    <n-radio-group v-model:value="filter" size="small" :disabled="loading" @update:value="reload">
+    <n-radio-group v-model:value="filter" size="small" :disabled="listBusy" @update:value="reload">
       <n-radio-button value="">全部</n-radio-button>
       <n-radio-button value="unread">未读</n-radio-button>
       <n-radio-button value="starred">星标</n-radio-button>
@@ -23,7 +23,7 @@
         <n-button type="primary" @click="router.push('/journals')">浏览期刊</n-button>
         <n-button @click="router.push('/my/subscriptions')">管理订阅</n-button>
       </n-space>
-      <n-button v-else :disabled="loading" @click="clearFilter">查看全部更新</n-button>
+      <n-button v-else :disabled="listBusy" @click="clearFilter">查看全部更新</n-button>
     </template>
   </n-empty>
   <n-list v-else>
@@ -104,7 +104,7 @@
     </n-list-item>
   </n-list>
   <div v-if="hasMore" style="text-align: center; margin-top: 16px;">
-    <n-button :loading="loadingMore" :disabled="loadingMore || loading" @click="loadMore">加载更多</n-button>
+    <n-button :loading="loadingMore" :disabled="loadingMore || listBusy" @click="loadMore">加载更多</n-button>
   </div>
   <div
     v-else-if="!loading && updates.length"
@@ -136,6 +136,8 @@ const updates = ref<MyUpdateItem[]>([])
 const busyMap = ref<Record<string, 'is_read' | 'is_starred' | 'is_later'>>({})
 const loading = ref(true)
 const loadingMore = ref(false)
+/** Filters/reload locked while list loads or any row status mutates. */
+const listBusy = computed(() => loading.value || Object.keys(busyMap.value).length > 0)
 const filter = ref('')
 const offset = ref(0)
 const limit = 20
@@ -207,19 +209,19 @@ async function fetchPage(reset: boolean) {
 }
 
 async function reload() {
-  if (loading.value) return
+  if (listBusy.value) return
   syncFilterToQuery()
   await fetchPage(true)
 }
 
 function clearFilter() {
-  if (loading.value) return
+  if (listBusy.value) return
   filter.value = ''
   reload()
 }
 
 async function loadMore() {
-  if (!hasMore.value || loadingMore.value || loading.value) return
+  if (!hasMore.value || loadingMore.value || listBusy.value) return
   await fetchPage(false)
 }
 
