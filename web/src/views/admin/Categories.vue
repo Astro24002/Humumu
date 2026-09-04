@@ -99,7 +99,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import {
   NButton, NCard, NDataTable, NDivider, NEmpty, NForm, NFormItem, NH2, NH3,
@@ -110,6 +111,8 @@ import { attachCasCategories, createCasCategory, getAllJournals } from '@/api/ad
 import type { Journal } from '@/api/journals'
 import { sourceTypeLabel } from '@/utils/labels'
 
+const route = useRoute()
+const router = useRouter()
 const message = useMessage()
 const loading = ref(true)
 const saving = ref(false)
@@ -126,6 +129,29 @@ const yearFilter = ref<number | null>(null)
 let journalSearchSeq = 0
 /** Drop stale CAS table responses when year filter changes mid-flight. */
 let categoriesLoadSeq = 0
+/** Skip one route→state write when we just pushed query ourselves. */
+let suppressQueryApply = false
+
+function yearFromQuery(): number | null {
+  const raw = route.query.year
+  if (typeof raw !== 'string' || !raw) return null
+  const n = parseInt(raw, 10)
+  return Number.isFinite(n) ? n : null
+}
+
+function applyYearFromQuery() {
+  yearFilter.value = yearFromQuery()
+}
+
+function syncYearToQuery() {
+  const next: Record<string, string> = {}
+  if (yearFilter.value != null) next.year = String(yearFilter.value)
+  const cur = route.query
+  const same = (cur.year || undefined) === next.year
+  if (same) return
+  suppressQueryApply = true
+  router.replace({ query: next })
+}
 
 const form = ref({
   year: new Date().getFullYear(),
@@ -205,11 +231,13 @@ const columns = [
 
 function onYearFilterChange(v: number | null) {
   yearFilter.value = v
+  syncYearToQuery()
   load()
 }
 
 function clearYearFilter() {
   yearFilter.value = null
+  syncYearToQuery()
   load()
 }
 
@@ -304,5 +332,20 @@ async function attach() {
   }
 }
 
-onMounted(load)
+watch(
+  () => route.query.year,
+  () => {
+    if (suppressQueryApply) {
+      suppressQueryApply = false
+      return
+    }
+    applyYearFromQuery()
+    load()
+  },
+)
+
+onMounted(() => {
+  applyYearFromQuery()
+  load()
+})
 </script>

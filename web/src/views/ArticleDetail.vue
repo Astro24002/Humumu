@@ -195,6 +195,8 @@ async function copyLink() {
     ? doiUrl(article.value.doi)
     : article.value.url || ''
   if (!link) return
+  // Same side-effect as opening DOI/原文: record click + mark read when logged in.
+  await onOriginalClick()
   try {
     await navigator.clipboard.writeText(link)
     message.success('链接已复制')

@@ -263,6 +263,11 @@ function resetAddModal() {
 }
 
 function onModalShow(show: boolean) {
+  // Keep the dialog open while preview/add is in flight (escape / mask click).
+  if (!show && (previewLoading.value || addLoading.value)) {
+    showAddModal.value = true
+    return
+  }
   if (!show) resetAddModal()
 }
 
