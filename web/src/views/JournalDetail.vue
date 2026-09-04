@@ -117,7 +117,27 @@
             </p>
           </template>
           <template #footer>
-            <router-link :to="`/articles/${a.id}`">查看详情</router-link>
+            <n-space size="small">
+              <router-link :to="`/articles/${a.id}`">查看详情</router-link>
+              <n-button
+                v-if="a.doi"
+                size="tiny"
+                quaternary
+                tag="a"
+                :href="doiUrl(a.doi)"
+                target="_blank"
+                rel="noopener noreferrer"
+              >DOI</n-button>
+              <n-button
+                v-if="a.url"
+                size="tiny"
+                quaternary
+                tag="a"
+                :href="a.url"
+                target="_blank"
+                rel="noopener noreferrer"
+              >原文</n-button>
+            </n-space>
           </template>
         </n-thing>
       </n-list-item>
@@ -144,13 +164,13 @@ import {
 } from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
-import { shortUrl } from '@/utils/url'
+import { shortUrl, doiUrl } from '@/utils/url'
 import { formatDate } from '@/utils/datetime'
 import { formatAuthors, dirStatusLabel, dirStatusType, sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/labels'
 import {
   NH2, NH3, NButton, NCard, NTag, NDivider, NSpin, NEmpty, NResult,
   NList, NListItem, NThing, NDescriptions, NDescriptionsItem,
-  NNumberAnimation, NPagination, useMessage, useDialog,
+  NNumberAnimation, NPagination, NSpace, useMessage, useDialog,
 } from 'naive-ui'
 
 const route = useRoute()

@@ -72,6 +72,7 @@
             <div style="display: flex; gap: 4px;">
               <n-button size="tiny" quaternary tag="a" :href="`/articles/${a.id}`" @click.prevent="router.push(`/articles/${a.id}`)">详情</n-button>
               <n-button v-if="a.doi" size="tiny" quaternary tag="a" :href="doiUrl(a.doi)" target="_blank" rel="noopener noreferrer">DOI</n-button>
+              <n-button v-if="a.url" size="tiny" quaternary tag="a" :href="a.url" target="_blank" rel="noopener noreferrer">原文</n-button>
             </div>
           </template>
           <template #footer>
