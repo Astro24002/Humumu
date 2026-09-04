@@ -81,13 +81,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { getStats, type AdminStats } from '@/api/admin'
 import { NH2, NGrid, NGi, NStatistic, NCard, NButton, NSpin, NAlert, useMessage } from 'naive-ui'
 
 const router = useRouter()
 const message = useMessage()
+const setAdminPendingCounts = inject<(dir: number, req: number) => void>(
+  'setAdminPendingCounts',
+  () => {},
+)
 const loading = ref(true)
 const stats = ref<AdminStats>({
   journal_count: 0,
@@ -116,6 +120,8 @@ async function load() {
     const next = await getStats()
     if (seq !== statsLoadSeq) return
     stats.value = next
+    // Keep sidebar badges aligned without a second /admin/stats hop.
+    setAdminPendingCounts(next.pending_directory_reviews || 0, next.pending_requests || 0)
   } catch (e: any) {
     if (seq !== statsLoadSeq) return
     message.error(e?.message || '加载概览失败')

@@ -120,19 +120,25 @@ const menuOptions = computed(() => {
   ]
 })
 
+function applyPendingCounts(dir: number, req: number) {
+  pendingDirectory.value = dir || 0
+  pendingRequests.value = req || 0
+}
+
 async function loadPendingCounts() {
   const seq = ++pendingLoadSeq
   try {
     const stats = await getStats()
     if (seq !== pendingLoadSeq) return
-    pendingDirectory.value = stats.pending_directory_reviews || 0
-    pendingRequests.value = stats.pending_requests || 0
+    applyPendingCounts(stats.pending_directory_reviews || 0, stats.pending_requests || 0)
   } catch {
     // badges are best-effort; leave last known counts
   }
 }
 
 provide('refreshAdminPending', loadPendingCounts)
+/** Dashboard can push freshly loaded stats without a second hop. */
+provide('setAdminPendingCounts', applyPendingCounts)
 
 onMounted(() => {
   updateViewport()
