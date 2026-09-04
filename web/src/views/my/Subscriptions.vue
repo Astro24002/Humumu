@@ -62,7 +62,12 @@
 
     <n-tab-pane name="authors" :tab="authorsTabLabel">
       <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-        <n-input v-model:value="newAuthor" placeholder="作者姓名" @keyup.enter="addAuthor" />
+        <n-input
+          v-model:value="newAuthor"
+          placeholder="作者姓名"
+          :disabled="authorBusy"
+          @keyup.enter="addAuthor"
+        />
         <n-button @click="addAuthor" :loading="authorBusy" :disabled="!newAuthor.trim() || authorBusy">添加</n-button>
       </div>
       <n-empty v-if="!authors.length" description="尚未追踪任何作者">
@@ -70,14 +75,26 @@
           <span style="color: #888; font-size: 13px;">在上方输入作者姓名后点击添加</span>
         </template>
       </n-empty>
-      <n-tag v-for="a in authors" :key="a.id" closable @close="confirmRemoveAuthor(a)" style="margin: 4px;">
+      <n-tag
+        v-for="a in authors"
+        :key="a.id"
+        :closable="removeBusyId !== a.id"
+        :disabled="removeBusyId === a.id"
+        @close="confirmRemoveAuthor(a)"
+        style="margin: 4px;"
+      >
         {{ a.author_name }}
       </n-tag>
     </n-tab-pane>
 
     <n-tab-pane name="keywords" :tab="keywordsTabLabel">
       <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-        <n-input v-model:value="newKeyword" placeholder="关键词" @keyup.enter="addKeyword" />
+        <n-input
+          v-model:value="newKeyword"
+          placeholder="关键词"
+          :disabled="keywordBusy"
+          @keyup.enter="addKeyword"
+        />
         <n-button @click="addKeyword" :loading="keywordBusy" :disabled="!newKeyword.trim() || keywordBusy">添加</n-button>
       </div>
       <n-empty v-if="!keywords.length" description="尚未订阅任何关键词">
@@ -85,7 +102,14 @@
           <span style="color: #888; font-size: 13px;">在上方输入关键词后点击添加</span>
         </template>
       </n-empty>
-      <n-tag v-for="k in keywords" :key="k.id" closable @close="confirmRemoveKeyword(k)" style="margin: 4px;">
+      <n-tag
+        v-for="k in keywords"
+        :key="k.id"
+        :closable="removeBusyId !== k.id"
+        :disabled="removeBusyId === k.id"
+        @close="confirmRemoveKeyword(k)"
+        style="margin: 4px;"
+      >
         {{ k.keyword }}
       </n-tag>
     </n-tab-pane>
