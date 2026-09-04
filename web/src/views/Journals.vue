@@ -370,8 +370,18 @@ watch(pageCount, (n) => {
 
 onMounted(async () => {
   try {
+    // Prefer latest CAS year so major/minor options aren't a mix of outdated labels.
     const cas = await getCasCategories()
-    categories.value = cas.categories
+    const years = cas.years?.length
+      ? cas.years
+      : [...new Set(cas.categories.map((c) => c.year))].sort((a, b) => b - a)
+    const latest = years[0]
+    if (latest != null) {
+      const scoped = await getCasCategories({ year: latest })
+      categories.value = scoped.categories
+    } else {
+      categories.value = cas.categories
+    }
   } catch {
     // CAS optional
   }
