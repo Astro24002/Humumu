@@ -37,6 +37,7 @@
 
 <script setup lang="ts">
 import { ref, h, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
   NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, NPagination,
   useMessage, useDialog,
@@ -46,6 +47,8 @@ import { useAuthStore } from '@/stores/auth'
 import { formatDateTime } from '@/utils/datetime'
 import { freqLabel, isWechatPlaceholderEmail } from '@/utils/labels'
 
+const route = useRoute()
+const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 const auth = useAuthStore()
@@ -54,16 +57,44 @@ const total = ref(0)
 const loading = ref(true)
 /** Drop stale admin user list responses when search/page change mid-flight. */
 let usersLoadSeq = 0
+/** Skip one route→state write when we just pushed query ourselves. */
+let suppressQueryApply = false
 const busyId = ref<string | null>(null)
 const nameFilter = ref('')
 const page = ref(1)
 const pageSize = 20
+
+function pageFromQuery(): number {
+  const raw = route.query.page
+  const n = typeof raw === 'string' ? parseInt(raw, 10) : NaN
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
+function applyFiltersFromQuery() {
+  const qq = route.query
+  nameFilter.value = typeof qq.q === 'string' ? qq.q : ''
+  page.value = pageFromQuery()
+}
+
+function syncFiltersToQuery() {
+  const next: Record<string, string> = {}
+  if (nameFilter.value.trim()) next.q = nameFilter.value.trim()
+  if (page.value > 1) next.page = String(page.value)
+  const cur = route.query
+  const same =
+    (cur.q || undefined) === next.q
+    && (cur.page || undefined) === next.page
+  if (same) return
+  suppressQueryApply = true
+  router.replace({ query: next })
+}
 
 const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
 
 watch(pageCount, (n) => {
   if (page.value > n) {
     page.value = n
+    syncFiltersToQuery()
     load()
   }
 })
@@ -158,6 +189,7 @@ function confirmToggleAdmin(row: User, isAdmin: boolean) {
 }
 
 async function toggleAdmin(row: User, isAdmin: boolean) {
+  if (busyId.value === row.id) return
   busyId.value = row.id
   try {
     const updated = await setUserAdmin(row.id, isAdmin)
@@ -172,16 +204,20 @@ async function toggleAdmin(row: User, isAdmin: boolean) {
 
 function clearFilter() {
   nameFilter.value = ''
-  reload()
+  page.value = 1
+  syncFiltersToQuery()
+  load()
 }
 
 function onPageChange(p: number) {
   page.value = p
+  syncFiltersToQuery()
   load()
 }
 
 function reload() {
   page.value = 1
+  syncFiltersToQuery()
   load()
 }
 
@@ -205,5 +241,20 @@ async function load() {
   }
 }
 
-onMounted(load)
+watch(
+  () => [route.query.q, route.query.page],
+  () => {
+    if (suppressQueryApply) {
+      suppressQueryApply = false
+      return
+    }
+    applyFiltersFromQuery()
+    load()
+  },
+)
+
+onMounted(() => {
+  applyFiltersFromQuery()
+  load()
+})
 </script>

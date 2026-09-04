@@ -141,31 +141,84 @@ const editingId = ref<string | null>(null)
 const saving = ref(false)
 const statusBusy = ref(false)
 const deleteBusy = ref(false)
-const statusFilter = ref<string>(typeof route.query.status === 'string' ? route.query.status : '')
+const statusFilter = ref<string>('')
 const contentFilter = ref<string>('')
 const sourceFilter = ref<string>('')
 const nameFilter = ref('')
 const sortBy = ref<'name' | 'articles' | 'updated'>('name')
 const page = ref(1)
 const pageSize = 20
+/** Skip one route→state write when we just pushed query ourselves. */
+let suppressQueryApply = false
+/** Skip sort watcher side effects while hydrating from the URL. */
+let applyingFromQuery = false
+
+const SORT_VALUES = new Set(['name', 'articles', 'updated'])
+
+function pageFromQuery(): number {
+  const raw = route.query.page
+  const n = typeof raw === 'string' ? parseInt(raw, 10) : NaN
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
+function applyFiltersFromQuery() {
+  applyingFromQuery = true
+  try {
+    const qq = route.query
+    nameFilter.value = typeof qq.q === 'string' ? qq.q : ''
+    statusFilter.value = typeof qq.status === 'string' ? qq.status : ''
+    contentFilter.value = typeof qq.content_type === 'string' ? qq.content_type : ''
+    sourceFilter.value = typeof qq.source_type === 'string' ? qq.source_type : ''
+    const sort = typeof qq.sort === 'string' ? qq.sort : 'name'
+    sortBy.value = (SORT_VALUES.has(sort) ? sort : 'name') as 'name' | 'articles' | 'updated'
+    page.value = pageFromQuery()
+  } finally {
+    applyingFromQuery = false
+  }
+}
+
+function syncFiltersToQuery() {
+  const next: Record<string, string> = {}
+  if (nameFilter.value.trim()) next.q = nameFilter.value.trim()
+  if (statusFilter.value) next.status = statusFilter.value
+  if (contentFilter.value) next.content_type = contentFilter.value
+  if (sourceFilter.value) next.source_type = sourceFilter.value
+  if (sortBy.value && sortBy.value !== 'name') next.sort = sortBy.value
+  if (page.value > 1) next.page = String(page.value)
+  const cur = route.query
+  const keys = ['q', 'status', 'content_type', 'source_type', 'sort', 'page'] as const
+  const same = keys.every((k) => (cur[k] || undefined) === next[k])
+  if (same) return
+  suppressQueryApply = true
+  router.replace({ query: next })
+}
 
 const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
 
 watch(pageCount, (n) => {
   if (page.value > n) {
     page.value = n
+    syncFiltersToQuery()
     load()
   }
 })
 
-/** Keep filter in sync when dashboard (or elsewhere) deep-links with ?status=… */
+/** Dashboard deep-link and shareable admin list filters. */
 watch(
-  () => route.query.status,
-  (status) => {
-    const next = typeof status === 'string' ? status : ''
-    if (statusFilter.value === next) return
-    statusFilter.value = next
-    page.value = 1
+  () => [
+    route.query.q,
+    route.query.status,
+    route.query.content_type,
+    route.query.source_type,
+    route.query.sort,
+    route.query.page,
+  ],
+  () => {
+    if (suppressQueryApply) {
+      suppressQueryApply = false
+      return
+    }
+    applyFiltersFromQuery()
     load()
   },
 )
@@ -180,23 +233,13 @@ const sortOptions = [
   { label: '按最近更新', value: 'updated' },
 ]
 
-function syncStatusQuery() {
-  const current = typeof route.query.status === 'string' ? route.query.status : ''
-  const next = statusFilter.value || undefined
-  if ((next || '') === current) return
-  const q = { ...route.query } as Record<string, string | string[] | undefined>
-  if (next) q.status = next
-  else delete q.status
-  router.replace({ query: q })
-}
-
 function clearFilters() {
   nameFilter.value = ''
   statusFilter.value = ''
   contentFilter.value = ''
   sourceFilter.value = ''
   page.value = 1
-  syncStatusQuery()
+  syncFiltersToQuery()
   load()
 }
 
@@ -402,18 +445,20 @@ async function remove(id: string) {
 
 function onPageChange(p: number) {
   page.value = p
+  syncFiltersToQuery()
   load()
 }
 
 function onStatusFilterChange(v: string | null) {
   statusFilter.value = v || ''
   page.value = 1
-  syncStatusQuery()
+  syncFiltersToQuery()
   load()
 }
 
 function reload() {
   page.value = 1
+  syncFiltersToQuery()
   load()
 }
 
@@ -441,5 +486,8 @@ async function load() {
   }
 }
 
-onMounted(load)
+onMounted(() => {
+  applyFiltersFromQuery()
+  load()
+})
 </script>

@@ -67,24 +67,39 @@ function statusFromQuery(): string {
 const statusFilter = ref(statusFromQuery())
 const page = ref(1)
 const pageSize = 20
+/** Skip one route→state write when we just pushed query ourselves. */
+let suppressQueryApply = false
+
+function pageFromQuery(): number {
+  const raw = route.query.page
+  const n = typeof raw === 'string' ? parseInt(raw, 10) : NaN
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
+function applyFromQuery() {
+  statusFilter.value = statusFromQuery()
+  page.value = pageFromQuery()
+}
 
 const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
 
 watch(pageCount, (n) => {
   if (page.value > n) {
     page.value = n
+    syncStatusQuery()
     load()
   }
 })
 
 /** Dashboard deep-link ?status=pending (and menu without query → pending default). */
 watch(
-  () => route.query.status,
+  () => [route.query.status, route.query.page],
   () => {
-    const next = statusFromQuery()
-    if (statusFilter.value === next) return
-    statusFilter.value = next
-    page.value = 1
+    if (suppressQueryApply) {
+      suppressQueryApply = false
+      return
+    }
+    applyFromQuery()
     load()
   },
 )
@@ -162,13 +177,17 @@ async function review(id: string, status: string) {
 }
 
 function syncStatusQuery() {
-  const current = typeof route.query.status === 'string' ? route.query.status : undefined
   // Encode "all" explicitly so a bare /admin/requests still means pending default.
-  const next = statusFilter.value === '' ? 'all' : (statusFilter.value || 'pending')
-  if (current === next) return
-  const q = { ...route.query } as Record<string, string | string[] | undefined>
-  q.status = next
-  router.replace({ query: q })
+  const nextStatus = statusFilter.value === '' ? 'all' : (statusFilter.value || 'pending')
+  const next: Record<string, string> = { status: nextStatus }
+  if (page.value > 1) next.page = String(page.value)
+  const cur = route.query
+  const same =
+    (typeof cur.status === 'string' ? cur.status : undefined) === next.status
+    && (cur.page || undefined) === next.page
+  if (same) return
+  suppressQueryApply = true
+  router.replace({ query: next })
 }
 
 function clearFilter() {
@@ -187,11 +206,13 @@ function onStatusFilterChange(v: string) {
 
 function onPageChange(p: number) {
   page.value = p
+  syncStatusQuery()
   load()
 }
 
 function reload() {
   page.value = 1
+  syncStatusQuery()
   load()
 }
 
@@ -215,5 +236,8 @@ async function load() {
   }
 }
 
-onMounted(load)
+onMounted(() => {
+  applyFromQuery()
+  load()
+})
 </script>
