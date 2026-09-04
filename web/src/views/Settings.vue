@@ -126,6 +126,10 @@ function handleLogout() {
 }
 
 onBeforeRouteLeave((_to, _from, next) => {
+  if (saving.value) {
+    next(false)
+    return
+  }
   if (leaveArmed.value || !frequencyDirty.value) {
     next()
     return

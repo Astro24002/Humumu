@@ -5,7 +5,9 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(),
-  scrollBehavior() {
+  scrollBehavior(to, from, savedPosition) {
+    // Restore scroll on browser back/forward; otherwise jump to top.
+    if (savedPosition) return savedPosition
     return { top: 0 }
   },
   routes: [
