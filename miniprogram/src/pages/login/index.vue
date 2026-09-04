@@ -123,6 +123,10 @@ async function handleBind() {
     error.value = '请填写邮箱和密码'
     return
   }
+  if (form.value.password.length < 6) {
+    error.value = '密码至少6位'
+    return
+  }
   loading.value = true
   error.value = ''
   try {

@@ -1,12 +1,15 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">期刊申请审核</n-h2>
-    <n-radio-group v-model:value="statusFilter" size="small">
-      <n-radio-button value="pending">待审</n-radio-button>
-      <n-radio-button value="">全部</n-radio-button>
-      <n-radio-button value="approved">已通过</n-radio-button>
-      <n-radio-button value="rejected">已拒绝</n-radio-button>
-    </n-radio-group>
+    <n-space align="center" style="flex-wrap: wrap;">
+      <n-radio-group v-model:value="statusFilter" size="small">
+        <n-radio-button value="pending">待审</n-radio-button>
+        <n-radio-button value="">全部</n-radio-button>
+        <n-radio-button value="approved">已通过</n-radio-button>
+        <n-radio-button value="rejected">已拒绝</n-radio-button>
+      </n-radio-group>
+      <n-button size="small" :loading="loading" @click="load">刷新</n-button>
+    </n-space>
   </div>
   <n-data-table :columns="columns" :data="filtered" :loading="loading" :pagination="{ pageSize: 20 }" />
   <n-empty
