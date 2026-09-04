@@ -1,4 +1,4 @@
-.PHONY: install run migrate seed test frontend docker-build
+.PHONY: install run migrate seed seed-cas test frontend docker-build
 
 install:
 	python -m venv .venv && .venv/bin/pip install -r requirements.txt
@@ -14,6 +14,9 @@ migrate:
 
 seed:
 	.venv/bin/python -m scripts.seed_journals
+	.venv/bin/python -m scripts.seed_cas_categories
+
+seed-cas:
 	.venv/bin/python -m scripts.seed_cas_categories
 
 # Prefer local .venv; fall back to the migration worktree venv used in CI/dev.

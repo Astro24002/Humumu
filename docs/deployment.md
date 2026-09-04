@@ -68,6 +68,7 @@ make migrate
 
 # （可选）导入内置常用期刊 + CAS 分类 facet（幂等）
 make seed
+# 仅 CAS facet: make seed-cas
 # 或分别: .venv/bin/python -m scripts.seed_journals
 #         .venv/bin/python -m scripts.seed_cas_categories
 
