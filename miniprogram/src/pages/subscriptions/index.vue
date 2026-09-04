@@ -6,26 +6,26 @@
     </view>
 
     <template v-else>
-      <view class="tabs">
-        <text :class="['tab', tab === 'journals' && 'active']" @click="tab='journals'">{{ journalsTabLabel }}</text>
-        <text :class="['tab', tab === 'authors' && 'active']" @click="tab='authors'">{{ authorsTabLabel }}</text>
-        <text :class="['tab', tab === 'keywords' && 'active']" @click="tab='keywords'">{{ keywordsTabLabel }}</text>
+      <view class="tabs" :class="{ 'tabs-busy': tabsBusy }">
+        <text :class="['tab', tab === 'journals' && 'active']" @click="setTab('journals')">{{ journalsTabLabel }}</text>
+        <text :class="['tab', tab === 'authors' && 'active']" @click="setTab('authors')">{{ authorsTabLabel }}</text>
+        <text :class="['tab', tab === 'keywords' && 'active']" @click="setTab('keywords')">{{ keywordsTabLabel }}</text>
       </view>
 
       <view v-if="tab === 'journals'">
-        <view class="add-feed">
-          <input v-model="feedUrl" placeholder="粘贴 RSS/Atom URL" class="add-input" :disabled="addingFeed" />
-          <input v-model="feedName" placeholder="名称（可选，预览后自动填充）" class="add-input" :disabled="addingFeed" />
+        <view class="add-feed" :class="{ 'add-busy': loadingJournals }">
+          <input v-model="feedUrl" placeholder="粘贴 RSS/Atom URL" class="add-input" :disabled="addingFeed || loadingJournals" />
+          <input v-model="feedName" placeholder="名称（可选，预览后自动填充）" class="add-input" :disabled="addingFeed || loadingJournals" />
           <view class="add-feed-row">
-            <label class="vis-opt" :class="{ disabled: addingFeed }" @click="!addingFeed && (feedVisibility = 'private')">
+            <label class="vis-opt" :class="{ disabled: addingFeed || loadingJournals }" @click="!(addingFeed || loadingJournals) && (feedVisibility = 'private')">
               <text :class="['radio', feedVisibility === 'private' && 'on']" />
               <text>私有</text>
             </label>
-            <label class="vis-opt" :class="{ disabled: addingFeed }" @click="!addingFeed && (feedVisibility = 'apply_public')">
+            <label class="vis-opt" :class="{ disabled: addingFeed || loadingJournals }" @click="!(addingFeed || loadingJournals) && (feedVisibility = 'apply_public')">
               <text :class="['radio', feedVisibility === 'apply_public' && 'on']" />
               <text>申请公开</text>
             </label>
-            <button class="btn-add" size="mini" :loading="addingFeed" :disabled="addingFeed" @click="addFeed">添加源</button>
+            <button class="btn-add" size="mini" :loading="addingFeed" :disabled="addingFeed || loadingJournals" @click="addFeed">添加源</button>
           </view>
           <view v-if="previewItems.length" class="preview-box">
             <text class="preview-title">预览 · {{ feedName || '未命名' }}</text>
@@ -54,7 +54,7 @@
               <text class="btn-prefs" :class="{ disabled: busyIds.has(j.id) }" @click="cycleFreq(j)">频率</text>
               <text class="btn-unsub" :class="{ disabled: busyIds.has(j.id) }" @click="unsubscribe(j)">取消订阅</text>
             </view>
-            <view class="channel-row">
+            <view class="channel-row" :class="{ disabled: busyIds.has(j.id) }">
               <text
                 :class="['chip', j.email_enabled !== false && 'on']"
                 @click="toggleChannel(j, 'email_enabled')"
@@ -144,6 +144,20 @@ const authorsTabLabel = computed(() =>
 const keywordsTabLabel = computed(() =>
   keywords.value.length ? `关键词 (${keywords.value.length})` : '关键词',
 )
+/** Block tab switches while any mutation is in flight. */
+const tabsBusy = computed(() =>
+  loadingJournals.value
+  || addingFeed.value
+  || authorBusy.value
+  || keywordBusy.value
+  || removeBusyId.value != null
+  || busyIds.value.size > 0,
+)
+
+function setTab(next: 'journals' | 'authors' | 'keywords') {
+  if (tabsBusy.value || tab.value === next) return
+  tab.value = next
+}
 const newAuthor = ref('')
 const newKeyword = ref('')
 
@@ -277,7 +291,7 @@ function unsubscribe(j: SubscribedJournal) {
 }
 
 async function addFeed() {
-  if (addingFeed.value) return
+  if (addingFeed.value || loadingJournals.value) return
   const url = feedUrl.value.trim()
   if (!url) {
     uni.showToast({ title: '请填写 RSS URL', icon: 'none' })
@@ -393,6 +407,7 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
 <style scoped>
 .container { min-height: 100vh; }
 .tabs { display: flex; padding: 20rpx 30rpx; gap: 30rpx; background: #fff; border-bottom: 1rpx solid #eee; }
+.tabs-busy { opacity: 0.55; pointer-events: none; }
 .tab { font-size: 30rpx; color: #666; padding-bottom: 8rpx; }
 .tab.active { color: #3cc51f; font-weight: 500; border-bottom: 4rpx solid #3cc51f; }
 .login-prompt { text-align: center; padding: 200rpx 40rpx; color: #999; font-size: 28rpx; }
@@ -417,6 +432,7 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
 .add-input { flex: 1; border: 1rpx solid #ddd; border-radius: 8rpx; padding: 16rpx 20rpx; font-size: 28rpx; margin-bottom: 12rpx; width: 100%; box-sizing: border-box; }
 .btn-add { background: #3cc51f; color: #fff; border: none; border-radius: 8rpx; padding: 16rpx 30rpx; font-size: 28rpx; }
 .add-feed { padding: 20rpx 30rpx; background: #fff; border-bottom: 1rpx solid #f0f0f0; }
+.add-busy { opacity: 0.55; }
 .add-feed-row { display: flex; align-items: center; gap: 24rpx; margin-top: 8rpx; }
 .vis-opt { display: flex; align-items: center; gap: 8rpx; font-size: 26rpx; color: #666; }
 .radio { width: 24rpx; height: 24rpx; border-radius: 50%; border: 2rpx solid #ccc; display: inline-block; }
@@ -429,6 +445,7 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
 .tag-close { color: #999; font-size: 32rpx; }
 
 .btn-prefs.disabled, .btn-unsub.disabled { opacity: 0.45; pointer-events: none; }
+.channel-row.disabled { opacity: 0.45; pointer-events: none; }
 .vis-opt.disabled { opacity: 0.45; pointer-events: none; }
 .tag-item.disabled { opacity: 0.55; pointer-events: none; }
 </style>
