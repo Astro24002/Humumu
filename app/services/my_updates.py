@@ -118,7 +118,7 @@ async def list_my_updates(
         (
             await session.execute(
                 select(eligible.c.id)
-                .order_by(eligible.c.fetched_at.desc().nullslast(), eligible.c.id.desc())
+                .order_by(eligible.c.fetched_at.desc().nulls_last(), eligible.c.id.desc())
                 .limit(limit)
                 .offset(offset)
             )

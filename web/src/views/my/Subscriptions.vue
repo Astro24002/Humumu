@@ -241,6 +241,8 @@ const unsubBusyId = ref<string | null>(null)
 const authorBusy = ref(false)
 const keywordBusy = ref(false)
 const removeBusyId = ref<string | null>(null)
+/** Drop stale subscription bundle responses when reload races mid-flight. */
+let subsLoadSeq = 0
 
 
 
@@ -436,6 +438,7 @@ async function handleAdd() {
 }
 
 async function reloadAll() {
+  const seq = ++subsLoadSeq
   loadingJournals.value = true
   try {
     const [jRes, aRes, kRes] = await Promise.all([
@@ -443,13 +446,15 @@ async function reloadAll() {
       getAuthors(),
       getKeywords(),
     ])
+    if (seq !== subsLoadSeq) return
     journals.value = jRes.journals
     authors.value = aRes.authors
     keywords.value = kRes.keywords
   } catch (e: any) {
+    if (seq !== subsLoadSeq) return
     message.error(e?.message || '加载订阅失败')
   } finally {
-    loadingJournals.value = false
+    if (seq === subsLoadSeq) loadingJournals.value = false
   }
 }
 

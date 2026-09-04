@@ -151,14 +151,15 @@ const emptyDescription = computed(() => {
 })
 
 async function fetchPage(reset: boolean) {
-  const seq = ++feedLoadSeq
   if (reset) {
     loading.value = true
     offset.value = 0
     total.value = null
   } else {
+    if (loadingMore.value || loading.value) return
     loadingMore.value = true
   }
+  const seq = ++feedLoadSeq
   try {
     const params: { limit: string; offset: string; filter?: string } = {
       limit: String(limit),

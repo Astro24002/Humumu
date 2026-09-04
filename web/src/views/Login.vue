@@ -7,10 +7,21 @@
       @submit.prevent="handleLogin"
     >
       <n-form-item label="邮箱" path="email">
-        <n-input v-model:value="form.email" placeholder="user@example.com" autocomplete="username" />
+        <n-input
+          v-model:value="form.email"
+          placeholder="user@example.com"
+          autocomplete="username"
+          :disabled="loading"
+        />
       </n-form-item>
       <n-form-item label="密码" path="password">
-        <n-input v-model:value="form.password" type="password" show-password-on="click" autocomplete="current-password" />
+        <n-input
+          v-model:value="form.password"
+          type="password"
+          show-password-on="click"
+          autocomplete="current-password"
+          :disabled="loading"
+        />
       </n-form-item>
       <n-button type="primary" block :loading="loading" attr-type="submit">登录</n-button>
     </n-form>

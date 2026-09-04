@@ -119,7 +119,6 @@ function clearFilters() {
 }
 
 async function fetchNotifications(reset = false) {
-  const seq = ++notifLoadSeq
   if (reset) {
     offset.value = 0
     notifications.value = []
@@ -131,6 +130,7 @@ async function fetchNotifications(reset = false) {
     if (!hasMore.value || loadingMore.value || loading.value) return
     loadingMore.value = true
   }
+  const seq = ++notifLoadSeq
   try {
     const res = await getNotifications({
       limit,

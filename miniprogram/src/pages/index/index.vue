@@ -212,13 +212,13 @@ function resetAndFetch() {
 }
 
 async function fetchItems(isLoadMore = false) {
-  const seq = ++feedLoadSeq
   if (isLoadMore) {
     if (!hasMore.value || loadingMore.value || loading.value) return
     loadingMore.value = true
   } else {
     loading.value = true
   }
+  const seq = ++feedLoadSeq
   try {
     if (tab.value === 'updates' && auth.isLoggedIn) {
       const res = await getMyUpdates({

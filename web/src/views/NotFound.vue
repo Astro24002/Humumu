@@ -4,7 +4,7 @@
       <n-space>
         <n-button type="primary" @click="goPrimary">{{ primaryLabel }}</n-button>
         <n-button @click="router.push('/journals')">期刊广场</n-button>
-        <n-button v-if="auth.isLoggedIn" @click="router.push('/')">回广场</n-button>
+        <n-button v-if="auth.isLoggedIn" @click="router.push('/my/subscriptions')">订阅管理</n-button>
         <n-button v-else @click="router.push('/login')">去登录</n-button>
       </n-space>
     </template>

@@ -112,15 +112,16 @@ const emptyDescription = computed(() => {
 })
 
 async function fetchPage(reset: boolean) {
-  const seq = ++notifLoadSeq
   if (reset) {
     loading.value = true
     offset.value = 0
     notifs.value = []
     total.value = null
   } else {
+    if (loadingMore.value || loading.value) return
     loadingMore.value = true
   }
+  const seq = ++notifLoadSeq
   try {
     const res = await getNotifications({
       limit: String(limit),

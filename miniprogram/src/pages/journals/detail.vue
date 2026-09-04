@@ -91,15 +91,16 @@ function goBack() {
 
 async function loadArticles(reset: boolean) {
   if (!journalId.value) return
-  const seq = ++articlesLoadSeq
   if (reset) {
     offset.value = 0
     articles.value = []
     articlesTotal.value = 0
     articlesLoading.value = true
   } else {
+    if (loadingMore.value || articlesLoading.value) return
     loadingMore.value = true
   }
+  const seq = ++articlesLoadSeq
   try {
     const ar = await getArticles({
       journal_id: journalId.value,
