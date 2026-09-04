@@ -175,7 +175,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getJournals, type Journal } from '@/api/journals'
 import { getCasCategories, type CasCategory } from '@/api/categories'
 import {
@@ -192,6 +192,7 @@ import {
   NRadioGroup, NRadioButton, NSelect, NCheckbox, NPagination, useMessage, useDialog,
 } from 'naive-ui'
 
+const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
@@ -216,6 +217,56 @@ const subscribedIds = ref<Set<string>>(new Set())
 const busyId = ref<string | null>(null)
 /** Drop stale plaza list responses when filters/page change mid-flight. */
 let journalsLoadSeq = 0
+/** Skip one route→state write when we just pushed query ourselves. */
+let suppressQueryApply = false
+/** Skip sort watcher side effects while hydrating from the URL. */
+let applyingFromQuery = false
+
+const SORT_VALUES = new Set(['name', 'articles', 'updated'])
+
+function pageFromQuery(): number {
+  const raw = route.query.page
+  const n = typeof raw === 'string' ? parseInt(raw, 10) : NaN
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
+function applyFiltersFromQuery() {
+  applyingFromQuery = true
+  try {
+    const qq = route.query
+    q.value = typeof qq.q === 'string' ? qq.q : ''
+    contentType.value = typeof qq.content_type === 'string' ? qq.content_type : ''
+    sourceType.value = typeof qq.source_type === 'string' ? qq.source_type : ''
+    const sort = typeof qq.sort === 'string' ? qq.sort : 'name'
+    sortBy.value = (SORT_VALUES.has(sort) ? sort : 'name') as 'name' | 'articles' | 'updated'
+    major.value = typeof qq.major === 'string' && qq.major ? qq.major : null
+    minor.value = typeof qq.minor === 'string' && qq.minor ? qq.minor : null
+    zone.value = typeof qq.zone === 'string' && qq.zone ? qq.zone : null
+    topOnly.value = qq.top === 'true' || qq.top === '1'
+    page.value = pageFromQuery()
+  } finally {
+    applyingFromQuery = false
+  }
+}
+
+function syncFiltersToQuery() {
+  const next: Record<string, string> = {}
+  if (q.value.trim()) next.q = q.value.trim()
+  if (contentType.value) next.content_type = contentType.value
+  if (sourceType.value) next.source_type = sourceType.value
+  if (sortBy.value && sortBy.value !== 'name') next.sort = sortBy.value
+  if (major.value) next.major = major.value
+  if (minor.value) next.minor = minor.value
+  if (zone.value) next.zone = zone.value
+  if (topOnly.value) next.top = 'true'
+  if (page.value > 1) next.page = String(page.value)
+  const cur = route.query
+  const keys = ['q', 'content_type', 'source_type', 'sort', 'major', 'minor', 'zone', 'top', 'page'] as const
+  const same = keys.every((k) => (cur[k] || undefined) === next[k])
+  if (same) return
+  suppressQueryApply = true
+  router.replace({ query: next })
+}
 
 const sortOptions = [
   { label: '按名称', value: 'name' },
@@ -241,6 +292,7 @@ const emptyDescription = computed(() =>
 function onPageChange(p: number) {
   page.value = p
   window.scrollTo({ top: 0, behavior: 'smooth' })
+  syncFiltersToQuery()
   fetchJournals()
 }
 
@@ -253,7 +305,8 @@ function clearFilters() {
   zone.value = null
   topOnly.value = false
   page.value = 1
-  reload()
+  syncFiltersToQuery()
+  fetchJournals()
 }
 
 const majorOptions = computed(() => {
@@ -278,7 +331,9 @@ const zoneOptions = [
 
 function onMajorChange() {
   minor.value = null
-  reload()
+  page.value = 1
+  syncFiltersToQuery()
+  fetchJournals()
 }
 
 async function refreshSubscribed() {
@@ -333,8 +388,8 @@ async function doUnsubscribe(j: Journal) {
 }
 
 async function reload() {
-  loading.value = true
   page.value = 1
+  syncFiltersToQuery()
   await fetchJournals()
 }
 
@@ -370,18 +425,44 @@ async function fetchJournals() {
 }
 
 watch(sortBy, () => {
+  if (applyingFromQuery) return
   page.value = 1
-  reload()
+  syncFiltersToQuery()
+  fetchJournals()
 })
 
 watch(pageCount, (n) => {
   if (page.value > n) {
     page.value = n
+    syncFiltersToQuery()
     fetchJournals()
   }
 })
 
+watch(
+  () => [
+    route.query.q,
+    route.query.content_type,
+    route.query.source_type,
+    route.query.sort,
+    route.query.major,
+    route.query.minor,
+    route.query.zone,
+    route.query.top,
+    route.query.page,
+  ],
+  () => {
+    if (suppressQueryApply) {
+      suppressQueryApply = false
+      return
+    }
+    applyFiltersFromQuery()
+    fetchJournals()
+  },
+)
+
 onMounted(async () => {
+  applyFiltersFromQuery()
   try {
     // Prefer latest CAS year so major/minor options aren't a mix of outdated labels.
     const cas = await getCasCategories()
@@ -400,6 +481,6 @@ onMounted(async () => {
   } catch {
     // CAS optional
   }
-  await Promise.all([reload(), refreshSubscribed()])
+  await Promise.all([fetchJournals(), refreshSubscribed()])
 })
 </script>
