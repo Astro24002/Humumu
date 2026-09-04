@@ -48,7 +48,7 @@
   </n-card>
 
   <n-card title="会话">
-    <n-button type="error" ghost @click="handleLogout">退出登录</n-button>
+    <n-button type="error" ghost :disabled="saving" @click="handleLogout">退出登录</n-button>
   </n-card>
 </template>
 
@@ -111,12 +111,14 @@ async function saveFrequency() {
 }
 
 function handleLogout() {
+  if (saving.value) return
   dialog.warning({
     title: '确认退出',
     content: '退出后需要重新登录才能管理订阅与阅读状态。',
     positiveText: '退出',
     negativeText: '取消',
     onPositiveClick: () => {
+      if (saving.value) return
       leaveArmed.value = true
       auth.logout()
       message.success('已退出')

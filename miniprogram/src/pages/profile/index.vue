@@ -41,7 +41,12 @@
       </view>
 
       <!-- Logout -->
-      <button class="btn-logout" @click="handleLogout">退出登录</button>
+      <button
+        class="btn-logout"
+        :disabled="freqBusy || templateBusy"
+        :class="{ disabled: freqBusy || templateBusy }"
+        @click="handleLogout"
+      >退出登录</button>
     </template>
   </view>
 </template>
@@ -172,6 +177,7 @@ function goBindEmail() {
 }
 
 function handleLogout() {
+  if (freqBusy.value || templateBusy.value) return
   uni.showModal({
     title: '确认退出',
     content: '退出后需要重新登录才能管理订阅与阅读状态',
@@ -179,6 +185,7 @@ function handleLogout() {
     cancelText: '取消',
     success: (res) => {
       if (!res.confirm) return
+      if (freqBusy.value || templateBusy.value) return
       auth.logout()
       uni.showToast({ title: '已退出', icon: 'none' })
     },
@@ -204,4 +211,5 @@ function handleLogout() {
 .nav-item { display: flex; justify-content: space-between; background: #fff; padding: 28rpx 30rpx; font-size: 28rpx; margin-bottom: 16rpx; }
 .nav-arrow { color: #ccc; font-size: 36rpx; }
 .btn-logout { width: 90%; margin: 60rpx auto 0; padding: 24rpx; background: #fff; color: #e74c3c; border: 2rpx solid #e74c3c; border-radius: 12rpx; font-size: 30rpx; display: block; text-align: center; }
+.btn-logout.disabled { opacity: 0.45; }
 </style>
