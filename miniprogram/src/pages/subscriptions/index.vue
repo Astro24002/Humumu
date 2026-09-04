@@ -58,11 +58,11 @@
               <text
                 :class="['chip', j.email_enabled !== false && 'on']"
                 @click="toggleChannel(j, 'email_enabled')"
-              >邮件</text>
+              >{{ channelLabel('email') }}</text>
               <text
                 :class="['chip', j.wechat_enabled !== false && 'on']"
                 @click="toggleChannel(j, 'wechat_enabled')"
-              >微信</text>
+              >{{ channelLabel('wechat') }}</text>
             </view>
           </view>
         </view>
@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { dirStatusLabel, sourceTypeLabel, contentTypeLabel, freqLabel, healthStatusLabel } from '@/utils/format'
+import { dirStatusLabel, sourceTypeLabel, contentTypeLabel, freqLabel, healthStatusLabel, channelLabel } from '@/utils/format'
 import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
@@ -231,8 +231,9 @@ async function toggleChannel(j: SubscribedJournal, field: 'email_enabled' | 'wec
     const updated = await updateJournalSubscriptionPrefs(j.id, { [field]: next })
     j.email_enabled = updated.email_enabled
     j.wechat_enabled = updated.wechat_enabled
+    const ch = field === 'email_enabled' ? channelLabel('email') : channelLabel('wechat')
     uni.showToast({
-      title: `${field === 'email_enabled' ? '邮件' : '微信'} → ${next ? '开' : '关'}`,
+      title: `${ch} → ${next ? '开' : '关'}`,
       icon: 'none',
     })
   } catch (e: any) {

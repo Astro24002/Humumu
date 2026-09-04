@@ -92,15 +92,15 @@
       <n-form>
         <n-form-item label="推送频率">
           <n-radio-group v-model:value="prefsForm.push_frequency">
-            <n-radio value="default">跟随全局</n-radio>
-            <n-radio value="realtime">实时</n-radio>
-            <n-radio value="daily">每日汇总</n-radio>
+            <n-radio value="default">{{ freqLabel('default') }}</n-radio>
+            <n-radio value="realtime">{{ freqLabel('realtime') }}</n-radio>
+            <n-radio value="daily">{{ freqLabel('daily') }}</n-radio>
           </n-radio-group>
         </n-form-item>
         <n-form-item label="渠道">
           <n-space>
-            <n-checkbox v-model:checked="prefsForm.email_enabled">Email</n-checkbox>
-            <n-checkbox v-model:checked="prefsForm.wechat_enabled">微信</n-checkbox>
+            <n-checkbox v-model:checked="prefsForm.email_enabled">{{ channelLabel('email') }}</n-checkbox>
+            <n-checkbox v-model:checked="prefsForm.wechat_enabled">{{ channelLabel('wechat') }}</n-checkbox>
           </n-space>
         </n-form-item>
       </n-form>
@@ -184,7 +184,7 @@ import {
   type KeywordSubscription,
 } from '@/api/subscriptions'
 import { previewJournal, addMyJournal, type PreviewItem } from '@/api/journals'
-import { dirStatusLabel, dirStatusType, freqLabel, sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/labels'
+import { dirStatusLabel, dirStatusType, freqLabel, sourceTypeLabel, contentTypeLabel, healthStatusLabel, channelLabel } from '@/utils/labels'
 import {
   NH2, NButton, NTabs, NTabPane, NSpin, NEmpty, NList, NListItem, NThing, NInput, NTag,
   NModal, NCard, NForm, NFormItem, NAlert, NSpace, NRadio, NRadioGroup, NCheckbox,
