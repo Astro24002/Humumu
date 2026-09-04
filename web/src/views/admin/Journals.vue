@@ -469,6 +469,7 @@ async function remove(id: string) {
 }
 
 function onPageChange(p: number) {
+  if (loading.value) return
   page.value = p
   syncFiltersToQuery()
   load()

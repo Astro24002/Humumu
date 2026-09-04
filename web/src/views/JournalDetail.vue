@@ -155,9 +155,10 @@
       </n-list-item>
     </n-list>
     <n-pagination
-      v-if="articlesPageCount > 1"
+      v-if="articlesPageCount > 1 && !articlesLoading"
       :page="articlesPage"
       :page-count="articlesPageCount"
+      :disabled="articlesLoading"
       style="margin-top: 16px;"
       @update:page="loadArticlesPage"
     />
@@ -293,6 +294,7 @@ async function doUnsubscribe() {
 }
 
 async function loadArticlesPage(p: number, opts: { fromQuery?: boolean } = {}) {
+  if (articlesLoading.value && !opts.fromQuery) return
   const id = route.params.id as string
   const seq = ++articlesLoadSeq
   articlesPage.value = p

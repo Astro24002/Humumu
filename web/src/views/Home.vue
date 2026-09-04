@@ -123,8 +123,14 @@
       </n-list-item>
     </n-list>
 
-    <n-pagination v-if="pageCount > 1" :page="page" :page-count="pageCount"
-      @update:page="loadPage" style="margin-top: 16px;" />
+    <n-pagination
+      v-if="pageCount > 1 && !loading"
+      :page="page"
+      :page-count="pageCount"
+      :disabled="loading"
+      @update:page="loadPage"
+      style="margin-top: 16px;"
+    />
   </div>
 </template>
 
@@ -300,6 +306,7 @@ async function loadArticles() {
 }
 
 function loadPage(p: number) {
+  if (loading.value) return
   page.value = p
   window.scrollTo({ top: 0, behavior: 'smooth' })
   syncFiltersToQuery()

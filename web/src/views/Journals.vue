@@ -173,6 +173,7 @@
       v-if="pageCount > 1 && !loading"
       :page="page"
       :page-count="pageCount"
+      :disabled="loading"
       style="margin-top: 16px;"
       @update:page="onPageChange"
     />
@@ -296,6 +297,7 @@ const emptyDescription = computed(() =>
 )
 
 function onPageChange(p: number) {
+  if (loading.value) return
   page.value = p
   window.scrollTo({ top: 0, behavior: 'smooth' })
   syncFiltersToQuery()

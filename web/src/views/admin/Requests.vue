@@ -226,6 +226,7 @@ function onStatusFilterChange(v: string) {
 }
 
 function onPageChange(p: number) {
+  if (loading.value) return
   page.value = p
   syncStatusQuery()
   load()
