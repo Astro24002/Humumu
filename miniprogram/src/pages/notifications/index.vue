@@ -123,7 +123,10 @@ async function fetchNotifications(reset = false) {
     })
     notifications.value.push(...res.notifications)
     offset.value += res.notifications.length
-    hasMore.value = res.notifications.length === limit
+    const total = typeof res.total === 'number' ? res.total : undefined
+    hasMore.value = total != null
+      ? notifications.value.length < total
+      : res.notifications.length === limit
   } catch (e: any) {
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
   } finally {

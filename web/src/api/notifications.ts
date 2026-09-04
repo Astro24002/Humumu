@@ -18,6 +18,6 @@ export function getNotifications(params?: {
   offset?: string
   status?: string
   channel?: string
-}): Promise<{ notifications: Notification[] }> {
+}): Promise<{ notifications: Notification[]; total: number }> {
   return get('/notifications', params as Record<string, string>)
 }

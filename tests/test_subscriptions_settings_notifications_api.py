@@ -294,12 +294,13 @@ async def test_notifications_list_shape(client, authed_user_id):
     with patch(
         "app.routers.notifications.sub_service.list_notifications",
         new_callable=AsyncMock,
-        return_value=[n],
+        return_value=([n], 7),
     ) as mock_list:
         r = await client.get("/api/v1/notifications?limit=10&offset=2")
     assert r.status_code == 200
     body = r.json()
     assert "notifications" in body
+    assert body["total"] == 7
     assert len(body["notifications"]) == 1
     assert body["notifications"][0]["channel"] == "email"
     assert body["notifications"][0]["status"] == "sent"
@@ -315,11 +316,11 @@ async def test_notifications_status_filter_forwarded(client, authed_user_id):
     with patch(
         "app.routers.notifications.sub_service.list_notifications",
         new_callable=AsyncMock,
-        return_value=[],
+        return_value=([], 0),
     ) as mock_list:
         r = await client.get("/api/v1/notifications?status=failed&limit=5")
     assert r.status_code == 200
-    assert r.json() == {"notifications": []}
+    assert r.json() == {"notifications": [], "total": 0}
     assert mock_list.await_args.kwargs["status"] == "failed"
     assert mock_list.await_args.kwargs["limit"] == 5
 
@@ -329,7 +330,7 @@ async def test_notifications_channel_filter_forwarded(client, authed_user_id):
     with patch(
         "app.routers.notifications.sub_service.list_notifications",
         new_callable=AsyncMock,
-        return_value=[],
+        return_value=([], 0),
     ) as mock_list:
         r = await client.get("/api/v1/notifications?channel=wechat&status=sent")
     assert r.status_code == 200
@@ -342,8 +343,8 @@ async def test_notifications_empty(client, authed_user_id):
     with patch(
         "app.routers.notifications.sub_service.list_notifications",
         new_callable=AsyncMock,
-        return_value=[],
+        return_value=([], 0),
     ):
         r = await client.get("/api/v1/notifications")
     assert r.status_code == 200
-    assert r.json() == {"notifications": []}
+    assert r.json() == {"notifications": [], "total": 0}

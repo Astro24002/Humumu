@@ -19,7 +19,7 @@ async def list_notifications(
     session: AsyncSession = Depends(get_session),
 ) -> NotificationsResponse:
     try:
-        notifications = await sub_service.list_notifications(
+        notifications, total = await sub_service.list_notifications(
             session,
             user_id,
             limit=limit,
@@ -29,4 +29,4 @@ async def list_notifications(
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch notifications") from exc
-    return NotificationsResponse(notifications=notifications)
+    return NotificationsResponse(notifications=notifications, total=total)

@@ -223,6 +223,10 @@ function loadPage(p: number) {
 
 watch(filterJournalId, () => { page.value = 1; loadArticles() })
 
+watch(pageCount, (n) => {
+  if (page.value > n) page.value = n
+})
+
 onMounted(async () => {
   // Remote-search dropdown; seed first page so the control isn't empty on open.
   await fetchJournalOptions('')

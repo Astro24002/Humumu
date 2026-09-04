@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, onMounted } from 'vue'
+import { ref, h, computed, watch, onMounted } from 'vue'
 import { dirStatusLabel, dirStatusType, contentTypeLabel, sourceTypeLabel, sourceTypeTagType, healthStatusLabel } from '@/utils/labels'
 import { useRoute } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
@@ -147,6 +147,10 @@ const page = ref(1)
 const pageSize = 20
 
 const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
+
+watch(pageCount, (n) => {
+  if (page.value > n) page.value = n
+})
 
 const hasServerFilters = computed(() =>
   Boolean(nameFilter.value.trim() || statusFilter.value || contentFilter.value || sourceFilter.value),

@@ -118,7 +118,10 @@ async function fetchPage(reset: boolean) {
     })
     notifs.value.push(...res.notifications)
     offset.value += res.notifications.length
-    hasMore.value = res.notifications.length >= limit
+    const total = typeof res.total === 'number' ? res.total : undefined
+    hasMore.value = total != null
+      ? notifs.value.length < total
+      : res.notifications.length >= limit
   } catch (e: any) {
     message.error(e?.message || '加载失败')
   } finally {

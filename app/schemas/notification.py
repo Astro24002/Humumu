@@ -36,3 +36,4 @@ class NotificationOut(BaseModel):
 
 class NotificationsResponse(BaseModel):
     notifications: list[NotificationOut]
+    total: int = 0

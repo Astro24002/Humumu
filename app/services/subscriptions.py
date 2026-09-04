@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -340,14 +340,15 @@ async def list_notifications(
     offset: int = 0,
     status: str | None = None,
     channel: str | None = None,
-) -> list[NotificationOut]:
+) -> tuple[list[NotificationOut], int]:
+    """Return (notifications, total_matching) for the user."""
     limit = _clamp_limit(limit)
     if offset < 0:
         offset = 0
 
     uid = _parse_uuid(user_id)
     if uid is None:
-        return []
+        return [], 0
 
     status_filter = (status or "").strip().lower() or None
     if status_filter is not None and status_filter not in _NOTIFICATION_STATUSES:
@@ -362,6 +363,9 @@ async def list_notifications(
         conditions.append(Notification.status == status_filter)
     if channel_filter is not None:
         conditions.append(Notification.channel == channel_filter)
+
+    count_stmt = select(func.count()).select_from(Notification).where(*conditions)
+    total = int((await session.execute(count_stmt)).scalar_one() or 0)
 
     stmt = (
         select(Notification, Article.title)
@@ -378,4 +382,4 @@ async def list_notifications(
         item = NotificationOut.model_validate(notif)
         item.article_title = title or None
         out.append(item)
-    return out
+    return out, total

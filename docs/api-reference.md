@@ -293,7 +293,7 @@ GET /api/v1/categories/cas
 |------|------|------|
 | GET | /api/v1/notifications | 通知历史 |
 
-**查询参数:** `limit`（默认 20，最大 100），`offset`
+**查询参数:** `limit`（默认 20，最大 100），`offset`，可选 `status`（`pending` | `sent` | `failed`），可选 `channel`（`email` | `wechat`）
 
 **响应:**
 ```json
@@ -310,10 +310,12 @@ GET /api/v1/categories/cas
       "sent_at": "...",
       "article_title": "Paper title"
     }
-  ]
+  ],
+  "total": 12
 }
 ```
 
+`total` 为当前筛选下的全量匹配数，便于客户端分页。  
 `match_reasons` 来自匹配器命中类型（`journal` / `author` / `keyword`），与 My Updates 的 `reasons` 一致。  
 `article_title` 为关联文章标题（文章已删除时可为 `null`）。
 

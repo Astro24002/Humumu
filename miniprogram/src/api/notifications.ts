@@ -18,7 +18,7 @@ export function getNotifications(params: {
   offset?: number
   status?: string
   channel?: string
-} = {}): Promise<{ notifications: Notification[] }> {
+} = {}): Promise<{ notifications: Notification[]; total: number }> {
   const qs = buildQuery(params as Record<string, string | number | undefined>)
   return get(`/notifications${qs}`)
 }
