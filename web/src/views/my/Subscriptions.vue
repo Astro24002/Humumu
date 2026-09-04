@@ -122,7 +122,12 @@
       <div v-if="addStep === 'url'">
         <n-form>
           <n-form-item label="RSS 链接">
-            <n-input v-model:value="addUrl" placeholder="https://rss.arxiv.org/rss/cs.AI" @keyup.enter="handlePreview" />
+            <n-input
+              v-model:value="addUrl"
+              placeholder="https://rss.arxiv.org/rss/cs.AI"
+              :disabled="previewLoading"
+              @keyup.enter="handlePreview"
+            />
           </n-form-item>
         </n-form>
       </div>
@@ -133,13 +138,13 @@
             <n-input :value="addUrl" disabled />
           </n-form-item>
           <n-form-item label="期刊名称">
-            <n-input v-model:value="addName" @keyup.enter="handleAdd" />
+            <n-input v-model:value="addName" :disabled="addLoading" @keyup.enter="handleAdd" />
           </n-form-item>
           <n-form-item label="类型">
             <n-input :value="sourceTypeLabel(addSourceType) || addSourceType" disabled />
           </n-form-item>
           <n-form-item label="可见性">
-            <n-radio-group v-model:value="addVisibility">
+            <n-radio-group v-model:value="addVisibility" :disabled="addLoading">
               <n-radio value="private">仅自己使用</n-radio>
               <n-radio value="apply_public">申请公开</n-radio>
             </n-radio-group>
@@ -154,14 +159,14 @@
 
       <template #footer>
         <template v-if="addStep === 'url'">
-          <n-button @click="showAddModal = false">取消</n-button>
-          <n-button type="primary" @click="handlePreview" :loading="previewLoading" :disabled="!addUrl.trim()">
+          <n-button :disabled="previewLoading" @click="showAddModal = false">取消</n-button>
+          <n-button type="primary" @click="handlePreview" :loading="previewLoading" :disabled="!addUrl.trim() || previewLoading">
             预览
           </n-button>
         </template>
         <template v-else>
-          <n-button @click="addStep = 'url'">返回</n-button>
-          <n-button type="primary" @click="handleAdd" :loading="addLoading">添加并关注</n-button>
+          <n-button :disabled="addLoading" @click="addStep = 'url'">返回</n-button>
+          <n-button type="primary" @click="handleAdd" :loading="addLoading" :disabled="addLoading || !addName.trim()">添加并关注</n-button>
         </template>
       </template>
 
@@ -400,10 +405,13 @@ async function removeKeyword(id: string) {
 }
 
 async function handlePreview() {
+  if (previewLoading.value) return
+  const url = addUrl.value.trim()
+  if (!url) return
   previewLoading.value = true
   addError.value = ''
   try {
-    const result = await previewJournal(addUrl.value.trim())
+    const result = await previewJournal(url)
     addName.value = result.name
     addSourceType.value = result.source_type
     addPreviewItems.value = result.items || []
@@ -416,10 +424,16 @@ async function handlePreview() {
 }
 
 async function handleAdd() {
+  if (addLoading.value) return
+  const name = addName.value.trim()
+  if (!name) {
+    addError.value = '请填写期刊名称'
+    return
+  }
   addLoading.value = true
   addError.value = ''
   try {
-    const result = await addMyJournal(addName.value.trim(), addUrl.value.trim(), addVisibility.value)
+    const result = await addMyJournal(name, addUrl.value.trim(), addVisibility.value)
     if (result.already_existed) {
       message.success(`已关注已有期刊「${result.journal.name}」`)
     } else if (addVisibility.value === 'apply_public') {

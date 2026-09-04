@@ -201,13 +201,34 @@ const subBusy = ref(false)
 let articlesLoadSeq = 0
 /** Drop stale journal detail responses when route id changes mid-flight. */
 let journalLoadSeq = 0
+/** Skip one route→state write when we just pushed page ourselves. */
+let suppressPageApply = false
+/** Skip page watcher side effects while hydrating journal / URL. */
+let applyingPageFromQuery = false
+
+function pageFromQuery(): number {
+  const raw = route.query.page
+  const n = typeof raw === 'string' ? parseInt(raw, 10) : NaN
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
+function syncPageToQuery() {
+  const next = { ...route.query } as Record<string, string | string[] | undefined>
+  if (articlesPage.value > 1) next.page = String(articlesPage.value)
+  else delete next.page
+  const curPage = typeof route.query.page === 'string' ? route.query.page : undefined
+  const wantPage = articlesPage.value > 1 ? String(articlesPage.value) : undefined
+  if (curPage === wantPage) return
+  suppressPageApply = true
+  router.replace({ query: next })
+}
 
 watch(articlesPageCount, (n) => {
   if (articlesPage.value > n) loadArticlesPage(n)
 })
 
 async function handleSubscribe() {
-  if (!journal.value) return
+  if (!journal.value || subBusy.value) return
   subBusy.value = true
   try {
     await subscribeJournal(journal.value.id)
@@ -221,7 +242,7 @@ async function handleSubscribe() {
 }
 
 function handleUnsubscribe() {
-  if (!journal.value) return
+  if (!journal.value || subBusy.value) return
   const name = journal.value.name
   dialog.warning({
     title: '取消订阅',
@@ -233,7 +254,7 @@ function handleUnsubscribe() {
 }
 
 async function doUnsubscribe() {
-  if (!journal.value) return
+  if (!journal.value || subBusy.value) return
   subBusy.value = true
   try {
     await unsubscribeJournal(journal.value.id)
@@ -246,11 +267,14 @@ async function doUnsubscribe() {
   }
 }
 
-async function loadArticlesPage(p: number) {
+async function loadArticlesPage(p: number, opts: { fromQuery?: boolean } = {}) {
   const id = route.params.id as string
   const seq = ++articlesLoadSeq
   articlesPage.value = p
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  if (!opts.fromQuery) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    syncPageToQuery()
+  }
   articlesLoading.value = true
   try {
     const ar = await getArticles({
@@ -278,12 +302,15 @@ async function loadJournal(id: string) {
   journal.value = null
   articles.value = []
   articlesTotal.value = 0
-  articlesPage.value = 1
+  applyingPageFromQuery = true
+  const startPage = pageFromQuery()
+  articlesPage.value = startPage
+  applyingPageFromQuery = false
   isSubscribed.value = false
   try {
     const [jr, , subRes] = await Promise.all([
       getJournal(id),
-      loadArticlesPage(1),
+      loadArticlesPage(startPage, { fromQuery: true }),
       auth.isLoggedIn ? getSubscribedJournals().catch(() => null) : Promise.resolve(null),
     ])
     if (seq !== journalLoadSeq) return
@@ -308,6 +335,21 @@ watch(
   () => route.params.id,
   (id) => {
     if (typeof id === 'string' && id) loadJournal(id)
+  },
+)
+
+watch(
+  () => route.query.page,
+  () => {
+    if (suppressPageApply) {
+      suppressPageApply = false
+      return
+    }
+    if (applyingPageFromQuery) return
+    if (loading.value || !journal.value) return
+    const next = pageFromQuery()
+    if (next === articlesPage.value) return
+    loadArticlesPage(next, { fromQuery: true })
   },
 )
 

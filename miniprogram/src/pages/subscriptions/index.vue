@@ -275,6 +275,7 @@ function unsubscribe(j: SubscribedJournal) {
 }
 
 async function addFeed() {
+  if (addingFeed.value) return
   const url = feedUrl.value.trim()
   if (!url) {
     uni.showToast({ title: '请填写 RSS URL', icon: 'none' })
