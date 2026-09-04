@@ -30,7 +30,10 @@
         <button v-else class="btn-sub" @click="goLogin">登录后订阅</button>
       </view>
 
-      <view class="section-title"><text>最新论文</text></view>
+      <view class="section-title">
+        <text>最新论文</text>
+        <text v-if="articlesTotal > 0" class="count-badge">{{ articlesTotal }} 篇</text>
+      </view>
       <view v-if="articlesLoading && !articles.length" class="loading"><text>加载论文...</text></view>
       <template v-else>
         <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
@@ -74,6 +77,7 @@ const journalId = ref('')
 const offset = ref(0)
 const limit = 20
 const hasMore = ref(false)
+const articlesTotal = ref(0)
 
 function goPlaza() {
   uni.switchTab({ url: '/pages/journals/index' })
@@ -88,6 +92,7 @@ async function loadArticles(reset: boolean) {
   if (reset) {
     offset.value = 0
     articles.value = []
+    articlesTotal.value = 0
     articlesLoading.value = true
   } else {
     loadingMore.value = true
@@ -100,7 +105,9 @@ async function loadArticles(reset: boolean) {
     })
     articles.value.push(...ar.articles)
     offset.value += ar.articles.length
-    const total = ar.total ?? offset.value
+    if (typeof ar.total === 'number') articlesTotal.value = ar.total
+    else if (reset) articlesTotal.value = ar.articles.length
+    const total = articlesTotal.value || offset.value
     hasMore.value = offset.value < total && ar.articles.length >= limit
   } catch (e: any) {
     if (reset && !articles.value.length) {
@@ -224,7 +231,14 @@ function unsubscribe() {
 }
 .btn-sub { background: #3cc51f; color: #fff; }
 .btn-unsub { background: #fff; color: #e74c3c; border: 2rpx solid #e74c3c; }
-.section-title { padding: 20rpx 30rpx 10rpx; font-size: 30rpx; font-weight: 500; }
+.section-title {
+  padding: 20rpx 30rpx 10rpx; font-size: 30rpx; font-weight: 500;
+  display: flex; align-items: center; gap: 12rpx;
+}
+.count-badge {
+  font-size: 22rpx; color: #666; background: #eee; padding: 4rpx 14rpx;
+  border-radius: 20rpx; font-weight: 400;
+}
 .loading, .empty { text-align: center; padding: 60rpx; color: #999; }
 .more-wrap { padding: 24rpx 30rpx 40rpx; text-align: center; }
 .more-wrap.end { padding-top: 8rpx; }

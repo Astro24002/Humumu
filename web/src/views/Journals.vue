@@ -40,6 +40,9 @@
           :options="sortOptions"
         />
         <template v-if="categories.length">
+          <n-tag v-if="casYear != null" size="small" :bordered="false" type="info">
+            CAS {{ casYear }}
+          </n-tag>
           <n-select
             v-model:value="major"
             clearable

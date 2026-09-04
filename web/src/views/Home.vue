@@ -82,8 +82,8 @@
                 {{ sourceTypeLabel(a.journal_source_type) }}
               </n-tag>
             </div>
-            <span style="color: #888; font-size: 13px;">作者：{{ formatAuthors(a.authors) }}</span>
-            <br>
+            <span v-if="formatAuthors(a.authors)" style="color: #888; font-size: 13px;">作者：{{ formatAuthors(a.authors) }}</span>
+            <br v-if="formatAuthors(a.authors)">
             <span style="color: #aaa; font-size: 12px;">{{ formatDate(a.publish_date) }}</span>
           </template>
           <template #action>

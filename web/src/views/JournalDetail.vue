@@ -106,8 +106,8 @@
             <n-tag v-if="a.content_type === 'preprint'" type="info" size="tiny" :bordered="false" style="margin-right: 6px;">
               {{ contentTypeLabel(a.content_type) }}
             </n-tag>
-            <span style="color: #888; font-size: 13px;">作者：{{ formatAuthors(a.authors) }}</span>
-            <br>
+            <span v-if="formatAuthors(a.authors)" style="color: #888; font-size: 13px;">作者：{{ formatAuthors(a.authors) }}</span>
+            <br v-if="formatAuthors(a.authors)">
             <span style="color: #aaa; font-size: 12px;">{{ formatDate(a.publish_date) }}</span>
             <p
               v-if="a.abstract"
