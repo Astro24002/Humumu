@@ -59,6 +59,7 @@
           >{{ a.journal_name }}</text>
           <text v-else class="journal">{{ a.journal_name }}</text>
           <text v-if="a.content_type === 'preprint'" class="badge">{{ contentTypeLabel(a.content_type) }}</text>
+          <text v-if="a.journal_source_type" class="badge source">{{ sourceTypeLabel(a.journal_source_type) }}</text>
           <text v-for="r in a.reasons" :key="r" class="badge reason">{{ reasonLabel(r) }}</text>
         </view>
         <text class="title" :class="{ unread: a.unread }">{{ a.title }}</text>
@@ -80,7 +81,7 @@ import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
 import { truncateAbstract } from '@/utils/abstract'
-import { formatDate, reasonLabel, formatAuthors, contentTypeLabel } from '@/utils/format'
+import { formatDate, reasonLabel, formatAuthors, contentTypeLabel, sourceTypeLabel } from '@/utils/format'
 
 interface FeedItem {
   id: string
@@ -90,6 +91,7 @@ interface FeedItem {
   journal_name: string
   publish_date: string | null
   content_type?: string
+  journal_source_type?: string
   reasons: string[]
   unread?: boolean
   abstract?: string
@@ -201,6 +203,7 @@ async function fetchItems() {
         journal_name: u.journal_name,
         publish_date: u.publish_date,
         content_type: u.content_type,
+        journal_source_type: u.journal_source_type,
         reasons: u.reasons || [],
         unread: !u.status?.is_read,
         abstract: u.abstract || '',
@@ -222,6 +225,7 @@ async function fetchItems() {
         journal_name: a.journal_name,
         publish_date: a.publish_date,
         content_type: a.content_type,
+        journal_source_type: a.journal_source_type,
         reasons: [],
         abstract: a.abstract || '',
       }))
@@ -265,6 +269,7 @@ function goJournal(id?: string) {
 .journal { font-size: 24rpx; color: #3cc51f; }
 .journal.link { text-decoration: underline; text-underline-offset: 4rpx; }
 .badge { font-size: 20rpx; background: #eef6ff; color: #3a7bd5; padding: 2rpx 10rpx; border-radius: 6rpx; }
+.badge.source { color: #666; background: #f0f0f0; }
 .badge.reason { background: #fff7e6; color: #d48806; }
 .title { font-size: 30rpx; color: #333; line-height: 1.4; display: block; }
 .title.unread { font-weight: 600; }

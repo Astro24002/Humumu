@@ -135,6 +135,7 @@ async def list_my_updates(
                 "fetched_at": article.fetched_at,
                 "journal_id": str(journal.id),
                 "journal_name": journal.name or "",
+                "journal_source_type": getattr(journal, "source_type", None) or "",
                 "content_type": getattr(journal, "content_type", None) or "journal",
                 "reasons": reasons,
                 "status": status_out,

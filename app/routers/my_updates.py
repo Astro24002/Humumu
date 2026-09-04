@@ -48,6 +48,7 @@ async def list_my_updates(
                 fetched_at=row.get("fetched_at"),
                 journal_id=row["journal_id"],
                 journal_name=row.get("journal_name") or "",
+                journal_source_type=row.get("journal_source_type") or "",
                 content_type=row.get("content_type") or "journal",
                 reasons=list(row.get("reasons") or []),
                 status=UpdateStatusFlags(

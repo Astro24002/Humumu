@@ -19,6 +19,7 @@ export interface MyUpdateItem {
   fetched_at: string | null
   journal_id: string
   journal_name: string
+  journal_source_type?: string
   content_type: string
   reasons: string[]
   status: UpdateStatusFlags

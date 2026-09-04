@@ -23,6 +23,7 @@ class MyUpdateItem(BaseModel):
     fetched_at: datetime | None = None
     journal_id: str
     journal_name: str
+    journal_source_type: str | None = None
     content_type: str = "journal"
     reasons: list[str] = []
     status: UpdateStatusFlags = UpdateStatusFlags()

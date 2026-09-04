@@ -61,6 +61,7 @@ async def test_my_updates_shape(client, authed_user_id):
         "fetched_at": datetime(2026, 1, 2, tzinfo=timezone.utc),
         "journal_id": jid,
         "journal_name": "Nature",
+        "journal_source_type": "rss",
         "content_type": "journal",
         "reasons": ["journal", "keyword"],
         "status": {
@@ -81,6 +82,7 @@ async def test_my_updates_shape(client, authed_user_id):
     assert "updates" in body
     item = body["updates"][0]
     assert item["title"] == "Quantum widgets"
+    assert item.get("journal_source_type") == "rss"
     assert item["reasons"] == ["journal", "keyword"]
     assert item["status"]["is_starred"] is True
     assert item["original_url"] == "https://example.com/a"
