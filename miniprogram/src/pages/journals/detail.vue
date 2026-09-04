@@ -39,7 +39,12 @@
           <button size="mini" class="btn-more" @click="goPlaza">返回期刊广场</button>
         </view>
         <view v-if="hasMore" class="more-wrap">
-          <button class="btn-more" size="mini" :loading="loadingMore" @click="loadMore">加载更多</button>
+          <button class="btn-more" size="mini" :loading="loadingMore" @click="loadMore">
+            {{ loadingMore ? '加载中...' : '加载更多' }}
+          </button>
+        </view>
+        <view v-else-if="articles.length && !articlesLoading" class="more-wrap end">
+          <text class="end-hint">已显示全部</text>
         </view>
       </template>
     </template>
@@ -222,6 +227,8 @@ function unsubscribe() {
 .section-title { padding: 20rpx 30rpx 10rpx; font-size: 30rpx; font-weight: 500; }
 .loading, .empty { text-align: center; padding: 60rpx; color: #999; }
 .more-wrap { padding: 24rpx 30rpx 40rpx; text-align: center; }
+.more-wrap.end { padding-top: 8rpx; }
+.end-hint { font-size: 24rpx; color: #bbb; }
 .btn-more { background: #f5f5f5; color: #666; border: none; }
 button:disabled { opacity: 0.55; }
 </style>
