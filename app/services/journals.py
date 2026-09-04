@@ -339,10 +339,45 @@ async def count_pending_directory_reviews(session: AsyncSession) -> int:
     return int(result.scalar_one() or 0)
 
 
-async def list_all_journal_requests(session: AsyncSession) -> list[JournalRequestOut]:
+_REQUEST_STATUSES = frozenset({"pending", "approved", "rejected"})
+
+
+async def list_all_journal_requests(
+    session: AsyncSession,
+    *,
+    status: str | None = None,
+    limit: int | None = None,
+    offset: int = 0,
+) -> tuple[list[JournalRequestOut], int]:
+    """Return (requests, total_matching). Optional status filter + paging."""
+    if offset < 0:
+        offset = 0
+    if limit is not None:
+        if limit > 200:
+            limit = 200
+        if limit < 1:
+            limit = 1
+
+    status_filter = (status or "").strip().lower() or None
+    if status_filter is not None and status_filter not in _REQUEST_STATUSES:
+        status_filter = None
+
+    conditions = []
+    if status_filter is not None:
+        conditions.append(JournalRequest.status == status_filter)
+
+    count_stmt = select(func.count()).select_from(JournalRequest)
+    if conditions:
+        count_stmt = count_stmt.where(*conditions)
+    total = int((await session.execute(count_stmt)).scalar_one() or 0)
+
     stmt = select(JournalRequest).order_by(JournalRequest.created_at.desc())
+    if conditions:
+        stmt = stmt.where(*conditions)
+    if limit is not None:
+        stmt = stmt.limit(limit).offset(offset)
     result = await session.execute(stmt)
-    return [_request_out(row) for row in result.scalars().all()]
+    return [_request_out(row) for row in result.scalars().all()], total
 
 
 async def update_journal(

@@ -55,4 +55,4 @@ async def list_journal_requests(
         reqs = await journal_service.list_journal_requests_by_user(session, user_id)
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch requests") from exc
-    return JournalRequestsResponse(requests=reqs)
+    return JournalRequestsResponse(requests=reqs, total=len(reqs))

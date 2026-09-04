@@ -87,6 +87,7 @@ class JournalRequestOut(BaseModel):
 
 class JournalRequestsResponse(BaseModel):
     requests: list[JournalRequestOut]
+    total: int = 0
 
 
 class PreviewRequest(BaseModel):

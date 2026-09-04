@@ -1,34 +1,44 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-    <n-h2 style="margin: 0;">期刊申请审核</n-h2>
+    <n-space size="small" align="center">
+      <n-h2 style="margin: 0;">期刊申请审核</n-h2>
+      <n-tag v-if="!loading" size="small" :bordered="false">{{ total }} 条</n-tag>
+    </n-space>
     <n-space align="center" style="flex-wrap: wrap;">
-      <n-radio-group v-model:value="statusFilter" size="small">
+      <n-radio-group v-model:value="statusFilter" size="small" @update:value="reload">
         <n-radio-button value="pending">待审</n-radio-button>
         <n-radio-button value="">全部</n-radio-button>
         <n-radio-button value="approved">已通过</n-radio-button>
         <n-radio-button value="rejected">已拒绝</n-radio-button>
       </n-radio-group>
-      <n-button size="small" :loading="loading" @click="load">刷新</n-button>
+      <n-button size="small" :loading="loading" @click="reload">刷新</n-button>
     </n-space>
   </div>
-  <n-data-table :columns="columns" :data="filtered" :loading="loading" :pagination="{ pageSize: 20 }" />
+  <n-data-table :columns="columns" :data="requests" :loading="loading" :pagination="false" />
   <n-empty
-    v-if="!loading && !filtered.length"
+    v-if="!loading && !requests.length"
     style="margin-top: 24px;"
-    :description="statusFilter === 'pending' ? '暂无待审申请' : '当前筛选下暂无申请'"
+    :description="statusFilter === 'pending' ? '暂无待审申请' : (statusFilter ? '当前筛选下暂无申请' : '暂无申请')"
   >
     <template #extra>
-      <n-button v-if="statusFilter" @click="statusFilter = ''">查看全部申请</n-button>
-      <n-button v-else quaternary @click="load" :loading="loading">刷新</n-button>
+      <n-button v-if="statusFilter" @click="clearFilter">查看全部申请</n-button>
+      <n-button v-else quaternary @click="reload" :loading="loading">刷新</n-button>
     </template>
   </n-empty>
+  <n-pagination
+    v-if="pageCount > 1 && !loading"
+    style="margin-top: 16px;"
+    :page="page"
+    :page-count="pageCount"
+    @update:page="onPageChange"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, onMounted } from 'vue'
+import { ref, h, computed, watch, onMounted } from 'vue'
 import { useMessage, useDialog } from 'naive-ui'
 import {
-  NButton, NSpace, NTag, NDataTable, NH2, NRadioGroup, NRadioButton, NEmpty,
+  NButton, NSpace, NTag, NDataTable, NH2, NRadioGroup, NRadioButton, NEmpty, NPagination,
 } from 'naive-ui'
 import { getRequests, reviewRequest, type JournalRequest } from '@/api/admin'
 import { formatDateTime } from '@/utils/datetime'
@@ -37,13 +47,20 @@ import { shortUrl } from '@/utils/url'
 const message = useMessage()
 const dialog = useDialog()
 const requests = ref<JournalRequest[]>([])
+const total = ref(0)
 const loading = ref(true)
 const reviewBusy = ref(false)
 const statusFilter = ref('pending')
+const page = ref(1)
+const pageSize = 20
 
-const filtered = computed(() => {
-  if (!statusFilter.value) return requests.value
-  return requests.value.filter((r) => r.status === statusFilter.value)
+const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
+
+watch(pageCount, (n) => {
+  if (page.value > n) {
+    page.value = n
+    load()
+  }
 })
 
 const columns = [
@@ -121,10 +138,31 @@ async function review(id: string, status: string) {
   }
 }
 
+function clearFilter() {
+  statusFilter.value = ''
+  reload()
+}
+
+function onPageChange(p: number) {
+  page.value = p
+  load()
+}
+
+function reload() {
+  page.value = 1
+  load()
+}
+
 async function load() {
   loading.value = true
   try {
-    requests.value = (await getRequests()).requests
+    const res = await getRequests({
+      status: statusFilter.value || undefined,
+      limit: pageSize,
+      offset: (page.value - 1) * pageSize,
+    })
+    requests.value = res.requests
+    total.value = typeof res.total === 'number' ? res.total : res.requests.length
   } catch (e: any) {
     message.error(e?.message || '加载失败')
   } finally {

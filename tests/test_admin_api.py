@@ -307,13 +307,40 @@ async def test_admin_list_requests(client, authed_user_id):
     with patch(
         "app.routers.admin.journal_service.list_all_journal_requests",
         new_callable=AsyncMock,
-        return_value=[req],
+        return_value=([req], 1),
     ):
         r = await client.get("/api/v1/admin/requests")
     assert r.status_code == 200
     body = r.json()
     assert "requests" in body
+    assert body.get("total") == 1
     assert body["requests"][0]["status"] == "pending"
+
+
+@pytest.mark.asyncio
+async def test_admin_list_requests_status_and_paging(client, authed_user_id):
+    req = _sample_request()
+    with patch(
+        "app.routers.admin.journal_service.list_all_journal_requests",
+        new_callable=AsyncMock,
+        return_value=([req], 9),
+    ) as mock_list:
+        r = await client.get("/api/v1/admin/requests?status=pending&limit=5&offset=0")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total"] == 9
+    kwargs = mock_list.await_args.kwargs
+    assert kwargs.get("status") == "pending"
+    assert kwargs.get("limit") == 5
+    assert kwargs.get("offset") == 0
+
+    with patch(
+        "app.routers.admin.journal_service.list_all_journal_requests",
+        new_callable=AsyncMock,
+        return_value=([], 0),
+    ):
+        r = await client.get("/api/v1/admin/requests?status=nope")
+    assert r.status_code == 400
 
 
 @pytest.mark.asyncio

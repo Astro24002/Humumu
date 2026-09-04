@@ -191,12 +191,21 @@ async def admin_set_directory_status(
 async def admin_list_requests(
     _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
+    status: str | None = Query(
+        default=None,
+        description="pending | approved | rejected",
+        pattern="^(pending|approved|rejected)$",
+    ),
+    limit: int | None = Query(default=None, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
 ) -> JournalRequestsResponse:
     try:
-        reqs = await journal_service.list_all_journal_requests(session)
+        reqs, total = await journal_service.list_all_journal_requests(
+            session, status=status, limit=limit, offset=offset
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch requests") from exc
-    return JournalRequestsResponse(requests=reqs)
+    return JournalRequestsResponse(requests=reqs, total=total)
 
 
 @router.put("/requests/{request_id}", response_model=MessageResponse)

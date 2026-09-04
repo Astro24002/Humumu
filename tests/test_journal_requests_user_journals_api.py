@@ -227,7 +227,7 @@ async def test_journals_requests_not_swallowed_by_journal_id(client, authed_user
     ):
         r = await client.get("/api/v1/journals/requests")
     assert r.status_code == 200
-    assert r.json() == {"requests": []}
+    assert r.json() == {"requests": [], "total": 0}
 
 
 # --- create my journal ---

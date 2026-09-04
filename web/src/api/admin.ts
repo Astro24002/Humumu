@@ -73,8 +73,21 @@ export function setDirectoryStatus(id: string, directoryStatus: string): Promise
   return post(`/admin/journals/${id}/directory_status`, { directory_status: directoryStatus })
 }
 
-export function getRequests(): Promise<{ requests: JournalRequest[] }> {
-  return get('/admin/requests')
+export interface AdminRequestListParams {
+  status?: string
+  limit?: number
+  offset?: number
+}
+
+export function getRequests(
+  params?: AdminRequestListParams,
+): Promise<{ requests: JournalRequest[]; total?: number }> {
+  const qs = new URLSearchParams()
+  if (params?.status) qs.set('status', params.status)
+  if (params?.limit != null) qs.set('limit', String(params.limit))
+  if (params?.offset != null) qs.set('offset', String(params.offset))
+  const suffix = qs.toString() ? `?${qs.toString()}` : ''
+  return get(`/admin/requests${suffix}`)
 }
 
 export function reviewRequest(id: string, status: string): Promise<void> {
