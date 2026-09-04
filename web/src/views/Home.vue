@@ -1,6 +1,9 @@
 <template>
   <div>
-    <n-h2>公开广场</n-h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+      <n-h2 style="margin: 0;">公开广场</n-h2>
+      <n-button size="small" :loading="loading && !!articles.length" @click="loadArticles">刷新</n-button>
+    </div>
     <n-alert v-if="auth.isLoggedIn" type="info" style="margin-bottom: 16px;" :bordered="false">
       已登录用户可在
       <n-button text type="primary" @click="router.push('/my')">我的更新</n-button>
