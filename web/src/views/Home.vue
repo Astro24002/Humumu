@@ -111,9 +111,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getArticles, type Article } from '@/api/articles'
-import { getJournals, type Journal } from '@/api/journals'
+import { getJournal, getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
@@ -124,6 +124,7 @@ import {
   NRadioGroup, NRadioButton, useMessage,
 } from 'naive-ui'
 
+const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const auth = useAuthStore()
@@ -140,6 +141,46 @@ const filterSourceType = ref('')
 let journalSearchSeq = 0
 /** Drop stale plaza list responses when filters/page change mid-flight. */
 let articlesLoadSeq = 0
+/** Skip one route→state write when we just pushed query ourselves. */
+let suppressQueryApply = false
+/** Skip journal-id watcher side effects while hydrating from the URL. */
+let applyingFromQuery = false
+
+function pageFromQuery(): number {
+  const raw = route.query.page
+  const n = typeof raw === 'string' ? parseInt(raw, 10) : NaN
+  return Number.isFinite(n) && n > 0 ? n : 1
+}
+
+function applyFiltersFromQuery() {
+  applyingFromQuery = true
+  try {
+    const q = route.query
+    filterContentType.value = typeof q.content_type === 'string' ? q.content_type : ''
+    filterSourceType.value = typeof q.source_type === 'string' ? q.source_type : ''
+    filterJournalId.value = typeof q.journal_id === 'string' && q.journal_id ? q.journal_id : null
+    page.value = pageFromQuery()
+  } finally {
+    applyingFromQuery = false
+  }
+}
+
+function syncFiltersToQuery() {
+  const next: Record<string, string> = {}
+  if (filterContentType.value) next.content_type = filterContentType.value
+  if (filterSourceType.value) next.source_type = filterSourceType.value
+  if (filterJournalId.value) next.journal_id = filterJournalId.value
+  if (page.value > 1) next.page = String(page.value)
+  const cur = route.query
+  const same =
+    (cur.content_type || undefined) === next.content_type
+    && (cur.source_type || undefined) === next.source_type
+    && (cur.journal_id || undefined) === next.journal_id
+    && (cur.page || undefined) === next.page
+  if (same) return
+  suppressQueryApply = true
+  router.replace({ query: next })
+}
 
 const pageCount = computed(() => Math.ceil(total.value / limit) || 1)
 
@@ -189,12 +230,13 @@ function clearFilters() {
   filterContentType.value = ''
   filterSourceType.value = ''
   page.value = 1
+  syncFiltersToQuery()
   loadArticles()
 }
 
-
 function onFilterChange() {
   page.value = 1
+  syncFiltersToQuery()
   loadArticles()
 }
 
@@ -225,21 +267,51 @@ async function loadArticles() {
 function loadPage(p: number) {
   page.value = p
   window.scrollTo({ top: 0, behavior: 'smooth' })
+  syncFiltersToQuery()
   loadArticles()
 }
 
-watch(filterJournalId, () => { page.value = 1; loadArticles() })
+watch(filterJournalId, () => {
+  if (applyingFromQuery) return
+  page.value = 1
+  syncFiltersToQuery()
+  loadArticles()
+})
 
 watch(pageCount, (n) => {
   if (page.value > n) {
     page.value = n
+    syncFiltersToQuery()
     loadArticles()
   }
 })
 
+watch(
+  () => [route.query.content_type, route.query.source_type, route.query.journal_id, route.query.page],
+  () => {
+    if (suppressQueryApply) {
+      suppressQueryApply = false
+      return
+    }
+    applyFiltersFromQuery()
+    loadArticles()
+  },
+)
+
 onMounted(async () => {
+  applyFiltersFromQuery()
   // Remote-search dropdown; seed first page so the control isn't empty on open.
   await fetchJournalOptions('')
+  // Deep-linked journal_id may not be in the first search page — hydrate its label.
+  const keepId = filterJournalId.value
+  if (keepId && !journals.value.some((j) => j.id === keepId)) {
+    try {
+      const j = await getJournal(keepId)
+      journals.value = [j, ...journals.value]
+    } catch {
+      // leave bare id if private / missing
+    }
+  }
   loadArticles()
 })
 </script>

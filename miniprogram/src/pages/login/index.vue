@@ -99,6 +99,7 @@ onMounted(() => {
 })
 
 async function handleWeChatLogin() {
+  if (loading.value) return
   loading.value = true
   error.value = ''
   try {
@@ -119,6 +120,7 @@ async function handleWeChatLogin() {
 }
 
 async function handleBind() {
+  if (loading.value) return
   if (!form.value.email || !form.value.password) {
     error.value = '请填写邮箱和密码'
     return

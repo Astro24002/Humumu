@@ -68,6 +68,7 @@ onMounted(() => {
 })
 
 async function handleRegister() {
+  if (loading.value) return
   try {
     await formRef.value?.validate()
   } catch {

@@ -60,6 +60,7 @@ onMounted(() => {
 })
 
 async function handleLogin() {
+  if (loading.value) return
   try {
     await formRef.value?.validate()
   } catch {
