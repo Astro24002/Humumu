@@ -19,6 +19,7 @@ class AdminStatsResponse(BaseModel):
     user_count: int
     pending_requests: int
     pending_directory_reviews: int = 0
+    cas_category_count: int = 0
 
 
 class AdminUserOut(BaseModel):

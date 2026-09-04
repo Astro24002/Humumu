@@ -4,28 +4,33 @@
     <n-button size="small" :loading="loading" @click="load">刷新</n-button>
   </div>
   <n-spin :show="loading">
-    <n-grid :cols="5" :x-gap="16" responsive="screen" item-responsive>
-      <n-gi span="5 m:1">
+    <n-grid :cols="6" :x-gap="16" responsive="screen" item-responsive>
+      <n-gi span="6 m:1">
         <n-card size="small" hoverable style="cursor: pointer" @click="router.push('/admin/journals')">
           <n-statistic title="期刊数" :value="stats.journal_count" />
         </n-card>
       </n-gi>
-      <n-gi span="5 m:1">
+      <n-gi span="6 m:1">
         <n-card size="small">
           <n-statistic title="文章数" :value="stats.article_count" />
         </n-card>
       </n-gi>
-      <n-gi span="5 m:1">
+      <n-gi span="6 m:1">
         <n-card size="small" hoverable style="cursor: pointer" @click="router.push('/admin/users')">
           <n-statistic title="用户数" :value="stats.user_count" />
         </n-card>
       </n-gi>
-      <n-gi span="5 m:1">
+      <n-gi span="6 m:1">
+        <n-card size="small" hoverable style="cursor: pointer" @click="router.push('/admin/categories')">
+          <n-statistic title="CAS 分类" :value="stats.cas_category_count || 0" />
+        </n-card>
+      </n-gi>
+      <n-gi span="6 m:1">
         <n-card size="small" hoverable style="cursor: pointer" @click="goPendingDirectory">
           <n-statistic title="待审公开源" :value="stats.pending_directory_reviews || 0" />
         </n-card>
       </n-gi>
-      <n-gi span="5 m:1">
+      <n-gi span="6 m:1">
         <n-card size="small" hoverable style="cursor: pointer" @click="goPendingRequests">
           <n-statistic title="待审申请" :value="stats.pending_requests" />
         </n-card>
@@ -49,6 +54,7 @@ const stats = ref<AdminStats>({
   user_count: 0,
   pending_requests: 0,
   pending_directory_reviews: 0,
+  cas_category_count: 0,
 })
 
 function goPendingDirectory() {

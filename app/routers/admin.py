@@ -51,6 +51,7 @@ async def admin_stats(
         pending_directory_reviews = await journal_service.count_pending_directory_reviews(
             session
         )
+        cas_category_count = await cat_service.count_categories(session)
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch stats") from exc
     return AdminStatsResponse(
@@ -59,6 +60,7 @@ async def admin_stats(
         user_count=user_count,
         pending_requests=pending_requests,
         pending_directory_reviews=pending_directory_reviews,
+        cas_category_count=cas_category_count,
     )
 
 

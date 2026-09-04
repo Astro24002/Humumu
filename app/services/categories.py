@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,6 +31,11 @@ async def list_years(session: AsyncSession) -> list[int]:
         select(CasCategoryYear.year).order_by(CasCategoryYear.year.desc())
     )
     return [int(y) for y in result.scalars().all()]
+
+
+async def count_categories(session: AsyncSession) -> int:
+    result = await session.execute(select(func.count()).select_from(CasCategory))
+    return int(result.scalar_one() or 0)
 
 
 async def list_categories(
