@@ -80,8 +80,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getNotifications, type Notification } from '@/api/notifications'
 import { formatDateTime } from '@/utils/datetime'
 import { reasonLabel, notifStatusLabel, notifStatusTagType, channelLabel, channelTagType } from '@/utils/labels'
@@ -90,6 +90,7 @@ import {
   NRadioGroup, NRadioButton, useMessage,
 } from 'naive-ui'
 
+const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const notifs = ref<Notification[]>([])
@@ -103,6 +104,32 @@ const statusFilter = ref('')
 const channelFilter = ref('')
 /** Drop stale notification list responses when filters race mid-flight. */
 let notifLoadSeq = 0
+/** Skip one route→state write when we just pushed query ourselves. */
+let suppressQueryApply = false
+
+const STATUS_VALUES = new Set(['', 'sent', 'failed', 'pending'])
+const CHANNEL_VALUES = new Set(['', 'email', 'wechat'])
+
+function applyFiltersFromQuery() {
+  const qq = route.query
+  const status = typeof qq.status === 'string' ? qq.status : ''
+  const channel = typeof qq.channel === 'string' ? qq.channel : ''
+  statusFilter.value = STATUS_VALUES.has(status) ? status : ''
+  channelFilter.value = CHANNEL_VALUES.has(channel) ? channel : ''
+}
+
+function syncFiltersToQuery() {
+  const next: Record<string, string> = {}
+  if (statusFilter.value) next.status = statusFilter.value
+  if (channelFilter.value) next.channel = channelFilter.value
+  const cur = route.query
+  const same =
+    (cur.status || undefined) === next.status
+    && (cur.channel || undefined) === next.channel
+  if (same) return
+  suppressQueryApply = true
+  router.replace({ query: next })
+}
 
 const hasActiveFilters = computed(() => Boolean(statusFilter.value || channelFilter.value))
 
@@ -152,12 +179,14 @@ function reload() {
 }
 
 function onFilterChange() {
+  syncFiltersToQuery()
   fetchPage(true)
 }
 
 function clearFilters() {
   statusFilter.value = ''
   channelFilter.value = ''
+  syncFiltersToQuery()
   fetchPage(true)
 }
 
@@ -166,5 +195,20 @@ async function loadMore() {
   await fetchPage(false)
 }
 
-onMounted(() => fetchPage(true))
+watch(
+  () => [route.query.status, route.query.channel],
+  () => {
+    if (suppressQueryApply) {
+      suppressQueryApply = false
+      return
+    }
+    applyFiltersFromQuery()
+    fetchPage(true)
+  },
+)
+
+onMounted(() => {
+  applyFiltersFromQuery()
+  fetchPage(true)
+})
 </script>

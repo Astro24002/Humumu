@@ -23,7 +23,7 @@
         <n-button type="primary" @click="router.push('/journals')">浏览期刊</n-button>
         <n-button @click="router.push('/my/subscriptions')">管理订阅</n-button>
       </n-space>
-      <n-button v-else @click="filter = ''; reload()">查看全部更新</n-button>
+      <n-button v-else @click="clearFilter">查看全部更新</n-button>
     </template>
   </n-empty>
   <n-list v-else>
@@ -115,8 +115,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getMyUpdates, type MyUpdateItem } from '@/api/myUpdates'
 import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
 import { truncateAbstract } from '@/utils/abstract'
@@ -128,6 +128,7 @@ import {
   NRadioGroup, NRadioButton, useMessage,
 } from 'naive-ui'
 
+const route = useRoute()
 const router = useRouter()
 const message = useMessage()
 const updates = ref<MyUpdateItem[]>([])
@@ -142,6 +143,25 @@ const hasMore = ref(false)
 const total = ref<number | null>(null)
 /** Drop stale feed responses when filter/reset races mid-flight. */
 let feedLoadSeq = 0
+/** Skip one route→state write when we just pushed query ourselves. */
+let suppressQueryApply = false
+
+const FILTER_VALUES = new Set(['', 'unread', 'starred', 'later'])
+
+function applyFilterFromQuery() {
+  const raw = typeof route.query.filter === 'string' ? route.query.filter : ''
+  filter.value = FILTER_VALUES.has(raw) ? raw : ''
+}
+
+function syncFilterToQuery() {
+  const next: Record<string, string> = {}
+  if (filter.value) next.filter = filter.value
+  const cur = route.query
+  const same = (cur.filter || undefined) === next.filter
+  if (same) return
+  suppressQueryApply = true
+  router.replace({ query: next })
+}
 
 const emptyDescription = computed(() => {
   if (filter.value === 'unread') return '没有未读更新'
@@ -187,7 +207,13 @@ async function fetchPage(reset: boolean) {
 }
 
 async function reload() {
+  syncFilterToQuery()
   await fetchPage(true)
+}
+
+function clearFilter() {
+  filter.value = ''
+  reload()
 }
 
 async function loadMore() {
@@ -233,5 +259,20 @@ async function onOriginalClick(u: MyUpdateItem) {
   }
 }
 
-onMounted(reload)
+watch(
+  () => route.query.filter,
+  () => {
+    if (suppressQueryApply) {
+      suppressQueryApply = false
+      return
+    }
+    applyFilterFromQuery()
+    fetchPage(true)
+  },
+)
+
+onMounted(() => {
+  applyFilterFromQuery()
+  fetchPage(true)
+})
 </script>
