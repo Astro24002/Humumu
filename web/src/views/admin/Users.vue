@@ -163,6 +163,7 @@ const columns = [
             type: next ? 'primary' : 'warning',
             ghost: true,
             loading: busyId.value === row.id,
+            disabled: !!busyId.value,
             onClick: () => confirmToggleAdmin(row, next),
           }, { default: () => next ? '设为管理员' : '取消管理员' }),
         ],
@@ -178,6 +179,7 @@ function displayUserLabel(row: User): string {
 }
 
 function confirmToggleAdmin(row: User, isAdmin: boolean) {
+  if (busyId.value) return
   const label = displayUserLabel(row)
   dialog.warning({
     title: isAdmin ? '设为管理员' : '取消管理员',
@@ -191,7 +193,7 @@ function confirmToggleAdmin(row: User, isAdmin: boolean) {
 }
 
 async function toggleAdmin(row: User, isAdmin: boolean) {
-  if (busyId.value === row.id) return
+  if (busyId.value) return
   busyId.value = row.id
   try {
     const updated = await setUserAdmin(row.id, isAdmin)

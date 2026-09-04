@@ -13,19 +13,19 @@
       </view>
 
       <view v-if="tab === 'journals'">
-        <view class="add-feed" :class="{ 'add-busy': loadingJournals }">
-          <input v-model="feedUrl" placeholder="粘贴 RSS/Atom URL" class="add-input" :disabled="addingFeed || loadingJournals" />
-          <input v-model="feedName" placeholder="名称（可选，预览后自动填充）" class="add-input" :disabled="addingFeed || loadingJournals" />
+        <view class="add-feed" :class="{ 'add-busy': tabsBusy }">
+          <input v-model="feedUrl" placeholder="粘贴 RSS/Atom URL" class="add-input" :disabled="tabsBusy" />
+          <input v-model="feedName" placeholder="名称（可选，预览后自动填充）" class="add-input" :disabled="tabsBusy" />
           <view class="add-feed-row">
-            <label class="vis-opt" :class="{ disabled: addingFeed || loadingJournals }" @click="!(addingFeed || loadingJournals) && (feedVisibility = 'private')">
+            <label class="vis-opt" :class="{ disabled: tabsBusy }" @click="!tabsBusy && (feedVisibility = 'private')">
               <text :class="['radio', feedVisibility === 'private' && 'on']" />
               <text>私有</text>
             </label>
-            <label class="vis-opt" :class="{ disabled: addingFeed || loadingJournals }" @click="!(addingFeed || loadingJournals) && (feedVisibility = 'apply_public')">
+            <label class="vis-opt" :class="{ disabled: tabsBusy }" @click="!tabsBusy && (feedVisibility = 'apply_public')">
               <text :class="['radio', feedVisibility === 'apply_public' && 'on']" />
               <text>申请公开</text>
             </label>
-            <button class="btn-add" size="mini" :loading="addingFeed" :disabled="addingFeed || loadingJournals" @click="addFeed">添加源</button>
+            <button class="btn-add" size="mini" :loading="addingFeed" :disabled="tabsBusy" @click="addFeed">添加源</button>
           </view>
           <view v-if="previewItems.length" class="preview-box">
             <text class="preview-title">预览 · {{ feedName || '未命名' }}</text>
@@ -51,10 +51,10 @@
                   · {{ freqLabel(j.push_frequency) }}
                 </text>
               </view>
-              <text class="btn-prefs" :class="{ disabled: busyIds.has(j.id) }" @click="cycleFreq(j)">频率</text>
-              <text class="btn-unsub" :class="{ disabled: busyIds.has(j.id) }" @click="unsubscribe(j)">取消订阅</text>
+              <text class="btn-prefs" :class="{ disabled: tabsBusy || busyIds.has(j.id) }" @click="cycleFreq(j)">频率</text>
+              <text class="btn-unsub" :class="{ disabled: tabsBusy || busyIds.has(j.id) }" @click="unsubscribe(j)">取消订阅</text>
             </view>
-            <view class="channel-row" :class="{ disabled: busyIds.has(j.id) }">
+            <view class="channel-row" :class="{ disabled: tabsBusy || busyIds.has(j.id) }">
               <text
                 :class="['chip', j.email_enabled !== false && 'on']"
                 @click="toggleChannel(j, 'email_enabled')"
@@ -75,14 +75,14 @@
             placeholder="作者姓名"
             class="add-input"
             confirm-type="done"
-            :disabled="authorBusy"
+            :disabled="tabsBusy"
             @confirm="addAuthor"
           />
-          <button @click="addAuthor" :disabled="!newAuthor.trim() || authorBusy" class="btn-add">添加</button>
+          <button @click="addAuthor" :disabled="!newAuthor.trim() || tabsBusy" class="btn-add">添加</button>
         </view>
         <view v-if="authors.length === 0" class="empty"><text>尚未追踪任何作者</text><text class="hint">在上方输入姓名后添加</text></view>
         <view v-else class="tag-list">
-          <view v-for="a in authors" :key="a.id" class="tag-item" :class="{ disabled: removeBusyId === a.id }">
+          <view v-for="a in authors" :key="a.id" class="tag-item" :class="{ disabled: tabsBusy || removeBusyId === a.id }">
             <text>{{ a.author_name }}</text>
             <text class="tag-close" @click="confirmRemoveAuthor(a)">×</text>
           </view>
@@ -96,14 +96,14 @@
             placeholder="关键词"
             class="add-input"
             confirm-type="done"
-            :disabled="keywordBusy"
+            :disabled="tabsBusy"
             @confirm="addKeyword"
           />
-          <button @click="addKeyword" :disabled="!newKeyword.trim() || keywordBusy" class="btn-add">添加</button>
+          <button @click="addKeyword" :disabled="!newKeyword.trim() || tabsBusy" class="btn-add">添加</button>
         </view>
         <view v-if="keywords.length === 0" class="empty"><text>尚未订阅任何关键词</text><text class="hint">在上方输入关键词后添加</text></view>
         <view v-else class="tag-list">
-          <view v-for="k in keywords" :key="k.id" class="tag-item" :class="{ disabled: removeBusyId === k.id }">
+          <view v-for="k in keywords" :key="k.id" class="tag-item" :class="{ disabled: tabsBusy || removeBusyId === k.id }">
             <text>{{ k.keyword }}</text>
             <text class="tag-close" @click="confirmRemoveKeyword(k)">×</text>
           </view>
@@ -225,7 +225,7 @@ function goJournalsPlaza() {
 }
 
 async function cycleFreq(j: SubscribedJournal) {
-  if (busyIds.value.has(j.id)) return
+  if (tabsBusy.value || busyIds.value.has(j.id)) return
   const cur = j.push_frequency || 'default'
   const idx = Math.max(0, FREQ_CYCLE.indexOf(cur as any))
   const next = FREQ_CYCLE[(idx + 1) % FREQ_CYCLE.length]
@@ -244,7 +244,7 @@ async function cycleFreq(j: SubscribedJournal) {
 }
 
 async function toggleChannel(j: SubscribedJournal, field: 'email_enabled' | 'wechat_enabled') {
-  if (busyIds.value.has(j.id)) return
+  if (tabsBusy.value || busyIds.value.has(j.id)) return
   const cur = j[field] !== false
   const next = !cur
   busyIds.value = new Set([...busyIds.value, j.id])
@@ -267,7 +267,7 @@ async function toggleChannel(j: SubscribedJournal, field: 'email_enabled' | 'wec
 }
 
 function unsubscribe(j: SubscribedJournal) {
-  if (busyIds.value.has(j.id)) return
+  if (tabsBusy.value || busyIds.value.has(j.id)) return
   uni.showModal({
     title: '取消订阅',
     content: `确认取消订阅「${j.name}」？之后将不再收到该源的更新推送。`,
@@ -291,7 +291,7 @@ function unsubscribe(j: SubscribedJournal) {
 }
 
 async function addFeed() {
-  if (addingFeed.value || loadingJournals.value) return
+  if (tabsBusy.value) return
   const url = feedUrl.value.trim()
   if (!url) {
     uni.showToast({ title: '请填写 RSS URL', icon: 'none' })
@@ -325,7 +325,7 @@ async function addFeed() {
 
 async function addAuthor() {
   const name = newAuthor.value.trim()
-  if (!name || authorBusy.value) return
+  if (!name || tabsBusy.value) return
   authorBusy.value = true
   try {
     await addAuthorApi(name)
@@ -340,7 +340,7 @@ async function addAuthor() {
 }
 
 function confirmRemoveAuthor(a: AuthorTracking) {
-  if (removeBusyId.value === a.id) return
+  if (tabsBusy.value || removeBusyId.value === a.id) return
   uni.showModal({
     title: '移除作者',
     content: `确认停止追踪「${a.author_name}」？`,
@@ -365,7 +365,7 @@ function confirmRemoveAuthor(a: AuthorTracking) {
 
 async function addKeyword() {
   const kw = newKeyword.value.trim()
-  if (!kw || keywordBusy.value) return
+  if (!kw || tabsBusy.value) return
   keywordBusy.value = true
   try {
     await addKeywordApi(kw)
@@ -380,7 +380,7 @@ async function addKeyword() {
 }
 
 function confirmRemoveKeyword(k: KeywordSubscription) {
-  if (removeBusyId.value === k.id) return
+  if (tabsBusy.value || removeBusyId.value === k.id) return
   uni.showModal({
     title: '移除关键词',
     content: `确认取消关键词「${k.keyword}」？`,

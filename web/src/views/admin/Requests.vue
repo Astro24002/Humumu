@@ -56,7 +56,7 @@ const total = ref(0)
 const loading = ref(true)
 /** Drop stale admin request list responses when status/page change mid-flight. */
 let requestsLoadSeq = 0
-/** Per-row lock so reviewing one request does not disable sibling rows. */
+/** Single in-flight review lock (sibling pending actions disabled while set). */
 const busyId = ref<string | null>(null)
 const refreshAdminPending = inject<() => void>('refreshAdminPending', () => {})
 
@@ -146,13 +146,14 @@ const columns = [
     render: (row: JournalRequest) => {
       if (row.status !== 'pending') return null
       const rowBusy = busyId.value === row.id
+      const anyBusy = !!busyId.value
       return h(NSpace, null, {
         default: () => [
           h(NButton, {
             size: 'small',
             type: 'success',
             loading: rowBusy,
-            disabled: rowBusy,
+            disabled: anyBusy,
             onClick: () => confirmReview(row, 'approved'),
           }, { default: () => '通过' }),
           h(NButton, {
@@ -160,7 +161,7 @@ const columns = [
             type: 'error',
             ghost: true,
             loading: rowBusy,
-            disabled: rowBusy,
+            disabled: anyBusy,
             onClick: () => confirmReview(row, 'rejected'),
           }, { default: () => '拒绝' }),
         ],
@@ -170,6 +171,7 @@ const columns = [
 ]
 
 function confirmReview(row: JournalRequest, status: string) {
+  if (busyId.value) return
   const approve = status === 'approved'
   dialog.warning({
     title: approve ? '通过申请' : '拒绝申请',
@@ -183,7 +185,7 @@ function confirmReview(row: JournalRequest, status: string) {
 }
 
 async function review(id: string, status: string) {
-  if (busyId.value === id) return
+  if (busyId.value) return
   busyId.value = id
   try {
     await reviewRequest(id, status)

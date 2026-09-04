@@ -145,7 +145,7 @@ let journalsLoadSeq = 0
 const showModal = ref(false)
 const editingId = ref<string | null>(null)
 const saving = ref(false)
-/** Per-row lock for directory-status / delete so other rows stay clickable. */
+/** Single in-flight row lock for directory-status / delete (siblings disabled while set). */
 const busyId = ref<string | null>(null)
 const refreshAdminPending = inject<() => void>('refreshAdminPending', () => {})
 const statusFilter = ref<string>('')
@@ -315,23 +315,24 @@ const columns = [
     key: 'actions',
     render: (row: Journal) => {
       const rowBusy = busyId.value === row.id
+      const anyBusy = !!busyId.value || saving.value
       return h(NSpace, null, {
         default: () => [
-          h(NButton, { size: 'small', disabled: rowBusy, onClick: () => edit(row) }, { default: () => '编辑' }),
+          h(NButton, { size: 'small', disabled: anyBusy, onClick: () => edit(row) }, { default: () => '编辑' }),
           h(NDropdown, {
             options: statusMenu,
-            disabled: rowBusy,
+            disabled: anyBusy,
             onSelect: (key: string) => confirmChangeStatus(row, key),
           }, {
             default: () => h(NButton, {
               size: 'small',
               ghost: true,
               loading: rowBusy,
-              disabled: rowBusy,
+              disabled: anyBusy,
             }, { default: () => '目录状态' }),
           }),
           h(NPopconfirm, {
-            disabled: rowBusy,
+            disabled: anyBusy,
             onPositiveClick: () => remove(row.id),
           }, {
             default: () => '确认删除？',
@@ -340,7 +341,7 @@ const columns = [
               type: 'error',
               ghost: true,
               loading: rowBusy,
-              disabled: rowBusy,
+              disabled: anyBusy,
             }, { default: () => '删除' }),
           }),
         ],
@@ -372,13 +373,14 @@ function openAdd() {
 }
 
 function edit(row: Journal) {
-  if (saving.value || busyId.value === row.id) return
+  if (saving.value || busyId.value) return
   editingId.value = row.id
   form.value = { ...row }
   showModal.value = true
 }
 
 function confirmChangeStatus(row: Journal, status: string) {
+  if (busyId.value || saving.value) return
   const current = row.directory_status || 'public'
   if (current === status) {
     message.info(`已是「${dirStatusLabel(status)}」`)
@@ -402,7 +404,7 @@ function confirmChangeStatus(row: Journal, status: string) {
 }
 
 async function changeStatus(id: string, status: string) {
-  if (busyId.value === id) return
+  if (busyId.value || saving.value) return
   busyId.value = id
   try {
     await setDirectoryStatus(id, status)
@@ -455,7 +457,7 @@ async function save() {
 }
 
 async function remove(id: string) {
-  if (busyId.value === id) return
+  if (busyId.value || saving.value) return
   busyId.value = id
   try {
     await deleteJournal(id)
