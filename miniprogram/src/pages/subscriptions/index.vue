@@ -35,7 +35,7 @@
 
         <view v-if="loadingJournals" class="loading"><text>加载中...</text></view>
         <view v-else-if="journals.length === 0" class="empty">
-          <text>尚未关注任何期刊</text>
+          <text>尚未订阅任何期刊</text>
           <button size="mini" class="btn-empty-cta" @click="goJournalsPlaza">浏览期刊</button>
         </view>
         <view v-else class="list">
@@ -52,7 +52,7 @@
                 </text>
               </view>
               <text class="btn-prefs" :class="{ disabled: busyIds.has(j.id) }" @click="cycleFreq(j)">频率</text>
-              <text class="btn-unsub" :class="{ disabled: busyIds.has(j.id) }" @click="unsubscribe(j)">取消</text>
+              <text class="btn-unsub" :class="{ disabled: busyIds.has(j.id) }" @click="unsubscribe(j)">取消订阅</text>
             </view>
             <view class="channel-row">
               <text
@@ -255,8 +255,8 @@ async function toggleChannel(j: SubscribedJournal, field: 'email_enabled' | 'wec
 function unsubscribe(j: SubscribedJournal) {
   if (busyIds.value.has(j.id)) return
   uni.showModal({
-    title: '取消关注',
-    content: `确认取消关注「${j.name}」？`,
+    title: '取消订阅',
+    content: `确认取消订阅「${j.name}」？之后将不再收到该源的更新推送。`,
     success: async (res) => {
       if (!res.confirm) return
       if (busyIds.value.has(j.id)) return
@@ -264,7 +264,7 @@ function unsubscribe(j: SubscribedJournal) {
       try {
         await unsubscribeJournal(j.id)
         journals.value = journals.value.filter((x) => x.id !== j.id)
-        uni.showToast({ title: '已取消关注', icon: 'success' })
+        uni.showToast({ title: '已取消订阅', icon: 'success' })
       } catch (e: any) {
         uni.showToast({ title: e.message || '操作失败', icon: 'none' })
       } finally {

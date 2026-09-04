@@ -10,7 +10,7 @@
   <n-tabs v-model:value="activeTab" style="margin-top: 16px;" @update:value="onTabChange">
     <n-tab-pane name="journals" :tab="journalsTabLabel">
       <div v-if="loadingJournals"><n-spin /></div>
-      <n-empty v-else-if="!journals.length" description="尚未关注任何期刊">
+      <n-empty v-else-if="!journals.length" description="尚未订阅任何期刊">
         <template #extra>
           <n-button @click="router.push('/journals')">浏览期刊广场</n-button>
         </template>
@@ -53,7 +53,7 @@
           <template #suffix>
             <n-space>
               <n-button size="small" ghost :disabled="unsubBusyId === j.id" @click="openPrefs(j)">推送设置</n-button>
-              <n-button size="small" type="error" ghost :loading="unsubBusyId === j.id" :disabled="unsubBusyId === j.id" @click="confirmUnsubscribe(j)">取消关注</n-button>
+              <n-button size="small" type="error" ghost :loading="unsubBusyId === j.id" :disabled="unsubBusyId === j.id" @click="confirmUnsubscribe(j)">取消订阅</n-button>
             </n-space>
           </template>
         </n-list-item>
@@ -200,7 +200,7 @@
         </template>
         <template v-else>
           <n-button :disabled="addLoading" @click="addStep = 'url'">返回</n-button>
-          <n-button type="primary" @click="handleAdd" :loading="addLoading" :disabled="addLoading || !addName.trim()">添加并关注</n-button>
+          <n-button type="primary" @click="handleAdd" :loading="addLoading" :disabled="addLoading || !addName.trim()">添加并订阅</n-button>
         </template>
       </template>
 
@@ -370,9 +370,9 @@ async function savePrefs() {
 
 function confirmUnsubscribe(j: { id: string; name: string }) {
   dialog.warning({
-    title: '取消关注',
-    content: `确认取消关注「${j.name}」？`,
-    positiveText: '取消关注',
+    title: '取消订阅',
+    content: `确认取消订阅「${j.name}」？之后将不再收到该源的更新推送。`,
+    positiveText: '取消订阅',
     negativeText: '保留',
     onPositiveClick: () => unsubscribe(j.id),
   })
@@ -384,7 +384,7 @@ async function unsubscribe(id: string) {
   try {
     await unsubscribeJournal(id)
     journals.value = journals.value.filter(j => j.id !== id)
-    message.success('已取消关注')
+    message.success('已取消订阅')
   } catch (e: any) {
     message.error(e.message)
   } finally {
@@ -503,11 +503,11 @@ async function handleAdd() {
   try {
     const result = await addMyJournal(name, addUrl.value.trim(), addVisibility.value)
     if (result.already_existed) {
-      message.success(`已关注已有期刊「${result.journal.name}」`)
+      message.success(`已订阅已有期刊「${result.journal.name}」`)
     } else if (addVisibility.value === 'apply_public') {
       message.success(`已添加「${result.journal.name}」，公开申请已提交审核`)
     } else {
-      message.success(`已添加并关注「${result.journal.name}」（私有）`)
+      message.success(`已添加并订阅「${result.journal.name}」（私有）`)
     }
     showAddModal.value = false
     resetAddModal()
