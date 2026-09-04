@@ -401,6 +401,19 @@ async function changeStatus(id: string, status: string) {
 
 async function save() {
   if (saving.value) return
+  const name = (form.value.name || '').trim()
+  if (!name) {
+    message.warning('请填写期刊名称')
+    return
+  }
+  const sourceUrl = (form.value.source_url || '').trim()
+  if (!sourceUrl) {
+    message.warning('请填写源 URL')
+    return
+  }
+  form.value.name = name
+  form.value.source_url = sourceUrl
+  if (typeof form.value.slug === 'string') form.value.slug = form.value.slug.trim()
   saving.value = true
   try {
     if (editingId.value) {

@@ -156,33 +156,32 @@ function originalUrl(): string {
   return ''
 }
 
-async function openOriginal(url: string) {
-  if (auth.isLoggedIn && article.value) {
-    try {
-      await recordOriginalClick(article.value.id)
-      if (!status.value.is_read) {
-        status.value = await updateArticleStatus(article.value.id, { is_read: true })
-      }
-    } catch {
-      // non-blocking
+let originalClickBusy = false
+
+async function markOriginalClicked() {
+  if (!auth.isLoggedIn || !article.value || originalClickBusy) return
+  originalClickBusy = true
+  try {
+    await recordOriginalClick(article.value.id)
+    if (!status.value.is_read) {
+      status.value = await updateArticleStatus(article.value.id, { is_read: true })
     }
+  } catch {
+    // non-blocking
+  } finally {
+    originalClickBusy = false
   }
+}
+
+async function openOriginal(url: string) {
+  await markOriginalClicked()
   uni.setClipboardData({ data: url, success: () => uni.showToast({ title: '链接已复制', icon: 'none' }) })
 }
 
 async function copyLink() {
   const url = originalUrl()
   if (!url) return
-  if (auth.isLoggedIn && article.value) {
-    try {
-      await recordOriginalClick(article.value.id)
-      if (!status.value.is_read) {
-        status.value = await updateArticleStatus(article.value.id, { is_read: true })
-      }
-    } catch {
-      // non-blocking
-    }
-  }
+  await markOriginalClicked()
   uni.setClipboardData({ data: url, success: () => uni.showToast({ title: '链接已复制', icon: 'none' }) })
 }
 </script>

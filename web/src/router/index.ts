@@ -54,7 +54,17 @@ router.beforeEach((to, _from) => {
   }
 })
 
-router.afterEach((to) => {
+router.afterEach((to, from) => {
+  // Keep detail-page dynamic titles when only the query (e.g. ?page=) changes.
+  if (
+    to.name === from.name
+    && to.params
+    && from.params
+    && JSON.stringify(to.params) === JSON.stringify(from.params)
+    && (to.name === 'JournalDetail' || to.name === 'ArticleDetail')
+  ) {
+    return
+  }
   const pageTitle = typeof to.meta.title === 'string' ? to.meta.title : ''
   document.title = pageTitle ? `${pageTitle} · Humumu` : 'Humumu'
 })
