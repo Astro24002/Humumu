@@ -10,12 +10,12 @@
         <text class="page-title">通知历史</text>
         <text v-if="!loading && total != null" class="count-badge">{{ total }} 条</text>
       </view>
-      <view class="filters">
+      <view class="filters" :class="{ 'filters-busy': loading }">
         <text :class="['chip', channelFilter === '' && 'on']" @click="setChannel('')">全部渠道</text>
         <text :class="['chip', channelFilter === 'email' && 'on']" @click="setChannel('email')">{{ channelLabel('email') }}</text>
         <text :class="['chip', channelFilter === 'wechat' && 'on']" @click="setChannel('wechat')">{{ channelLabel('wechat') }}</text>
       </view>
-      <view class="filters">
+      <view class="filters" :class="{ 'filters-busy': loading }">
         <text :class="['chip', statusFilter === '' && 'on']" @click="setStatus('')">全部状态</text>
         <text :class="['chip', statusFilter === 'sent' && 'on']" @click="setStatus('sent')">{{ notifStatusLabel('sent') }}</text>
         <text :class="['chip', statusFilter === 'failed' && 'on']" @click="setStatus('failed')">{{ notifStatusLabel('failed') }}</text>
@@ -175,6 +175,7 @@ function goArticle(articleId: string) {
 .page-title { font-size: 32rpx; font-weight: 600; color: #333; }
 .count-badge { font-size: 22rpx; color: #888; background: #eee; padding: 4rpx 12rpx; border-radius: 12rpx; }
 .filters { display: flex; flex-wrap: wrap; gap: 16rpx; padding: 16rpx 30rpx; background: #f8f8f8; }
+.filters-busy { opacity: 0.55; pointer-events: none; }
 .chip {
   font-size: 24rpx; padding: 8rpx 20rpx; border-radius: 24rpx;
   background: #fff; color: #666; border: 1rpx solid #eee;

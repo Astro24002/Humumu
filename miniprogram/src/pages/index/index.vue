@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <view class="tabs">
+    <view class="tabs" :class="{ 'tabs-busy': loading }">
       <text :class="['tab', tab === 'all' && 'active']" @click="switchTab('all')">全部</text>
       <text v-if="auth.isLoggedIn" :class="['tab', tab === 'updates' && 'active']" @click="switchTab('updates')">我的更新</text>
       <text v-if="tab === 'all'" :class="['tab', contentType === 'journal' && 'active']" @click="setContentType('journal')">{{ contentTypeLabel('journal') }}</text>
@@ -334,6 +334,7 @@ async function copyLink(url: string, item?: FeedItem) {
 <style scoped>
 .container { min-height: 100vh; }
 .tabs { display: flex; flex-wrap: wrap; padding: 20rpx 30rpx; gap: 24rpx; background: #f8f8f8; }
+.tabs-busy { opacity: 0.55; pointer-events: none; }
 .tab { font-size: 28rpx; color: #666; padding-bottom: 8rpx; }
 .tab.active { color: #3cc51f; font-weight: 500; border-bottom: 4rpx solid #3cc51f; }
 .loading, .empty { text-align: center; padding: 100rpx 40rpx; color: #999; font-size: 28rpx; }
