@@ -36,6 +36,35 @@
         </n-card>
       </n-gi>
     </n-grid>
+
+    <n-alert
+      v-if="!loading && (stats.cas_category_count || 0) === 0"
+      type="info"
+      style="margin-top: 16px;"
+      :bordered="false"
+      title="CAS 分类为空"
+    >
+      广场 CAS 筛选与挂载需要 facet 数据。可运行
+      <code>make seed-cas</code>
+      或
+      <code>python -m scripts.seed_cas_categories</code>
+      导入示例，或在
+      <n-button text type="primary" @click="router.push('/admin/categories')">CAS 分类</n-button>
+      中手动新增。
+    </n-alert>
+    <n-alert
+      v-if="!loading && stats.journal_count === 0"
+      type="info"
+      style="margin-top: 12px;"
+      :bordered="false"
+      title="期刊目录为空"
+    >
+      可运行
+      <code>make seed</code>
+      导入内置公开源，或在
+      <n-button text type="primary" @click="router.push('/admin/journals')">期刊管理</n-button>
+      中新增。
+    </n-alert>
   </n-spin>
 </template>
 
@@ -43,7 +72,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getStats, type AdminStats } from '@/api/admin'
-import { NH2, NGrid, NGi, NStatistic, NCard, NButton, NSpin, useMessage } from 'naive-ui'
+import { NH2, NGrid, NGi, NStatistic, NCard, NButton, NSpin, NAlert, useMessage } from 'naive-ui'
 
 const router = useRouter()
 const message = useMessage()
