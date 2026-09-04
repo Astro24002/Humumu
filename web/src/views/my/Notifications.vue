@@ -1,6 +1,9 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-    <n-h2 style="margin: 0;">通知历史</n-h2>
+    <n-space size="small" align="center">
+      <n-h2 style="margin: 0;">通知历史</n-h2>
+      <n-tag v-if="!loading && total != null" size="small" :bordered="false">{{ total }} 条</n-tag>
+    </n-space>
     <n-space size="small" align="center" style="flex-wrap: wrap;">
       <n-button size="small" :loading="loading && !!notifs.length" @click="reload">刷新</n-button>
       <n-radio-group v-model:value="channelFilter" size="small" @update:value="onFilterChange">
@@ -89,6 +92,7 @@ const loadingMore = ref(false)
 const offset = ref(0)
 const limit = 20
 const hasMore = ref(false)
+const total = ref<number | null>(null)
 const statusFilter = ref('')
 const channelFilter = ref('')
 
@@ -106,6 +110,7 @@ async function fetchPage(reset: boolean) {
     loading.value = true
     offset.value = 0
     notifs.value = []
+    total.value = null
   } else {
     loadingMore.value = true
   }
@@ -118,9 +123,9 @@ async function fetchPage(reset: boolean) {
     })
     notifs.value.push(...res.notifications)
     offset.value += res.notifications.length
-    const total = typeof res.total === 'number' ? res.total : undefined
-    hasMore.value = total != null
-      ? notifs.value.length < total
+    if (typeof res.total === 'number') total.value = res.total
+    hasMore.value = total.value != null
+      ? notifs.value.length < total.value
       : res.notifications.length >= limit
   } catch (e: any) {
     message.error(e?.message || '加载失败')

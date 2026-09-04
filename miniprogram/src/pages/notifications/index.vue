@@ -6,6 +6,10 @@
     </view>
 
     <template v-else>
+      <view class="title-row">
+        <text class="page-title">通知历史</text>
+        <text v-if="!loading && total != null" class="count-badge">{{ total }} 条</text>
+      </view>
       <view class="filters">
         <text :class="['chip', channelFilter === '' && 'on']" @click="setChannel('')">全部渠道</text>
         <text :class="['chip', channelFilter === 'email' && 'on']" @click="setChannel('email')">{{ channelLabel('email') }}</text>
@@ -56,6 +60,7 @@ const loading = ref(true)
 const hasMore = ref(true)
 const offset = ref(0)
 const limit = 20
+const total = ref<number | null>(null)
 const statusFilter = ref('')
 const channelFilter = ref('')
 
@@ -75,6 +80,8 @@ onShow(() => {
   if (auth.isLoggedIn) fetchNotifications(true)
   else {
     notifications.value = []
+    total.value = null
+    hasMore.value = false
     loading.value = false
   }
 })
@@ -111,6 +118,7 @@ async function fetchNotifications(reset = false) {
     offset.value = 0
     notifications.value = []
     hasMore.value = true
+    total.value = null
   }
   if (!hasMore.value && notifications.value.length) return
   loading.value = true
@@ -123,9 +131,9 @@ async function fetchNotifications(reset = false) {
     })
     notifications.value.push(...res.notifications)
     offset.value += res.notifications.length
-    const total = typeof res.total === 'number' ? res.total : undefined
-    hasMore.value = total != null
-      ? notifications.value.length < total
+    if (typeof res.total === 'number') total.value = res.total
+    hasMore.value = total.value != null
+      ? notifications.value.length < total.value
       : res.notifications.length === limit
   } catch (e: any) {
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
@@ -148,6 +156,9 @@ function goArticle(articleId: string) {
 .container { min-height: 100vh; }
 .login-prompt { text-align: center; padding: 200rpx 40rpx; color: #999; font-size: 28rpx; }
 .btn-login { margin-top: 30rpx; background: #3cc51f; color: #fff; border: none; border-radius: 12rpx; padding: 20rpx 60rpx; }
+.title-row { display: flex; align-items: center; gap: 16rpx; padding: 24rpx 30rpx 8rpx; background: #f8f8f8; }
+.page-title { font-size: 32rpx; font-weight: 600; color: #333; }
+.count-badge { font-size: 22rpx; color: #888; background: #eee; padding: 4rpx 12rpx; border-radius: 12rpx; }
 .filters { display: flex; flex-wrap: wrap; gap: 16rpx; padding: 16rpx 30rpx; background: #f8f8f8; }
 .chip {
   font-size: 24rpx; padding: 8rpx 20rpx; border-radius: 24rpx;
