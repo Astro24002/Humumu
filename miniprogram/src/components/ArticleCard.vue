@@ -20,13 +20,17 @@
     <text class="abstract" v-if="article.abstract" line-clamp="2">
       {{ cleanAbstract(article.abstract) }}
     </text>
+    <view v-if="article.doi || article.url" class="actions" @click.stop>
+      <text v-if="article.doi" class="action-link" @click="copyLink(doiUrl(article.doi))">DOI</text>
+      <text v-if="article.url" class="action-link" @click="copyLink(article.url)">原文</text>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Article } from '@/api/articles'
-import { formatDate, formatAuthors, contentTypeLabel, sourceTypeLabel } from '@/utils/format'
+import { formatDate, formatAuthors, contentTypeLabel, sourceTypeLabel, doiUrl } from '@/utils/format'
 import { cleanAbstract } from '@/utils/abstract'
 
 const props = defineProps<{ article: Article }>()
@@ -40,6 +44,14 @@ function goDetail() {
 function goJournal() {
   if (!props.article.journal_id) return
   uni.navigateTo({ url: `/pages/journals/detail?id=${props.article.journal_id}` })
+}
+
+function copyLink(url: string) {
+  if (!url) return
+  uni.setClipboardData({
+    data: url,
+    success: () => uni.showToast({ title: '链接已复制', icon: 'none' }),
+  })
 }
 </script>
 
@@ -62,4 +74,6 @@ function goJournal() {
 .title { font-size: 32rpx; font-weight: 500; color: #333; line-height: 1.5; }
 .authors { font-size: 26rpx; color: #666; margin-top: 8rpx; display: block; }
 .abstract { font-size: 26rpx; color: #999; margin-top: 12rpx; display: block; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; }
+.actions { display: flex; gap: 24rpx; margin-top: 16rpx; }
+.action-link { font-size: 24rpx; color: #3cc51f; }
 </style>
