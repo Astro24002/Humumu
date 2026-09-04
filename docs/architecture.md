@@ -110,4 +110,4 @@ Humumu（原 Journal Monitor）是一个 Python/FastAPI 单体服务，同时提
 - **订阅** `POST /subscriptions/journals/:id`：公开源或本人创建的非公开源；否则 404。
 - **My Updates**：已订阅期刊新文 + 通知命中；可见性含公开、本人创建、已订阅（含私有复用）。卡片含 `journal_source_type` 供客户端展示 RSS/arXiv 等源标签。`GET /my/updates` 响应含去重后的 `total`，offset 按 distinct 文章分页。
 - 同 URL 复用响应会脱敏：非创建者看不到原 `created_by`，非公开状态对外映射为 `private`。
-- **客户端 thrash 防护（Product v1 UI）**：列表页在 `loading` / 行级 `busyId(s)` / 模态 `saving` 期间禁用筛选、分页、清除筛选与刷新；`reload()` 与 `onPageChange` / `loadMore` 对 in-flight 请求 early-return；Web 用请求序号丢弃过期响应，小程序同理。订阅管理 tab、管理端侧栏角标刷新、原文点击标记已读均带 busy 锁；有阅读状态的列表在已知已读时跳过二次 `updateArticleStatus`。
+- **客户端 thrash 防护（Product v1 UI）**：列表页在 `loading` / 行级 `busyId(s)` / `listBusy`（loading∪行忙）/ 模态 `saving`/`attaching` 期间禁用筛选、分页、清除筛选、空态操作与刷新；`reload()` 与 `onPageChange` / `loadMore` 对 in-flight 请求 early-return；Web 用请求序号丢弃过期响应，小程序同理。期刊广场订阅、我的更新状态切换、期刊详情论文列表、订阅管理 `tabsBusy`（含添加 RSS / 作者关键词）互相排斥；管理端 CAS 创建与挂载互斥；原文点击标记已读均带 busy 锁；有阅读状态的列表在已知已读时跳过二次 `updateArticleStatus`。

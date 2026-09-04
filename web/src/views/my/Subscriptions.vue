@@ -65,10 +65,10 @@
         <n-input
           v-model:value="newAuthor"
           placeholder="作者姓名"
-          :disabled="authorBusy"
+          :disabled="tabsBusy"
           @keyup.enter="addAuthor"
         />
-        <n-button @click="addAuthor" :loading="authorBusy" :disabled="!newAuthor.trim() || authorBusy">添加</n-button>
+        <n-button @click="addAuthor" :loading="authorBusy" :disabled="!newAuthor.trim() || tabsBusy">添加</n-button>
       </div>
       <n-empty v-if="!authors.length" description="尚未追踪任何作者">
         <template #extra>
@@ -78,8 +78,8 @@
       <n-tag
         v-for="a in authors"
         :key="a.id"
-        :closable="removeBusyId !== a.id"
-        :disabled="removeBusyId === a.id"
+        :closable="!tabsBusy && removeBusyId !== a.id"
+        :disabled="tabsBusy || removeBusyId === a.id"
         @close="confirmRemoveAuthor(a)"
         style="margin: 4px;"
       >
@@ -92,10 +92,10 @@
         <n-input
           v-model:value="newKeyword"
           placeholder="关键词"
-          :disabled="keywordBusy"
+          :disabled="tabsBusy"
           @keyup.enter="addKeyword"
         />
-        <n-button @click="addKeyword" :loading="keywordBusy" :disabled="!newKeyword.trim() || keywordBusy">添加</n-button>
+        <n-button @click="addKeyword" :loading="keywordBusy" :disabled="!newKeyword.trim() || tabsBusy">添加</n-button>
       </div>
       <n-empty v-if="!keywords.length" description="尚未订阅任何关键词">
         <template #extra>
@@ -105,8 +105,8 @@
       <n-tag
         v-for="k in keywords"
         :key="k.id"
-        :closable="removeBusyId !== k.id"
-        :disabled="removeBusyId === k.id"
+        :closable="!tabsBusy && removeBusyId !== k.id"
+        :disabled="tabsBusy || removeBusyId === k.id"
         @close="confirmRemoveKeyword(k)"
         style="margin: 4px;"
       >
@@ -413,7 +413,7 @@ async function unsubscribe(id: string) {
 
 async function addAuthor() {
   const name = newAuthor.value.trim()
-  if (!name || authorBusy.value) return
+  if (!name || tabsBusy.value) return
   authorBusy.value = true
   try {
     await addAuthorApi(name)
@@ -428,6 +428,7 @@ async function addAuthor() {
 }
 
 function confirmRemoveAuthor(a: { id: string; author_name: string }) {
+  if (tabsBusy.value) return
   dialog.warning({
     title: '移除作者',
     content: `确认停止追踪「${a.author_name}」？`,
@@ -438,7 +439,7 @@ function confirmRemoveAuthor(a: { id: string; author_name: string }) {
 }
 
 async function removeAuthor(id: string) {
-  if (removeBusyId.value === id) return
+  if (removeBusyId.value === id || authorBusy.value || keywordBusy.value) return
   removeBusyId.value = id
   try {
     await removeAuthorApi(id)
@@ -453,7 +454,7 @@ async function removeAuthor(id: string) {
 
 async function addKeyword() {
   const kw = newKeyword.value.trim()
-  if (!kw || keywordBusy.value) return
+  if (!kw || tabsBusy.value) return
   keywordBusy.value = true
   try {
     await addKeywordApi(kw)
@@ -468,6 +469,7 @@ async function addKeyword() {
 }
 
 function confirmRemoveKeyword(k: { id: string; keyword: string }) {
+  if (tabsBusy.value) return
   dialog.warning({
     title: '移除关键词',
     content: `确认取消关键词「${k.keyword}」？`,
@@ -478,7 +480,7 @@ function confirmRemoveKeyword(k: { id: string; keyword: string }) {
 }
 
 async function removeKeyword(id: string) {
-  if (removeBusyId.value === id) return
+  if (removeBusyId.value === id || authorBusy.value || keywordBusy.value) return
   removeBusyId.value = id
   try {
     await removeKeywordApi(id)
