@@ -126,8 +126,8 @@
                 size="small"
                 type="error"
                 ghost
-                :loading="busyId === j.id"
-                :disabled="busyId === j.id"
+                :loading="busyIds.has(j.id)"
+                :disabled="busyIds.has(j.id)"
                 @click.stop="handleUnsubscribe(j)"
               >
                 取消订阅
@@ -137,8 +137,8 @@
                 size="small"
                 type="primary"
                 ghost
-                :loading="busyId === j.id"
-                :disabled="busyId === j.id"
+                :loading="busyIds.has(j.id)"
+                :disabled="busyIds.has(j.id)"
                 @click.stop="handleSubscribe(j)"
               >
                 订阅
@@ -220,7 +220,7 @@ const topOnly = ref(false)
 const casYear = ref<number | null>(null)
 const categories = ref<CasCategory[]>([])
 const subscribedIds = ref<Set<string>>(new Set())
-const busyId = ref<string | null>(null)
+const busyIds = ref<Set<string>>(new Set())
 /** Drop stale plaza list responses when filters/page change mid-flight. */
 let journalsLoadSeq = 0
 /** Skip one route→state write when we just pushed query ourselves. */
@@ -357,8 +357,8 @@ async function refreshSubscribed() {
 }
 
 async function handleSubscribe(j: Journal) {
-  if (busyId.value === j.id) return
-  busyId.value = j.id
+  if (busyIds.value.has(j.id)) return
+  busyIds.value = new Set([...busyIds.value, j.id])
   try {
     await subscribeJournal(j.id)
     subscribedIds.value = new Set([...subscribedIds.value, j.id])
@@ -366,12 +366,14 @@ async function handleSubscribe(j: Journal) {
   } catch (e: any) {
     message.error(e.message || '订阅失败')
   } finally {
-    busyId.value = null
+    const next = new Set(busyIds.value)
+    next.delete(j.id)
+    busyIds.value = next
   }
 }
 
 function handleUnsubscribe(j: Journal) {
-  if (busyId.value === j.id) return
+  if (busyIds.value.has(j.id)) return
   dialog.warning({
     title: '取消订阅',
     content: `确认取消订阅「${j.name}」？之后将不再收到该源的更新推送。`,
@@ -382,8 +384,8 @@ function handleUnsubscribe(j: Journal) {
 }
 
 async function doUnsubscribe(j: Journal) {
-  if (busyId.value === j.id) return
-  busyId.value = j.id
+  if (busyIds.value.has(j.id)) return
+  busyIds.value = new Set([...busyIds.value, j.id])
   try {
     await unsubscribeJournal(j.id)
     const next = new Set(subscribedIds.value)
@@ -393,7 +395,9 @@ async function doUnsubscribe(j: Journal) {
   } catch (e: any) {
     message.error(e.message || '取消失败')
   } finally {
-    busyId.value = null
+    const next = new Set(busyIds.value)
+    next.delete(j.id)
+    busyIds.value = next
   }
 }
 
