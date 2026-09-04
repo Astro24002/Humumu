@@ -60,7 +60,7 @@
         </template>
         <template #description>
           <span style="color: #888; font-size: 12px;">{{ formatDateTime(n.created_at) }}</span>
-          <span v-if="n.error_message" style="color: red; margin-left: 8px;">{{ n.error_message }}</span>
+          <span v-if="n.error_message" style="color: #d03050; margin-left: 8px; font-size: 12px;">{{ n.error_message }}</span>
         </template>
         <template #footer>
           <router-link v-if="n.article_id" :to="`/articles/${n.article_id}`">查看文章</router-link>

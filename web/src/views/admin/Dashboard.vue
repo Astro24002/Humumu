@@ -59,14 +59,21 @@ function goPendingRequests() {
   router.push({ path: '/admin/requests', query: { status: 'pending' } })
 }
 
+/** Drop stale stats responses when refresh is clicked mid-flight. */
+let statsLoadSeq = 0
+
 async function load() {
+  const seq = ++statsLoadSeq
   loading.value = true
   try {
-    stats.value = await getStats()
+    const next = await getStats()
+    if (seq !== statsLoadSeq) return
+    stats.value = next
   } catch (e: any) {
+    if (seq !== statsLoadSeq) return
     message.error(e?.message || '加载概览失败')
   } finally {
-    loading.value = false
+    if (seq === statsLoadSeq) loading.value = false
   }
 }
 

@@ -110,8 +110,8 @@
         </n-form-item>
       </n-form>
       <template #footer>
-        <n-button @click="showPrefsModal = false">取消</n-button>
-        <n-button type="primary" :loading="prefsSaving" @click="savePrefs">保存</n-button>
+        <n-button :disabled="prefsSaving" @click="showPrefsModal = false">取消</n-button>
+        <n-button type="primary" :loading="prefsSaving" :disabled="prefsSaving" @click="savePrefs">保存</n-button>
       </template>
     </n-card>
   </n-modal>
@@ -272,7 +272,7 @@ function openPrefs(j: SubscribedJournal) {
 }
 
 async function savePrefs() {
-  if (!prefsJournal.value) return
+  if (!prefsJournal.value || prefsSaving.value) return
   prefsSaving.value = true
   try {
     const updated = await updateJournalSubscriptionPrefs(prefsJournal.value.id, {

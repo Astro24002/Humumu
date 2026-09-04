@@ -154,6 +154,8 @@ const busyIds = ref<Set<string>>(new Set())
 const authorBusy = ref(false)
 const keywordBusy = ref(false)
 const removeBusyId = ref<string | null>(null)
+/** Drop stale subscription bundle responses when onShow/pull races mid-flight. */
+let subsLoadSeq = 0
 
 const FREQ_CYCLE = ['default', 'realtime', 'daily'] as const
 
@@ -181,6 +183,7 @@ onPullDownRefresh(async () => {
 })
 
 async function loadData() {
+  const seq = ++subsLoadSeq
   loadingJournals.value = true
   try {
     const [jr, ar, kr] = await Promise.all([
@@ -188,13 +191,15 @@ async function loadData() {
       getAuthors(),
       getKeywords(),
     ])
+    if (seq !== subsLoadSeq) return
     journals.value = jr.journals
     authors.value = ar.authors
     keywords.value = kr.keywords
   } catch (e: any) {
+    if (seq !== subsLoadSeq) return
     uni.showToast({ title: e.message || '加载订阅失败', icon: 'none' })
   } finally {
-    loadingJournals.value = false
+    if (seq === subsLoadSeq) loadingJournals.value = false
   }
 }
 

@@ -56,6 +56,8 @@ const freqOptions = [`${freqLabel('daily')}汇总`, `${freqLabel('realtime')}推
 const freqIndex = ref(0)
 const freqBusy = ref(false)
 const templateBusy = ref(false)
+/** Drop stale profile hydrations when onShow/pull races mid-flight. */
+let profileLoadSeq = 0
 
 const accountEmailLabel = computed(() => {
   if (!auth.user) return ''
@@ -67,11 +69,13 @@ const accountEmailLabel = computed(() => {
 
 async function hydrateProfile() {
   if (!auth.isLoggedIn) return
+  const seq = ++profileLoadSeq
   try {
     await auth.refreshMe()
   } catch {
     // ignore
   }
+  if (seq !== profileLoadSeq) return
   // default daily (index 0); realtime is index 1
   freqIndex.value = auth.user?.push_frequency === 'realtime' ? 1 : 0
   loadTemplateSetting()
