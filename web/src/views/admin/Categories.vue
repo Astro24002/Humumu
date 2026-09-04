@@ -1,7 +1,7 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
     <n-h2 style="margin: 0;">CAS 分类</n-h2>
-    <n-button type="primary" :disabled="loading || saving || attaching" @click="showCreate = true">新增分类</n-button>
+    <n-button type="primary" :disabled="loading || saving || attaching" @click="openCreate">新增分类</n-button>
   </div>
 
   <n-space style="margin-bottom: 12px;" align="center">
@@ -26,7 +26,7 @@
   >
     <template #extra>
       <n-button v-if="yearFilter" @click="clearYearFilter">清除年份筛选</n-button>
-      <n-button v-else type="primary" :disabled="loading || saving || attaching" @click="showCreate = true">新增分类</n-button>
+      <n-button v-else type="primary" :disabled="loading || saving || attaching" @click="openCreate">新增分类</n-button>
     </template>
   </n-empty>
 
@@ -232,6 +232,11 @@ const columns = [
       : '—',
   },
 ]
+
+function openCreate() {
+  if (loading.value || saving.value || attaching.value) return
+  showCreate.value = true
+}
 
 function onCreateModalShow(show: boolean) {
   if (!show && saving.value) {

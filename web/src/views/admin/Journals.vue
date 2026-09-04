@@ -371,6 +371,7 @@ function openAdd() {
 }
 
 function edit(row: Journal) {
+  if (saving.value || busyId.value === row.id) return
   editingId.value = row.id
   form.value = { ...row }
   showModal.value = true
