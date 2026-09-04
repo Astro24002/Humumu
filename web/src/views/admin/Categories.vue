@@ -69,8 +69,14 @@
       <n-select
         v-model:value="attachJournalId"
         filterable
-        placeholder="选择期刊"
+        remote
+        clearable
+        placeholder="搜索期刊名称 / slug"
+        :loading="journalSearchLoading"
         :options="journalOptions"
+        :reset-menu-on-options-change="false"
+        @search="onJournalSearch"
+        @focus="onJournalFocus"
       />
     </n-form-item>
     <n-form-item label="分类">
@@ -111,7 +117,9 @@ const showCreate = ref(false)
 const categories = ref<CasCategory[]>([])
 const years = ref<number[]>([])
 const journals = ref<Journal[]>([])
+const journalSearchLoading = ref(false)
 const yearFilter = ref<number | null>(null)
+let journalSearchSeq = 0
 
 const form = ref({
   year: new Date().getFullYear(),
@@ -126,16 +134,42 @@ const attachCategoryIds = ref<string[]>([])
 
 const yearOptions = computed(() => years.value.map(y => ({ label: String(y), value: y })))
 const journalOptions = computed(() =>
-  [...journals.value]
-    .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'zh'))
-    .map(j => {
-      const src = sourceTypeLabel(j.source_type)
-      return {
-        label: src ? `${j.name}（${src}）` : j.name,
-        value: j.id,
-      }
-    }),
+  journals.value.map(j => {
+    const src = sourceTypeLabel(j.source_type)
+    return {
+      label: src ? `${j.name}（${src}）` : j.name,
+      value: j.id,
+    }
+  }),
 )
+
+async function fetchJournalOptions(q = '') {
+  const seq = ++journalSearchSeq
+  journalSearchLoading.value = true
+  try {
+    const res = await getAllJournals({
+      q: q.trim() || undefined,
+      sort: 'name',
+      limit: 50,
+      offset: 0,
+    })
+    if (seq !== journalSearchSeq) return
+    journals.value = res.journals
+  } catch (e: any) {
+    if (seq !== journalSearchSeq) return
+    message.error(e?.message || '加载期刊失败')
+  } finally {
+    if (seq === journalSearchSeq) journalSearchLoading.value = false
+  }
+}
+
+function onJournalSearch(q: string) {
+  fetchJournalOptions(q)
+}
+
+function onJournalFocus() {
+  if (!journals.value.length) fetchJournalOptions('')
+}
 const categoryOptions = computed(() =>
   categories.value.map(c => ({
     label: `${c.year} · ${c.major}/${c.minor} · ${c.zone}区${c.is_top ? ' · Top' : ''}`,
@@ -171,12 +205,13 @@ const columns = [
 async function load() {
   loading.value = true
   try {
-    const [cas, jres] = await Promise.all([getCasCategories(), getAllJournals()])
+    const cas = await getCasCategories()
     categories.value = cas.categories
     years.value = cas.years?.length
       ? cas.years
       : [...new Set(cas.categories.map(c => c.year))].sort((a, b) => b - a)
-    journals.value = jres.journals
+    // Journal attach dropdown loads on focus / remote search (paged).
+    await fetchJournalOptions('')
   } catch (e: any) {
     message.error(e.message || '加载失败')
   } finally {
