@@ -25,6 +25,7 @@ export function getArticles(params: {
   offset?: number
   journal_id?: string
   content_type?: string
+  source_type?: string
 } = {}): Promise<ArticlesResponse> {
   const qs = buildQuery(params as Record<string, string | number | undefined>)
   return get(`/articles${qs}`)

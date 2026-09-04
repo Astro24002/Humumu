@@ -136,7 +136,7 @@
             <n-input v-model:value="addName" @keyup.enter="handleAdd" />
           </n-form-item>
           <n-form-item label="类型">
-            <n-input :value="addSourceType" disabled />
+            <n-input :value="sourceTypeLabel(addSourceType) || addSourceType" disabled />
           </n-form-item>
           <n-form-item label="可见性">
             <n-radio-group v-model:value="addVisibility">

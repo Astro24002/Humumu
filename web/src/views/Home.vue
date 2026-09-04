@@ -15,10 +15,16 @@
       后可订阅、标记已读并接收推送。
     </n-alert>
     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
-      <n-radio-group v-model:value="filterContentType" size="small" @update:value="onContentTypeChange">
+      <n-radio-group v-model:value="filterContentType" size="small" @update:value="onFilterChange">
         <n-radio-button value="">全部</n-radio-button>
         <n-radio-button value="journal">{{ contentTypeLabel('journal') }}</n-radio-button>
         <n-radio-button value="preprint">{{ contentTypeLabel('preprint') }}</n-radio-button>
+      </n-radio-group>
+      <n-radio-group v-model:value="filterSourceType" size="small" @update:value="onFilterChange">
+        <n-radio-button value="">全部源</n-radio-button>
+        <n-radio-button value="rss">{{ sourceTypeLabel('rss') }}</n-radio-button>
+        <n-radio-button value="arxiv">{{ sourceTypeLabel('arxiv') }}</n-radio-button>
+        <n-radio-button value="cnki">{{ sourceTypeLabel('cnki') }}</n-radio-button>
       </n-radio-group>
       <n-select
         v-model:value="filterJournalId"
@@ -39,7 +45,7 @@
     <div v-if="loading"><n-spin /></div>
     <n-empty v-else-if="!articles.length" :description="emptyDescription">
       <template #extra>
-        <n-button v-if="filterJournalId || filterContentType" @click="clearFilters">清除筛选</n-button>
+        <n-button v-if="filterJournalId || filterContentType || filterSourceType" @click="clearFilters">清除筛选</n-button>
         <n-button v-else @click="router.push('/journals')">浏览期刊</n-button>
       </template>
     </n-empty>
@@ -128,6 +134,7 @@ const page = ref(1)
 const limit = 20
 const filterJournalId = ref<string | null>(null)
 const filterContentType = ref('')
+const filterSourceType = ref('')
 let journalSearchSeq = 0
 
 const pageCount = computed(() => Math.ceil(total.value / limit) || 1)
@@ -169,19 +176,20 @@ function onJournalFocus() {
 }
 
 const emptyDescription = computed(() => {
-  if (filterJournalId.value || filterContentType.value) return '当前筛选下暂无文章'
+  if (filterJournalId.value || filterContentType.value || filterSourceType.value) return '当前筛选下暂无文章'
   return '暂无文章'
 })
 
 function clearFilters() {
   filterJournalId.value = null
   filterContentType.value = ''
+  filterSourceType.value = ''
   page.value = 1
   loadArticles()
 }
 
 
-function onContentTypeChange() {
+function onFilterChange() {
   page.value = 1
   loadArticles()
 }
@@ -195,6 +203,7 @@ async function loadArticles() {
     }
     if (filterJournalId.value) params.journal_id = filterJournalId.value
     if (filterContentType.value) params.content_type = filterContentType.value
+    if (filterSourceType.value) params.source_type = filterSourceType.value
     const res = await getArticles(params)
     articles.value = res.articles
     // Prefer server total; fall back to page length only when absent.

@@ -273,6 +273,41 @@ async def test_list_articles_with_content_type(client):
 
 
 @pytest.mark.asyncio
+async def test_list_articles_with_source_type(client):
+    with (
+        patch(
+            "app.routers.articles.article_service.list_articles",
+            new_callable=AsyncMock,
+            return_value=[],
+        ) as mock_list,
+        patch(
+            "app.routers.articles.article_service.count_list_articles",
+            new_callable=AsyncMock,
+            return_value=0,
+        ) as mock_count,
+    ):
+        r = await client.get("/api/v1/articles?source_type=arxiv")
+    assert r.status_code == 200
+    assert mock_list.await_args.kwargs["source_type"] == "arxiv"
+    assert mock_count.await_args.kwargs["source_type"] == "arxiv"
+
+    with (
+        patch(
+            "app.routers.articles.article_service.list_articles",
+            new_callable=AsyncMock,
+            return_value=[],
+        ),
+        patch(
+            "app.routers.articles.article_service.count_list_articles",
+            new_callable=AsyncMock,
+            return_value=0,
+        ),
+    ):
+        r = await client.get("/api/v1/articles?source_type=ftp")
+    assert r.status_code == 400
+
+
+@pytest.mark.asyncio
 async def test_get_article_bare(client):
     a = _sample_article(title="Bare Article")
     with patch(

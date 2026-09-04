@@ -23,6 +23,7 @@ export interface ArticlesResponse {
 export function getArticles(params?: {
   journal_id?: string
   content_type?: string
+  source_type?: string
   limit?: string
   offset?: string
 }): Promise<ArticlesResponse> {

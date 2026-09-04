@@ -5,6 +5,9 @@
       <text v-if="auth.isLoggedIn" :class="['tab', tab === 'updates' && 'active']" @click="switchTab('updates')">我的更新</text>
       <text v-if="tab === 'all'" :class="['tab', contentType === 'journal' && 'active']" @click="setContentType('journal')">{{ contentTypeLabel('journal') }}</text>
       <text v-if="tab === 'all'" :class="['tab', contentType === 'preprint' && 'active']" @click="setContentType('preprint')">{{ contentTypeLabel('preprint') }}</text>
+      <text v-if="tab === 'all'" :class="['tab', sourceType === 'rss' && 'active']" @click="setSourceType('rss')">{{ sourceTypeLabel('rss') }}</text>
+      <text v-if="tab === 'all'" :class="['tab', sourceType === 'arxiv' && 'active']" @click="setSourceType('arxiv')">{{ sourceTypeLabel('arxiv') }}</text>
+      <text v-if="tab === 'all'" :class="['tab', sourceType === 'cnki' && 'active']" @click="setSourceType('cnki')">{{ sourceTypeLabel('cnki') }}</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'unread' && 'active']" @click="setFilter('unread')">未读</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'starred' && 'active']" @click="setFilter('starred')">星标</text>
       <text v-if="auth.isLoggedIn && tab === 'updates'" :class="['tab', filter === 'later' && 'active']" @click="setFilter('later')">稍后再看</text>
@@ -32,7 +35,7 @@
         @click="clearFilter"
       >查看全部更新</button>
       <button
-        v-else-if="tab === 'all' && contentType"
+        v-else-if="tab === 'all' && (contentType || sourceType)"
         size="mini"
         class="btn-empty"
         @click="clearContentType"
@@ -108,6 +111,7 @@ const auth = useAuthStore()
 const tab = ref<'all' | 'updates'>('all')
 const filter = ref('')
 const contentType = ref('')
+const sourceType = ref('')
 const items = ref<FeedItem[]>([])
 const loading = ref(true)
 const hasMore = ref(true)
@@ -123,7 +127,7 @@ const emptyHint = computed(() => {
     if (filter.value === 'later') return '稍后再看列表为空'
     return '暂无更新，去订阅期刊或关键词吧'
   }
-  if (contentType.value) return '当前筛选下暂无论文'
+  if (contentType.value || sourceType.value) return '当前筛选下暂无论文'
   return '暂无论文'
 })
 
@@ -164,6 +168,7 @@ function switchTab(t: 'all' | 'updates') {
   tab.value = t
   filter.value = ''
   contentType.value = ''
+  sourceType.value = ''
   resetAndFetch()
 }
 
@@ -179,11 +184,17 @@ function clearFilter() {
 
 function clearContentType() {
   contentType.value = ''
+  sourceType.value = ''
   resetAndFetch()
 }
 
 function setContentType(t: string) {
   contentType.value = contentType.value === t ? '' : t
+  resetAndFetch()
+}
+
+function setSourceType(t: string) {
+  sourceType.value = sourceType.value === t ? '' : t
   resetAndFetch()
 }
 
@@ -228,6 +239,7 @@ async function fetchItems() {
         limit,
         offset: offset.value,
         content_type: contentType.value || undefined,
+        source_type: sourceType.value || undefined,
       })
       const mapped: FeedItem[] = res.articles.map(a => ({
         id: a.id,

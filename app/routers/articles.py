@@ -15,6 +15,11 @@ async def list_articles(
     offset: int = Query(default=0),
     journal_id: str | None = Query(default=None),
     content_type: str | None = Query(default=None),
+    source_type: str | None = Query(
+        default=None,
+        description="rss | arxiv | cnki",
+        pattern="^(rss|arxiv|cnki)$",
+    ),
     session: AsyncSession = Depends(get_session),
     viewer_id: str | None = Depends(get_optional_user_id),
 ) -> ArticlesResponse:
@@ -25,12 +30,14 @@ async def list_articles(
             offset=offset,
             journal_id=journal_id,
             content_type=content_type,
+            source_type=source_type,
             viewer_user_id=viewer_id,
         )
         total = await article_service.count_list_articles(
             session,
             journal_id=journal_id,
             content_type=content_type,
+            source_type=source_type,
             viewer_user_id=viewer_id,
         )
     except Exception as exc:

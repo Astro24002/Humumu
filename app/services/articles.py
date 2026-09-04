@@ -88,6 +88,7 @@ def _article_filter_stmt(
     public_only: bool = True,
     journal_id: str | UUID | None = None,
     content_type: str | None = None,
+    source_type: str | None = None,
     viewer_user_id: str | UUID | None = None,
     allow_subscribed: bool = False,
 ) -> Any | None:
@@ -109,6 +110,8 @@ def _article_filter_stmt(
         stmt = stmt.where(Article.journal_id == uid)
     if content_type and str(content_type).strip():
         stmt = stmt.where(Journal.content_type == str(content_type).strip())
+    if source_type and str(source_type).strip():
+        stmt = stmt.where(Journal.source_type == str(source_type).strip().lower())
     if public_only:
         viewer = _parse_uuid(viewer_user_id) if viewer_user_id is not None else None
         if viewer is not None and journal_id is not None and str(journal_id) != "":
@@ -141,6 +144,7 @@ async def list_articles(
     offset: int = 0,
     journal_id: str | UUID | None = None,
     content_type: str | None = None,
+    source_type: str | None = None,
     public_only: bool = True,
     viewer_user_id: str | UUID | None = None,
 ) -> list[ArticleOut]:
@@ -156,6 +160,7 @@ async def list_articles(
         public_only=public_only,
         journal_id=journal_id,
         content_type=content_type,
+        source_type=source_type,
         viewer_user_id=viewer_user_id,
         allow_subscribed=True,
     )
@@ -172,6 +177,7 @@ async def count_list_articles(
     *,
     journal_id: str | UUID | None = None,
     content_type: str | None = None,
+    source_type: str | None = None,
     public_only: bool = True,
     viewer_user_id: str | UUID | None = None,
 ) -> int:
@@ -180,6 +186,7 @@ async def count_list_articles(
         public_only=public_only,
         journal_id=journal_id,
         content_type=content_type,
+        source_type=source_type,
         viewer_user_id=viewer_user_id,
         allow_subscribed=True,
     )
