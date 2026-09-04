@@ -175,6 +175,7 @@ async function fetchPage(reset: boolean) {
 }
 
 function reload() {
+  if (loading.value) return
   fetchPage(true)
 }
 

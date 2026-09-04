@@ -207,6 +207,7 @@ async function fetchPage(reset: boolean) {
 }
 
 async function reload() {
+  if (loading.value) return
   syncFilterToQuery()
   await fetchPage(true)
 }
