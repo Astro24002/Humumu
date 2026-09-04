@@ -13,6 +13,11 @@ router = APIRouter(prefix="/api/v1/journals", tags=["journals"])
 async def list_journals(
     session: AsyncSession = Depends(get_session),
     content_type: str | None = Query(default=None),
+    source_type: str | None = Query(
+        default=None,
+        description="rss | arxiv | cnki",
+        pattern="^(rss|arxiv|cnki)$",
+    ),
     q: str | None = Query(default=None),
     major: str | None = Query(default=None),
     minor: str | None = Query(default=None),
@@ -31,6 +36,7 @@ async def list_journals(
         journals, total = await journal_service.list_journals(
             session,
             content_type=content_type,
+            source_type=source_type,
             q=q,
             major=major,
             minor=minor,

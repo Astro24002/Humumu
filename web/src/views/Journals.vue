@@ -27,6 +27,12 @@
           <n-radio-button value="journal">{{ contentTypeLabel('journal') }}</n-radio-button>
           <n-radio-button value="preprint">{{ contentTypeLabel('preprint') }}</n-radio-button>
         </n-radio-group>
+        <n-radio-group v-model:value="sourceType" size="small" @update:value="reload">
+          <n-radio-button value="">全部源</n-radio-button>
+          <n-radio-button value="rss">{{ sourceTypeLabel('rss') }}</n-radio-button>
+          <n-radio-button value="arxiv">{{ sourceTypeLabel('arxiv') }}</n-radio-button>
+          <n-radio-button value="cnki">{{ sourceTypeLabel('cnki') }}</n-radio-button>
+        </n-radio-group>
         <n-select
           v-model:value="sortBy"
           size="small"
@@ -192,6 +198,7 @@ const journals = ref<Journal[]>([])
 const loading = ref(true)
 const q = ref('')
 const contentType = ref('')
+const sourceType = ref('')
 const sortBy = ref<'name' | 'articles' | 'updated'>('name')
 const page = ref(1)
 const pageSize = 24
@@ -217,7 +224,7 @@ const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
 const pageJournals = computed(() => journals.value)
 
 const hasActiveFilters = computed(() =>
-  Boolean(q.value.trim() || contentType.value || major.value || minor.value || zone.value || topOnly.value),
+  Boolean(q.value.trim() || contentType.value || sourceType.value || major.value || minor.value || zone.value || topOnly.value),
 )
 
 const emptyDescription = computed(() =>
@@ -233,6 +240,7 @@ function onPageChange(p: number) {
 function clearFilters() {
   q.value = ''
   contentType.value = ''
+  sourceType.value = ''
   major.value = null
   minor.value = null
   zone.value = null
@@ -329,6 +337,7 @@ async function fetchJournals() {
     const params: Record<string, string | number | undefined> = {
       q: q.value.trim() || undefined,
       content_type: contentType.value || undefined,
+      source_type: sourceType.value || undefined,
       major: major.value || undefined,
       minor: minor.value || undefined,
       zone: zone.value || undefined,

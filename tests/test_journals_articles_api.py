@@ -148,6 +148,27 @@ async def test_list_journals_sort_param(client):
     assert r.status_code == 400
 
 
+@pytest.mark.asyncio
+async def test_list_journals_source_type_param(client):
+    j = _sample_journal()
+    with patch(
+        "app.routers.journals.journal_service.list_journals",
+        new_callable=AsyncMock,
+        return_value=([j], 2),
+    ) as mock_list:
+        r = await client.get("/api/v1/journals?source_type=arxiv&limit=10")
+    assert r.status_code == 200
+    assert mock_list.await_args.kwargs.get("source_type") == "arxiv"
+
+    with patch(
+        "app.routers.journals.journal_service.list_journals",
+        new_callable=AsyncMock,
+        return_value=([j], 2),
+    ):
+        r = await client.get("/api/v1/journals?source_type=ftp")
+    assert r.status_code == 400
+
+
 
 @pytest.mark.asyncio
 async def test_get_journal_bare(client):

@@ -105,6 +105,7 @@ GET /api/v1/journals
 **查询参数:**
 - `q` — 名称 / 描述 / slug 搜索
 - `content_type` — `journal` | `preprint`
+- `source_type` — `rss` | `arxiv` | `cnki`
 - `major` / `minor` / `zone` / `top` / `year` — CAS 分区筛选
 - `sort` — `name`（默认）| `articles` | `updated`（按 `last_article_date`，空值靠后）
 - `limit` — 可选，1–200；传入时启用服务端分页并返回 `total`
@@ -132,7 +133,7 @@ GET /api/v1/journals
 }
 ```
 
-`total` 仅在请求带 `limit` 时返回（全量匹配数，便于客户端分页）。无效 `sort` 返回 **400**。
+`total` 仅在请求带 `limit` 时返回（全量匹配数，便于客户端分页）。无效 `sort` / `source_type` 返回 **400**。
 
 ### 获取期刊详情
 
@@ -384,7 +385,7 @@ GET /api/v1/my/updates
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | /api/v1/admin/stats | 概览计数（含 `pending_directory_reviews` 待审公开源） |
-| GET/POST | /api/v1/admin/journals | 列表（`q`/`content_type`/`directory_status`/`sort`/`limit`/`offset`，带 `limit` 时含 `total`）/ 创建 |
+| GET/POST | /api/v1/admin/journals | 列表（`q`/`content_type`/`source_type`/`directory_status`/`sort`/`limit`/`offset`，带 `limit` 时含 `total`）/ 创建 |
 | PUT/DELETE | /api/v1/admin/journals/{id} | 更新 / 删除 |
 | POST | /api/v1/admin/journals/{id}/directory_status | 设置 public/private/pending_review/rejected/hidden |
 | GET/PUT | /api/v1/admin/requests | 申请队列与审核（`approved` 会创建/复用公开期刊并订阅申请人） |

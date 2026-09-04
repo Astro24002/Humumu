@@ -30,6 +30,7 @@ export interface JournalsResponse {
 export interface JournalListParams {
   q?: string
   content_type?: string
+  source_type?: string
   major?: string
   minor?: string
   zone?: string | number

@@ -35,6 +35,7 @@ export function getStats(): Promise<AdminStats> {
 export interface AdminJournalListParams {
   q?: string
   content_type?: string
+  source_type?: string
   directory_status?: string
   sort?: 'name' | 'articles' | 'updated'
   limit?: number
@@ -47,6 +48,7 @@ export function getAllJournals(
   const qs = new URLSearchParams()
   if (params?.q) qs.set('q', params.q)
   if (params?.content_type) qs.set('content_type', params.content_type)
+  if (params?.source_type) qs.set('source_type', params.source_type)
   if (params?.directory_status) qs.set('directory_status', params.directory_status)
   if (params?.sort) qs.set('sort', params.sort)
   if (params?.limit != null) qs.set('limit', String(params.limit))

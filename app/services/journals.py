@@ -107,6 +107,7 @@ async def list_journals(
     *,
     public_only: bool = True,
     content_type: str | None = None,
+    source_type: str | None = None,
     directory_status: str | None = None,
     q: str | None = None,
     major: str | None = None,
@@ -123,6 +124,7 @@ async def list_journals(
     public_only=True (default) restricts to directory_status=public and is_active.
     Admin callers should pass public_only=False.
     Optional directory_status filter (admin); ignored when public_only is True.
+    Optional source_type filter (rss | arxiv | cnki).
     Optional CAS filters: major/minor/zone/top/year.
     sort: name (default) | articles | updated.
     Optional limit/offset for pagination (limit None = return all).
@@ -149,6 +151,8 @@ async def list_journals(
         stmt = stmt.where(Journal.directory_status == directory_status.strip().lower())
     if content_type:
         stmt = stmt.where(Journal.content_type == content_type)
+    if source_type:
+        stmt = stmt.where(Journal.source_type == source_type.strip().lower())
     if q and q.strip():
         term = f"%{q.strip()}%"
         stmt = stmt.where(

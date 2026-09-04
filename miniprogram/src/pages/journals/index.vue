@@ -12,6 +12,12 @@
         <text :class="['chip', contentType === 'preprint' && 'on']" @click="setType('preprint')">{{ contentTypeLabel('preprint') }}</text>
       </view>
       <view class="filters">
+        <text :class="['chip', sourceType === '' && 'on']" @click="setSource('')">全部源</text>
+        <text :class="['chip', sourceType === 'rss' && 'on']" @click="setSource('rss')">{{ sourceTypeLabel('rss') }}</text>
+        <text :class="['chip', sourceType === 'arxiv' && 'on']" @click="setSource('arxiv')">{{ sourceTypeLabel('arxiv') }}</text>
+        <text :class="['chip', sourceType === 'cnki' && 'on']" @click="setSource('cnki')">{{ sourceTypeLabel('cnki') }}</text>
+      </view>
+      <view class="filters">
         <text :class="['chip', sortBy === 'name' && 'on']" @click="sortBy = 'name'">名称</text>
         <text :class="['chip', sortBy === 'articles' && 'on']" @click="sortBy = 'articles'">论文数</text>
         <text :class="['chip', sortBy === 'updated' && 'on']" @click="sortBy = 'updated'">最近更新</text>
@@ -38,7 +44,7 @@ import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { getJournals, type Journal } from '@/api/journals'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
-import { contentTypeLabel } from '@/utils/format'
+import { contentTypeLabel, sourceTypeLabel } from '@/utils/format'
 import JournalCard from '@/components/JournalCard.vue'
 
 const auth = useAuthStore()
@@ -46,6 +52,7 @@ const journals = ref<Journal[]>([])
 const loading = ref(true)
 const search = ref('')
 const contentType = ref('')
+const sourceType = ref('')
 const sortBy = ref<'name' | 'articles' | 'updated'>('name')
 const pageSize = 30
 const offset = ref(0)
@@ -53,7 +60,7 @@ const total = ref(0)
 const loadingMore = ref(false)
 const hasMore = computed(() => journals.value.length < total.value)
 
-const hasActiveFilters = computed(() => Boolean(search.value.trim() || contentType.value))
+const hasActiveFilters = computed(() => Boolean(search.value.trim() || contentType.value || sourceType.value))
 const emptyHint = computed(() =>
   hasActiveFilters.value ? '当前筛选下暂无期刊' : '暂无期刊',
 )
@@ -65,6 +72,7 @@ function listParams(extra: { limit?: number; offset?: number } = {}) {
   return {
     q: search.value.trim() || undefined,
     content_type: contentType.value || undefined,
+    source_type: sourceType.value || undefined,
     sort: sortBy.value,
     limit: extra.limit ?? pageSize,
     offset: extra.offset ?? 0,
@@ -76,9 +84,15 @@ function setType(t: string) {
   reload()
 }
 
+function setSource(t: string) {
+  sourceType.value = t
+  reload()
+}
+
 function clearFilters() {
   search.value = ''
   contentType.value = ''
+  sourceType.value = ''
   reload()
 }
 

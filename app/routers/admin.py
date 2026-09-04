@@ -68,6 +68,11 @@ async def admin_list_journals(
     session: AsyncSession = Depends(get_session),
     q: str | None = Query(default=None),
     content_type: str | None = Query(default=None),
+    source_type: str | None = Query(
+        default=None,
+        description="rss | arxiv | cnki",
+        pattern="^(rss|arxiv|cnki)$",
+    ),
     directory_status: str | None = Query(default=None),
     sort: str | None = Query(
         default=None,
@@ -83,6 +88,7 @@ async def admin_list_journals(
             public_only=False,
             q=q,
             content_type=content_type,
+            source_type=source_type,
             directory_status=directory_status,
             sort=sort,
             limit=limit,

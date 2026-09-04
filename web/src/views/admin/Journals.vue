@@ -37,6 +37,19 @@
       @update:value="reload"
     />
     <n-select
+      v-model:value="sourceFilter"
+      clearable
+      placeholder="源类型"
+      style="width: 140px"
+      :options="[
+        { label: '全部', value: '' },
+        { label: sourceTypeLabel('rss'), value: 'rss' },
+        { label: sourceTypeLabel('arxiv'), value: 'arxiv' },
+        { label: sourceTypeLabel('cnki'), value: 'cnki' },
+      ]"
+      @update:value="reload"
+    />
+    <n-select
       v-model:value="sortBy"
       size="small"
       style="width: 140px"
@@ -127,6 +140,7 @@ const statusBusy = ref(false)
 const deleteBusy = ref(false)
 const statusFilter = ref<string>(typeof route.query.status === 'string' ? route.query.status : '')
 const contentFilter = ref<string>('')
+const sourceFilter = ref<string>('')
 const nameFilter = ref('')
 const sortBy = ref<'name' | 'articles' | 'updated'>('name')
 const page = ref(1)
@@ -135,7 +149,7 @@ const pageSize = 20
 const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
 
 const hasServerFilters = computed(() =>
-  Boolean(nameFilter.value.trim() || statusFilter.value || contentFilter.value),
+  Boolean(nameFilter.value.trim() || statusFilter.value || contentFilter.value || sourceFilter.value),
 )
 
 const sortOptions = [
@@ -148,6 +162,7 @@ function clearFilters() {
   nameFilter.value = ''
   statusFilter.value = ''
   contentFilter.value = ''
+  sourceFilter.value = ''
   page.value = 1
   load()
 }
@@ -368,6 +383,7 @@ async function load() {
     const res = await getAllJournals({
       q: nameFilter.value.trim() || undefined,
       content_type: contentFilter.value || undefined,
+      source_type: sourceFilter.value || undefined,
       directory_status: statusFilter.value || undefined,
       sort: sortBy.value,
       limit: pageSize,
