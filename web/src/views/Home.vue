@@ -276,6 +276,7 @@ function clearFilters() {
 }
 
 function onFilterChange() {
+  if (loading.value) return
   page.value = 1
   syncFiltersToQuery()
   loadArticles()

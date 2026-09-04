@@ -180,6 +180,7 @@ function reload() {
 }
 
 function onFilterChange() {
+  if (loading.value) return
   syncFiltersToQuery()
   fetchPage(true)
 }

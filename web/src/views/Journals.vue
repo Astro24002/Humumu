@@ -339,6 +339,7 @@ const zoneOptions = [
 ]
 
 function onMajorChange() {
+  if (loading.value) return
   minor.value = null
   page.value = 1
   syncFiltersToQuery()

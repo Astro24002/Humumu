@@ -219,6 +219,7 @@ function clearFilter() {
 }
 
 function onStatusFilterChange(v: string) {
+  if (loading.value || busyId.value) return
   statusFilter.value = v
   page.value = 1
   syncStatusQuery()

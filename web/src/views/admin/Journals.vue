@@ -476,6 +476,7 @@ function onPageChange(p: number) {
 }
 
 function onStatusFilterChange(v: string | null) {
+  if (loading.value || busyId.value || saving.value) return
   statusFilter.value = v || ''
   page.value = 1
   syncFiltersToQuery()
