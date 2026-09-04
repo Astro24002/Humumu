@@ -42,4 +42,9 @@ def mount_spa(app: FastAPI, dist_dir: str = "web/dist") -> None:
         # Defensive: routers already own these; never serve SPA for them.
         if full_path.startswith("api/") or full_path == "api" or full_path == "health":
             raise HTTPException(status_code=404, detail="not found")
+        # Prefer real files in dist (favicon, robots.txt, etc.) over index.html.
+        if full_path and ".." not in full_path.split("/"):
+            candidate = dist / full_path
+            if candidate.is_file():
+                return FileResponse(candidate)
         return FileResponse(index)

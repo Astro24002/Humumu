@@ -64,3 +64,30 @@ async def test_mount_spa_serves_index_and_assets(tmp_path: Path):
         r = await client.get("/api/v1/ping")
         assert r.status_code == 200
         assert r.json() == {"pong": True}
+
+
+@pytest.mark.asyncio
+async def test_mount_spa_serves_real_dist_files(tmp_path: Path):
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "index.html").write_text("<!doctype html><title>spa</title>", encoding="utf-8")
+    (dist / "favicon.ico").write_bytes(b"\x00\x01favicon")
+    (dist / "robots.txt").write_text("User-agent: *\nDisallow:\n", encoding="utf-8")
+
+    app = FastAPI()
+    mount_spa(app, str(dist))
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        r = await client.get("/favicon.ico")
+        assert r.status_code == 200
+        assert r.content.startswith(b"\x00\x01")
+
+        r = await client.get("/robots.txt")
+        assert r.status_code == 200
+        assert "User-agent" in r.text
+
+        # Unknown paths still fall back to index.html (history mode).
+        r = await client.get("/journals/some-id")
+        assert r.status_code == 200
+        assert "spa" in r.text

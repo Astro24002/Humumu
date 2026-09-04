@@ -167,7 +167,7 @@ make docker-build
 | `JWT_SECRET` | JWT 签名密钥 | `change-me-to-something-secure` |
 | `FETCH_INTERVAL_MINUTES` | 抓取间隔（分钟） | `30` |
 | `HUMUMU_ENABLE_SCHEDULER` | 是否启用后台调度器（`1`=开） | 代码默认关；Docker entrypoint 默认开 |
-| `HUMUMU_SEED_JOURNALS` | 启动时是否 upsert 内置期刊（`1`=开） | `0` |
+| `HUMUMU_SEED_JOURNALS` | 启动时是否 upsert 内置期刊 + CAS facet（`1`=开） | `0` |
 | `WEB_DIST` | 前端静态资源目录 | `web/dist` |
 
 **DSN 注意：** API 使用 `postgresql+asyncpg://...`。不要在 async DSN 上使用 `postgres://` 或 `?sslmode=...`（asyncpg 不接受该查询参数）。迁移使用 `DB_DSN_SYNC`（`postgresql://...`）。
