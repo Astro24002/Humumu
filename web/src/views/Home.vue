@@ -320,7 +320,7 @@ function loadPage(p: number) {
 }
 
 watch(filterJournalId, () => {
-  if (applyingFromQuery) return
+  if (applyingFromQuery || loading.value) return
   page.value = 1
   syncFiltersToQuery()
   loadArticles()

@@ -10,7 +10,7 @@
         clearable
         placeholder="搜索邮箱 / 昵称"
         style="width: 240px"
-        :disabled="loading"
+        :disabled="loading || !!busyId"
         @keyup.enter="reload"
         @clear="reload"
       />
