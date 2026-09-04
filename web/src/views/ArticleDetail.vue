@@ -29,7 +29,7 @@
 
     <n-descriptions label-placement="left" :column="2" size="small" bordered style="margin-bottom: 16px;">
       <n-descriptions-item label="作者">
-        {{ authorsLabel }}
+        <span :style="authorsLabel ? undefined : 'color:#999'">{{ authorsLabel || '未知' }}</span>
       </n-descriptions-item>
       <n-descriptions-item label="发表日期">
         {{ article.publish_date ? formatDate(article.publish_date) : '未知' }}

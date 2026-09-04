@@ -17,8 +17,8 @@
         <text v-if="article.journal_source_type" class="tag source">{{ sourceTypeLabel(article.journal_source_type) }}</text>
       </view>
       <text class="title">{{ article.title }}</text>
-      <text class="authors" v-if="article.authors?.length">
-        {{ authorsLabel }}
+      <text class="authors" :class="{ muted: !authorsLabel }">
+        {{ authorsLabel || '作者未知' }}
       </text>
       <text class="date" v-if="article.publish_date">
         {{ formatDate(article.publish_date) }}
@@ -196,6 +196,7 @@ async function copyLink() {
 .tag.source { color: #666; background: #f0f0f0; margin-left: 8rpx; }
 .title { font-size: 36rpx; font-weight: 600; color: #333; line-height: 1.5; margin-top: 16rpx; display: block; }
 .authors { font-size: 28rpx; color: #666; margin-top: 12rpx; display: block; }
+.authors.muted { color: #999; }
 .date { font-size: 26rpx; color: #999; margin-top: 8rpx; display: block; }
 .section { margin-top: 40rpx; }
 .section-title { font-size: 30rpx; font-weight: 500; display: block; margin-bottom: 12rpx; }
