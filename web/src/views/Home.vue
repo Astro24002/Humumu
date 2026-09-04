@@ -138,6 +138,8 @@ const filterJournalId = ref<string | null>(null)
 const filterContentType = ref('')
 const filterSourceType = ref('')
 let journalSearchSeq = 0
+/** Drop stale plaza list responses when filters/page change mid-flight. */
+let articlesLoadSeq = 0
 
 const pageCount = computed(() => Math.ceil(total.value / limit) || 1)
 
@@ -197,6 +199,7 @@ function onFilterChange() {
 }
 
 async function loadArticles() {
+  const seq = ++articlesLoadSeq
   loading.value = true
   try {
     const params: Record<string, string> = {
@@ -207,13 +210,15 @@ async function loadArticles() {
     if (filterContentType.value) params.content_type = filterContentType.value
     if (filterSourceType.value) params.source_type = filterSourceType.value
     const res = await getArticles(params)
+    if (seq !== articlesLoadSeq) return
     articles.value = res.articles
     // Prefer server total; fall back to page length only when absent.
     total.value = typeof res.total === 'number' ? res.total : res.articles.length
   } catch (e: any) {
+    if (seq !== articlesLoadSeq) return
     message.error(e?.message || '加载失败')
   } finally {
-    loading.value = false
+    if (seq === articlesLoadSeq) loading.value = false
   }
 }
 

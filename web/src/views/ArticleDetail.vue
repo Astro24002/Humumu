@@ -148,6 +148,8 @@ const authorsLabel = computed(() => formatAuthors(article.value?.authors || [], 
 const loading = ref(true)
 const loadError = ref('')
 const statusBusy = ref<'is_read' | 'is_starred' | 'is_later' | null>(null)
+/** Drop stale detail responses when route id changes mid-flight. */
+let articleLoadSeq = 0
 const status = ref<ArticleStatus>({
   user_id: '',
   article_id: '',
@@ -197,6 +199,7 @@ async function copyLink() {
 }
 
 async function loadArticle(id: string) {
+  const seq = ++articleLoadSeq
   loading.value = true
   loadError.value = ''
   article.value = null
@@ -209,7 +212,9 @@ async function loadArticle(id: string) {
     original_clicked_at: null,
   }
   try {
-    article.value = await getArticle(id)
+    const next = await getArticle(id)
+    if (seq !== articleLoadSeq) return
+    article.value = next
     if (article.value?.title) {
       const short =
         article.value.title.length > 48
@@ -219,18 +224,23 @@ async function loadArticle(id: string) {
     }
     if (isLoggedIn.value) {
       try {
-        status.value = await getArticleStatus(id)
+        const st = await getArticleStatus(id)
+        if (seq !== articleLoadSeq) return
+        status.value = st
         if (!status.value.is_read) {
-          status.value = await updateArticleStatus(id, { is_read: true })
+          const updated = await updateArticleStatus(id, { is_read: true })
+          if (seq !== articleLoadSeq) return
+          status.value = updated
         }
       } catch {
         // status optional
       }
     }
   } catch (e: any) {
+    if (seq !== articleLoadSeq) return
     loadError.value = e?.message || '文章不存在或无权查看'
   } finally {
-    loading.value = false
+    if (seq === articleLoadSeq) loading.value = false
   }
 }
 

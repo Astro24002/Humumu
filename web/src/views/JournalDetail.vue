@@ -197,12 +197,14 @@ const articlesLimit = 20
 const articlesPageCount = computed(() => Math.ceil(articlesTotal.value / articlesLimit) || 1)
 const isSubscribed = ref(false)
 const subBusy = ref(false)
+/** Drop stale article-list responses when route id / page changes mid-flight. */
+let articlesLoadSeq = 0
+/** Drop stale journal detail responses when route id changes mid-flight. */
+let journalLoadSeq = 0
 
 watch(articlesPageCount, (n) => {
   if (articlesPage.value > n) loadArticlesPage(n)
 })
-
-
 
 async function handleSubscribe() {
   if (!journal.value) return
@@ -246,6 +248,7 @@ async function doUnsubscribe() {
 
 async function loadArticlesPage(p: number) {
   const id = route.params.id as string
+  const seq = ++articlesLoadSeq
   articlesPage.value = p
   window.scrollTo({ top: 0, behavior: 'smooth' })
   articlesLoading.value = true
@@ -255,16 +258,21 @@ async function loadArticlesPage(p: number) {
       limit: String(articlesLimit),
       offset: String((p - 1) * articlesLimit),
     })
+    if (seq !== articlesLoadSeq) return
     articles.value = ar.articles
     articlesTotal.value = ar.total ?? ar.articles.length
   } catch (e: any) {
+    if (seq !== articlesLoadSeq) return
     message.error(e?.message || '加载论文列表失败')
   } finally {
-    articlesLoading.value = false
+    if (seq === articlesLoadSeq) articlesLoading.value = false
   }
 }
 
 async function loadJournal(id: string) {
+  const seq = ++journalLoadSeq
+  // Bump articles seq so in-flight list loads from a prior journal are dropped.
+  articlesLoadSeq++
   loading.value = true
   loadError.value = ''
   journal.value = null
@@ -278,6 +286,7 @@ async function loadJournal(id: string) {
       loadArticlesPage(1),
       auth.isLoggedIn ? getSubscribedJournals().catch(() => null) : Promise.resolve(null),
     ])
+    if (seq !== journalLoadSeq) return
     journal.value = jr
     // Prefer journal.article_count until the paged list reports total.
     if (typeof jr?.article_count === 'number' && jr.article_count > 0 && !articlesTotal.value) {
@@ -288,9 +297,10 @@ async function loadJournal(id: string) {
       isSubscribed.value = subRes.journals.some((j) => j.id === id)
     }
   } catch (e: any) {
+    if (seq !== journalLoadSeq) return
     loadError.value = e?.message || '期刊不存在或无权查看'
   } finally {
-    loading.value = false
+    if (seq === journalLoadSeq) loading.value = false
   }
 }
 
