@@ -68,6 +68,10 @@
         </text>
         <text class="date" v-if="a.publish_date">{{ formatDate(a.publish_date) }}</text>
         <text class="snippet" v-if="a.abstract">{{ truncateAbstract(a.abstract) }}</text>
+        <view v-if="a.doi || a.original_url || a.url" class="actions" @click.stop>
+          <text v-if="a.doi" class="action-link" @click="copyLink(doiUrl(a.doi))">DOI</text>
+          <text v-if="a.original_url || a.url" class="action-link" @click="copyLink(a.original_url || a.url || '')">原文</text>
+        </view>
       </view>
       <view class="loading-more" v-if="hasMore"><text>加载更多...</text></view>
     </scroll-view>
@@ -81,7 +85,7 @@ import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
 import { truncateAbstract } from '@/utils/abstract'
-import { formatDate, reasonLabel, formatAuthors, contentTypeLabel, sourceTypeLabel } from '@/utils/format'
+import { formatDate, reasonLabel, formatAuthors, contentTypeLabel, sourceTypeLabel, doiUrl } from '@/utils/format'
 
 interface FeedItem {
   id: string
@@ -95,6 +99,9 @@ interface FeedItem {
   reasons: string[]
   unread?: boolean
   abstract?: string
+  doi?: string | null
+  url?: string
+  original_url?: string
 }
 
 const auth = useAuthStore()
@@ -209,6 +216,9 @@ async function fetchItems() {
         reasons: u.reasons || [],
         unread: !u.status?.is_read,
         abstract: u.abstract || '',
+        doi: u.doi,
+        url: u.url,
+        original_url: u.original_url,
       }))
       items.value.push(...mapped)
       offset.value += limit
@@ -230,6 +240,8 @@ async function fetchItems() {
         journal_source_type: a.journal_source_type,
         reasons: [],
         abstract: a.abstract || '',
+        doi: a.doi,
+        url: a.url,
       }))
       items.value.push(...mapped)
       offset.value += limit
@@ -253,6 +265,14 @@ function goDetail(id: string) {
 function goJournal(id?: string) {
   if (!id) return
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
+}
+
+function copyLink(url: string) {
+  if (!url) return
+  uni.setClipboardData({
+    data: url,
+    success: () => uni.showToast({ title: '链接已复制', icon: 'none' }),
+  })
 }
 </script>
 
@@ -278,4 +298,6 @@ function goJournal(id?: string) {
 .authors { font-size: 24rpx; color: #888; margin-top: 8rpx; display: block; }
 .date { font-size: 22rpx; color: #aaa; margin-top: 6rpx; display: block; }
 .snippet { font-size: 24rpx; color: #999; margin-top: 10rpx; display: block; line-height: 1.5; }
+.actions { display: flex; gap: 24rpx; margin-top: 12rpx; }
+.action-link { font-size: 24rpx; color: #3cc51f; }
 </style>
