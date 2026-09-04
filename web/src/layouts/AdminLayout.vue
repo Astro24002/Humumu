@@ -95,7 +95,9 @@ function goFront() {
 }
 
 function onMenuSelect(key: string) {
-  router.push(key)
+  // Drop query filters so sidebar nav lands on the section default
+  // (e.g. journals without ?status=, requests → pending via empty query).
+  router.push({ path: key, query: {} })
   if (isMobile.value) collapsed.value = true
 }
 </script>

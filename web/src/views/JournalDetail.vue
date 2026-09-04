@@ -279,6 +279,10 @@ async function loadJournal(id: string) {
       auth.isLoggedIn ? getSubscribedJournals().catch(() => null) : Promise.resolve(null),
     ])
     journal.value = jr
+    // Prefer journal.article_count until the paged list reports total.
+    if (typeof jr?.article_count === 'number' && jr.article_count > 0 && !articlesTotal.value) {
+      articlesTotal.value = jr.article_count
+    }
     if (jr?.name) document.title = `${jr.name} · Humumu`
     if (subRes) {
       isSubscribed.value = subRes.journals.some((j) => j.id === id)
