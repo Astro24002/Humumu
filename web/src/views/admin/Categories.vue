@@ -275,7 +275,7 @@ async function create() {
       zone: 1,
       is_top: false,
     }
-    await load()
+    await Promise.all([load(), loadAttachCategories()])
   } catch (e: any) {
     message.error(e.message || '创建失败')
   } finally {

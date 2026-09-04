@@ -62,11 +62,11 @@ def _cat(**overrides) -> CasCategoryOut:
 @pytest.mark.asyncio
 async def test_public_list_cas_categories(client):
     cat = _cat()
+    list_mock = AsyncMock(return_value=[cat])
     with (
         patch(
             "app.routers.categories.cat_service.list_categories",
-            new_callable=AsyncMock,
-            return_value=[cat],
+            new=list_mock,
         ),
         patch(
             "app.routers.categories.cat_service.list_years",
@@ -74,12 +74,16 @@ async def test_public_list_cas_categories(client):
             return_value=[2025, 2023],
         ),
     ):
-        r = await client.get("/api/v1/categories/cas?year=2025")
+        r = await client.get("/api/v1/categories/cas?year=2025&major=%E6%95%B0%E5%AD%A6")
     assert r.status_code == 200
     body = r.json()
     assert body["years"] == [2025, 2023]
     assert body["categories"][0]["major"] == "数学"
     assert body["categories"][0]["zone"] == 1
+    list_mock.assert_awaited_once()
+    kwargs = list_mock.await_args.kwargs
+    assert kwargs.get("year") == 2025
+    assert kwargs.get("major") == "数学"
 
 
 @pytest.mark.asyncio

@@ -193,7 +193,14 @@ GET /api/v1/journals/requests
 GET /api/v1/categories/cas
 ```
 
-返回大类 / 小类树，供目录筛选 UI 使用。
+Query（均可选）:
+
+| 参数 | 说明 |
+|------|------|
+| `year` | 按年份筛选分类行 |
+| `major` | 按大类精确匹配（trim 后） |
+
+响应含 `categories` 与 `years`（全部可用年份，不受 `year`/`major` 过滤影响），供目录筛选与管理后台挂载 UI 使用。
 
 ---
 
