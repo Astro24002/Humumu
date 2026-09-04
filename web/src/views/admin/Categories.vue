@@ -96,6 +96,9 @@
       </n-button>
     </n-form-item>
   </n-form>
+  <p v-if="!loading && !attachCategories.length" style="color: #888; font-size: 13px; margin-top: 4px; max-width: 640px;">
+    尚无可用分类。请先新增，或运行 <code>python -m scripts.seed_cas_categories</code> 导入示例 facet。
+  </p>
 </template>
 
 <script setup lang="ts">
