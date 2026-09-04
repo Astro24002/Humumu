@@ -71,7 +71,7 @@
   <n-divider />
 
   <n-h3 style="margin-top: 8px;">挂载分类到期刊</n-h3>
-  <n-form label-placement="left" :label-width="90" style="max-width: 640px;" :disabled="attaching">
+  <n-form label-placement="left" :label-width="90" style="max-width: 640px;" :disabled="attaching || saving">
     <n-form-item label="期刊">
       <n-select
         v-model:value="attachJournalId"
@@ -96,7 +96,7 @@
       />
     </n-form-item>
     <n-form-item>
-      <n-button type="primary" :loading="attaching" :disabled="attaching || !attachJournalId || !attachCategoryIds.length" @click="attach">
+      <n-button type="primary" :loading="attaching" :disabled="attaching || saving || !attachJournalId || !attachCategoryIds.length" @click="attach">
         挂载
       </n-button>
     </n-form-item>
@@ -313,7 +313,7 @@ async function load() {
 }
 
 async function create() {
-  if (saving.value) return
+  if (saving.value || attaching.value) return
   if (!form.value.major.trim() || !form.value.minor.trim()) {
     message.warning('请填写大类和小类')
     return
@@ -345,7 +345,7 @@ async function create() {
 }
 
 async function attach() {
-  if (attaching.value) return
+  if (attaching.value || saving.value) return
   if (!attachJournalId.value || !attachCategoryIds.value.length) return
   attaching.value = true
   try {
