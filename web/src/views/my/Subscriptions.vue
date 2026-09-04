@@ -533,6 +533,7 @@ async function handleAdd() {
 }
 
 async function reloadAll() {
+  if (tabsBusy.value) return
   const seq = ++subsLoadSeq
   loadingJournals.value = true
   try {

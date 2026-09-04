@@ -402,6 +402,7 @@ async function doUnsubscribe(j: Journal) {
 }
 
 async function reload() {
+  if (loading.value) return
   page.value = 1
   syncFiltersToQuery()
   await fetchJournals()
