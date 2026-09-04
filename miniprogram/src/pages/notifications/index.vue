@@ -40,7 +40,9 @@
           <text v-if="n.error_message" class="error">{{ n.error_message }}</text>
           <text class="time">{{ formatDateTime(n.created_at) }}</text>
         </view>
-        <view class="loading-more" v-if="hasMore"><text>加载更多...</text></view>
+        <view v-if="loadingMore" class="loading-more"><text>加载中...</text></view>
+        <view v-else-if="hasMore" class="loading-more"><text>上拉加载更多</text></view>
+        <view v-else-if="notifications.length" class="loading-more"><text>已显示全部</text></view>
       </scroll-view>
     </template>
   </view>
@@ -57,6 +59,7 @@ import { formatDateTime, reasonLabel, notifStatusLabel, channelLabel } from '@/u
 const auth = useAuthStore()
 const notifications = ref<Notification[]>([])
 const loading = ref(true)
+const loadingMore = ref(false)
 const hasMore = ref(true)
 const offset = ref(0)
 const limit = 20
@@ -119,9 +122,12 @@ async function fetchNotifications(reset = false) {
     notifications.value = []
     hasMore.value = true
     total.value = null
+    loadingMore.value = false
+    loading.value = true
+  } else {
+    if (!hasMore.value || loadingMore.value || loading.value) return
+    loadingMore.value = true
   }
-  if (!hasMore.value && notifications.value.length) return
-  loading.value = true
   try {
     const res = await getNotifications({
       limit,
@@ -139,6 +145,7 @@ async function fetchNotifications(reset = false) {
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
   } finally {
     loading.value = false
+    loadingMore.value = false
   }
 }
 
