@@ -70,6 +70,13 @@ export function sourceTypeLabel(t?: string | null): string {
   return t
 }
 
+/** Naive tag type for source_type badges. */
+export function sourceTypeTagType(t?: string | null): 'info' | 'success' | 'default' {
+  if (t === 'arxiv') return 'info'
+  if (t === 'rss' || t === 'cnki') return 'success'
+  return 'default'
+}
+
 /** Fetch health label for journals. */
 export function healthStatusLabel(s?: string | null): string {
   if (s === 'paused') return '抓取暂停'

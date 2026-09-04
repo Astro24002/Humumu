@@ -63,7 +63,7 @@
               <n-tag v-if="a.content_type === 'preprint'" type="info" size="tiny" :bordered="false" style="margin-right: 6px;">
                 {{ contentTypeLabel(a.content_type) }}
               </n-tag>
-              <n-tag :type="a.journal_source_type === 'arxiv' ? 'info' : 'success'" size="tiny" :bordered="false">
+              <n-tag :type="sourceTypeTagType(a.journal_source_type)" size="tiny" :bordered="false">
                 {{ sourceTypeLabel(a.journal_source_type) }}
               </n-tag>
             </div>
@@ -101,7 +101,7 @@ import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
 import { doiUrl } from '@/utils/url'
-import { formatAuthors, sourceTypeLabel, contentTypeLabel } from '@/utils/labels'
+import { formatAuthors, sourceTypeLabel, sourceTypeTagType, contentTypeLabel } from '@/utils/labels'
 import {
   NH2, NSelect, NSpin, NEmpty, NList, NListItem, NThing, NPagination, NTag, NButton, NAlert,
   NRadioGroup, NRadioButton, useMessage,

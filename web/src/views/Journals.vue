@@ -74,7 +74,7 @@
           <template #header-extra>
             <n-space size="small">
               <n-tag v-if="j.content_type === 'preprint'" type="info" size="small" :bordered="false">{{ contentTypeLabel(j.content_type) }}</n-tag>
-              <n-tag :type="j.source_type === 'arxiv' ? 'info' : 'success'" size="small">
+              <n-tag :type="sourceTypeTagType(j.source_type)" size="small">
                 {{ sourceTypeLabel(j.source_type) }}
               </n-tag>
               <n-tag
@@ -176,7 +176,7 @@ import {
 } from '@/api/subscriptions'
 import { useAuthStore } from '@/stores/auth'
 import { shortUrl } from '@/utils/url'
-import { sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/labels'
+import { sourceTypeLabel, sourceTypeTagType, contentTypeLabel, healthStatusLabel } from '@/utils/labels'
 import { formatDate } from '@/utils/datetime'
 import {
   NH2, NGrid, NGi, NCard, NTag, NEmpty, NButton, NStatistic, NInput, NSpace, NSpin,

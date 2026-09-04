@@ -44,7 +44,7 @@
             <n-tag v-if="u.content_type === 'preprint'" size="tiny" type="info" :bordered="false">{{ contentTypeLabel(u.content_type) }}</n-tag>
             <n-tag
               v-if="u.journal_source_type"
-              :type="u.journal_source_type === 'arxiv' ? 'info' : 'success'"
+              :type="sourceTypeTagType(u.journal_source_type)"
               size="tiny"
               :bordered="false"
             >{{ sourceTypeLabel(u.journal_source_type) }}</n-tag>
@@ -113,7 +113,7 @@ import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
 import { doiUrl } from '@/utils/url'
-import { reasonLabel, formatAuthors, contentTypeLabel, sourceTypeLabel } from '@/utils/labels'
+import { reasonLabel, formatAuthors, contentTypeLabel, sourceTypeLabel, sourceTypeTagType } from '@/utils/labels'
 import {
   NH2, NSpin, NEmpty, NButton, NList, NListItem, NThing, NTag, NSpace,
   NRadioGroup, NRadioButton, useMessage,
