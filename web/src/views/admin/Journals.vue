@@ -3,7 +3,7 @@
     <n-h2 style="margin: 0;">期刊管理</n-h2>
     <n-space>
       <n-button :loading="loading" @click="reload">刷新</n-button>
-      <n-button type="primary" @click="openAdd">新增期刊</n-button>
+      <n-button type="primary" :disabled="loading || saving" @click="openAdd">新增期刊</n-button>
     </n-space>
   </div>
 
@@ -354,6 +354,7 @@ function onModalShow(show: boolean) {
 }
 
 function openAdd() {
+  if (loading.value || saving.value) return
   editingId.value = null
   form.value = {
     name: '',
