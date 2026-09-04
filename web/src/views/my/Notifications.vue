@@ -71,6 +71,12 @@
   <div v-if="hasMore" style="text-align: center; margin-top: 16px;">
     <n-button :loading="loadingMore" :disabled="loadingMore" @click="loadMore">加载更多</n-button>
   </div>
+  <div
+    v-else-if="!loading && notifs.length"
+    style="text-align: center; margin-top: 16px; color: #bbb; font-size: 13px;"
+  >
+    已显示全部
+  </div>
 </template>
 
 <script setup lang="ts">

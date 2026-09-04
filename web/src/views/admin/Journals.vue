@@ -22,7 +22,7 @@
       placeholder="目录状态"
       style="width: 200px"
       :options="[{ label: '全部', value: '' }, ...directoryOptions]"
-      @update:value="reload"
+      @update:value="onStatusFilterChange"
     />
     <n-select
       v-model:value="contentFilter"
@@ -117,7 +117,7 @@
 <script setup lang="ts">
 import { ref, h, computed, watch, onMounted } from 'vue'
 import { dirStatusLabel, dirStatusType, contentTypeLabel, sourceTypeLabel, sourceTypeTagType, healthStatusLabel } from '@/utils/labels'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
   NButton, NTag, NSpace, NPopconfirm, NDataTable, NModal, NCard, NForm, NFormItem,
@@ -128,6 +128,7 @@ import type { Journal } from '@/api/journals'
 import { formatDateTime } from '@/utils/datetime'
 
 const route = useRoute()
+const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 const journals = ref<Journal[]>([])
@@ -155,6 +156,18 @@ watch(pageCount, (n) => {
   }
 })
 
+/** Keep filter in sync when dashboard (or elsewhere) deep-links with ?status=… */
+watch(
+  () => route.query.status,
+  (status) => {
+    const next = typeof status === 'string' ? status : ''
+    if (statusFilter.value === next) return
+    statusFilter.value = next
+    page.value = 1
+    load()
+  },
+)
+
 const hasServerFilters = computed(() =>
   Boolean(nameFilter.value.trim() || statusFilter.value || contentFilter.value || sourceFilter.value),
 )
@@ -165,12 +178,23 @@ const sortOptions = [
   { label: '按最近更新', value: 'updated' },
 ]
 
+function syncStatusQuery() {
+  const current = typeof route.query.status === 'string' ? route.query.status : ''
+  const next = statusFilter.value || undefined
+  if ((next || '') === current) return
+  const q = { ...route.query } as Record<string, string | string[] | undefined>
+  if (next) q.status = next
+  else delete q.status
+  router.replace({ query: q })
+}
+
 function clearFilters() {
   nameFilter.value = ''
   statusFilter.value = ''
   contentFilter.value = ''
   sourceFilter.value = ''
   page.value = 1
+  syncStatusQuery()
   load()
 }
 
@@ -376,6 +400,13 @@ async function remove(id: string) {
 
 function onPageChange(p: number) {
   page.value = p
+  load()
+}
+
+function onStatusFilterChange(v: string | null) {
+  statusFilter.value = v || ''
+  page.value = 1
+  syncStatusQuery()
   load()
 }
 
