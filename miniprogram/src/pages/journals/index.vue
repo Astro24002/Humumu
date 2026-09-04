@@ -5,24 +5,31 @@
         <text class="page-title">期刊广场</text>
         <text v-if="!loading" class="count-badge">{{ total || journals.length }} 源</text>
       </view>
-      <input class="search-input" v-model="search" placeholder="搜索名称 / 描述 / slug" confirm-type="search" @confirm="reload" />
-      <view class="filters">
+      <input
+        class="search-input"
+        v-model="search"
+        placeholder="搜索名称 / 描述 / slug"
+        confirm-type="search"
+        :disabled="loading"
+        @confirm="onSearchConfirm"
+      />
+      <view class="filters" :class="{ 'filters-busy': loading }">
         <text :class="['chip', contentType === '' && 'on']" @click="setType('')">全部</text>
         <text :class="['chip', contentType === 'journal' && 'on']" @click="setType('journal')">{{ contentTypeLabel('journal') }}</text>
         <text :class="['chip', contentType === 'preprint' && 'on']" @click="setType('preprint')">{{ contentTypeLabel('preprint') }}</text>
       </view>
-      <view class="filters">
+      <view class="filters" :class="{ 'filters-busy': loading }">
         <text :class="['chip', sourceType === '' && 'on']" @click="setSource('')">全部源</text>
         <text :class="['chip', sourceType === 'rss' && 'on']" @click="setSource('rss')">{{ sourceTypeLabel('rss') }}</text>
         <text :class="['chip', sourceType === 'arxiv' && 'on']" @click="setSource('arxiv')">{{ sourceTypeLabel('arxiv') }}</text>
         <text :class="['chip', sourceType === 'cnki' && 'on']" @click="setSource('cnki')">{{ sourceTypeLabel('cnki') }}</text>
       </view>
-      <view class="filters">
-        <text :class="['chip', sortBy === 'name' && 'on']" @click="sortBy = 'name'">名称</text>
-        <text :class="['chip', sortBy === 'articles' && 'on']" @click="sortBy = 'articles'">论文数</text>
-        <text :class="['chip', sortBy === 'updated' && 'on']" @click="sortBy = 'updated'">最近更新</text>
+      <view class="filters" :class="{ 'filters-busy': loading }">
+        <text :class="['chip', sortBy === 'name' && 'on']" @click="setSort('name')">名称</text>
+        <text :class="['chip', sortBy === 'articles' && 'on']" @click="setSort('articles')">论文数</text>
+        <text :class="['chip', sortBy === 'updated' && 'on']" @click="setSort('updated')">最近更新</text>
       </view>
-      <view v-if="majorOptions.length" class="filters cas-row">
+      <view v-if="majorOptions.length" class="filters cas-row" :class="{ 'filters-busy': loading }">
         <text class="cas-label">CAS{{ casYear != null ? ` ${casYear}` : '' }}</text>
         <text :class="['chip', major === '' && 'on']" @click="setMajor('')">全部大类</text>
         <text
@@ -32,7 +39,7 @@
           @click="setMajor(m)"
         >{{ m }}</text>
       </view>
-      <view v-if="major" class="filters">
+      <view v-if="major" class="filters" :class="{ 'filters-busy': loading }">
         <text :class="['chip', zone === '' && 'on']" @click="setZone('')">全部区</text>
         <text
           v-for="z in zoneOptions"
@@ -126,6 +133,16 @@ function listParams(extra: { limit?: number; offset?: number } = {}) {
     limit: extra.limit ?? pageSize,
     offset: extra.offset ?? 0,
   }
+}
+
+function onSearchConfirm() {
+  if (loading.value) return
+  reload()
+}
+
+function setSort(s: 'name' | 'articles' | 'updated') {
+  if (loading.value || sortBy.value === s) return
+  sortBy.value = s
 }
 
 function setType(t: string) {
@@ -278,6 +295,7 @@ onPullDownRefresh(async () => {
 .filters {
   display: flex; gap: 16rpx; margin-top: 16rpx; flex-wrap: wrap; align-items: center;
 }
+.filters-busy { opacity: 0.55; pointer-events: none; }
 .cas-row { max-height: 140rpx; overflow-y: auto; }
 .cas-label { font-size: 22rpx; color: #888; flex-shrink: 0; }
 .chip {
@@ -285,6 +303,7 @@ onPullDownRefresh(async () => {
   background: #fff; color: #666; border: 1rpx solid #eee;
 }
 .chip.on { background: #e8f8e0; color: #3cc51f; border-color: #3cc51f; }
+.search-input[disabled] { opacity: 0.6; }
 .loading, .empty { text-align: center; padding: 100rpx 40rpx; color: #999; }
 .btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
 .scroll-view { height: calc(100vh - 360rpx); }
