@@ -5,7 +5,7 @@
   </div>
 
   <n-tabs v-model:value="activeTab" style="margin-top: 16px;">
-    <n-tab-pane name="journals" tab="期刊">
+    <n-tab-pane name="journals" :tab="journalsTabLabel">
       <div v-if="loadingJournals"><n-spin /></div>
       <n-empty v-else-if="!journals.length" description="尚未关注任何期刊">
         <template #extra>
@@ -55,7 +55,7 @@
       </n-list>
     </n-tab-pane>
 
-    <n-tab-pane name="authors" tab="作者">
+    <n-tab-pane name="authors" :tab="authorsTabLabel">
       <div style="display: flex; gap: 8px; margin-bottom: 16px;">
         <n-input v-model:value="newAuthor" placeholder="作者姓名" @keyup.enter="addAuthor" />
         <n-button @click="addAuthor" :loading="authorBusy" :disabled="!newAuthor.trim() || authorBusy">添加</n-button>
@@ -70,7 +70,7 @@
       </n-tag>
     </n-tab-pane>
 
-    <n-tab-pane name="keywords" tab="关键词">
+    <n-tab-pane name="keywords" :tab="keywordsTabLabel">
       <div style="display: flex; gap: 8px; margin-bottom: 16px;">
         <n-input v-model:value="newKeyword" placeholder="关键词" @keyup.enter="addKeyword" />
         <n-button @click="addKeyword" :loading="keywordBusy" :disabled="!newKeyword.trim() || keywordBusy">添加</n-button>
@@ -166,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
@@ -199,6 +199,16 @@ const journals = ref<SubscribedJournal[]>([])
 const loadingJournals = ref(true)
 const authors = ref<AuthorTracking[]>([])
 const keywords = ref<KeywordSubscription[]>([])
+
+const journalsTabLabel = computed(() =>
+  journals.value.length ? `期刊 (${journals.value.length})` : '期刊',
+)
+const authorsTabLabel = computed(() =>
+  authors.value.length ? `作者 (${authors.value.length})` : '作者',
+)
+const keywordsTabLabel = computed(() =>
+  keywords.value.length ? `关键词 (${keywords.value.length})` : '关键词',
+)
 
 const newAuthor = ref('')
 const newKeyword = ref('')

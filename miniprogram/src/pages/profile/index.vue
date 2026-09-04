@@ -19,7 +19,7 @@
 
         <view class="setting-item">
           <text>推送频率</text>
-          <picker :value="freqIndex" :range="freqOptions" @change="onFreqChange">
+          <picker :value="freqIndex" :range="freqOptions" :disabled="freqBusy" @change="onFreqChange">
             <text class="setting-value">{{ freqOptions[freqIndex] }}</text>
           </picker>
         </view>
@@ -53,6 +53,7 @@ const auth = useAuthStore()
 const templateSubscribed = ref(false)
 const freqOptions = ['每日汇总', '实时推送']
 const freqIndex = ref(0)
+const freqBusy = ref(false)
 
 const accountEmailLabel = computed(() => {
   if (!auth.user) return ''
@@ -95,16 +96,22 @@ function goNotifications() {
 }
 
 async function onFreqChange(e: any) {
-  const val = e.detail.value as number
+  if (freqBusy.value) return
+  const prev = freqIndex.value
+  const val = Number(e.detail.value)
   freqIndex.value = val
   const freq = val === 0 ? 'daily' : 'realtime'
+  freqBusy.value = true
   try {
     const { updatePushFrequency } = await import('@/api/subscriptions')
     await updatePushFrequency(freq)
     if (auth.user) auth.user.push_frequency = freq
     uni.showToast({ title: '更新成功', icon: 'success' })
   } catch (err: any) {
+    freqIndex.value = prev
     uni.showToast({ title: err.message || '更新失败', icon: 'none' })
+  } finally {
+    freqBusy.value = false
   }
 }
 

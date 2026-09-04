@@ -7,9 +7,9 @@
 
     <template v-else>
       <view class="tabs">
-        <text :class="['tab', tab === 'journals' && 'active']" @click="tab='journals'">期刊</text>
-        <text :class="['tab', tab === 'authors' && 'active']" @click="tab='authors'">作者</text>
-        <text :class="['tab', tab === 'keywords' && 'active']" @click="tab='keywords'">关键词</text>
+        <text :class="['tab', tab === 'journals' && 'active']" @click="tab='journals'">{{ journalsTabLabel }}</text>
+        <text :class="['tab', tab === 'authors' && 'active']" @click="tab='authors'">{{ authorsTabLabel }}</text>
+        <text :class="['tab', tab === 'keywords' && 'active']" @click="tab='keywords'">{{ keywordsTabLabel }}</text>
       </view>
 
       <view v-if="tab === 'journals'">
@@ -113,7 +113,7 @@
 
 <script setup lang="ts">
 import { dirStatusLabel, sourceTypeLabel, contentTypeLabel, freqLabel, healthStatusLabel } from '@/utils/format'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
@@ -132,6 +132,16 @@ const journals = ref<SubscribedJournal[]>([])
 const loadingJournals = ref(true)
 const authors = ref<AuthorTracking[]>([])
 const keywords = ref<KeywordSubscription[]>([])
+
+const journalsTabLabel = computed(() =>
+  journals.value.length ? `期刊 (${journals.value.length})` : '期刊',
+)
+const authorsTabLabel = computed(() =>
+  authors.value.length ? `作者 (${authors.value.length})` : '作者',
+)
+const keywordsTabLabel = computed(() =>
+  keywords.value.length ? `关键词 (${keywords.value.length})` : '关键词',
+)
 const newAuthor = ref('')
 const newKeyword = ref('')
 
