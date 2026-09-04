@@ -5,7 +5,7 @@
         <n-h2 style="margin: 0;">期刊广场</n-h2>
         <n-tag v-if="!loading" size="small" :bordered="false">{{ total }} 源</n-tag>
       </div>
-      <n-button size="small" :loading="loading && !!journals.length" :disabled="loading" @click="reload">刷新</n-button>
+      <n-button size="small" :loading="loading && !!journals.length" :disabled="listBusy" @click="reload">刷新</n-button>
     </div>
 
     <n-space vertical style="margin-bottom: 16px;">
@@ -14,21 +14,21 @@
         clearable
         placeholder="搜索名称 / 描述 / slug"
         style="max-width: 360px;"
-        :disabled="loading"
+        :disabled="listBusy"
         @keyup.enter="reload"
         @clear="reload"
       >
         <template #suffix>
-          <n-button text type="primary" :disabled="loading" @click="reload">搜索</n-button>
+          <n-button text type="primary" :disabled="listBusy" @click="reload">搜索</n-button>
         </template>
       </n-input>
       <n-space align="center">
-        <n-radio-group v-model:value="contentType" size="small" :disabled="loading" @update:value="reload">
+        <n-radio-group v-model:value="contentType" size="small" :disabled="listBusy" @update:value="reload">
           <n-radio-button value="">全部</n-radio-button>
           <n-radio-button value="journal">{{ contentTypeLabel('journal') }}</n-radio-button>
           <n-radio-button value="preprint">{{ contentTypeLabel('preprint') }}</n-radio-button>
         </n-radio-group>
-        <n-radio-group v-model:value="sourceType" size="small" :disabled="loading" @update:value="reload">
+        <n-radio-group v-model:value="sourceType" size="small" :disabled="listBusy" @update:value="reload">
           <n-radio-button value="">全部源</n-radio-button>
           <n-radio-button value="rss">{{ sourceTypeLabel('rss') }}</n-radio-button>
           <n-radio-button value="arxiv">{{ sourceTypeLabel('arxiv') }}</n-radio-button>
@@ -39,7 +39,7 @@
           size="small"
           style="width: 140px;"
           :options="sortOptions"
-          :disabled="loading"
+          :disabled="listBusy"
         />
         <template v-if="categories.length">
           <n-tag v-if="casYear != null" size="small" :bordered="false" type="info">
@@ -52,7 +52,7 @@
             :options="majorOptions"
             style="width: 160px;"
             size="small"
-            :disabled="loading"
+            :disabled="listBusy"
             @update:value="onMajorChange"
           />
           <n-select
@@ -62,7 +62,7 @@
             :options="minorOptions"
             style="width: 160px;"
             size="small"
-            :disabled="loading || !major"
+            :disabled="listBusy || !major"
             @update:value="reload"
           />
           <n-select
@@ -72,10 +72,10 @@
             :options="zoneOptions"
             style="width: 100px;"
             size="small"
-            :disabled="loading"
+            :disabled="listBusy"
             @update:value="reload"
           />
-          <n-checkbox v-model:checked="topOnly" :disabled="loading" @update:checked="reload">仅 Top</n-checkbox>
+          <n-checkbox v-model:checked="topOnly" :disabled="listBusy" @update:checked="reload">仅 Top</n-checkbox>
         </template>
       </n-space>
     </n-space>
@@ -162,7 +162,7 @@
     </n-grid>
     <n-empty v-if="!loading && total === 0" :description="emptyDescription">
       <template #extra>
-        <n-button v-if="hasActiveFilters" @click="clearFilters">清除筛选</n-button>
+        <n-button v-if="hasActiveFilters" :disabled="listBusy" @click="clearFilters">清除筛选</n-button>
         <template v-else>
           <n-button v-if="isLoggedIn" @click="router.push('/my/subscriptions')">添加 RSS 源</n-button>
           <n-button v-else @click="router.push('/login')">登录后添加源</n-button>
@@ -173,7 +173,7 @@
       v-if="pageCount > 1 && !loading"
       :page="page"
       :page-count="pageCount"
-      :disabled="loading"
+      :disabled="listBusy"
       style="margin-top: 16px;"
       @update:page="onPageChange"
     />
@@ -222,6 +222,8 @@ const casYear = ref<number | null>(null)
 const categories = ref<CasCategory[]>([])
 const subscribedIds = ref<Set<string>>(new Set())
 const busyIds = ref<Set<string>>(new Set())
+/** Filters/reload locked while list loads or any row subscribe mutates. */
+const listBusy = computed(() => loading.value || busyIds.value.size > 0)
 /** Drop stale plaza list responses when filters/page change mid-flight. */
 let journalsLoadSeq = 0
 /** Skip one route→state write when we just pushed query ourselves. */
@@ -297,7 +299,7 @@ const emptyDescription = computed(() =>
 )
 
 function onPageChange(p: number) {
-  if (loading.value) return
+  if (listBusy.value) return
   page.value = p
   window.scrollTo({ top: 0, behavior: 'smooth' })
   syncFiltersToQuery()
@@ -305,7 +307,7 @@ function onPageChange(p: number) {
 }
 
 function clearFilters() {
-  if (loading.value) return
+  if (listBusy.value) return
   q.value = ''
   contentType.value = ''
   sourceType.value = ''
@@ -339,7 +341,7 @@ const zoneOptions = [
 ]
 
 function onMajorChange() {
-  if (loading.value) return
+  if (listBusy.value) return
   minor.value = null
   page.value = 1
   syncFiltersToQuery()
@@ -405,7 +407,7 @@ async function doUnsubscribe(j: Journal) {
 }
 
 async function reload() {
-  if (loading.value) return
+  if (listBusy.value) return
   page.value = 1
   syncFiltersToQuery()
   await fetchJournals()
@@ -443,7 +445,7 @@ async function fetchJournals() {
 }
 
 watch(sortBy, () => {
-  if (applyingFromQuery || loading.value) return
+  if (applyingFromQuery || listBusy.value) return
   page.value = 1
   syncFiltersToQuery()
   fetchJournals()

@@ -21,7 +21,7 @@
     :description="statusFilter === 'pending' ? '暂无待审申请' : (statusFilter ? '当前筛选下暂无申请' : '暂无申请')"
   >
     <template #extra>
-      <n-button v-if="statusFilter" @click="clearFilter">查看全部申请</n-button>
+      <n-button v-if="statusFilter" :disabled="loading || !!busyId" @click="clearFilter">查看全部申请</n-button>
       <n-button v-else quaternary :loading="loading" :disabled="loading || !!busyId" @click="reload">刷新</n-button>
     </template>
   </n-empty>
@@ -212,7 +212,7 @@ function syncStatusQuery() {
 }
 
 function clearFilter() {
-  if (loading.value) return
+  if (loading.value || busyId.value) return
   statusFilter.value = ''
   page.value = 1
   syncStatusQuery()

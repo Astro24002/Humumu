@@ -23,7 +23,7 @@
         <n-button type="primary" @click="router.push('/journals')">浏览期刊</n-button>
         <n-button @click="router.push('/my/subscriptions')">管理订阅</n-button>
       </n-space>
-      <n-button v-else @click="clearFilter">查看全部更新</n-button>
+      <n-button v-else :disabled="loading" @click="clearFilter">查看全部更新</n-button>
     </template>
   </n-empty>
   <n-list v-else>

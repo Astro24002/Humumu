@@ -29,7 +29,7 @@
     :description="yearFilter ? '该年份暂无分类' : '暂无 CAS 分类；可手动新增，或运行 make seed-cas（含示例挂载）导入 facet'"
   >
     <template #extra>
-      <n-button v-if="yearFilter" @click="clearYearFilter">清除年份筛选</n-button>
+      <n-button v-if="yearFilter" :disabled="loading || saving || attaching" @click="clearYearFilter">清除年份筛选</n-button>
       <n-button v-else type="primary" :disabled="loading || saving || attaching" @click="openCreate">新增分类</n-button>
     </template>
   </n-empty>

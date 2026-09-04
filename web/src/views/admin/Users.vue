@@ -24,7 +24,7 @@
     :description="nameFilter.trim() ? '没有匹配的用户' : '暂无用户'"
   >
     <template #extra>
-      <n-button v-if="nameFilter.trim()" @click="clearFilter">清除搜索</n-button>
+      <n-button v-if="nameFilter.trim()" :disabled="loading || !!busyId" @click="clearFilter">清除搜索</n-button>
     </template>
   </n-empty>
   <n-pagination
@@ -205,7 +205,7 @@ async function toggleAdmin(row: User, isAdmin: boolean) {
 }
 
 function clearFilter() {
-  if (loading.value) return
+  if (loading.value || busyId.value) return
   nameFilter.value = ''
   page.value = 1
   syncFiltersToQuery()

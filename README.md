@@ -105,7 +105,7 @@ make docker-build
 │   ├── models/          # ORM 模型
 │   └── schemas/         # Pydantic 请求/响应模型
 ├── scripts/             # 运维脚本（migrate / seed_journals / seed_cas_categories 等）
-├── data/                # 内置数据（journals_seed.json / cas_categories_seed.json）
+├── data/                # 内置数据（journals_seed / cas_categories_seed / cas_journal_attach_seed）
 ├── web/                 # Vue 3 前端
 │   ├── src/
 │   │   ├── api/         # API 客户端

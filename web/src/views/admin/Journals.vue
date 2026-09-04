@@ -71,7 +71,7 @@
     :description="hasServerFilters ? '当前筛选下暂无期刊' : '暂无期刊；可手动新增，或运行 make seed 导入内置公开源'"
   >
     <template #extra>
-      <n-button v-if="hasServerFilters" @click="clearFilters">清除筛选</n-button>
+      <n-button v-if="hasServerFilters" :disabled="loading || saving || !!busyId" @click="clearFilters">清除筛选</n-button>
       <n-button v-else type="primary" @click="openAdd">新增期刊</n-button>
     </template>
   </n-empty>
@@ -234,7 +234,7 @@ const sortOptions = [
 ]
 
 function clearFilters() {
-  if (loading.value) return
+  if (loading.value || busyId.value || saving.value) return
   nameFilter.value = ''
   statusFilter.value = ''
   contentFilter.value = ''
