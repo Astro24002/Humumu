@@ -128,7 +128,7 @@ async function loadArticles(reset: boolean) {
 }
 
 function loadMore() {
-  if (!hasMore.value || loadingMore.value) return
+  if (!hasMore.value || loadingMore.value || articlesLoading.value) return
   loadArticles(false)
 }
 

@@ -10,11 +10,15 @@
       clearable
       placeholder="年份"
       style="width: 120px"
-      :disabled="loading"
+      :disabled="loading || saving || attaching"
       :options="yearOptions"
       @update:value="onYearFilterChange"
     />
-    <n-button @click="load" :loading="loading">刷新</n-button>
+    <n-button
+      :loading="loading && !!categories.length"
+      :disabled="loading || saving || attaching"
+      @click="reload"
+    >刷新</n-button>
     <n-tag v-if="!loading" size="small" :bordered="false">{{ categories.length }} 条</n-tag>
   </n-space>
 
@@ -245,13 +249,14 @@ function onCreateModalShow(show: boolean) {
 }
 
 function onYearFilterChange(v: number | null) {
+  if (loading.value || saving.value || attaching.value) return
   yearFilter.value = v
   syncYearToQuery()
   load()
 }
 
 function clearYearFilter() {
-  if (loading.value) return
+  if (loading.value || saving.value || attaching.value) return
   yearFilter.value = null
   syncYearToQuery()
   load()
@@ -269,6 +274,11 @@ async function loadAttachCategories() {
   } catch {
     // attach options are best-effort; table load surfaces errors
   }
+}
+
+function reload() {
+  if (loading.value || saving.value || attaching.value) return
+  load()
 }
 
 async function load() {
