@@ -47,11 +47,12 @@ import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
+import { freqLabel } from '@/utils/format'
 import { getTemplateSetting, updateTemplateSetting, getTemplateIds } from '@/api/wechat'
 
 const auth = useAuthStore()
 const templateSubscribed = ref(false)
-const freqOptions = ['每日汇总', '实时推送']
+const freqOptions = [`${freqLabel('daily')}汇总`, `${freqLabel('realtime')}推送`]
 const freqIndex = ref(0)
 const freqBusy = ref(false)
 const templateBusy = ref(false)

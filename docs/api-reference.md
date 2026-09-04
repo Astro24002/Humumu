@@ -104,6 +104,9 @@ GET /api/v1/journals
 - `q` — 名称 / 描述 / slug 搜索
 - `content_type` — `journal` | `preprint`
 - `major` / `minor` / `zone` / `top` / `year` — CAS 分区筛选
+- `sort` — `name`（默认）| `articles` | `updated`（按 `last_article_date`，空值靠后）
+- `limit` — 可选，1–200；传入时启用服务端分页并返回 `total`
+- `offset` — 分页偏移（默认 0，需配合 `limit`）
 
 **响应** `200 OK`:
 ```json
@@ -117,12 +120,17 @@ GET /api/v1/journals
       "source_url": "https://...",
       "content_type": "journal",
       "directory_status": "public",
+      "article_count": 120,
+      "last_article_date": "2026-01-15",
       "is_active": true,
       "created_at": "..."
     }
-  ]
+  ],
+  "total": 302
 }
 ```
+
+`total` 仅在请求带 `limit` 时返回（全量匹配数，便于客户端分页）。无效 `sort` 返回 **400**。
 
 ### 获取期刊详情
 
@@ -348,6 +356,8 @@ GET /api/v1/my/updates
 合并：已订阅期刊新文 + 通知命中文章。可见性：公开源、本人创建的非公开源、以及已订阅期刊（含同 URL 复用后的私有源订阅）均可见。
 
 **查询参数:** `limit` / `offset` / `filter`（`unread` | `starred` | `later`）
+
+每条更新含 `journal_id` / `journal_name` / `content_type` / **`journal_source_type`**（`rss` | `arxiv` | …，供客户端打源标签）以及 `reasons`、`status` 阅读状态。
 
 ### 阅读状态
 

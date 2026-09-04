@@ -33,8 +33,8 @@
       新订阅默认跟随此设置；可在「订阅管理」中按期刊覆盖。
     </p>
     <n-radio-group v-model:value="frequency">
-      <n-radio value="daily">每日汇总（推荐）</n-radio>
-      <n-radio value="realtime">实时推送</n-radio>
+      <n-radio value="daily">{{ freqLabel('daily') }}汇总（推荐）</n-radio>
+      <n-radio value="realtime">{{ freqLabel('realtime') }}推送</n-radio>
     </n-radio-group>
     <n-button
       style="margin-top: 16px;"
@@ -57,6 +57,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { updatePushFrequency } from '@/api/subscriptions'
+import { freqLabel } from '@/utils/labels'
 import {
   NH2, NCard, NRadio, NRadioGroup, NButton, NDescriptions, NDescriptionsItem, NTag, useMessage, useDialog,
 } from 'naive-ui'
