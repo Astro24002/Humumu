@@ -443,7 +443,7 @@ async function fetchJournals() {
 }
 
 watch(sortBy, () => {
-  if (applyingFromQuery) return
+  if (applyingFromQuery || loading.value) return
   page.value = 1
   syncFiltersToQuery()
   fetchJournals()
