@@ -26,7 +26,7 @@
   <n-empty
     v-if="!loading && !categories.length"
     style="margin-top: 24px;"
-    :description="yearFilter ? '该年份暂无分类' : '暂无 CAS 分类；可手动新增，或运行 make seed / python -m scripts.seed_cas_categories 导入示例 facet'"
+    :description="yearFilter ? '该年份暂无分类' : '暂无 CAS 分类；可手动新增，或运行 make seed-cas（含示例挂载）导入 facet'"
   >
     <template #extra>
       <n-button v-if="yearFilter" @click="clearYearFilter">清除年份筛选</n-button>

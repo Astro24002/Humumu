@@ -58,8 +58,8 @@
     >
       广场 CAS 筛选与挂载需要 facet 数据。可运行
       <code>make seed-cas</code>
-      或
-      <code>python -m scripts.seed_cas_categories</code>
+      （含示例期刊挂载）或
+      <code>python -m scripts.seed_cas_categories --attach</code>
       导入示例，或在
       <n-button text type="primary" @click="router.push('/admin/categories')">CAS 分类</n-button>
       中手动新增。

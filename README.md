@@ -59,7 +59,7 @@ make run
 
 内置期刊列表见 `data/journals_seed.json`（约 300 条冷启动：arXiv 多分类 / bioRxiv·medRxiv 主题预印本，以及 PLOS、eLife、Nature、Science、Cell、PNAS、ACM、Frontiers、PeerJ 等公开 RSS）。  
 seed 会写入 `content_type`、`directory_status=public`、`normalized_source_url`。  
-CAS 分类 facet 见 `data/cas_categories_seed.json`（约 60+ 示例行，含 2024/2025；`scripts.seed_cas_categories` 幂等导入，不自动挂载期刊）。  
+CAS 分类 facet 见 `data/cas_categories_seed.json`（约 60+ 示例行，含 2024/2025）。`make seed` / `make seed-cas` 默认 `--attach`，会按 `data/cas_journal_attach_seed.json` 把示例期刊挂到 facet（幂等；缺期刊则跳过）。仅 facet 可用 `make seed-cas-facets`。  
 Docker 部署可在环境变量中设 `HUMUMU_SEED_JOURNALS=1`，entrypoint 会在迁移后自动 seed 期刊与 CAS facet。
 
 **新用户默认推送频率**为 `daily`（migration 013 仅改 default，不改已有用户）。  

@@ -2,7 +2,7 @@
   <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">订阅管理</n-h2>
     <n-space>
-      <n-button size="small" :loading="loadingJournals && !!journals.length" @click="reloadAll">刷新</n-button>
+      <n-button size="small" :loading="loadingJournals && !!journals.length" :disabled="tabsBusy" @click="reloadAll">刷新</n-button>
       <n-button type="primary" secondary :disabled="loadingJournals || prefsSaving || addLoading || previewLoading" @click="showAddModal = true">添加 RSS</n-button>
     </n-space>
   </div>

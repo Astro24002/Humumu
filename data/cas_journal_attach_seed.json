@@ -1,0 +1,354 @@
+[
+  {
+    "journal_slug": "arxiv-cs-ai",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "人工智能",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "arxiv-cs-lg",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "人工智能",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "arxiv-cs-cl",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "arxiv-cs-cv",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "arxiv-cs-se",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "软件工程",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "arxiv-cs-db",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "nature-machine-intelligence",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "人工智能",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "nature-computational-science",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "frontiers-computer-science",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "frontiers-ai",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "人工智能",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "cacm",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "acm-tods",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "acm-queue",
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "nature-communications",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "nature-biotechnology",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "分子生物学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "nature-methods",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "分子生物学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "nature-physics",
+    "year": 2025,
+    "major": "物理学",
+    "minor": "物理学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "nature-chemistry",
+    "year": 2025,
+    "major": "化学",
+    "minor": "化学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "nature-materials",
+    "year": 2025,
+    "major": "材料科学",
+    "minor": "材料科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "nature-nanotech",
+    "year": 2025,
+    "major": "材料科学",
+    "minor": "纳米材料",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "science-aaas",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "science-advances",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "cell-inpress",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "细胞生物学",
+    "zone": 1,
+    "is_top": false
+  },
+  {
+    "journal_slug": "cell-reports-inpress",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "细胞生物学",
+    "zone": 1,
+    "is_top": false
+  },
+  {
+    "journal_slug": "cell-reports",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "细胞生物学",
+    "zone": 1,
+    "is_top": false
+  },
+  {
+    "journal_slug": "pnas",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "plos-one",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "plos-biology",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "plos-computational-biology",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "分子生物学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "plos-medicine",
+    "year": 2025,
+    "major": "医学",
+    "minor": "临床医学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "plos-genetics",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "遗传学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "elife",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "peerj",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "biorxiv-all",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "medrxiv-all",
+    "year": 2025,
+    "major": "医学",
+    "minor": "临床医学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "frontiers-neuroscience",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "神经科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "frontiers-psychology",
+    "year": 2025,
+    "major": "心理学",
+    "minor": "心理学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "frontiers-public-health",
+    "year": 2025,
+    "major": "医学",
+    "minor": "公共卫生与预防医学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "scientific-reports",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "frontiers-genetics",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "遗传学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "frontiers-microbiology",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "微生物学",
+    "zone": 3,
+    "is_top": false
+  },
+  {
+    "journal_slug": "biorxiv-neuroscience",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "神经科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "journal_slug": "biorxiv-genomics",
+    "year": 2025,
+    "major": "生物学",
+    "minor": "遗传学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "journal_slug": "light-sci-app",
+    "year": 2025,
+    "major": "物理学",
+    "minor": "光学",
+    "zone": 3,
+    "is_top": false
+  }
+]
