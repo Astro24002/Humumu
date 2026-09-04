@@ -61,11 +61,19 @@
           type="error"
           ghost
           :loading="subBusy"
+          :disabled="subBusy"
           @click="handleUnsubscribe"
         >
           取消订阅
         </n-button>
-        <n-button v-else type="primary" ghost :loading="subBusy" @click="handleSubscribe">
+        <n-button
+          v-else
+          type="primary"
+          ghost
+          :loading="subBusy"
+          :disabled="subBusy"
+          @click="handleSubscribe"
+        >
           订阅此期刊
         </n-button>
       </template>

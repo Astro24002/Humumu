@@ -32,14 +32,14 @@
     <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
       新订阅默认跟随此设置；可在「订阅管理」中按期刊覆盖。
     </p>
-    <n-radio-group v-model:value="frequency">
+    <n-radio-group v-model:value="frequency" :disabled="saving">
       <n-radio value="daily">{{ freqLabel('daily') }}汇总（推荐）</n-radio>
       <n-radio value="realtime">{{ freqLabel('realtime') }}推送</n-radio>
     </n-radio-group>
     <n-button
       style="margin-top: 16px;"
       type="primary"
-      :disabled="!frequencyDirty"
+      :disabled="!frequencyDirty || saving"
       :loading="saving"
       @click="saveFrequency"
     >
@@ -93,6 +93,7 @@ onMounted(async () => {
 })
 
 async function saveFrequency() {
+  if (saving.value || !frequencyDirty.value) return
   saving.value = true
   try {
     await updatePushFrequency(frequency.value)

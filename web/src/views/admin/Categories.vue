@@ -258,6 +258,7 @@ async function load() {
 }
 
 async function create() {
+  if (saving.value) return
   if (!form.value.major.trim() || !form.value.minor.trim()) {
     message.warning('请填写大类和小类')
     return
@@ -289,6 +290,7 @@ async function create() {
 }
 
 async function attach() {
+  if (attaching.value) return
   if (!attachJournalId.value || !attachCategoryIds.value.length) return
   attaching.value = true
   try {

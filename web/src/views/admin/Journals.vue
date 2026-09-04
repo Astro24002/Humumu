@@ -150,8 +150,6 @@ const page = ref(1)
 const pageSize = 20
 /** Skip one route→state write when we just pushed query ourselves. */
 let suppressQueryApply = false
-/** Skip sort watcher side effects while hydrating from the URL. */
-let applyingFromQuery = false
 
 const SORT_VALUES = new Set(['name', 'articles', 'updated'])
 
@@ -162,19 +160,14 @@ function pageFromQuery(): number {
 }
 
 function applyFiltersFromQuery() {
-  applyingFromQuery = true
-  try {
-    const qq = route.query
-    nameFilter.value = typeof qq.q === 'string' ? qq.q : ''
-    statusFilter.value = typeof qq.status === 'string' ? qq.status : ''
-    contentFilter.value = typeof qq.content_type === 'string' ? qq.content_type : ''
-    sourceFilter.value = typeof qq.source_type === 'string' ? qq.source_type : ''
-    const sort = typeof qq.sort === 'string' ? qq.sort : 'name'
-    sortBy.value = (SORT_VALUES.has(sort) ? sort : 'name') as 'name' | 'articles' | 'updated'
-    page.value = pageFromQuery()
-  } finally {
-    applyingFromQuery = false
-  }
+  const qq = route.query
+  nameFilter.value = typeof qq.q === 'string' ? qq.q : ''
+  statusFilter.value = typeof qq.status === 'string' ? qq.status : ''
+  contentFilter.value = typeof qq.content_type === 'string' ? qq.content_type : ''
+  sourceFilter.value = typeof qq.source_type === 'string' ? qq.source_type : ''
+  const sort = typeof qq.sort === 'string' ? qq.sort : 'name'
+  sortBy.value = (SORT_VALUES.has(sort) ? sort : 'name') as 'name' | 'articles' | 'updated'
+  page.value = pageFromQuery()
 }
 
 function syncFiltersToQuery() {
