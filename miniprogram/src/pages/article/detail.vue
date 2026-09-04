@@ -157,9 +157,16 @@ async function openOriginal(url: string) {
   uni.setClipboardData({ data: url, success: () => uni.showToast({ title: '链接已复制', icon: 'none' }) })
 }
 
-function copyLink() {
+async function copyLink() {
   const url = originalUrl()
   if (!url) return
+  if (auth.isLoggedIn && article.value) {
+    try {
+      await recordOriginalClick(article.value.id)
+    } catch {
+      // non-blocking
+    }
+  }
   uni.setClipboardData({ data: url, success: () => uni.showToast({ title: '链接已复制', icon: 'none' }) })
 }
 </script>

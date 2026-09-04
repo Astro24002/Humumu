@@ -68,10 +68,8 @@
       </n-thing>
     </n-list-item>
   </n-list>
-  <div v-if="hasMore || loadingMore" style="text-align: center; margin-top: 16px;">
-    <n-button :loading="loadingMore" :disabled="!hasMore" @click="loadMore">
-      {{ hasMore ? '加载更多' : '没有更多了' }}
-    </n-button>
+  <div v-if="hasMore" style="text-align: center; margin-top: 16px;">
+    <n-button :loading="loadingMore" :disabled="loadingMore" @click="loadMore">加载更多</n-button>
   </div>
 </template>
 

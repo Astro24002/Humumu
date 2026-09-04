@@ -38,7 +38,7 @@ const formRef = ref<FormInst | null>(null)
 const form = reactive({ email: '', password: '' })
 const rules: FormRules = {
   email: { required: true, type: 'email', message: '请输入有效邮箱', trigger: ['input', 'blur'] },
-  password: { required: true, message: '请输入密码', trigger: ['input', 'blur'] },
+  password: { required: true, min: 6, message: '密码至少6位', trigger: ['input', 'blur'] },
 }
 
 onMounted(() => {
