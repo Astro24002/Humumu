@@ -224,7 +224,10 @@ function loadPage(p: number) {
 watch(filterJournalId, () => { page.value = 1; loadArticles() })
 
 watch(pageCount, (n) => {
-  if (page.value > n) page.value = n
+  if (page.value > n) {
+    page.value = n
+    loadArticles()
+  }
 })
 
 onMounted(async () => {

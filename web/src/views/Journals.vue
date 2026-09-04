@@ -362,7 +362,10 @@ watch(sortBy, () => {
 })
 
 watch(pageCount, (n) => {
-  if (page.value > n) page.value = n
+  if (page.value > n) {
+    page.value = n
+    fetchJournals()
+  }
 })
 
 onMounted(async () => {

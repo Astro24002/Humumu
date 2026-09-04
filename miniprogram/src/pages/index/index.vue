@@ -76,7 +76,9 @@
           <text v-if="a.original_url || a.url" class="action-link" @click="copyLink(a.original_url || a.url || '')">原文</text>
         </view>
       </view>
-      <view class="loading-more" v-if="hasMore"><text>加载更多...</text></view>
+      <view v-if="loadingMore" class="loading-more"><text>加载中...</text></view>
+      <view v-else-if="hasMore" class="loading-more"><text>上拉加载更多</text></view>
+      <view v-else-if="items.length" class="loading-more"><text>已显示全部</text></view>
     </scroll-view>
   </view>
 </template>
@@ -114,6 +116,7 @@ const contentType = ref('')
 const sourceType = ref('')
 const items = ref<FeedItem[]>([])
 const loading = ref(true)
+const loadingMore = ref(false)
 const hasMore = ref(true)
 const offset = ref(0)
 const limit = 20
@@ -141,7 +144,7 @@ onShow(() => {
   } else if (tab.value === 'updates') {
     tab.value = 'all'
   }
-  fetchItems()
+  resetAndFetch()
 })
 
 onPullDownRefresh(async () => {
@@ -149,6 +152,7 @@ onPullDownRefresh(async () => {
     items.value = []
     offset.value = 0
     hasMore.value = true
+    loadingMore.value = false
     await fetchItems()
   } finally {
     uni.stopPullDownRefresh()
@@ -205,9 +209,13 @@ function resetAndFetch() {
   fetchItems()
 }
 
-async function fetchItems() {
-  if (!hasMore.value && items.value.length) return
-  loading.value = true
+async function fetchItems(isLoadMore = false) {
+  if (isLoadMore) {
+    if (!hasMore.value || loadingMore.value || loading.value) return
+    loadingMore.value = true
+  } else {
+    loading.value = true
+  }
   try {
     if (tab.value === 'updates' && auth.isLoggedIn) {
       const res = await getMyUpdates({
@@ -232,7 +240,7 @@ async function fetchItems() {
         original_url: u.original_url,
       }))
       items.value.push(...mapped)
-      offset.value += limit
+      offset.value += res.updates.length
       hasMore.value = res.updates.length === limit
     } else {
       const res = await getArticles({
@@ -256,7 +264,7 @@ async function fetchItems() {
         url: a.url,
       }))
       items.value.push(...mapped)
-      offset.value += limit
+      offset.value += res.articles.length
       const total = typeof res.total === 'number' ? res.total : undefined
       hasMore.value = total != null
         ? items.value.length < total
@@ -266,11 +274,12 @@ async function fetchItems() {
     uni.showToast({ title: e.message || '加载失败', icon: 'none' })
   } finally {
     loading.value = false
+    loadingMore.value = false
   }
 }
 
 function loadMore() {
-  fetchItems()
+  fetchItems(true)
 }
 
 function goDetail(id: string) {

@@ -153,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getJournal, type Journal } from '@/api/journals'
 import { getArticles, type Article } from '@/api/articles'
@@ -195,6 +195,10 @@ const articlesLimit = 20
 const articlesPageCount = computed(() => Math.ceil(articlesTotal.value / articlesLimit) || 1)
 const isSubscribed = ref(false)
 const subBusy = ref(false)
+
+watch(articlesPageCount, (n) => {
+  if (articlesPage.value > n) loadArticlesPage(n)
+})
 
 
 

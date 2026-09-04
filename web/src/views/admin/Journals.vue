@@ -149,7 +149,10 @@ const pageSize = 20
 const pageCount = computed(() => Math.ceil((total.value || 0) / pageSize) || 1)
 
 watch(pageCount, (n) => {
-  if (page.value > n) page.value = n
+  if (page.value > n) {
+    page.value = n
+    load()
+  }
 })
 
 const hasServerFilters = computed(() =>
