@@ -14,18 +14,18 @@
 
       <view v-if="tab === 'journals'">
         <view class="add-feed">
-          <input v-model="feedUrl" placeholder="粘贴 RSS/Atom URL" class="add-input" />
-          <input v-model="feedName" placeholder="名称（可选，预览后自动填充）" class="add-input" />
+          <input v-model="feedUrl" placeholder="粘贴 RSS/Atom URL" class="add-input" :disabled="addingFeed" />
+          <input v-model="feedName" placeholder="名称（可选，预览后自动填充）" class="add-input" :disabled="addingFeed" />
           <view class="add-feed-row">
-            <label class="vis-opt" @click="feedVisibility = 'private'">
+            <label class="vis-opt" :class="{ disabled: addingFeed }" @click="!addingFeed && (feedVisibility = 'private')">
               <text :class="['radio', feedVisibility === 'private' && 'on']" />
               <text>私有</text>
             </label>
-            <label class="vis-opt" @click="feedVisibility = 'apply_public'">
+            <label class="vis-opt" :class="{ disabled: addingFeed }" @click="!addingFeed && (feedVisibility = 'apply_public')">
               <text :class="['radio', feedVisibility === 'apply_public' && 'on']" />
               <text>申请公开</text>
             </label>
-            <button class="btn-add" size="mini" :loading="addingFeed" @click="addFeed">添加源</button>
+            <button class="btn-add" size="mini" :loading="addingFeed" :disabled="addingFeed" @click="addFeed">添加源</button>
           </view>
           <view v-if="previewItems.length" class="preview-box">
             <text class="preview-title">预览 · {{ feedName || '未命名' }}</text>
@@ -75,13 +75,14 @@
             placeholder="作者姓名"
             class="add-input"
             confirm-type="done"
+            :disabled="authorBusy"
             @confirm="addAuthor"
           />
           <button @click="addAuthor" :disabled="!newAuthor.trim() || authorBusy" class="btn-add">添加</button>
         </view>
         <view v-if="authors.length === 0" class="empty"><text>尚未追踪任何作者</text><text class="hint">在上方输入姓名后添加</text></view>
         <view v-else class="tag-list">
-          <view v-for="a in authors" :key="a.id" class="tag-item">
+          <view v-for="a in authors" :key="a.id" class="tag-item" :class="{ disabled: removeBusyId === a.id }">
             <text>{{ a.author_name }}</text>
             <text class="tag-close" @click="confirmRemoveAuthor(a)">×</text>
           </view>
@@ -95,13 +96,14 @@
             placeholder="关键词"
             class="add-input"
             confirm-type="done"
+            :disabled="keywordBusy"
             @confirm="addKeyword"
           />
           <button @click="addKeyword" :disabled="!newKeyword.trim() || keywordBusy" class="btn-add">添加</button>
         </view>
         <view v-if="keywords.length === 0" class="empty"><text>尚未订阅任何关键词</text><text class="hint">在上方输入关键词后添加</text></view>
         <view v-else class="tag-list">
-          <view v-for="k in keywords" :key="k.id" class="tag-item">
+          <view v-for="k in keywords" :key="k.id" class="tag-item" :class="{ disabled: removeBusyId === k.id }">
             <text>{{ k.keyword }}</text>
             <text class="tag-close" @click="confirmRemoveKeyword(k)">×</text>
           </view>
@@ -427,4 +429,6 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
 .tag-close { color: #999; font-size: 32rpx; }
 
 .btn-prefs.disabled, .btn-unsub.disabled { opacity: 0.45; pointer-events: none; }
+.vis-opt.disabled { opacity: 0.45; pointer-events: none; }
+.tag-item.disabled { opacity: 0.55; pointer-events: none; }
 </style>
