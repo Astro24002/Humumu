@@ -91,8 +91,26 @@
           <template #action>
             <div style="display: flex; gap: 4px;">
               <n-button size="tiny" quaternary tag="a" :href="`/articles/${a.id}`" @click.prevent="router.push(`/articles/${a.id}`)">详情</n-button>
-              <n-button v-if="a.doi" size="tiny" quaternary tag="a" :href="doiUrl(a.doi)" target="_blank" rel="noopener noreferrer">DOI</n-button>
-              <n-button v-if="a.url" size="tiny" quaternary tag="a" :href="a.url" target="_blank" rel="noopener noreferrer">原文</n-button>
+              <n-button
+                v-if="a.doi"
+                size="tiny"
+                quaternary
+                tag="a"
+                :href="doiUrl(a.doi)"
+                target="_blank"
+                rel="noopener noreferrer"
+                @click="onOriginalClick(a.id)"
+              >DOI</n-button>
+              <n-button
+                v-if="a.url"
+                size="tiny"
+                quaternary
+                tag="a"
+                :href="a.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                @click="onOriginalClick(a.id)"
+              >原文</n-button>
             </div>
           </template>
           <template #footer>
@@ -114,6 +132,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getArticles, type Article } from '@/api/articles'
 import { getJournal, getJournals, type Journal } from '@/api/journals'
+import { recordOriginalClick, updateArticleStatus } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
@@ -145,6 +164,20 @@ let articlesLoadSeq = 0
 let suppressQueryApply = false
 /** Skip journal-id watcher side effects while hydrating from the URL. */
 let applyingFromQuery = false
+const originalClickBusy = new Set<string>()
+
+async function onOriginalClick(articleId: string) {
+  if (!auth.isLoggedIn || !articleId || originalClickBusy.has(articleId)) return
+  originalClickBusy.add(articleId)
+  try {
+    await recordOriginalClick(articleId)
+    await updateArticleStatus(articleId, { is_read: true })
+  } catch {
+    // non-blocking
+  } finally {
+    originalClickBusy.delete(articleId)
+  }
+}
 
 function pageFromQuery(): number {
   const raw = route.query.page

@@ -137,6 +137,7 @@
                 :href="doiUrl(a.doi)"
                 target="_blank"
                 rel="noopener noreferrer"
+                @click="onOriginalClick(a.id)"
               >DOI</n-button>
               <n-button
                 v-if="a.url"
@@ -146,6 +147,7 @@
                 :href="a.url"
                 target="_blank"
                 rel="noopener noreferrer"
+                @click="onOriginalClick(a.id)"
               >原文</n-button>
             </n-space>
           </template>
@@ -172,6 +174,7 @@ import {
   unsubscribeJournal,
   getSubscribedJournals,
 } from '@/api/subscriptions'
+import { recordOriginalClick, updateArticleStatus } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { shortUrl, doiUrl } from '@/utils/url'
@@ -207,6 +210,20 @@ const isSubscribed = ref(false)
 const subBusy = ref(false)
 /** Drop stale article-list responses when route id / page changes mid-flight. */
 let articlesLoadSeq = 0
+const originalClickBusy = new Set<string>()
+
+async function onOriginalClick(articleId: string) {
+  if (!isLoggedIn.value || !articleId || originalClickBusy.has(articleId)) return
+  originalClickBusy.add(articleId)
+  try {
+    await recordOriginalClick(articleId)
+    await updateArticleStatus(articleId, { is_read: true })
+  } catch {
+    // non-blocking
+  } finally {
+    originalClickBusy.delete(articleId)
+  }
+}
 /** Drop stale journal detail responses when route id changes mid-flight. */
 let journalLoadSeq = 0
 /** Skip one route→state write when we just pushed page ourselves. */

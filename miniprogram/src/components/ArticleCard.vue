@@ -30,10 +30,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Article } from '@/api/articles'
+import { recordOriginalClick, updateArticleStatus } from '@/api/reading'
+import { useAuthStore } from '@/stores/auth'
 import { formatDate, formatAuthors, contentTypeLabel, sourceTypeLabel, doiUrl } from '@/utils/format'
 import { cleanAbstract } from '@/utils/abstract'
 
 const props = defineProps<{ article: Article }>()
+const auth = useAuthStore()
+let originalClickBusy = false
 
 const authorsLabel = computed(() => formatAuthors(props.article.authors || []))
 
@@ -46,8 +50,22 @@ function goJournal() {
   uni.navigateTo({ url: `/pages/journals/detail?id=${props.article.journal_id}` })
 }
 
+async function onOriginalClick() {
+  if (!auth.isLoggedIn || !props.article.id || originalClickBusy) return
+  originalClickBusy = true
+  try {
+    await recordOriginalClick(props.article.id)
+    await updateArticleStatus(props.article.id, { is_read: true })
+  } catch {
+    // non-blocking
+  } finally {
+    originalClickBusy = false
+  }
+}
+
 function copyLink(url: string) {
   if (!url) return
+  void onOriginalClick()
   uni.setClipboardData({
     data: url,
     success: () => uni.showToast({ title: '链接已复制', icon: 'none' }),
