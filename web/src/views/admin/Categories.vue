@@ -1,6 +1,9 @@
 <template>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-    <n-h2 style="margin: 0;">CAS 分类</n-h2>
+    <n-space size="small" align="center">
+      <n-h2 style="margin: 0;">CAS 分类</n-h2>
+      <n-tag v-if="!loading" size="small" :bordered="false">{{ filtered.length }} 条</n-tag>
+    </n-space>
     <n-button type="primary" @click="showCreate = true">新增分类</n-button>
   </div>
 

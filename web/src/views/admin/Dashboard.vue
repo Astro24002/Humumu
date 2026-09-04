@@ -27,7 +27,7 @@
       </n-gi>
       <n-gi span="5 m:1">
         <n-card size="small" hoverable style="cursor: pointer" @click="router.push('/admin/requests')">
-          <n-statistic title="旧申请队列" :value="stats.pending_requests" />
+          <n-statistic title="待审申请" :value="stats.pending_requests" />
         </n-card>
       </n-gi>
     </n-grid>
