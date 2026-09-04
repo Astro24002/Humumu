@@ -91,7 +91,7 @@ docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 humumu
 - 行为：按 `slug` / `source_url` / `normalized_source_url` 命中则更新；否则插入
 - 写入字段：`content_type`、`directory_status=public`、`homepage_url`、`normalized_source_url`
 - **不会**删除 seed 文件中已移除的行（管理员手工期刊不受影响）
-- Docker entrypoint：仅当 `HUMUMU_SEED_JOURNALS=1` 时在 migrate 之后自动执行
+- Docker entrypoint：仅当 `HUMUMU_SEED_JOURNALS=1` 时在 migrate 之后自动执行（同时跑 CAS facet seed）
 
 ### CAS 分类 facet（seed）
 
@@ -99,6 +99,7 @@ docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 humumu
 - 脚本：`python -m scripts.seed_cas_categories`（可传自定义 JSON 路径）
 - 行为：确保 `cas_category_years`；按 `(year, major, minor, zone, is_top)` 唯一键插入，已存在则跳过
 - 期刊挂载仍由管理后台「CAS 分类 → 挂载」完成
+- Docker entrypoint：随 `HUMUMU_SEED_JOURNALS=1` 一并执行
 
 ### Product v1 迁移与管理员
 

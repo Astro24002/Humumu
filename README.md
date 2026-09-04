@@ -43,7 +43,7 @@ cp .env.example .env
 # 运行数据库迁移
 make migrate
 
-# （可选）导入内置常用期刊 RSS（幂等，可重复执行）
+# （可选）导入内置常用期刊 + CAS 分类 facet（幂等，可重复执行）
 make seed
 
 # 启动 FastAPI（uvicorn :8080，热重载）
@@ -59,7 +59,8 @@ make run
 
 内置期刊列表见 `data/journals_seed.json`（约 300 条冷启动：arXiv 多分类 / bioRxiv·medRxiv 主题预印本，以及 PLOS、eLife、Nature、Science、Cell、PNAS、ACM、Frontiers、PeerJ 等公开 RSS）。  
 seed 会写入 `content_type`、`directory_status=public`、`normalized_source_url`。  
-Docker 部署可在环境变量中设 `HUMUMU_SEED_JOURNALS=1`，entrypoint 会在迁移后自动 seed。
+CAS 分类 facet 见 `data/cas_categories_seed.json`（`scripts.seed_cas_categories`，不自动挂载期刊）。  
+Docker 部署可在环境变量中设 `HUMUMU_SEED_JOURNALS=1`，entrypoint 会在迁移后自动 seed 期刊与 CAS facet。
 
 **新用户默认推送频率**为 `daily`（migration 013 仅改 default，不改已有用户）。  
 调度器默认关闭；开启后会跑：抓取 pipeline、notify dispatch（约 2 分钟）、每日摘要。
@@ -103,8 +104,8 @@ make docker-build
 │   ├── jobs/            # APScheduler 定时任务
 │   ├── models/          # ORM 模型
 │   └── schemas/         # Pydantic 请求/响应模型
-├── scripts/             # 运维脚本（migrate / seed_journals 等）
-├── data/                # 内置数据（journals_seed.json）
+├── scripts/             # 运维脚本（migrate / seed_journals / seed_cas_categories 等）
+├── data/                # 内置数据（journals_seed.json / cas_categories_seed.json）
 ├── web/                 # Vue 3 前端
 │   ├── src/
 │   │   ├── api/         # API 客户端

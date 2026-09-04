@@ -92,7 +92,12 @@
   </n-tabs>
 
   <!-- Per-subscription prefs -->
-  <n-modal v-model:show="showPrefsModal">
+  <n-modal
+    v-model:show="showPrefsModal"
+    :mask-closable="!prefsSaving"
+    :close-on-esc="!prefsSaving"
+    @update:show="onPrefsModalShow"
+  >
     <n-card style="width: 420px;" :title="prefsJournal ? `推送设置 · ${prefsJournal.name}` : '推送设置'" role="dialog">
       <n-form :disabled="prefsSaving">
         <n-form-item label="推送频率">
@@ -117,7 +122,12 @@
   </n-modal>
 
   <!-- Add RSS Modal -->
-  <n-modal v-model:show="showAddModal" @update:show="onModalShow">
+  <n-modal
+    v-model:show="showAddModal"
+    :mask-closable="!(previewLoading || addLoading)"
+    :close-on-esc="!(previewLoading || addLoading)"
+    @update:show="onModalShow"
+  >
     <n-card style="width: 480px;" title="添加 RSS 订阅" role="dialog">
       <div v-if="addStep === 'url'">
         <n-form>
@@ -269,6 +279,12 @@ function onModalShow(show: boolean) {
     return
   }
   if (!show) resetAddModal()
+}
+
+function onPrefsModalShow(show: boolean) {
+  if (!show && prefsSaving.value) {
+    showPrefsModal.value = true
+  }
 }
 
 function openPrefs(j: SubscribedJournal) {
