@@ -316,8 +316,11 @@ async function copyLink(url: string, item?: FeedItem) {
     originalClickBusy.add(item.id)
     try {
       await recordOriginalClick(item.id)
-      await updateArticleStatus(item.id, { is_read: true })
-      if (item.unread) item.unread = false
+      // My-updates items carry unread; plaza "all" cards lack status — still mark once.
+      if (item.unread !== false) {
+        await updateArticleStatus(item.id, { is_read: true })
+        item.unread = false
+      }
     } catch {
       // non-blocking
     } finally {

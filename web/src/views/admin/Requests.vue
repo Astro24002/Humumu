@@ -11,7 +11,7 @@
         <n-radio-button value="approved">{{ requestStatusLabel('approved') }}</n-radio-button>
         <n-radio-button value="rejected">{{ requestStatusLabel('rejected') }}</n-radio-button>
       </n-radio-group>
-      <n-button size="small" :loading="loading" @click="reload">刷新</n-button>
+      <n-button size="small" :loading="loading" :disabled="loading || !!busyId" @click="reload">刷新</n-button>
     </n-space>
   </div>
   <n-data-table :columns="columns" :data="requests" :loading="loading" :pagination="false" />
@@ -22,7 +22,7 @@
   >
     <template #extra>
       <n-button v-if="statusFilter" @click="clearFilter">查看全部申请</n-button>
-      <n-button v-else quaternary @click="reload" :loading="loading">刷新</n-button>
+      <n-button v-else quaternary :loading="loading" :disabled="loading || !!busyId" @click="reload">刷新</n-button>
     </template>
   </n-empty>
   <n-pagination

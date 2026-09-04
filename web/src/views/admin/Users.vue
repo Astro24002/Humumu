@@ -14,7 +14,7 @@
         @keyup.enter="reload"
         @clear="reload"
       />
-      <n-button :loading="loading" @click="reload">刷新</n-button>
+      <n-button :loading="loading" :disabled="loading || !!busyId" @click="reload">刷新</n-button>
     </n-space>
   </div>
   <n-data-table :columns="columns" :data="users" :loading="loading" :pagination="false" />

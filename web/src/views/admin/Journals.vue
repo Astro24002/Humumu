@@ -2,7 +2,7 @@
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">期刊管理</n-h2>
     <n-space>
-      <n-button :loading="loading" @click="reload">刷新</n-button>
+      <n-button :loading="loading" :disabled="loading || saving || !!busyId" @click="reload">刷新</n-button>
       <n-button type="primary" :disabled="loading || saving" @click="openAdd">新增期刊</n-button>
     </n-space>
   </div>

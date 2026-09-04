@@ -5,7 +5,7 @@
       <n-tag v-if="!loading && total != null" size="small" :bordered="false">{{ total }} 条</n-tag>
     </n-space>
     <n-space size="small" align="center" style="flex-wrap: wrap;">
-      <n-button size="small" :loading="loading && !!notifs.length" @click="reload">刷新</n-button>
+      <n-button size="small" :loading="loading && !!notifs.length" :disabled="loading" @click="reload">刷新</n-button>
       <n-radio-group v-model:value="channelFilter" size="small" :disabled="loading" @update:value="onFilterChange">
         <n-radio-button value="">全部渠道</n-radio-button>
         <n-radio-button value="email">{{ channelLabel('email') }}</n-radio-button>

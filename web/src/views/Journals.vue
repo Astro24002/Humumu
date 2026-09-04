@@ -5,7 +5,7 @@
         <n-h2 style="margin: 0;">期刊广场</n-h2>
         <n-tag v-if="!loading" size="small" :bordered="false">{{ total }} 源</n-tag>
       </div>
-      <n-button size="small" :loading="loading && !!journals.length" @click="reload">刷新</n-button>
+      <n-button size="small" :loading="loading && !!journals.length" :disabled="loading" @click="reload">刷新</n-button>
     </div>
 
     <n-space vertical style="margin-bottom: 16px;">

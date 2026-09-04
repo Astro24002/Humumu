@@ -4,7 +4,7 @@
       <n-h2 style="margin: 0;">我的更新</n-h2>
       <n-tag v-if="!loading && total != null" size="small" :bordered="false">{{ total }} 条</n-tag>
     </div>
-    <n-button size="small" :loading="loading && !!updates.length" @click="reload">刷新</n-button>
+    <n-button size="small" :loading="loading && !!updates.length" :disabled="loading" @click="reload">刷新</n-button>
   </div>
 
   <n-space style="margin-bottom: 16px;">
