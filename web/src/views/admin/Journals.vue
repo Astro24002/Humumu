@@ -79,6 +79,7 @@
     v-if="pageCount > 1 && !loading"
     :page="page"
     :page-count="pageCount"
+    :disabled="loading || !!busyId || saving"
     style="margin-top: 16px;"
     @update:page="onPageChange"
   />
@@ -469,7 +470,7 @@ async function remove(id: string) {
 }
 
 function onPageChange(p: number) {
-  if (loading.value) return
+  if (loading.value || busyId.value || saving.value) return
   page.value = p
   syncFiltersToQuery()
   load()

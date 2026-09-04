@@ -30,6 +30,7 @@
     style="margin-top: 16px;"
     :page="page"
     :page-count="pageCount"
+    :disabled="loading || !!busyId"
     @update:page="onPageChange"
   />
 </template>
@@ -227,7 +228,7 @@ function onStatusFilterChange(v: string) {
 }
 
 function onPageChange(p: number) {
-  if (loading.value) return
+  if (loading.value || busyId.value) return
   page.value = p
   syncStatusQuery()
   load()
