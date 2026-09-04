@@ -1,7 +1,10 @@
 <template>
-  <div style="display: flex; justify-content: space-between; align-items: center;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
     <n-h2 style="margin: 0;">订阅管理</n-h2>
-    <n-button type="primary" secondary @click="showAddModal = true">添加 RSS</n-button>
+    <n-space>
+      <n-button size="small" :loading="loadingJournals && !!journals.length" @click="reloadAll">刷新</n-button>
+      <n-button type="primary" secondary @click="showAddModal = true">添加 RSS</n-button>
+    </n-space>
   </div>
 
   <n-tabs v-model:value="activeTab" style="margin-top: 16px;">
@@ -42,12 +45,14 @@
                   {{ healthStatusLabel(j.health_status) }}
                 </n-tag>
                 <n-tag size="tiny" type="warning" :bordered="false">{{ freqLabel(j.push_frequency) }}</n-tag>
+                <n-tag v-if="j.email_enabled !== false" size="tiny" :bordered="false">{{ channelLabel('email') }}</n-tag>
+                <n-tag v-if="j.wechat_enabled !== false" size="tiny" type="success" :bordered="false">{{ channelLabel('wechat') }}</n-tag>
               </n-space>
             </template>
           </n-thing>
           <template #suffix>
             <n-space>
-              <n-button size="small" ghost @click="openPrefs(j)">推送设置</n-button>
+              <n-button size="small" ghost :disabled="unsubBusyId === j.id" @click="openPrefs(j)">推送设置</n-button>
               <n-button size="small" type="error" ghost :loading="unsubBusyId === j.id" :disabled="unsubBusyId === j.id" @click="confirmUnsubscribe(j)">取消关注</n-button>
             </n-space>
           </template>
@@ -430,15 +435,23 @@ async function handleAdd() {
   }
 }
 
-onMounted(async () => {
+async function reloadAll() {
+  loadingJournals.value = true
   try {
-    journals.value = (await getSubscribedJournals()).journals
-    authors.value = (await getAuthors()).authors
-    keywords.value = (await getKeywords()).keywords
+    const [jRes, aRes, kRes] = await Promise.all([
+      getSubscribedJournals(),
+      getAuthors(),
+      getKeywords(),
+    ])
+    journals.value = jRes.journals
+    authors.value = aRes.authors
+    keywords.value = kRes.keywords
   } catch (e: any) {
     message.error(e?.message || '加载订阅失败')
   } finally {
     loadingJournals.value = false
   }
-})
+}
+
+onMounted(reloadAll)
 </script>
