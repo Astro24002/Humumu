@@ -210,10 +210,10 @@ Query（均可选）:
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/subscriptions/journals | 已关注期刊列表 |
-| POST | /api/v1/subscriptions/journals/:id | 关注期刊（公开源，或本人创建的非公开源；否则 404） |
+| GET | /api/v1/subscriptions/journals | 已订阅期刊列表 |
+| POST | /api/v1/subscriptions/journals/:id | 订阅期刊（公开源，或本人创建的非公开源；否则 404） |
 | PATCH | /api/v1/subscriptions/journals/:id | 更新推送偏好 |
-| DELETE | /api/v1/subscriptions/journals/:id | 取消关注 |
+| DELETE | /api/v1/subscriptions/journals/:id | 取消订阅 |
 
 **PATCH 推送偏好:**
 ```json
