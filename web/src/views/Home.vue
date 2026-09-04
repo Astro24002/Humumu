@@ -260,6 +260,7 @@ const emptyDescription = computed(() => {
 })
 
 function clearFilters() {
+  if (loading.value) return
   filterJournalId.value = null
   filterContentType.value = ''
   filterSourceType.value = ''

@@ -204,6 +204,7 @@ async function toggleAdmin(row: User, isAdmin: boolean) {
 }
 
 function clearFilter() {
+  if (loading.value) return
   nameFilter.value = ''
   page.value = 1
   syncFiltersToQuery()

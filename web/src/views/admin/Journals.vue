@@ -233,6 +233,7 @@ const sortOptions = [
 ]
 
 function clearFilters() {
+  if (loading.value) return
   nameFilter.value = ''
   statusFilter.value = ''
   contentFilter.value = ''

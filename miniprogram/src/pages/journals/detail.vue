@@ -42,7 +42,7 @@
           <button size="mini" class="btn-more" @click="goPlaza">返回期刊广场</button>
         </view>
         <view v-if="hasMore" class="more-wrap">
-          <button class="btn-more" size="mini" :loading="loadingMore" @click="loadMore">
+          <button class="btn-more" size="mini" :loading="loadingMore" :disabled="loadingMore || articlesLoading" @click="loadMore">
             {{ loadingMore ? '加载中...' : '加载更多' }}
           </button>
         </view>

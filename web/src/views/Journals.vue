@@ -303,6 +303,7 @@ function onPageChange(p: number) {
 }
 
 function clearFilters() {
+  if (loading.value) return
   q.value = ''
   contentType.value = ''
   sourceType.value = ''

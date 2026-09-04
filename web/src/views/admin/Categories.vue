@@ -246,6 +246,7 @@ function onYearFilterChange(v: number | null) {
 }
 
 function clearYearFilter() {
+  if (loading.value) return
   yearFilter.value = null
   syncYearToQuery()
   load()

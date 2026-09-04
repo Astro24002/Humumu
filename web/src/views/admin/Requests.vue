@@ -211,6 +211,7 @@ function syncStatusQuery() {
 }
 
 function clearFilter() {
+  if (loading.value) return
   statusFilter.value = ''
   page.value = 1
   syncStatusQuery()

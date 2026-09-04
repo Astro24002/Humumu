@@ -212,6 +212,7 @@ async function reload() {
 }
 
 function clearFilter() {
+  if (loading.value) return
   filter.value = ''
   reload()
 }

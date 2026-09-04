@@ -184,6 +184,7 @@ function onFilterChange() {
 }
 
 function clearFilters() {
+  if (loading.value) return
   statusFilter.value = ''
   channelFilter.value = ''
   syncFiltersToQuery()
