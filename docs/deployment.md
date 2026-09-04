@@ -66,11 +66,12 @@ cp .env.example .env
 # 运行迁移
 make migrate
 
-# （可选）导入内置常用期刊 + CAS 分类 facet（幂等）
+# （可选）导入内置常用期刊 + CAS facet（默认含示例期刊挂载，幂等）
 make seed
-# 仅 CAS facet: make seed-cas
+# 仅 CAS（含挂载）: make seed-cas
+# 仅 CAS facet: make seed-cas-facets
 # 或分别: .venv/bin/python -m scripts.seed_journals
-#         .venv/bin/python -m scripts.seed_cas_categories
+#         .venv/bin/python -m scripts.seed_cas_categories --attach
 
 # 生产启动（开启调度器）
 export HUMUMU_ENABLE_SCHEDULER=1
@@ -96,11 +97,13 @@ docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 humumu
 
 ### CAS 分类 facet（seed）
 
-- 数据文件：`data/cas_categories_seed.json`（示例大类/小类/分区，便于广场 CAS 筛选项冷启动；**不**自动挂载期刊）
-- 脚本：`python -m scripts.seed_cas_categories`（可传自定义 JSON 路径）
-- 行为：确保 `cas_category_years`；按 `(year, major, minor, zone, is_top)` 唯一键插入，已存在则跳过
-- 期刊挂载仍由管理后台「CAS 分类 → 挂载」完成
-- Docker entrypoint：随 `HUMUMU_SEED_JOURNALS=1` 一并执行
+- 数据文件：`data/cas_categories_seed.json`（约 60+ 示例大类/小类/分区，含 2024/2025，便于广场 CAS 筛选项冷启动）
+- 可选挂载：`data/cas_journal_attach_seed.json`（按期刊 `slug` 挂到 facet，便于 CAS 筛选演示；缺期刊则跳过）
+- 脚本：`python -m scripts.seed_cas_categories [--attach]`（可传自定义 facet JSON；第二参数为 attach JSON）
+- 行为：确保 `cas_category_years`；按 `(year, major, minor, zone, is_top)` 唯一键插入，已存在则跳过；`--attach` / `HUMUMU_SEED_CAS_ATTACH=1` 时幂等写入 `journal_cas_categories`
+- `make seed` / `make seed-cas` 默认带 `--attach`；仅 facet 用 `make seed-cas-facets`
+- 管理后台「CAS 分类 → 挂载」仍可手工增补
+- Docker entrypoint：随 `HUMUMU_SEED_JOURNALS=1` 一并执行（含 attach）
 
 ### Product v1 迁移与管理员
 

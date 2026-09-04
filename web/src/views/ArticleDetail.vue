@@ -9,9 +9,14 @@
   </n-result>
   <template v-else-if="article">
     <div style="margin-bottom: 12px;">
-      <router-link v-if="article.journal_name" :to="`/journals/${article.journal_id}`" style="text-decoration: none;">
+      <router-link
+        v-if="article.journal_id && article.journal_name"
+        :to="`/journals/${article.journal_id}`"
+        style="text-decoration: none;"
+      >
         <n-tag :bordered="false" style="margin-right: 6px;">{{ article.journal_name }}</n-tag>
       </router-link>
+      <n-tag v-else-if="article.journal_name" :bordered="false" style="margin-right: 6px;">{{ article.journal_name }}</n-tag>
       <n-tag v-if="article.content_type === 'preprint'" type="info" size="small" :bordered="false" style="margin-right: 6px;">
         {{ contentTypeLabel(article.content_type) }}
       </n-tag>
