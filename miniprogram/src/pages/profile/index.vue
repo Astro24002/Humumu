@@ -11,6 +11,10 @@
         <text class="user-name">{{ auth.user?.name || '用户' }}</text>
         <text class="user-email">{{ accountEmailLabel }}</text>
         <text v-if="auth.user?.wechat_openid" class="user-meta">微信已关联</text>
+        <view v-if="!auth.hasEmail" class="bind-email-hint">
+          <text class="bind-email-text">邮件推送需绑定真实邮箱</text>
+          <text class="bind-email-link" @click="goBindEmail">去绑定</text>
+        </view>
       </view>
 
       <!-- Settings -->
@@ -163,6 +167,10 @@ async function onTemplateChange(e: any) {
   }
 }
 
+function goBindEmail() {
+  uni.navigateTo({ url: '/pages/login/index?mode=bind' })
+}
+
 function handleLogout() {
   uni.showModal({
     title: '确认退出',
@@ -185,6 +193,9 @@ function handleLogout() {
 .user-card { background: #fff; padding: 40rpx 30rpx; margin-bottom: 16rpx; }
 .user-name { font-size: 36rpx; font-weight: 600; display: block; }
 .user-email { font-size: 26rpx; color: #999; margin-top: 8rpx; display: block; }
+.bind-email-hint { margin-top: 16rpx; display: flex; align-items: center; gap: 16rpx; flex-wrap: wrap; }
+.bind-email-text { font-size: 24rpx; color: #888; }
+.bind-email-link { font-size: 24rpx; color: #3cc51f; }
 .user-meta { font-size: 24rpx; color: #3cc51f; margin-top: 8rpx; display: block; }
 .section { background: #fff; margin-bottom: 16rpx; padding: 0 30rpx; }
 .section-title { font-size: 28rpx; color: #999; padding: 20rpx 0; border-bottom: 1rpx solid #f0f0f0; }

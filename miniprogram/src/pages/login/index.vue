@@ -88,11 +88,29 @@ function goAfterLogin() {
   uni.switchTab({ url: '/pages/index/index' })
 }
 
-onMounted(() => {
+async function ensureWxCode() {
+  if (wxCode.value) return wxCode.value
+  const { code } = await uni.login()
+  wxCode.value = code
+  return code
+}
+
+onMounted(async () => {
   const pages = getCurrentPages()
   const cur = pages[pages.length - 1] as any
   const q = (cur && cur.options) || {}
   returnTo.value = normalizePath(q.from || q.redirect || '')
+  const mode = typeof q.mode === 'string' ? q.mode : ''
+  // Profile "去绑定" deep-link: logged-in wechat user without email.
+  if (mode === 'bind' && auth.isLoggedIn && !auth.hasEmail) {
+    needsBind.value = true
+    try {
+      await ensureWxCode()
+    } catch {
+      // bind will retry
+    }
+    return
+  }
   if (auth.isLoggedIn) {
     goAfterLogin()
   }
@@ -103,9 +121,8 @@ async function handleWeChatLogin() {
   loading.value = true
   error.value = ''
   try {
-    const { code } = await uni.login()
-    wxCode.value = code
-    const res = await wechatLogin(code)
+    await ensureWxCode()
+    const res = await wechatLogin(wxCode.value)
     auth.save(res.token, res.user)
     if (!res.has_email) {
       needsBind.value = true
@@ -132,6 +149,7 @@ async function handleBind() {
   loading.value = true
   error.value = ''
   try {
+    await ensureWxCode()
     const res = await bindAccount(wxCode.value, form.value.email, form.value.password)
     auth.save(res.token, res.user)
     goAfterLogin()
