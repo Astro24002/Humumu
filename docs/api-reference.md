@@ -396,7 +396,7 @@ GET /api/v1/my/updates
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/admin/stats | 概览计数（含 `pending_directory_reviews` 待审公开源） |
+| GET | /api/v1/admin/stats | 概览计数（`journal_count` / `article_count` / `user_count` / `pending_requests` / `pending_directory_reviews` 待审公开源 / `cas_category_count` CAS 分类） |
 | GET/POST | /api/v1/admin/journals | 列表（`q`/`content_type`/`source_type`/`directory_status`/`sort`/`limit`/`offset`，带 `limit` 时含 `total`）/ 创建 |
 | PUT/DELETE | /api/v1/admin/journals/{id} | 更新 / 删除 |
 | POST | /api/v1/admin/journals/{id}/directory_status | 设置 public/private/pending_review/rejected/hidden |

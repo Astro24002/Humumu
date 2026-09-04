@@ -95,7 +95,7 @@ Humumu（原 Journal Monitor）是一个 Python/FastAPI 单体服务，同时提
 | 认证 | JWT (HS256) | 无状态认证 |
 | 邮件 | SMTP | 标准协议 |
 | 微信 | 微信 REST API | 订阅消息推送 |
-| 前端 | Vue 3 + Vite | SPA，由 FastAPI 静态托管 |
+| 前端 | Vue 3 + Vite | SPA，由 FastAPI 静态托管（`app/static_spa.py`：真实 dist 文件如 favicon/robots 优先，其余 history-mode 回退 index.html） |
 
 ## 可见性与访问控制（Product v1）
 
@@ -104,6 +104,7 @@ Humumu（原 Journal Monitor）是一个 Python/FastAPI 单体服务，同时提
 - **Web 可分享筛选 URL**：公开广场（`/`：`content_type`/`source_type`/`journal_id`/`page`）、期刊广场（`/journals`：`q`/`content_type`/`source_type`/`sort`/CAS `major|minor|zone|top`/`page`）、我的更新（`/my?filter=`）、订阅管理（`/my/subscriptions?tab=`）、通知（`/my/notifications`：`status`/`channel`）、期刊详情论文分页（`/journals/:id?page=`），以及管理端 journals/users/requests 列表筛选与 `page`、CAS 分类 `year`，均通过 `router.replace` 同步 query，支持深链与刷新保持。
 - **通知列表分页**：`GET /notifications` 响应含 `total`（当前 status/channel 筛选下全量匹配数）；Web/小程序用其驱动「加载更多」与条数展示。
 - **管理端用户/申请分页**：`GET /admin/users` 支持 `q`/`limit`/`offset`+`total`；`GET /admin/requests` 支持 `status`/`limit`/`offset`+`total`。
+- **管理端概览**：`GET /admin/stats` 返回 `journal_count` / `article_count` / `user_count` / `pending_requests` / `pending_directory_reviews` / `cas_category_count`；Dashboard 卡片可跳转到对应管理页。
 - **CAS 分类列表**：`GET /categories/cas` 支持可选 `year`/`major` 服务端筛选；`years` 始终返回全部可用年份。管理后台表格按年份查询，挂载多选保留完整分类列表。期刊广场 CAS 大类/小类选项与列表筛选对齐到最新 `year`。
 - **详情**（期刊/文章）与 **按 `journal_id` 的文章列表**：公开源匿名可读；非公开源需有效 Bearer，且调用者为 `created_by` **或已订阅**（同 URL 复用后的订阅者）。
 - **订阅** `POST /subscriptions/journals/:id`：公开源或本人创建的非公开源；否则 404。
