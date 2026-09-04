@@ -63,7 +63,12 @@
               <n-tag v-if="a.content_type === 'preprint'" type="info" size="tiny" :bordered="false" style="margin-right: 6px;">
                 {{ contentTypeLabel(a.content_type) }}
               </n-tag>
-              <n-tag :type="sourceTypeTagType(a.journal_source_type)" size="tiny" :bordered="false">
+              <n-tag
+                v-if="a.journal_source_type"
+                :type="sourceTypeTagType(a.journal_source_type)"
+                size="tiny"
+                :bordered="false"
+              >
                 {{ sourceTypeLabel(a.journal_source_type) }}
               </n-tag>
             </div>
