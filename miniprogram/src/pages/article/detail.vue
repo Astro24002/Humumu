@@ -40,12 +40,8 @@
       </view>
 
       <view class="actions">
-        <button class="btn-link" v-if="article.doi" @click="openOriginal(doiUrl(article.doi))">
-          查看原文
-        </button>
-        <button class="btn-link" v-else-if="article.url" @click="openOriginal(article.url)">
-          查看原文
-        </button>
+        <button class="btn-link" v-if="article.doi" @click="openOriginal(doiUrl(article.doi))">DOI</button>
+        <button class="btn-link" v-if="article.url" @click="openOriginal(article.url)">原文</button>
         <button
           v-if="article.doi || article.url"
           class="btn-copy"

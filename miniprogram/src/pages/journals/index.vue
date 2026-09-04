@@ -18,7 +18,7 @@
       </view>
     </view>
     <view v-if="loading" class="loading"><text>加载中...</text></view>
-    <view v-else-if="journals.length === 0" class="empty">
+    <view v-else-if="!total && !journals.length" class="empty">
       <text>{{ emptyHint }}</text>
       <button v-if="hasActiveFilters" size="mini" class="btn-empty" @click="clearFilters">清除筛选</button>
       <button v-else size="mini" class="btn-empty" @click="goEmptyCta">{{ emptyCtaLabel }}</button>

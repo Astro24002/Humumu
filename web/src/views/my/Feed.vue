@@ -66,10 +66,10 @@
             <n-button size="tiny" quaternary :loading="isBusy(u.article_id)" :disabled="isBusy(u.article_id)" @click="toggle(u, 'is_read')">
               {{ u.status.is_read ? '标为未读' : '标为已读' }}
             </n-button>
-            <n-button size="tiny" quaternary :type="u.status.is_starred ? 'warning' : 'default'" :disabled="isBusy(u.article_id)" @click="toggle(u, 'is_starred')">
+            <n-button size="tiny" quaternary :type="u.status.is_starred ? 'warning' : 'default'" :loading="isBusy(u.article_id)" :disabled="isBusy(u.article_id)" @click="toggle(u, 'is_starred')">
               {{ u.status.is_starred ? '取消星标' : '星标' }}
             </n-button>
-            <n-button size="tiny" quaternary :type="u.status.is_later ? 'info' : 'default'" :disabled="isBusy(u.article_id)" @click="toggle(u, 'is_later')">
+            <n-button size="tiny" quaternary :type="u.status.is_later ? 'info' : 'default'" :loading="isBusy(u.article_id)" :disabled="isBusy(u.article_id)" @click="toggle(u, 'is_later')">
               {{ u.status.is_later ? '取消稍后再看' : '稍后再看' }}
             </n-button>
             <router-link :to="`/articles/${u.article_id}`">详情</router-link>
