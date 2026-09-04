@@ -1,0 +1,170 @@
+[
+  {
+    "year": 2025,
+    "major": "数学",
+    "minor": "数学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
+    "major": "数学",
+    "minor": "应用数学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "物理学",
+    "minor": "物理学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
+    "major": "物理学",
+    "minor": "凝聚态物理",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "化学",
+    "minor": "化学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
+    "major": "化学",
+    "minor": "分析化学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "生物学",
+    "minor": "生物学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
+    "major": "生物学",
+    "minor": "细胞生物学",
+    "zone": 1,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "生物学",
+    "minor": "分子生物学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "地球科学",
+    "minor": "地质学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "计算机科学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "人工智能",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
+    "major": "工程技术",
+    "minor": "电子与通信",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "医学",
+    "minor": "临床医学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
+    "major": "医学",
+    "minor": "基础医学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "环境科学与生态学",
+    "minor": "环境科学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "材料科学",
+    "minor": "材料科学",
+    "zone": 1,
+    "is_top": true
+  },
+  {
+    "year": 2025,
+    "major": "材料科学",
+    "minor": "纳米材料",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "管理学",
+    "minor": "管理科学与工程",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "经济学",
+    "minor": "应用经济学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "信息科学与系统科学",
+    "minor": "控制科学与工程",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "天文学",
+    "minor": "天文学",
+    "zone": 2,
+    "is_top": false
+  },
+  {
+    "year": 2025,
+    "major": "心理学",
+    "minor": "心理学",
+    "zone": 2,
+    "is_top": false
+  }
+]

@@ -48,6 +48,7 @@ Humumu（原 Journal Monitor）是一个 Python/FastAPI 单体服务，同时提
 | `app/redis_client.py` | Redis 客户端（去重等） |
 | `scripts/migrate.py` | 数据库迁移（同步 psycopg2） |
 | `scripts/seed_journals.py` | 内置公开源幂等 seed |
+| `scripts/seed_cas_categories.py` | CAS 分类 facet 幂等 seed（不挂载期刊） |
 
 ## 核心数据流
 

@@ -14,6 +14,7 @@ migrate:
 
 seed:
 	.venv/bin/python -m scripts.seed_journals
+	.venv/bin/python -m scripts.seed_cas_categories
 
 # Prefer local .venv; fall back to the migration worktree venv used in CI/dev.
 PYTEST ?= $(shell if [ -x .venv/bin/pytest ]; then echo .venv/bin/pytest; \

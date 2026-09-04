@@ -66,9 +66,10 @@ cp .env.example .env
 # 运行迁移
 make migrate
 
-# （可选）导入内置常用期刊（幂等 upsert，按 slug / source_url）
+# （可选）导入内置常用期刊 + CAS 分类 facet（幂等）
 make seed
-# 或: .venv/bin/python -m scripts.seed_journals
+# 或分别: .venv/bin/python -m scripts.seed_journals
+#         .venv/bin/python -m scripts.seed_cas_categories
 
 # 生产启动（开启调度器）
 export HUMUMU_ENABLE_SCHEDULER=1
@@ -91,6 +92,13 @@ docker run --env-file .env -e HUMUMU_SEED_JOURNALS=1 -p 8080:8080 humumu
 - 写入字段：`content_type`、`directory_status=public`、`homepage_url`、`normalized_source_url`
 - **不会**删除 seed 文件中已移除的行（管理员手工期刊不受影响）
 - Docker entrypoint：仅当 `HUMUMU_SEED_JOURNALS=1` 时在 migrate 之后自动执行
+
+### CAS 分类 facet（seed）
+
+- 数据文件：`data/cas_categories_seed.json`（示例大类/小类/分区，便于广场 CAS 筛选项冷启动；**不**自动挂载期刊）
+- 脚本：`python -m scripts.seed_cas_categories`（可传自定义 JSON 路径）
+- 行为：确保 `cas_category_years`；按 `(year, major, minor, zone, is_top)` 唯一键插入，已存在则跳过
+- 期刊挂载仍由管理后台「CAS 分类 → 挂载」完成
 
 ### Product v1 迁移与管理员
 

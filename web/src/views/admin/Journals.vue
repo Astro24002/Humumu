@@ -78,7 +78,7 @@
     @update:page="onPageChange"
   />
 
-  <n-modal v-model:show="showModal">
+  <n-modal v-model:show="showModal" :mask-closable="!saving" :close-on-esc="!saving" @update:show="onModalShow">
     <n-card style="width: 500px;" :title="editingId ? '编辑期刊' : '新增期刊'" role="dialog">
       <n-form :model="form" :disabled="saving">
         <n-form-item label="名称"><n-input v-model:value="form.name" /></n-form-item>
@@ -340,6 +340,12 @@ const columns = [
     },
   },
 ]
+
+function onModalShow(show: boolean) {
+  if (!show && saving.value) {
+    showModal.value = true
+  }
+}
 
 function openAdd() {
   editingId.value = null

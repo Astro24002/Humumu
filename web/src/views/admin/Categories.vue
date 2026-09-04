@@ -29,7 +29,7 @@
     </template>
   </n-empty>
 
-  <n-modal v-model:show="showCreate">
+  <n-modal v-model:show="showCreate" :mask-closable="!saving" :close-on-esc="!saving" @update:show="onCreateModalShow">
     <n-card style="width: 480px;" title="新增 CAS 分类" role="dialog">
       <n-form :model="form" :disabled="saving">
         <n-form-item label="年份">
@@ -228,6 +228,12 @@ const columns = [
       : '—',
   },
 ]
+
+function onCreateModalShow(show: boolean) {
+  if (!show && saving.value) {
+    showCreate.value = true
+  }
+}
 
 function onYearFilterChange(v: number | null) {
   yearFilter.value = v
