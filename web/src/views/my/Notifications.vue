@@ -156,7 +156,7 @@ function clearFilters() {
 }
 
 async function loadMore() {
-  if (!hasMore.value || loadingMore.value) return
+  if (!hasMore.value || loadingMore.value || loading.value) return
   await fetchPage(false)
 }
 

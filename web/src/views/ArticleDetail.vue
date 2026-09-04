@@ -32,7 +32,7 @@
         {{ authorsLabel }}
       </n-descriptions-item>
       <n-descriptions-item label="发表日期">
-        {{ article.publish_date || '未知' }}
+        {{ article.publish_date ? formatDate(article.publish_date) : '未知' }}
       </n-descriptions-item>
       <n-descriptions-item label="DOI">
         <a v-if="article.doi" :href="doiUrl(article.doi)" target="_blank" rel="noopener noreferrer" @click="onOriginalClick">{{ article.doi }}</a>
