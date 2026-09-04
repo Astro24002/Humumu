@@ -124,6 +124,8 @@ const journals = ref<Journal[]>([])
 const journalSearchLoading = ref(false)
 const yearFilter = ref<number | null>(null)
 let journalSearchSeq = 0
+/** Drop stale CAS table responses when year filter changes mid-flight. */
+let categoriesLoadSeq = 0
 
 const form = ref({
   year: new Date().getFullYear(),
@@ -226,11 +228,13 @@ async function loadAttachCategories() {
 }
 
 async function load() {
+  const seq = ++categoriesLoadSeq
   loading.value = true
   try {
     const cas = await getCasCategories(
       yearFilter.value != null ? { year: yearFilter.value } : undefined,
     )
+    if (seq !== categoriesLoadSeq) return
     categories.value = cas.categories
     if (cas.years?.length) {
       years.value = cas.years
@@ -246,9 +250,10 @@ async function load() {
     // Journal attach dropdown loads on focus / remote search (paged).
     if (!journals.value.length) await fetchJournalOptions('')
   } catch (e: any) {
+    if (seq !== categoriesLoadSeq) return
     message.error(e.message || '加载失败')
   } finally {
-    loading.value = false
+    if (seq === categoriesLoadSeq) loading.value = false
   }
 }
 

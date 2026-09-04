@@ -214,6 +214,8 @@ const casYear = ref<number | null>(null)
 const categories = ref<CasCategory[]>([])
 const subscribedIds = ref<Set<string>>(new Set())
 const busyId = ref<string | null>(null)
+/** Drop stale plaza list responses when filters/page change mid-flight. */
+let journalsLoadSeq = 0
 
 const sortOptions = [
   { label: '按名称', value: 'name' },
@@ -337,6 +339,7 @@ async function reload() {
 }
 
 async function fetchJournals() {
+  const seq = ++journalsLoadSeq
   loading.value = true
   try {
     const hasCasFacet = Boolean(major.value || minor.value || zone.value || topOnly.value)
@@ -355,12 +358,14 @@ async function fetchJournals() {
       offset: (page.value - 1) * pageSize,
     }
     const res = await getJournals(params)
+    if (seq !== journalsLoadSeq) return
     journals.value = res.journals
     total.value = typeof res.total === 'number' ? res.total : res.journals.length
   } catch (e: any) {
+    if (seq !== journalsLoadSeq) return
     message.error(e.message || '加载失败')
   } finally {
-    loading.value = false
+    if (seq === journalsLoadSeq) loading.value = false
   }
 }
 

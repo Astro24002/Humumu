@@ -53,6 +53,8 @@ const dialog = useDialog()
 const requests = ref<JournalRequest[]>([])
 const total = ref(0)
 const loading = ref(true)
+/** Drop stale admin request list responses when status/page change mid-flight. */
+let requestsLoadSeq = 0
 const reviewBusy = ref(false)
 
 function statusFromQuery(): string {
@@ -194,6 +196,7 @@ function reload() {
 }
 
 async function load() {
+  const seq = ++requestsLoadSeq
   loading.value = true
   try {
     const res = await getRequests({
@@ -201,12 +204,14 @@ async function load() {
       limit: pageSize,
       offset: (page.value - 1) * pageSize,
     })
+    if (seq !== requestsLoadSeq) return
     requests.value = res.requests
     total.value = typeof res.total === 'number' ? res.total : res.requests.length
   } catch (e: any) {
+    if (seq !== requestsLoadSeq) return
     message.error(e?.message || '加载失败')
   } finally {
-    loading.value = false
+    if (seq === requestsLoadSeq) loading.value = false
   }
 }
 

@@ -136,6 +136,8 @@ const filter = ref('')
 const offset = ref(0)
 const limit = 20
 const hasMore = ref(false)
+/** Drop stale feed responses when filter/reset races mid-flight. */
+let feedLoadSeq = 0
 
 const emptyDescription = computed(() => {
   if (filter.value === 'unread') return '没有未读更新'
@@ -144,8 +146,8 @@ const emptyDescription = computed(() => {
   return '暂无更新，去订阅期刊或关键词吧'
 })
 
-
 async function fetchPage(reset: boolean) {
+  const seq = ++feedLoadSeq
   if (reset) {
     loading.value = true
     offset.value = 0
@@ -159,15 +161,19 @@ async function fetchPage(reset: boolean) {
     }
     if (filter.value) params.filter = filter.value
     const res = await getMyUpdates(params)
+    if (seq !== feedLoadSeq) return
     if (reset) updates.value = res.updates
     else updates.value.push(...res.updates)
     offset.value += res.updates.length
     hasMore.value = res.updates.length >= limit
   } catch (e: any) {
+    if (seq !== feedLoadSeq) return
     message.error(e.message || '加载失败')
   } finally {
-    loading.value = false
-    loadingMore.value = false
+    if (seq === feedLoadSeq) {
+      loading.value = false
+      loadingMore.value = false
+    }
   }
 }
 

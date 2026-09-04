@@ -134,6 +134,8 @@ const dialog = useDialog()
 const journals = ref<Journal[]>([])
 const total = ref(0)
 const loading = ref(true)
+/** Drop stale admin journal list responses when filters/page change mid-flight. */
+let journalsLoadSeq = 0
 const showModal = ref(false)
 const editingId = ref<string | null>(null)
 const saving = ref(false)
@@ -416,6 +418,7 @@ function reload() {
 }
 
 async function load() {
+  const seq = ++journalsLoadSeq
   loading.value = true
   try {
     const res = await getAllJournals({
@@ -427,12 +430,14 @@ async function load() {
       limit: pageSize,
       offset: (page.value - 1) * pageSize,
     })
+    if (seq !== journalsLoadSeq) return
     journals.value = res.journals
     total.value = typeof res.total === 'number' ? res.total : res.journals.length
   } catch (e: any) {
+    if (seq !== journalsLoadSeq) return
     message.error(e?.message || '加载失败')
   } finally {
-    loading.value = false
+    if (seq === journalsLoadSeq) loading.value = false
   }
 }
 

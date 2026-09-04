@@ -101,6 +101,8 @@ const hasMore = ref(false)
 const total = ref<number | null>(null)
 const statusFilter = ref('')
 const channelFilter = ref('')
+/** Drop stale notification list responses when filters race mid-flight. */
+let notifLoadSeq = 0
 
 const hasActiveFilters = computed(() => Boolean(statusFilter.value || channelFilter.value))
 
@@ -109,9 +111,8 @@ const emptyDescription = computed(() => {
   return '暂无通知'
 })
 
-
-
 async function fetchPage(reset: boolean) {
+  const seq = ++notifLoadSeq
   if (reset) {
     loading.value = true
     offset.value = 0
@@ -127,6 +128,7 @@ async function fetchPage(reset: boolean) {
       status: statusFilter.value || undefined,
       channel: channelFilter.value || undefined,
     })
+    if (seq !== notifLoadSeq) return
     notifs.value.push(...res.notifications)
     offset.value += res.notifications.length
     if (typeof res.total === 'number') total.value = res.total
@@ -134,10 +136,13 @@ async function fetchPage(reset: boolean) {
       ? notifs.value.length < total.value
       : res.notifications.length >= limit
   } catch (e: any) {
+    if (seq !== notifLoadSeq) return
     message.error(e?.message || '加载失败')
   } finally {
-    loading.value = false
-    loadingMore.value = false
+    if (seq === notifLoadSeq) {
+      loading.value = false
+      loadingMore.value = false
+    }
   }
 }
 

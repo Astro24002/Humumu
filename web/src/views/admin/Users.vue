@@ -52,6 +52,8 @@ const auth = useAuthStore()
 const users = ref<User[]>([])
 const total = ref(0)
 const loading = ref(true)
+/** Drop stale admin user list responses when search/page change mid-flight. */
+let usersLoadSeq = 0
 const busyId = ref<string | null>(null)
 const nameFilter = ref('')
 const page = ref(1)
@@ -184,6 +186,7 @@ function reload() {
 }
 
 async function load() {
+  const seq = ++usersLoadSeq
   loading.value = true
   try {
     const res = await getUsers({
@@ -191,12 +194,14 @@ async function load() {
       limit: pageSize,
       offset: (page.value - 1) * pageSize,
     })
+    if (seq !== usersLoadSeq) return
     users.value = res.users
     total.value = typeof res.total === 'number' ? res.total : res.users.length
   } catch (e: any) {
+    if (seq !== usersLoadSeq) return
     message.error(e?.message || '加载失败')
   } finally {
-    loading.value = false
+    if (seq === usersLoadSeq) loading.value = false
   }
 }
 

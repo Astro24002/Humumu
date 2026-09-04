@@ -78,6 +78,8 @@ const offset = ref(0)
 const limit = 20
 const hasMore = ref(false)
 const articlesTotal = ref(0)
+/** Drop stale article-list responses when reset races loadMore mid-flight. */
+let articlesLoadSeq = 0
 
 function goPlaza() {
   uni.switchTab({ url: '/pages/journals/index' })
@@ -89,6 +91,7 @@ function goBack() {
 
 async function loadArticles(reset: boolean) {
   if (!journalId.value) return
+  const seq = ++articlesLoadSeq
   if (reset) {
     offset.value = 0
     articles.value = []
@@ -103,6 +106,7 @@ async function loadArticles(reset: boolean) {
       limit,
       offset: offset.value,
     })
+    if (seq !== articlesLoadSeq) return
     articles.value.push(...ar.articles)
     offset.value += ar.articles.length
     if (typeof ar.total === 'number') articlesTotal.value = ar.total
@@ -110,12 +114,15 @@ async function loadArticles(reset: boolean) {
     const total = articlesTotal.value || offset.value
     hasMore.value = offset.value < total && ar.articles.length >= limit
   } catch (e: any) {
+    if (seq !== articlesLoadSeq) return
     if (reset && !articles.value.length) {
       uni.showToast({ title: e?.message || '加载论文失败', icon: 'none' })
     }
   } finally {
-    loadingMore.value = false
-    articlesLoading.value = false
+    if (seq === articlesLoadSeq) {
+      loadingMore.value = false
+      articlesLoading.value = false
+    }
   }
 }
 
