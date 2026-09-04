@@ -7,7 +7,7 @@
     </n-space>
   </div>
 
-  <n-tabs :value="activeTab" style="margin-top: 16px;" @update:value="onTabChange">
+  <n-tabs :value="activeTab" style="margin-top: 16px;" :style="tabsBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined" @update:value="onTabChange">
     <n-tab-pane name="journals" :tab="journalsTabLabel">
       <div v-if="loadingJournals"><n-spin /></div>
       <n-empty v-else-if="!journals.length" description="尚未订阅任何期刊">
@@ -303,6 +303,18 @@ const unsubBusyId = ref<string | null>(null)
 const authorBusy = ref(false)
 const keywordBusy = ref(false)
 const removeBusyId = ref<string | null>(null)
+
+const tabsBusy = computed(() =>
+  loadingJournals.value
+  || prefsSaving.value
+  || addLoading.value
+  || previewLoading.value
+  || authorBusy.value
+  || keywordBusy.value
+  || !!unsubBusyId.value
+  || !!removeBusyId.value,
+)
+
 /** Drop stale subscription bundle responses when reload races mid-flight. */
 let subsLoadSeq = 0
 
@@ -542,18 +554,7 @@ async function reloadAll() {
 }
 
 function onTabChange(name: string) {
-  if (
-    loadingJournals.value
-    || prefsSaving.value
-    || addLoading.value
-    || previewLoading.value
-    || authorBusy.value
-    || keywordBusy.value
-    || !!unsubBusyId.value
-    || !!removeBusyId.value
-  ) {
-    return
-  }
+  if (tabsBusy.value) return
   const next = TAB_VALUES.has(name) ? name : 'journals'
   if (activeTab.value === next) return
   activeTab.value = next
