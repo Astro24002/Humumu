@@ -10,19 +10,31 @@
       <view class="bind-hint">绑定已有账号以同步订阅数据</view>
       <uni-forms ref="formRef" :model="form">
         <uni-forms-item label="邮箱" name="email">
-          <uni-easyinput v-model="form.email" placeholder="请输入邮箱" type="email" />
+          <uni-easyinput
+            v-model="form.email"
+            placeholder="请输入邮箱"
+            type="email"
+            :disabled="loading"
+          />
         </uni-forms-item>
         <uni-forms-item label="密码" name="password">
-          <uni-easyinput v-model="form.password" placeholder="请输入密码" type="password" />
+          <uni-easyinput
+            v-model="form.password"
+            placeholder="请输入密码"
+            type="password"
+            :disabled="loading"
+          />
         </uni-forms-item>
       </uni-forms>
-      <button class="btn-primary" @click="handleBind">绑定账号</button>
-      <button class="btn-text" @click="skipBind">跳过，直接使用</button>
+      <button class="btn-primary" :loading="loading" :disabled="loading" @click="handleBind">
+        绑定账号
+      </button>
+      <button class="btn-text" :disabled="loading" @click="skipBind">跳过，直接使用</button>
     </view>
 
     <!-- Initial login screen -->
     <view v-else>
-      <button class="btn-primary" @click="handleWeChatLogin" :loading="loading">
+      <button class="btn-primary" :loading="loading" :disabled="loading" @click="handleWeChatLogin">
         微信一键登录
       </button>
     </view>
@@ -161,6 +173,7 @@ async function handleBind() {
 }
 
 function skipBind() {
+  if (loading.value) return
   goAfterLogin()
 }
 </script>

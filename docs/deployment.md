@@ -56,7 +56,7 @@ HUMUMU_ENABLE_SCHEDULER: "1"
 # 安装依赖
 make install
 
-# 构建前端
+# 构建前端（产物 web/dist，含 favicon.svg / robots.txt；FastAPI 优先提供真实文件，其余 history-mode 回退 index.html）
 make frontend
 
 # 配置环境
