@@ -2,16 +2,16 @@ import { get } from './client'
 
 export interface Article {
   id: string
-  doi: string
+  doi?: string | null
   title: string
   authors: string[]
-  abstract: string
+  abstract?: string
   journal_id: string
-  journal_name: string
-  journal_source_type: string
+  journal_name?: string | null
+  journal_source_type?: string | null
   content_type?: string
-  publish_date: string | null
-  url: string
+  publish_date?: string | null
+  url?: string
   fetched_at: string
 }
 
