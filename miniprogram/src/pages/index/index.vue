@@ -78,8 +78,18 @@
         <text class="date" v-if="a.publish_date">{{ formatDate(a.publish_date) }}</text>
         <text class="snippet" v-if="a.abstract">{{ truncateAbstract(a.abstract) }}</text>
         <view v-if="a.doi || a.original_url || a.url" class="actions" @click.stop>
-          <text v-if="a.doi" class="action-link" @click="copyLink(doiUrl(a.doi), a)">DOI</text>
-          <text v-if="a.original_url || a.url" class="action-link" @click="copyLink(a.original_url || a.url || '', a)">原文</text>
+          <text
+            v-if="a.doi"
+            class="action-link"
+            :class="{ disabled: loading || originalClickBusy.has(a.id) }"
+            @click="copyLink(doiUrl(a.doi), a)"
+          >DOI</text>
+          <text
+            v-if="a.original_url || a.url"
+            class="action-link"
+            :class="{ disabled: loading || originalClickBusy.has(a.id) }"
+            @click="copyLink(a.original_url || a.url || '', a)"
+          >原文</text>
         </view>
       </view>
       <view v-if="loadingMore" class="loading-more"><text>加载中...</text></view>
@@ -318,13 +328,14 @@ function goJournal(id?: string) {
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
 }
 
-const originalClickBusy = new Set<string>()
+const originalClickBusy = ref(new Set<string>())
 
 async function copyLink(url: string, item?: FeedItem) {
   if (loading.value) return
   if (!url) return
-  if (auth.isLoggedIn && item?.id && !originalClickBusy.has(item.id)) {
-    originalClickBusy.add(item.id)
+  if (item?.id && originalClickBusy.value.has(item.id)) return
+  if (auth.isLoggedIn && item?.id) {
+    originalClickBusy.value = new Set([...originalClickBusy.value, item.id])
     try {
       await recordOriginalClick(item.id)
       // My-updates items carry unread; plaza "all" cards lack status — still mark once.
@@ -335,7 +346,9 @@ async function copyLink(url: string, item?: FeedItem) {
     } catch {
       // non-blocking
     } finally {
-      originalClickBusy.delete(item.id)
+      const next = new Set(originalClickBusy.value)
+      next.delete(item.id)
+      originalClickBusy.value = next
     }
   }
   uni.setClipboardData({
@@ -370,6 +383,7 @@ async function copyLink(url: string, item?: FeedItem) {
 .snippet { font-size: 24rpx; color: #999; margin-top: 10rpx; display: block; line-height: 1.5; }
 .actions { display: flex; gap: 24rpx; margin-top: 12rpx; }
 .action-link { font-size: 24rpx; color: #3cc51f; }
+.action-link.disabled { opacity: 0.45; pointer-events: none; }
 button:disabled { opacity: 0.55; }
 .card.busy { opacity: 0.55; pointer-events: none; }
 </style>
