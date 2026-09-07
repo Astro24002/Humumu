@@ -1,5 +1,5 @@
 <template>
-  <view class="card" :class="{ busy }" @click="goDetail">
+  <view class="card" :class="{ busy: busy || originalBusy }" @click="goDetail">
     <view class="meta">
       <view class="meta-left">
         <text
@@ -55,12 +55,12 @@ const authorsLabel = computed(() => formatAuthors(props.article.authors || []))
 const originalBusy = computed(() => originalClickBusyIds.value.has(props.article.id))
 
 function goDetail() {
-  if (props.busy) return
+  if (props.busy || originalBusy.value) return
   uni.navigateTo({ url: `/pages/article/detail?id=${props.article.id}` })
 }
 
 function goJournal() {
-  if (props.busy || !props.article.journal_id) return
+  if (props.busy || originalBusy.value || !props.article.journal_id) return
   uni.navigateTo({ url: `/pages/journals/detail?id=${props.article.journal_id}` })
 }
 
@@ -85,7 +85,7 @@ async function onOriginalClick() {
 }
 
 function copyLink(url: string) {
-  if (!url || originalBusy.value) return
+  if (!url || props.busy || originalBusy.value) return
   void onOriginalClick()
   uni.setClipboardData({
     data: url,
