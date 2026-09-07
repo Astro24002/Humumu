@@ -10,11 +10,11 @@ export interface UpdateStatusFlags {
 export interface MyUpdateItem {
   article_id: string
   title: string
-  authors?: string[]
-  abstract?: string
+  authors: string[]
+  abstract: string
   doi?: string | null
-  url?: string
-  original_url?: string
+  url: string
+  original_url: string
   publish_date?: string | null
   fetched_at?: string | null
   journal_id: string

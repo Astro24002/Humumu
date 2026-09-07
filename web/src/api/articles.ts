@@ -5,13 +5,13 @@ export interface Article {
   doi?: string | null
   title: string
   authors: string[]
-  abstract?: string
+  abstract: string
   journal_id: string
   journal_name?: string | null
   journal_source_type?: string | null
   content_type: string
   publish_date?: string | null
-  url?: string
+  url: string
   fetched_at: string
 }
 
