@@ -7,9 +7,9 @@ export interface Journal {
   source_type: string
   source_url: string
   description: string
-  fetch_interval: number
+  fetch_interval?: number
   is_active: boolean
-  created_by: string | null
+  created_by?: string | null
   created_at: string
   article_count: number
   last_article_date: string | null

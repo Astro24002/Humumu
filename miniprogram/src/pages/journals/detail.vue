@@ -27,7 +27,7 @@
           <button v-if="isSubscribed" class="btn-unsub" :disabled="subBusy" @click="unsubscribe">取消订阅</button>
           <button v-else class="btn-sub" :disabled="subBusy" @click="subscribe">{{ subBusy ? '处理中...' : '订阅' }}</button>
         </template>
-        <button v-else class="btn-sub" @click="goLogin">登录后订阅</button>
+        <button v-else class="btn-sub" :disabled="loading || subBusy" @click="goLogin">登录后订阅</button>
       </view>
 
       <view class="section-title">

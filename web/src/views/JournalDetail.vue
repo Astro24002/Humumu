@@ -81,6 +81,7 @@
         v-else
         type="primary"
         ghost
+        :disabled="subBusy"
         @click="router.push({ path: '/login', query: { redirect: route.fullPath } })"
       >
         登录后订阅
