@@ -39,13 +39,25 @@
         <n-number-animation :from="0" :to="journal.article_count ?? 0" />
       </n-descriptions-item>
       <n-descriptions-item label="数据源">
-        <a :href="journal.source_url" target="_blank" rel="noopener noreferrer" style="word-break: break-all;">{{ shortUrl(journal.source_url) }}</a>
+        <a
+          :href="journal.source_url"
+          target="_blank"
+          rel="noopener noreferrer"
+          :style="articlesBusy ? { wordBreak: 'break-all', opacity: 0.55, pointerEvents: 'none' } : { wordBreak: 'break-all' }"
+          @click="(e: MouseEvent) => { if (articlesBusy) e.preventDefault() }"
+        >{{ shortUrl(journal.source_url) }}</a>
       </n-descriptions-item>
       <n-descriptions-item label="最新论文">
         {{ journal.last_article_date ? formatDate(journal.last_article_date) : '暂无' }}
       </n-descriptions-item>
       <n-descriptions-item v-if="journal.homepage_url" label="主页">
-        <a :href="journal.homepage_url" target="_blank" rel="noopener noreferrer">{{ shortUrl(journal.homepage_url) }}</a>
+        <a
+          :href="journal.homepage_url"
+          target="_blank"
+          rel="noopener noreferrer"
+          :style="articlesBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined"
+          @click="(e: MouseEvent) => { if (articlesBusy) e.preventDefault() }"
+        >{{ shortUrl(journal.homepage_url) }}</a>
       </n-descriptions-item>
     </n-descriptions>
 

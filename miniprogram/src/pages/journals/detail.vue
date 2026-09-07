@@ -17,7 +17,12 @@
         <text v-if="journal.health_status === 'paused'" class="tag paused">{{ healthStatusLabel(journal.health_status) }}</text>
       </view>
       <text v-if="journal.description" class="desc">{{ journal.description }}</text>
-      <view v-if="journal.homepage_url || journal.source_url" class="home-row" @click="openHome">
+      <view
+        v-if="journal.homepage_url || journal.source_url"
+        class="home-row"
+        :class="{ busy: articlesLoading || subBusy }"
+        @click="openHome"
+      >
         <text class="home-label">{{ journal.homepage_url ? '主页' : '源' }}</text>
         <text class="home-link">{{ shortUrl(journal.homepage_url || journal.source_url) }}</text>
       </view>
@@ -201,6 +206,7 @@ async function subscribe() {
 }
 
 function openHome() {
+  if (articlesLoading.value || subBusy.value) return
   const url = journal.value?.homepage_url || journal.value?.source_url
   if (!url) return
   // #ifdef H5
@@ -271,4 +277,5 @@ function unsubscribe() {
 .end-hint { font-size: 24rpx; color: #bbb; }
 .btn-more { background: #f5f5f5; color: #666; border: none; }
 button:disabled { opacity: 0.55; }
+.home-row.busy { opacity: 0.45; pointer-events: none; }
 </style>
