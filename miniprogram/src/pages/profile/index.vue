@@ -117,6 +117,10 @@ function goNotifications() {
   uni.navigateTo({ url: '/pages/notifications/index' })
 }
 
+function persistUser() {
+  if (auth.user) uni.setStorageSync('user', JSON.stringify(auth.user))
+}
+
 async function onFreqChange(e: any) {
   if (freqBusy.value || templateBusy.value) return
   const prev = freqIndex.value
@@ -127,7 +131,10 @@ async function onFreqChange(e: any) {
   try {
     const { updatePushFrequency } = await import('@/api/subscriptions')
     await updatePushFrequency(freq)
-    if (auth.user) auth.user.push_frequency = freq
+    if (auth.user) {
+      auth.user.push_frequency = freq
+      persistUser()
+    }
     uni.showToast({ title: '更新成功', icon: 'success' })
   } catch (err: any) {
     freqIndex.value = prev
@@ -166,9 +173,13 @@ async function onTemplateChange(e: any) {
         return
       }
     }
-    await updateTemplateSetting(val)
-    templateSubscribed.value = val
-    uni.showToast({ title: val ? '已开启' : '已关闭', icon: 'success' })
+    const res = await updateTemplateSetting(val)
+    templateSubscribed.value = res.subscribed
+    if (auth.user) {
+      auth.user.wechat_template_subscribed = res.subscribed
+      persistUser()
+    }
+    uni.showToast({ title: res.subscribed ? '已开启' : '已关闭', icon: 'success' })
   } catch (err: any) {
     templateSubscribed.value = prev
     uni.showToast({ title: err.message || '操作失败', icon: 'none' })
