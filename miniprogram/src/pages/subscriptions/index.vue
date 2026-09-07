@@ -311,16 +311,17 @@ async function addFeed() {
     }
     const name = feedName.value.trim() || 'My Feed'
     const visibility = feedVisibility.value
-    await addMyJournal(name, url, visibility)
+    const result = await addMyJournal(name, url, visibility)
     feedUrl.value = ''
     feedName.value = ''
     feedVisibility.value = 'private'
     previewItems.value = []
     journals.value = (await getSubscribedJournals()).journals
-    uni.showToast({
-      title: visibility === 'apply_public' ? '已添加并申请公开' : '已添加私有源',
-      icon: 'success',
-    })
+    let title = visibility === 'apply_public' ? '已添加并申请公开' : '已添加私有源'
+    if (result.already_existed) {
+      title = `已订阅「${result.journal?.name || name}」`
+    }
+    uni.showToast({ title, icon: 'success' })
   } catch (e: any) {
     uni.showToast({ title: e.message || '添加失败', icon: 'none' })
   } finally {
