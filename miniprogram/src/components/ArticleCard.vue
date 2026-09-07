@@ -3,11 +3,11 @@
     <view class="meta">
       <view class="meta-left">
         <text
-          v-if="article.journal_id"
+          v-if="article.journal_id && article.journal_name"
           class="journal link"
           @click.stop="goJournal"
         >{{ article.journal_name }}</text>
-        <text v-else class="journal">{{ article.journal_name }}</text>
+        <text v-else-if="article.journal_name" class="journal">{{ article.journal_name }}</text>
         <text v-if="article.content_type === 'preprint'" class="tag preprint">{{ contentTypeLabel(article.content_type) }}</text>
         <text v-if="article.journal_source_type" class="tag source">{{ sourceTypeLabel(article.journal_source_type) }}</text>
       </view>
