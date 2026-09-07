@@ -23,14 +23,14 @@
 
         <view class="setting-item">
           <text>推送频率</text>
-          <picker :value="freqIndex" :range="freqOptions" :disabled="freqBusy" @change="onFreqChange">
+          <picker :value="freqIndex" :range="freqOptions" :disabled="freqBusy || templateBusy" @change="onFreqChange">
             <text class="setting-value">{{ freqOptions[freqIndex] }}</text>
           </picker>
         </view>
 
         <view class="setting-item">
           <text>微信订阅消息</text>
-          <switch :checked="templateSubscribed" :disabled="templateBusy" @change="onTemplateChange" />
+          <switch :checked="templateSubscribed" :disabled="templateBusy || freqBusy" @change="onTemplateChange" />
         </view>
       </view>
 
@@ -113,7 +113,7 @@ function goNotifications() {
 }
 
 async function onFreqChange(e: any) {
-  if (freqBusy.value) return
+  if (freqBusy.value || templateBusy.value) return
   const prev = freqIndex.value
   const val = Number(e.detail.value)
   freqIndex.value = val
@@ -133,7 +133,7 @@ async function onFreqChange(e: any) {
 }
 
 async function onTemplateChange(e: any) {
-  if (templateBusy.value) return
+  if (templateBusy.value || freqBusy.value) return
   const val = e.detail.value as boolean
   const prev = templateSubscribed.value
   templateBusy.value = true

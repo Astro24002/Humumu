@@ -204,10 +204,12 @@ async function fetchJournalOptions(q = '') {
 }
 
 function onJournalSearch(q: string) {
+  if (loading.value || saving.value || attaching.value) return
   fetchJournalOptions(q)
 }
 
 function onJournalFocus() {
+  if (loading.value || saving.value || attaching.value) return
   if (!journals.value.length) fetchJournalOptions('')
 }
 const categoryOptions = computed(() =>
