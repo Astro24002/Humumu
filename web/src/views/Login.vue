@@ -23,7 +23,7 @@
           :disabled="loading"
         />
       </n-form-item>
-      <n-button type="primary" block :loading="loading" attr-type="submit">登录</n-button>
+      <n-button type="primary" block :loading="loading" :disabled="loading" attr-type="submit">登录</n-button>
     </n-form>
     <p style="margin-top: 12px; text-align: center; color: #888;" :style="loading ? 'pointer-events: none; opacity: 0.55;' : undefined">
       还没有账号？<router-link :to="{ path: '/register', query: route.query }">注册</router-link>
