@@ -194,16 +194,8 @@ async function onOriginalClick() {
   if (!isLoggedIn.value || !article.value || originalClickBusy.value || statusBusy.value) return
   originalClickBusy.value = true
   try {
-    await recordOriginalClick(article.value.id)
-    if (!status.value.original_clicked_at) {
-      status.value = {
-        ...status.value,
-        original_clicked_at: new Date().toISOString(),
-      }
-    }
-    if (!status.value.is_read) {
-      status.value = await updateArticleStatus(article.value.id, { is_read: true })
-    }
+    // Server marks read + original_clicked_at and returns full status.
+    status.value = await recordOriginalClick(article.value.id)
   } catch {
     // non-blocking
   } finally {

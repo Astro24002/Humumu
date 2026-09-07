@@ -285,15 +285,11 @@ async function onOriginalClick(u: MyUpdateItem) {
   if (originalClickBusy.value.has(u.article_id) || busyMap.value[u.article_id]) return
   originalClickBusy.value = new Set([...originalClickBusy.value, u.article_id])
   try {
-    await recordOriginalClick(u.article_id)
-    if (!u.status.original_clicked_at) {
-      u.status.original_clicked_at = new Date().toISOString()
-    }
-    if (!u.status.is_read) {
-      const status = await updateArticleStatus(u.article_id, { is_read: true })
-      u.status.is_read = status.is_read
-      u.status.original_clicked_at = status.original_clicked_at || u.status.original_clicked_at
-    }
+    const status = await recordOriginalClick(u.article_id)
+    u.status.is_read = status.is_read
+    u.status.is_starred = status.is_starred
+    u.status.is_later = status.is_later
+    u.status.original_clicked_at = status.original_clicked_at
   } catch {
     // non-blocking
   } finally {

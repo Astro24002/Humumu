@@ -107,7 +107,7 @@ import { onShow, onPullDownRefresh, onUnload } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
-import { recordOriginalClick, updateArticleStatus } from '@/api/reading'
+import { recordOriginalClick } from '@/api/reading'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate, reasonLabel, formatAuthors, contentTypeLabel, sourceTypeLabel, doiUrl } from '@/utils/format'
 
@@ -343,13 +343,10 @@ async function copyLink(url: string, item?: FeedItem) {
   if (auth.isLoggedIn && item?.id) {
     originalClickBusy.value = new Set([...originalClickBusy.value, item.id])
     try {
+      // Server marks read + original_clicked_at; skip a second status PUT.
       await recordOriginalClick(item.id)
       item.original_clicked = true
-      // My-updates items carry unread; plaza "all" cards lack status — still mark once.
-      if (item.unread !== false) {
-        await updateArticleStatus(item.id, { is_read: true })
-        item.unread = false
-      }
+      item.unread = false
     } catch {
       // non-blocking
     } finally {

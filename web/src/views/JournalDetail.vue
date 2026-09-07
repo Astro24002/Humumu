@@ -206,7 +206,7 @@ import {
   unsubscribeJournal,
   getSubscribedJournals,
 } from '@/api/subscriptions'
-import { recordOriginalClick, updateArticleStatus } from '@/api/reading'
+import { recordOriginalClick } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { shortUrl, doiUrl } from '@/utils/url'
@@ -252,11 +252,9 @@ async function onOriginalClick(articleId: string) {
   if (!isLoggedIn.value || !articleId || originalClickBusy.value.has(articleId) || articlesBusy.value) return
   originalClickBusy.value = new Set([...originalClickBusy.value, articleId])
   try {
+    // Server marks read + original_clicked_at; skip a second status PUT.
     await recordOriginalClick(articleId)
-    if (!knownReadIds.has(articleId)) {
-      await updateArticleStatus(articleId, { is_read: true })
-      knownReadIds.add(articleId)
-    }
+    knownReadIds.add(articleId)
   } catch {
     // non-blocking
   } finally {

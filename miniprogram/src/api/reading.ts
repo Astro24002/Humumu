@@ -21,6 +21,6 @@ export function updateArticleStatus(
   return put(`/my/articles/${articleId}/status`, body)
 }
 
-export function recordOriginalClick(articleId: string): Promise<{ message: string }> {
+export function recordOriginalClick(articleId: string): Promise<ArticleStatus> {
   return post(`/my/articles/${articleId}/original-click`)
 }

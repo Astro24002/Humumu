@@ -379,8 +379,10 @@ GET /api/v1/my/updates
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | /api/v1/my/articles/{id}/status | 获取已读/星标/稍后再看 |
-| PUT | /api/v1/my/articles/{id}/status | 更新状态字段 |
-| POST | /api/v1/my/articles/{id}/original-click | 记录原文点击 |
+| PUT | /api/v1/my/articles/{id}/status | 更新状态字段（body 至少一项） |
+| POST | /api/v1/my/articles/{id}/original-click | 记录原文点击并标已读；**响应为完整 ArticleStatus** |
+
+`PUT .../status` body 示例：
 
 ```json
 {
@@ -389,6 +391,8 @@ GET /api/v1/my/updates
   "is_later": true
 }
 ```
+
+`POST .../original-click` 响应与 GET status 同形（含 `original_clicked_at`）。
 
 ### 管理端（需 is_admin）
 

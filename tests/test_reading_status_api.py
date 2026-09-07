@@ -113,11 +113,12 @@ async def test_put_status_requires_field(client, authed_user_id):
 @pytest.mark.asyncio
 async def test_original_click(client, authed_user_id):
     aid = str(uuid.uuid4())
+    clicked_at = datetime.now(timezone.utc)
     out = _sample_status(
         user_id=authed_user_id,
         article_id=aid,
         is_read=True,
-        original_clicked_at=datetime.now(timezone.utc),
+        original_clicked_at=clicked_at,
     )
     with patch(
         "app.routers.reading.reading_service.mark_original_click",
@@ -126,7 +127,10 @@ async def test_original_click(client, authed_user_id):
     ) as mock_click:
         r = await client.post(f"/api/v1/my/articles/{aid}/original-click")
     assert r.status_code == 200
-    assert r.json() == {"message": "recorded"}
+    body = r.json()
+    assert body["article_id"] == aid
+    assert body["is_read"] is True
+    assert body["original_clicked_at"] is not None
     mock_click.assert_awaited_once()
 
 

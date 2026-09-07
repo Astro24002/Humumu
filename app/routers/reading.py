@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_session
 from app.deps import get_current_user_id
-from app.schemas.common import MessageResponse
 from app.schemas.reading import ArticleStatusOut, ArticleStatusUpdate
 from app.services import reading_status as reading_service
 
@@ -61,17 +60,18 @@ async def update_article_status(
     return status
 
 
-@router.post("/{article_id}/original-click", response_model=MessageResponse)
+@router.post("/{article_id}/original-click", response_model=ArticleStatusOut)
 async def original_click(
     article_id: str,
     user_id: str = Depends(get_current_user_id),
     session: AsyncSession = Depends(get_session),
-) -> MessageResponse:
+) -> ArticleStatusOut:
+    """Record original click and return the updated reading status (marks read)."""
     try:
-        await reading_service.mark_original_click(session, user_id, article_id)
+        status = await reading_service.mark_original_click(session, user_id, article_id)
         await session.commit()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to record click") from exc
-    return MessageResponse(message="recorded")
+    return status

@@ -153,7 +153,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getArticles, type Article } from '@/api/articles'
 import { getJournal, getJournals, type Journal } from '@/api/journals'
-import { recordOriginalClick, updateArticleStatus } from '@/api/reading'
+import { recordOriginalClick } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
 import { truncateAbstract } from '@/utils/abstract'
 import { formatDate } from '@/utils/datetime'
@@ -211,11 +211,9 @@ async function onOriginalClick(articleId: string) {
   if (!auth.isLoggedIn || !articleId || originalClickBusy.value.has(articleId)) return
   originalClickBusy.value = new Set([...originalClickBusy.value, articleId])
   try {
+    // Server marks read + original_clicked_at; skip a second status PUT.
     await recordOriginalClick(articleId)
-    if (!knownReadIds.has(articleId)) {
-      await updateArticleStatus(articleId, { is_read: true })
-      knownReadIds.add(articleId)
-    }
+    knownReadIds.add(articleId)
   } catch {
     // non-blocking
   } finally {
