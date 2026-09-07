@@ -4,9 +4,15 @@
     <n-button size="small" :loading="loading" :disabled="loading" @click="reload">刷新</n-button>
   </div>
   <n-spin :show="loading">
-    <n-grid :cols="6" :x-gap="16" responsive="screen" item-responsive>
+    <n-grid
+      :cols="6"
+      :x-gap="16"
+      responsive="screen"
+      item-responsive
+      :class="{ 'stats-busy': loading }"
+    >
       <n-gi span="6 m:1">
-        <n-card size="small" hoverable style="cursor: pointer" @click="router.push('/admin/journals')">
+        <n-card size="small" hoverable style="cursor: pointer" @click="goJournals">
           <n-statistic title="期刊数" :value="stats.journal_count" />
         </n-card>
       </n-gi>
@@ -16,12 +22,12 @@
         </n-card>
       </n-gi>
       <n-gi span="6 m:1">
-        <n-card size="small" hoverable style="cursor: pointer" @click="router.push('/admin/users')">
+        <n-card size="small" hoverable style="cursor: pointer" @click="goUsers">
           <n-statistic title="用户数" :value="stats.user_count" />
         </n-card>
       </n-gi>
       <n-gi span="6 m:1">
-        <n-card size="small" hoverable style="cursor: pointer" @click="router.push('/admin/categories')">
+        <n-card size="small" hoverable style="cursor: pointer" @click="goCategories">
           <n-statistic title="CAS 分类" :value="stats.cas_category_count || 0" />
         </n-card>
       </n-gi>
@@ -102,11 +108,28 @@ const stats = ref<AdminStats>({
   cas_category_count: 0,
 })
 
+function goJournals() {
+  if (loading.value) return
+  router.push('/admin/journals')
+}
+
+function goUsers() {
+  if (loading.value) return
+  router.push('/admin/users')
+}
+
+function goCategories() {
+  if (loading.value) return
+  router.push('/admin/categories')
+}
+
 function goPendingDirectory() {
+  if (loading.value) return
   router.push({ path: '/admin/journals', query: { status: 'pending_review' } })
 }
 
 function goPendingRequests() {
+  if (loading.value) return
   router.push({ path: '/admin/requests', query: { status: 'pending' } })
 }
 
@@ -141,5 +164,9 @@ onMounted(load)
 <style scoped>
 .stat-attention {
   box-shadow: inset 3px 0 0 #f0a020;
+}
+.stats-busy {
+  opacity: 0.7;
+  pointer-events: none;
 }
 </style>
