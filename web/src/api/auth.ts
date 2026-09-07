@@ -36,3 +36,8 @@ export function login(email: string, password: string): Promise<AuthResponse> {
 export function getMe(): Promise<MeResponse> {
   return get<MeResponse>('/auth/me')
 }
+
+/** Logged-in user (e.g. WeChat stub) attaches a real email + password. Returns new token. */
+export function bindEmail(email: string, password: string): Promise<AuthResponse> {
+  return post<AuthResponse>('/auth/bind-email', { email, password })
+}

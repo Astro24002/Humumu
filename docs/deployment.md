@@ -196,6 +196,10 @@ asyncpg 不接受 libpq 风格的 `sslmode` 查询参数；需要 TLS 时使用 
 - [ ] 配置反向代理（Nginx）添加 TLS 和限流
 - [ ] 配置日志轮转（或接入集中日志）
 - [ ] 设置定期备份 PostgreSQL
+- [ ] 设置至少一名 `users.is_admin = true`（见上文 SQL）
+- [ ] 需要冷启动目录时执行 seed 或 `HUMUMU_SEED_JOURNALS=1`
+
+**现网（1Panel / 固定主机）的镜像发布、端口、回滚步骤**见 [production-deploy.md](./production-deploy.md)。
 
 ## 监控建议
 

@@ -299,3 +299,155 @@ async def test_login_missing_user_401(client):
     )
     assert r.status_code == 401
     assert r.json() == {"error": "invalid email or password"}
+
+
+@pytest.mark.asyncio
+async def test_bind_email_success_for_wechat_stub(client):
+    from unittest.mock import AsyncMock, patch
+
+    from app.deps import get_current_user_id
+    from app.services.password import verify_password
+
+    openid = "ox_stub_bind"
+    stub = FakeUser(
+        email=f"{openid}@wechat.user",
+        password_hash="",
+        name="WeChat User",
+    )
+    stub.wechat_openid = openid
+    uid = str(stub.id)
+
+    async def override_uid():
+        return uid
+
+    bound = FakeUser(
+        email="real@example.com",
+        password_hash=hash_password("secret12"),
+        name="WeChat User",
+        user_id=stub.id,
+    )
+    bound.wechat_openid = openid
+
+    app.dependency_overrides[get_current_user_id] = override_uid
+    try:
+        with (
+            patch(
+                "app.routers.auth.user_service.get_by_id",
+                new_callable=AsyncMock,
+                return_value=stub,
+            ),
+            patch(
+                "app.routers.auth.user_service.get_by_email",
+                new_callable=AsyncMock,
+                return_value=None,
+            ),
+            patch(
+                "app.routers.auth.user_service.bind_email",
+                new_callable=AsyncMock,
+                return_value=bound,
+            ) as mock_bind,
+        ):
+            r = await client.post(
+                "/api/v1/auth/bind-email",
+                json={"email": "real@example.com", "password": "secret12"},
+            )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["has_email"] is True
+        assert body["user"]["email"] == "real@example.com"
+        assert body["token"]
+        mock_bind.assert_awaited_once()
+        kwargs = mock_bind.await_args.kwargs
+        assert kwargs["email"] == "real@example.com"
+        assert verify_password("secret12", kwargs["password_hash"])
+    finally:
+        app.dependency_overrides.pop(get_current_user_id, None)
+
+
+@pytest.mark.asyncio
+async def test_bind_email_409_when_already_has_email(client):
+    from unittest.mock import AsyncMock, patch
+
+    from app.deps import get_current_user_id
+
+    user = FakeUser(
+        email="already@example.com",
+        password_hash=hash_password("secret1"),
+        name="Has Email",
+    )
+    uid = str(user.id)
+
+    async def override_uid():
+        return uid
+
+    app.dependency_overrides[get_current_user_id] = override_uid
+    try:
+        with patch(
+            "app.routers.auth.user_service.get_by_id",
+            new_callable=AsyncMock,
+            return_value=user,
+        ):
+            r = await client.post(
+                "/api/v1/auth/bind-email",
+                json={"email": "other@example.com", "password": "secret12"},
+            )
+        assert r.status_code == 409
+        assert r.json() == {"error": "email already bound"}
+    finally:
+        app.dependency_overrides.pop(get_current_user_id, None)
+
+
+@pytest.mark.asyncio
+async def test_bind_email_409_when_email_taken(client):
+    from unittest.mock import AsyncMock, patch
+
+    from app.deps import get_current_user_id
+
+    openid = "ox_stub_taken"
+    stub = FakeUser(
+        email=f"{openid}@wechat.user",
+        password_hash="",
+        name="WeChat User",
+    )
+    stub.wechat_openid = openid
+    other = FakeUser(
+        email="taken@example.com",
+        password_hash=hash_password("secret1"),
+        name="Other",
+    )
+    uid = str(stub.id)
+
+    async def override_uid():
+        return uid
+
+    app.dependency_overrides[get_current_user_id] = override_uid
+    try:
+        with (
+            patch(
+                "app.routers.auth.user_service.get_by_id",
+                new_callable=AsyncMock,
+                return_value=stub,
+            ),
+            patch(
+                "app.routers.auth.user_service.get_by_email",
+                new_callable=AsyncMock,
+                return_value=other,
+            ),
+        ):
+            r = await client.post(
+                "/api/v1/auth/bind-email",
+                json={"email": "taken@example.com", "password": "secret12"},
+            )
+        assert r.status_code == 409
+        assert r.json() == {"error": "email already registered"}
+    finally:
+        app.dependency_overrides.pop(get_current_user_id, None)
+
+
+@pytest.mark.asyncio
+async def test_bind_email_401_without_token(client):
+    r = await client.post(
+        "/api/v1/auth/bind-email",
+        json={"email": "x@example.com", "password": "secret12"},
+    )
+    assert r.status_code == 401

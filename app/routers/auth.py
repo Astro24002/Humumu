@@ -9,6 +9,7 @@ from app.deps import get_current_user_id
 from app.schemas.auth import (
     AuthResponse,
     AuthUser,
+    BindEmailRequest,
     LoginRequest,
     RegisterRequest,
     has_email,
@@ -158,5 +159,49 @@ async def bind_account(
     return AuthResponse(
         token=token,
         user=AuthUser.model_validate(user),
+        has_email=True,
+    )
+
+
+@router.post("/bind-email", response_model=AuthResponse)
+async def bind_email(
+    body: BindEmailRequest,
+    user_id: str = Depends(get_current_user_id),
+    session: AsyncSession = Depends(get_session),
+) -> AuthResponse:
+    """Attach email+password to the current user (typically a WeChat stub account).
+
+    Does not require a WeChat code — suitable for Web Settings. Rejects if the
+    account already has a real email, or if the target email is taken.
+    """
+    user = await user_service.get_by_id(session, user_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="invalid or expired token")
+
+    if has_email(user.email):
+        raise HTTPException(status_code=409, detail="email already bound")
+
+    existing = await user_service.get_by_email(session, body.email)
+    if existing is not None and str(existing.id) != str(user.id):
+        raise HTTPException(status_code=409, detail="email already registered")
+
+    password_hash = hash_password(body.password)
+    try:
+        updated = await user_service.bind_email(
+            session, user_id, email=body.email, password_hash=password_hash
+        )
+        if updated is None:
+            raise HTTPException(status_code=401, detail="invalid or expired token")
+        await session.commit()
+        await session.refresh(updated)
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status_code=409, detail="email already registered") from None
+
+    settings = get_settings()
+    token = create_access_token(str(updated.id), updated.email, settings.jwt_secret)
+    return AuthResponse(
+        token=token,
+        user=AuthUser.model_validate(updated),
         has_email=True,
     )

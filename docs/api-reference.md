@@ -96,13 +96,13 @@ POST /api/v1/auth/wechat
 
 **响应** `200 OK`: 同注册格式。首次微信登录自动创建账号（`email` 为 `{openid}@wechat.user` 占位，`has_email=false`）。
 
-### 绑定邮箱账号（小程序）
+### 绑定邮箱账号（小程序：微信 code → 已有邮箱）
 
 ```
 POST /api/v1/auth/bind-account
 ```
 
-将当前微信 `code` 解析出的 openid 挂到已有邮箱账号（校验邮箱+密码）。成功后返回新 token 与用户（`has_email=true`，`user.wechat_openid` 已写入）。
+将当前微信 `code` 解析出的 openid 挂到**已有邮箱账号**（校验邮箱+密码）。成功后返回新 token 与用户（`has_email=true`，`user.wechat_openid` 已写入）。
 
 ```json
 {
@@ -113,6 +113,26 @@ POST /api/v1/auth/bind-account
 ```
 
 **响应** `200 OK`: 同注册格式。密码错误 401；openid 冲突等服务端错误 500。
+
+### 当前用户绑定邮箱（Web / 任意 Bearer）
+
+```
+POST /api/v1/auth/bind-email
+```
+
+需要 `Authorization: Bearer <token>`。给**尚无真实邮箱**的账号（典型：微信一键登录生成的 `{openid}@wechat.user` 占位）写入邮箱与密码，并轮换 JWT。
+
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**响应** `200 OK`: 同注册格式（`has_email=true`，新 `token`）。  
+**409** `email already bound`（已有真实邮箱）；**409** `email already registered`（邮箱被其他账号占用）；密码最少 6 位。
+
+与 `bind-account` 方向相反：本接口是「当前用户 ← 邮箱」，不需要微信 code；`bind-account` 是「邮箱账号 ← 微信 openid」。
 
 ---
 

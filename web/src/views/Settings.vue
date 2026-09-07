@@ -41,9 +41,58 @@
         <n-tag size="small" type="info" :bordered="false">管理员</n-tag>
       </n-descriptions-item>
     </n-descriptions>
-    <p v-if="!accountHasEmail" style="color: #888; font-size: 13px; margin: 12px 0 0;">
-      微信一键登录账号暂无真实邮箱；邮件推送需绑定邮箱后才会生效（小程序内可绑定）。
-    </p>
+    <div v-if="!accountHasEmail" style="margin-top: 16px;">
+      <p style="color: #666; font-size: 13px; margin: 0 0 12px;">
+        微信登录账号尚无真实邮箱。绑定后可用邮箱登录，并启用邮件推送。
+      </p>
+      <n-form
+        ref="bindFormRef"
+        :model="bindForm"
+        :rules="bindRules"
+        label-placement="left"
+        label-width="72"
+        size="small"
+        style="max-width: 420px;"
+        :disabled="settingsBusy"
+      >
+        <n-form-item label="邮箱" path="email">
+          <n-input
+            v-model:value="bindForm.email"
+            placeholder="name@example.com"
+            autocomplete="email"
+            :disabled="settingsBusy"
+          />
+        </n-form-item>
+        <n-form-item label="密码" path="password">
+          <n-input
+            v-model:value="bindForm.password"
+            type="password"
+            show-password-on="click"
+            placeholder="至少 6 位"
+            autocomplete="new-password"
+            :disabled="settingsBusy"
+          />
+        </n-form-item>
+        <n-form-item label="确认密码" path="confirm">
+          <n-input
+            v-model:value="bindForm.confirm"
+            type="password"
+            show-password-on="click"
+            placeholder="再输入一次"
+            autocomplete="new-password"
+            :disabled="settingsBusy"
+          />
+        </n-form-item>
+        <n-button
+          type="primary"
+          :loading="bindBusy"
+          :disabled="settingsBusy"
+          @click="submitBindEmail"
+        >
+          绑定邮箱
+        </n-button>
+      </n-form>
+    </div>
   </n-card>
 
   <n-card title="默认推送频率" style="margin-bottom: 16px;" :style="hydrateBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined">
@@ -106,7 +155,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { updatePushFrequency } from '@/api/subscriptions'
@@ -115,9 +164,11 @@ import { getMyJournalRequests, type JournalRequest } from '@/api/journals'
 import { freqLabel, isWechatPlaceholderEmail, requestStatusLabel, requestStatusTagType } from '@/utils/labels'
 import { formatDateTime } from '@/utils/datetime'
 import { shortUrl } from '@/utils/url'
+import type { FormInst, FormRules } from 'naive-ui'
 import {
   NH2, NCard, NRadio, NRadioGroup, NButton, NDescriptions, NDescriptionsItem, NTag, NSwitch,
-  NList, NListItem, NThing, NSpace, NEmpty, NSpin, useMessage, useDialog,
+  NList, NListItem, NThing, NSpace, NEmpty, NSpin, NForm, NFormItem, NInput,
+  useMessage, useDialog,
 } from 'naive-ui'
 
 const router = useRouter()
@@ -135,6 +186,29 @@ const leaveArmed = ref(false)
 const templateSubscribed = ref(!!auth.user?.wechat_template_subscribed)
 const templateBusy = ref(false)
 const hydrateBusy = ref(true)
+const bindBusy = ref(false)
+const bindFormRef = ref<FormInst | null>(null)
+const bindForm = reactive({ email: '', password: '', confirm: '' })
+const bindRules: FormRules = {
+  email: [
+    { required: true, message: '请输入邮箱', trigger: ['input', 'blur'] },
+    { type: 'email', message: '邮箱格式不正确', trigger: ['input', 'blur'] },
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: ['input', 'blur'] },
+    { min: 6, message: '密码至少 6 位', trigger: ['input', 'blur'] },
+  ],
+  confirm: [
+    { required: true, message: '请再次输入密码', trigger: ['input', 'blur'] },
+    {
+      validator: (_rule, value: string) => {
+        if (value !== bindForm.password) return new Error('两次密码不一致')
+        return true
+      },
+      trigger: ['input', 'blur'],
+    },
+  ],
+}
 const myRequests = ref<JournalRequest[]>([])
 const requestsLoading = ref(false)
 /** Drop stale settings hydrations if the page unmounts mid-flight. */
@@ -150,7 +224,12 @@ const accountHasEmail = computed(() => {
 
 const frequencyDirty = computed(() => frequency.value !== savedFrequency.value)
 const settingsBusy = computed(
-  () => saving.value || templateBusy.value || hydrateBusy.value || requestsLoading.value,
+  () =>
+    saving.value
+    || templateBusy.value
+    || hydrateBusy.value
+    || requestsLoading.value
+    || bindBusy.value,
 )
 
 function persistUser() {
@@ -251,6 +330,27 @@ async function onTemplateChange(val: boolean) {
   }
 }
 
+async function submitBindEmail() {
+  if (settingsBusy.value || accountHasEmail.value) return
+  try {
+    await bindFormRef.value?.validate()
+  } catch {
+    return
+  }
+  bindBusy.value = true
+  try {
+    await auth.bindEmail(bindForm.email.trim(), bindForm.password)
+    bindForm.email = ''
+    bindForm.password = ''
+    bindForm.confirm = ''
+    message.success('邮箱已绑定，可用邮箱密码登录')
+  } catch (e: any) {
+    message.error(e?.message || '绑定失败')
+  } finally {
+    bindBusy.value = false
+  }
+}
+
 function handleLogout() {
   if (settingsBusy.value) return
   dialog.warning({
@@ -269,7 +369,7 @@ function handleLogout() {
 }
 
 onBeforeRouteLeave((_to, _from, next) => {
-  if (saving.value || templateBusy.value) {
+  if (saving.value || templateBusy.value || bindBusy.value) {
     next(false)
     return
   }

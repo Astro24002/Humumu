@@ -62,6 +62,28 @@ async def link_wechat(
     return bool(result.rowcount)
 
 
+async def bind_email(
+    session: AsyncSession,
+    user_id: UUID | str,
+    email: str,
+    password_hash: str,
+) -> User | None:
+    """Attach a real email + password to an existing user (e.g. WeChat stub).
+
+    Caller must ensure the email is not taken and the user is eligible.
+    Returns the refreshed user, or None if the user row is missing.
+    """
+    user = await get_by_id(session, user_id)
+    if user is None:
+        return None
+    user.email = email
+    user.password_hash = password_hash
+    user.updated_at = datetime.now(timezone.utc)
+    await session.flush()
+    await session.refresh(user)
+    return user
+
+
 async def get_template_setting(session: AsyncSession, user_id: UUID | str) -> bool:
     """Return wechat_template_subscribed for user; False if user missing."""
     result = await session.execute(

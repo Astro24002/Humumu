@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
+  bindEmail as apiBindEmail,
   getMe,
   login as apiLogin,
   register as apiRegister,
@@ -80,6 +81,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  /** Bind email+password for WeChat stub accounts; rotates token. */
+  async function bindEmail(email: string, password: string) {
+    const res = await apiBindEmail(email, password)
+    setAuth(res)
+  }
+
   function logout() {
     token.value = ''
     user.value = null
@@ -95,6 +102,7 @@ export const useAuthStore = defineStore('auth', () => {
     bootstrapped,
     login,
     register,
+    bindEmail,
     logout,
     refreshMe,
   }

@@ -179,6 +179,7 @@ make docker-build
 | [系统架构](docs/architecture.md) | 模块设计、数据流、技术选型 |
 | [API 参考](docs/api-reference.md) | 完整 API 接口说明与示例 |
 | [部署指南](docs/deployment.md) | 生产部署指引与环境要求 |
+| [现网发布](docs/production-deploy.md) | 当前生产机镜像发布 / 回滚 / 检查清单 |
 
 ## 技术栈
 

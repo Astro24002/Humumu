@@ -19,6 +19,13 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class BindEmailRequest(BaseModel):
+    """Logged-in user binds a real email + password (Web / any Bearer client)."""
+
+    email: EmailStr
+    password: str = Field(min_length=6)
+
+
 class AuthUser(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
