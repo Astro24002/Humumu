@@ -63,6 +63,7 @@
         tag="a"
         :href="article.url"
         target="_blank" rel="noopener noreferrer"
+        :disabled="!!statusBusy || originalClickBusy"
         @click="onOriginalClick"
       >
         查看原文
@@ -74,6 +75,7 @@
         tag="a"
         :href="doiUrl(article.doi)"
         target="_blank" rel="noopener noreferrer"
+        :disabled="!!statusBusy || originalClickBusy"
         @click="onOriginalClick"
       >
         DOI 原文

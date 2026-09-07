@@ -21,14 +21,24 @@
       {{ cleanAbstract(article.abstract) }}
     </text>
     <view v-if="article.doi || article.url" class="actions" @click.stop>
-      <text v-if="article.doi" class="action-link" @click="copyLink(doiUrl(article.doi))">DOI</text>
-      <text v-if="article.url" class="action-link" @click="copyLink(article.url)">原文</text>
+      <text
+        v-if="article.doi"
+        class="action-link"
+        :class="{ disabled: originalBusy }"
+        @click="!originalBusy && copyLink(doiUrl(article.doi))"
+      >DOI</text>
+      <text
+        v-if="article.url"
+        class="action-link"
+        :class="{ disabled: originalBusy }"
+        @click="!originalBusy && copyLink(article.url)"
+      >原文</text>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Article } from '@/api/articles'
 import { recordOriginalClick, updateArticleStatus } from '@/api/reading'
 import { useAuthStore } from '@/stores/auth'
@@ -37,11 +47,12 @@ import { cleanAbstract } from '@/utils/abstract'
 
 const props = defineProps<{ article: Article }>()
 const auth = useAuthStore()
-let originalClickBusy = false
-/** Module-level Set: shared across card instances (no status on Article payload). */
+/** Module-level: shared across card instances (no status on Article payload). */
 const knownReadIds = new Set<string>()
+const originalClickBusyIds = ref(new Set<string>())
 
 const authorsLabel = computed(() => formatAuthors(props.article.authors || []))
+const originalBusy = computed(() => originalClickBusyIds.value.has(props.article.id))
 
 function goDetail() {
   uni.navigateTo({ url: `/pages/article/detail?id=${props.article.id}` })
@@ -53,9 +64,9 @@ function goJournal() {
 }
 
 async function onOriginalClick() {
-  if (!auth.isLoggedIn || !props.article.id || originalClickBusy) return
   const articleId = props.article.id
-  originalClickBusy = true
+  if (!auth.isLoggedIn || !articleId || originalClickBusyIds.value.has(articleId)) return
+  originalClickBusyIds.value = new Set([...originalClickBusyIds.value, articleId])
   try {
     await recordOriginalClick(articleId)
     if (!knownReadIds.has(articleId)) {
@@ -65,12 +76,14 @@ async function onOriginalClick() {
   } catch {
     // non-blocking
   } finally {
-    originalClickBusy = false
+    const next = new Set(originalClickBusyIds.value)
+    next.delete(articleId)
+    originalClickBusyIds.value = next
   }
 }
 
 function copyLink(url: string) {
-  if (!url) return
+  if (!url || originalBusy.value) return
   void onOriginalClick()
   uni.setClipboardData({
     data: url,
@@ -100,4 +113,5 @@ function copyLink(url: string) {
 .abstract { font-size: 26rpx; color: #999; margin-top: 12rpx; display: block; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; }
 .actions { display: flex; gap: 24rpx; margin-top: 16rpx; }
 .action-link { font-size: 24rpx; color: #3cc51f; }
+.action-link.disabled { opacity: 0.45; pointer-events: none; }
 </style>
