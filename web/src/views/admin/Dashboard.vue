@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { getStats, type AdminStats } from '@/api/admin'
 import { NH2, NGrid, NGi, NStatistic, NCard, NButton, NSpin, NAlert, useMessage } from 'naive-ui'
@@ -159,6 +159,7 @@ async function load() {
 }
 
 onMounted(load)
+onUnmounted(() => { statsLoadSeq++ })
 </script>
 
 <style scoped>

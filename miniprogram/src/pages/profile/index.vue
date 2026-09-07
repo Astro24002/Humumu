@@ -87,6 +87,10 @@ async function hydrateProfile() {
   if (seq !== profileLoadSeq) return
   // default daily (index 0); realtime is index 1
   freqIndex.value = auth.user?.push_frequency === 'realtime' ? 1 : 0
+  // Seed from /auth/me payload, then confirm via template-setting endpoint.
+  if (typeof auth.user?.wechat_template_subscribed === 'boolean') {
+    templateSubscribed.value = auth.user.wechat_template_subscribed
+  }
   loadTemplateSetting()
 }
 
