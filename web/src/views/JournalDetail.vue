@@ -145,6 +145,7 @@
                 :href="doiUrl(a.doi)"
                 target="_blank"
                 rel="noopener noreferrer"
+                :disabled="articlesBusy || originalClickBusy.has(a.id)"
                 @click="onOriginalClick(a.id)"
               >DOI</n-button>
               <n-button
@@ -155,6 +156,7 @@
                 :href="a.url"
                 target="_blank"
                 rel="noopener noreferrer"
+                :disabled="articlesBusy || originalClickBusy.has(a.id)"
                 @click="onOriginalClick(a.id)"
               >原文</n-button>
             </n-space>
@@ -221,13 +223,13 @@ const subBusy = ref(false)
 const articlesBusy = computed(() => articlesLoading.value || subBusy.value)
 /** Drop stale article-list responses when route id / page changes mid-flight. */
 let articlesLoadSeq = 0
-const originalClickBusy = new Set<string>()
+const originalClickBusy = ref(new Set<string>())
 /** Session-local: paper list cards lack status payload; skip re-mark after first success. */
 const knownReadIds = new Set<string>()
 
 async function onOriginalClick(articleId: string) {
-  if (!isLoggedIn.value || !articleId || originalClickBusy.has(articleId)) return
-  originalClickBusy.add(articleId)
+  if (!isLoggedIn.value || !articleId || originalClickBusy.value.has(articleId) || articlesBusy.value) return
+  originalClickBusy.value = new Set([...originalClickBusy.value, articleId])
   try {
     await recordOriginalClick(articleId)
     if (!knownReadIds.has(articleId)) {
@@ -237,7 +239,9 @@ async function onOriginalClick(articleId: string) {
   } catch {
     // non-blocking
   } finally {
-    originalClickBusy.delete(articleId)
+    const next = new Set(originalClickBusy.value)
+    next.delete(articleId)
+    originalClickBusy.value = next
   }
 }
 /** Drop stale journal detail responses when route id changes mid-flight. */

@@ -83,6 +83,7 @@
               tag="a"
               :href="doiUrl(u.doi)"
               target="_blank" rel="noopener noreferrer"
+              :disabled="listBusy || originalClickBusy.has(u.article_id)"
               @click="onOriginalClick(u)"
             >
               DOI
@@ -94,6 +95,7 @@
               tag="a"
               :href="u.original_url || u.url"
               target="_blank" rel="noopener noreferrer"
+              :disabled="listBusy || originalClickBusy.has(u.article_id)"
               @click="onOriginalClick(u)"
             >
               原文

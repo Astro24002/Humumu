@@ -100,6 +100,7 @@
                 :href="doiUrl(a.doi)"
                 target="_blank"
                 rel="noopener noreferrer"
+                :disabled="loading || originalClickBusy.has(a.id)"
                 @click="onOriginalClick(a.id)"
               >DOI</n-button>
               <n-button
@@ -110,6 +111,7 @@
                 :href="a.url"
                 target="_blank"
                 rel="noopener noreferrer"
+                :disabled="loading || originalClickBusy.has(a.id)"
                 @click="onOriginalClick(a.id)"
               >原文</n-button>
             </div>
@@ -171,13 +173,13 @@ let articlesLoadSeq = 0
 let suppressQueryApply = false
 /** Skip journal-id watcher side effects while hydrating from the URL. */
 let applyingFromQuery = false
-const originalClickBusy = new Set<string>()
+const originalClickBusy = ref(new Set<string>())
 /** Session-local: list cards lack status payload; skip re-mark after first success. */
 const knownReadIds = new Set<string>()
 
 async function onOriginalClick(articleId: string) {
-  if (!auth.isLoggedIn || !articleId || originalClickBusy.has(articleId)) return
-  originalClickBusy.add(articleId)
+  if (!auth.isLoggedIn || !articleId || originalClickBusy.value.has(articleId)) return
+  originalClickBusy.value = new Set([...originalClickBusy.value, articleId])
   try {
     await recordOriginalClick(articleId)
     if (!knownReadIds.has(articleId)) {
@@ -187,7 +189,9 @@ async function onOriginalClick(articleId: string) {
   } catch {
     // non-blocking
   } finally {
-    originalClickBusy.delete(articleId)
+    const next = new Set(originalClickBusy.value)
+    next.delete(articleId)
+    originalClickBusy.value = next
   }
 }
 
