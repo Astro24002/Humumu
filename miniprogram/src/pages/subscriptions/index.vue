@@ -39,7 +39,7 @@
           <button size="mini" class="btn-empty-cta" :disabled="tabsBusy" @click="goJournalsPlaza">浏览期刊</button>
         </view>
         <view v-else class="list">
-          <view v-for="j in journals" :key="j.id" class="list-item-block">
+          <view v-for="j in journals" :key="j.id" class="list-item-block" :class="{ busy: tabsBusy }">
             <view class="list-item">
               <view class="item-main" :class="{ disabled: tabsBusy || busyIds.has(j.id) }" @click="goJournal(j.id)">
                 <text class="item-name">{{ j.name }}</text>
@@ -419,6 +419,7 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
 .btn-login { margin-top: 30rpx; background: #3cc51f; color: #fff; border: none; border-radius: 12rpx; padding: 20rpx 60rpx; }
 .loading, .empty { text-align: center; padding: 80rpx; color: #999; font-size: 28rpx; }
 .hint { display: block; margin-top: 12rpx; font-size: 24rpx; color: #bbb; }
+.list-item-block.busy { opacity: 0.55; pointer-events: none; }
 .list-item-block { background: #fff; border-bottom: 1rpx solid #f0f0f0; }
 .list-item { display: flex; align-items: center; padding: 24rpx 30rpx 8rpx; gap: 16rpx; }
 .item-main.disabled { opacity: 0.55; pointer-events: none; }

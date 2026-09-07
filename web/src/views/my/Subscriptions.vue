@@ -15,7 +15,7 @@
           <n-button :disabled="tabsBusy" @click="router.push('/journals')">浏览期刊广场</n-button>
         </template>
       </n-empty>
-      <n-list v-else>
+      <n-list v-else :style="tabsBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined">
         <n-list-item v-for="j in journals" :key="j.id">
           <n-thing>
             <template #header>
