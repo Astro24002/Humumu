@@ -80,7 +80,7 @@
       >
         DOI 原文
       </n-button>
-      <n-button v-if="article.doi || article.url" quaternary @click="copyLink">
+      <n-button v-if="article.doi || article.url" quaternary :disabled="!!statusBusy || originalClickBusy" @click="copyLink">
         复制链接
       </n-button>
       <template v-if="isLoggedIn">
@@ -197,7 +197,7 @@ async function onOriginalClick() {
 }
 
 async function copyLink() {
-  if (!article.value) return
+  if (!article.value || statusBusy.value || originalClickBusy.value) return
   const link = article.value.doi
     ? doiUrl(article.value.doi)
     : article.value.url || ''

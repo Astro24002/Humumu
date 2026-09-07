@@ -54,6 +54,7 @@
         <button
           v-if="article.doi || article.url"
           class="btn-copy"
+          :disabled="!!statusBusy || originalClickBusy"
           @click="copyLink"
         >复制链接</button>
       </view>
@@ -204,6 +205,7 @@ async function openOriginal(url: string) {
 }
 
 async function copyLink() {
+  if (statusBusy.value || originalClickBusy.value) return
   const url = originalUrl()
   if (!url) return
   await markOriginalClicked()
