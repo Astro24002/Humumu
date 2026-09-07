@@ -65,8 +65,12 @@ export function truncate(s?: string | null, max = 40): string {
   return s.slice(0, max) + '…'
 }
 
-export function timeAgo(d: string): string {
-  const diff = Date.now() - new Date(d).getTime()
+export function timeAgo(d?: string | null): string {
+  if (!d) return ''
+  const ts = new Date(d).getTime()
+  if (!Number.isFinite(ts)) return ''
+  const diff = Date.now() - ts
+  if (diff < 0) return ''
   const mins = Math.floor(diff / 60000)
   if (mins < 60) return `${mins}分钟前`
   const hours = Math.floor(mins / 60)
