@@ -66,13 +66,13 @@
         </template>
         <template #footer>
           <n-space>
-            <n-button size="tiny" quaternary :loading="isBusy(u.article_id, 'is_read')" :disabled="listBusy" @click="toggle(u, 'is_read')">
+            <n-button size="tiny" quaternary :loading="isBusy(u.article_id, 'is_read')" :disabled="listBusy || originalClickBusy.has(u.article_id)" @click="toggle(u, 'is_read')">
               {{ u.status.is_read ? '标为未读' : '标为已读' }}
             </n-button>
-            <n-button size="tiny" quaternary :type="u.status.is_starred ? 'warning' : 'default'" :loading="isBusy(u.article_id, 'is_starred')" :disabled="listBusy" @click="toggle(u, 'is_starred')">
+            <n-button size="tiny" quaternary :type="u.status.is_starred ? 'warning' : 'default'" :loading="isBusy(u.article_id, 'is_starred')" :disabled="listBusy || originalClickBusy.has(u.article_id)" @click="toggle(u, 'is_starred')">
               {{ u.status.is_starred ? '取消星标' : '星标' }}
             </n-button>
-            <n-button size="tiny" quaternary :type="u.status.is_later ? 'info' : 'default'" :loading="isBusy(u.article_id, 'is_later')" :disabled="listBusy" @click="toggle(u, 'is_later')">
+            <n-button size="tiny" quaternary :type="u.status.is_later ? 'info' : 'default'" :loading="isBusy(u.article_id, 'is_later')" :disabled="listBusy || originalClickBusy.has(u.article_id)" @click="toggle(u, 'is_later')">
               {{ u.status.is_later ? '取消稍后再看' : '稍后再看' }}
             </n-button>
             <router-link :to="`/articles/${u.article_id}`">详情</router-link>
@@ -230,8 +230,10 @@ function isBusy(id: string, field: 'is_read' | 'is_starred' | 'is_later') {
   return busyMap.value[id] === field
 }
 
+
+const originalClickBusy = ref(new Set<string>())
 async function toggle(u: MyUpdateItem, field: 'is_read' | 'is_starred' | 'is_later') {
-  if (listBusy.value || busyMap.value[u.article_id]) return
+  if (listBusy.value || busyMap.value[u.article_id] || originalClickBusy.value.has(u.article_id)) return
   const next = !u.status[field]
   busyMap.value = { ...busyMap.value, [u.article_id]: field }
   try {
@@ -247,11 +249,10 @@ async function toggle(u: MyUpdateItem, field: 'is_read' | 'is_starred' | 'is_lat
   }
 }
 
-const originalClickBusy = new Set<string>()
 
 async function onOriginalClick(u: MyUpdateItem) {
-  if (originalClickBusy.has(u.article_id)) return
-  originalClickBusy.add(u.article_id)
+  if (originalClickBusy.value.has(u.article_id) || busyMap.value[u.article_id]) return
+  originalClickBusy.value = new Set([...originalClickBusy.value, u.article_id])
   try {
     await recordOriginalClick(u.article_id)
     if (!u.status.is_read) {
@@ -262,7 +263,9 @@ async function onOriginalClick(u: MyUpdateItem) {
   } catch {
     // non-blocking
   } finally {
-    originalClickBusy.delete(u.article_id)
+    const next = new Set(originalClickBusy.value)
+    next.delete(u.article_id)
+    originalClickBusy.value = next
   }
 }
 
