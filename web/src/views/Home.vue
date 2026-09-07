@@ -172,13 +172,18 @@ let suppressQueryApply = false
 /** Skip journal-id watcher side effects while hydrating from the URL. */
 let applyingFromQuery = false
 const originalClickBusy = new Set<string>()
+/** Session-local: list cards lack status payload; skip re-mark after first success. */
+const knownReadIds = new Set<string>()
 
 async function onOriginalClick(articleId: string) {
   if (!auth.isLoggedIn || !articleId || originalClickBusy.has(articleId)) return
   originalClickBusy.add(articleId)
   try {
     await recordOriginalClick(articleId)
-    await updateArticleStatus(articleId, { is_read: true })
+    if (!knownReadIds.has(articleId)) {
+      await updateArticleStatus(articleId, { is_read: true })
+      knownReadIds.add(articleId)
+    }
   } catch {
     // non-blocking
   } finally {

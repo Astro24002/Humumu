@@ -38,6 +38,8 @@ import { cleanAbstract } from '@/utils/abstract'
 const props = defineProps<{ article: Article }>()
 const auth = useAuthStore()
 let originalClickBusy = false
+/** Module-level: survives card re-mounts in plaza lists (no status on Article payload). */
+const knownReadIds: Set<string> = ((globalThis as any).__humumuKnownReadIds ||= new Set())
 
 const authorsLabel = computed(() => formatAuthors(props.article.authors || []))
 
@@ -52,10 +54,14 @@ function goJournal() {
 
 async function onOriginalClick() {
   if (!auth.isLoggedIn || !props.article.id || originalClickBusy) return
+  const articleId = props.article.id
   originalClickBusy = true
   try {
-    await recordOriginalClick(props.article.id)
-    await updateArticleStatus(props.article.id, { is_read: true })
+    await recordOriginalClick(articleId)
+    if (!knownReadIds.has(articleId)) {
+      await updateArticleStatus(articleId, { is_read: true })
+      knownReadIds.add(articleId)
+    }
   } catch {
     // non-blocking
   } finally {
