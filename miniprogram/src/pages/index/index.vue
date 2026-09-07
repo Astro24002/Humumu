@@ -117,13 +117,13 @@ interface FeedItem {
   journal_id?: string
   journal_name: string
   publish_date: string | null
-  content_type?: string
+  content_type: string
   journal_source_type?: string
   reasons: string[]
   unread?: boolean
-  abstract?: string
+  abstract: string
   doi?: string | null
-  url?: string
+  url: string
   original_url?: string
 }
 
@@ -258,16 +258,16 @@ async function fetchItems(isLoadMore = false) {
         title: u.title,
         authors: u.authors || [],
         journal_id: u.journal_id,
-        journal_name: u.journal_name,
-        publish_date: u.publish_date,
-        content_type: u.content_type,
-        journal_source_type: u.journal_source_type,
+        journal_name: u.journal_name || '',
+        publish_date: u.publish_date ?? null,
+        content_type: u.content_type || 'journal',
+        journal_source_type: u.journal_source_type || undefined,
         reasons: u.reasons || [],
         unread: !u.status?.is_read,
         abstract: u.abstract || '',
         doi: u.doi,
-        url: u.url,
-        original_url: u.original_url,
+        url: u.url || '',
+        original_url: u.original_url || '',
       }))
       items.value.push(...mapped)
       offset.value += res.updates.length
@@ -287,14 +287,14 @@ async function fetchItems(isLoadMore = false) {
         title: a.title,
         authors: a.authors || [],
         journal_id: a.journal_id,
-        journal_name: a.journal_name,
-        publish_date: a.publish_date,
-        content_type: a.content_type,
-        journal_source_type: a.journal_source_type,
+        journal_name: a.journal_name || '',
+        publish_date: a.publish_date ?? null,
+        content_type: a.content_type || 'journal',
+        journal_source_type: a.journal_source_type || undefined,
         reasons: [],
         abstract: a.abstract || '',
         doi: a.doi,
-        url: a.url,
+        url: a.url || '',
       }))
       items.value.push(...mapped)
       offset.value += res.articles.length
