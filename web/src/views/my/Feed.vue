@@ -66,13 +66,13 @@
         </template>
         <template #footer>
           <n-space>
-            <n-button size="tiny" quaternary :loading="isBusy(u.article_id, 'is_read')" :disabled="isRowBusy(u.article_id)" @click="toggle(u, 'is_read')">
+            <n-button size="tiny" quaternary :loading="isBusy(u.article_id, 'is_read')" :disabled="listBusy" @click="toggle(u, 'is_read')">
               {{ u.status.is_read ? '标为未读' : '标为已读' }}
             </n-button>
-            <n-button size="tiny" quaternary :type="u.status.is_starred ? 'warning' : 'default'" :loading="isBusy(u.article_id, 'is_starred')" :disabled="isRowBusy(u.article_id)" @click="toggle(u, 'is_starred')">
+            <n-button size="tiny" quaternary :type="u.status.is_starred ? 'warning' : 'default'" :loading="isBusy(u.article_id, 'is_starred')" :disabled="listBusy" @click="toggle(u, 'is_starred')">
               {{ u.status.is_starred ? '取消星标' : '星标' }}
             </n-button>
-            <n-button size="tiny" quaternary :type="u.status.is_later ? 'info' : 'default'" :loading="isBusy(u.article_id, 'is_later')" :disabled="isRowBusy(u.article_id)" @click="toggle(u, 'is_later')">
+            <n-button size="tiny" quaternary :type="u.status.is_later ? 'info' : 'default'" :loading="isBusy(u.article_id, 'is_later')" :disabled="listBusy" @click="toggle(u, 'is_later')">
               {{ u.status.is_later ? '取消稍后再看' : '稍后再看' }}
             </n-button>
             <router-link :to="`/articles/${u.article_id}`">详情</router-link>
@@ -225,16 +225,13 @@ async function loadMore() {
   await fetchPage(false)
 }
 
-function isRowBusy(id: string) {
-  return Boolean(busyMap.value[id])
-}
 
 function isBusy(id: string, field: 'is_read' | 'is_starred' | 'is_later') {
   return busyMap.value[id] === field
 }
 
 async function toggle(u: MyUpdateItem, field: 'is_read' | 'is_starred' | 'is_later') {
-  if (busyMap.value[u.article_id]) return
+  if (listBusy.value || busyMap.value[u.article_id]) return
   const next = !u.status[field]
   busyMap.value = { ...busyMap.value, [u.article_id]: field }
   try {
