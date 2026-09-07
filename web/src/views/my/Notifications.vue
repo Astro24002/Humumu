@@ -23,7 +23,7 @@
   <n-empty v-else-if="!notifs.length" :description="emptyDescription">
     <template #extra>
       <n-button v-if="hasActiveFilters" :disabled="loading" @click="clearFilters">清除筛选</n-button>
-      <n-button v-else @click="router.push('/my/subscriptions')">管理订阅</n-button>
+      <n-button v-else :disabled="loading" @click="router.push('/my/subscriptions')">管理订阅</n-button>
     </template>
   </n-empty>
   <n-list v-else>

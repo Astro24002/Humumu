@@ -12,7 +12,7 @@
       <div v-if="loadingJournals"><n-spin /></div>
       <n-empty v-else-if="!journals.length" description="尚未订阅任何期刊">
         <template #extra>
-          <n-button @click="router.push('/journals')">浏览期刊广场</n-button>
+          <n-button :disabled="tabsBusy" @click="router.push('/journals')">浏览期刊广场</n-button>
         </template>
       </n-empty>
       <n-list v-else>

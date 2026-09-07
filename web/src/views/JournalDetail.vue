@@ -107,7 +107,7 @@
       :description="journal.health_status === 'paused' ? '暂无文章（抓取已暂停）' : '暂无文章'"
     >
       <template #extra>
-        <n-button @click="router.push('/journals')">返回期刊广场</n-button>
+        <n-button :disabled="articlesBusy" @click="router.push('/journals')">返回期刊广场</n-button>
       </template>
     </n-empty>
     <n-list v-else>

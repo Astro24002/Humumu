@@ -47,7 +47,7 @@
     <n-empty v-else-if="!articles.length" :description="emptyDescription">
       <template #extra>
         <n-button v-if="filterJournalId || filterContentType || filterSourceType" :disabled="loading" @click="clearFilters">清除筛选</n-button>
-        <n-button v-else @click="router.push('/journals')">浏览期刊</n-button>
+        <n-button v-else :disabled="loading" @click="router.push('/journals')">浏览期刊</n-button>
       </template>
     </n-empty>
 
