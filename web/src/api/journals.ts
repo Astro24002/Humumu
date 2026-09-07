@@ -8,11 +8,11 @@ export interface Journal {
   source_url: string
   description?: string
   fetch_interval?: number
-  is_active: boolean
+  is_active?: boolean
   created_by?: string | null
   created_at: string
   article_count?: number | null
-  last_article_date: string | null
+  last_article_date?: string | null
   content_type?: string
   directory_status?: string
   homepage_url?: string
