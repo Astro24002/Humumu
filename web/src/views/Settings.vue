@@ -78,7 +78,11 @@ const router = useRouter()
 const auth = useAuthStore()
 const message = useMessage()
 const dialog = useDialog()
-const frequency = ref(auth.user?.push_frequency || 'daily')
+function normalizeFrequency(f?: string | null): 'daily' | 'realtime' {
+  return f === 'realtime' ? 'realtime' : 'daily'
+}
+
+const frequency = ref<'daily' | 'realtime'>(normalizeFrequency(auth.user?.push_frequency))
 const savedFrequency = ref(frequency.value)
 const saving = ref(false)
 const leaveArmed = ref(false)
@@ -100,7 +104,7 @@ onMounted(async () => {
       // ignore
     }
   }
-  frequency.value = auth.user?.push_frequency || 'daily'
+  frequency.value = normalizeFrequency(auth.user?.push_frequency)
   savedFrequency.value = frequency.value
 })
 
