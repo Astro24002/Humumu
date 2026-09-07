@@ -311,8 +311,8 @@ watch(
   },
 )
 
-onMounted(() => {
 onUnmounted(() => { feedLoadSeq++ })
+onMounted(() => {
   applyFilterFromQuery()
   fetchPage(true)
 })

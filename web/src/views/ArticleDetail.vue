@@ -272,8 +272,8 @@ watch(
   },
 )
 
-onMounted(() => {
 onUnmounted(() => { articleLoadSeq++ })
+onMounted(() => {
   const id = route.params.id as string
   if (id) loadArticle(id)
 })

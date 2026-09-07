@@ -216,8 +216,8 @@ watch(
   },
 )
 
-onMounted(() => {
 onUnmounted(() => { notifLoadSeq++ })
+onMounted(() => {
   applyFiltersFromQuery()
   fetchPage(true)
 })

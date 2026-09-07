@@ -385,8 +385,8 @@ watch(
   },
 )
 
-onMounted(async () => {
 onUnmounted(() => { articlesLoadSeq++ })
+onMounted(async () => {
   applyFiltersFromQuery()
   // Remote-search dropdown; seed first page so the control isn't empty on open.
   await fetchJournalOptions('')

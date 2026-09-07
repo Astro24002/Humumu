@@ -517,8 +517,8 @@ async function load() {
   }
 }
 
-onMounted(() => {
 onUnmounted(() => { journalsLoadSeq++ })
+onMounted(() => {
   applyFiltersFromQuery()
   load()
 })

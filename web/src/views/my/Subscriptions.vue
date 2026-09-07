@@ -586,8 +586,8 @@ watch(
   },
 )
 
-onMounted(() => {
 onUnmounted(() => { subsLoadSeq++ })
+onMounted(() => {
   applyTabFromQuery()
   reloadAll()
 })

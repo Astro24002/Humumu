@@ -423,8 +423,8 @@ watch(
   },
 )
 
-onMounted(() => {
 onUnmounted(() => { journalLoadSeq++; articlesLoadSeq++ })
+onMounted(() => {
   const id = route.params.id as string
   if (id) loadJournal(id)
 })

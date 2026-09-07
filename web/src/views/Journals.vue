@@ -483,8 +483,8 @@ watch(
   },
 )
 
-onMounted(async () => {
 onUnmounted(() => { journalsLoadSeq++ })
+onMounted(async () => {
   applyFiltersFromQuery()
   try {
     // Prefer latest CAS year so major/minor options aren't a mix of outdated labels.

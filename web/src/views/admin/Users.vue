@@ -277,8 +277,8 @@ watch(
   },
 )
 
-onMounted(() => {
 onUnmounted(() => { usersLoadSeq++ })
+onMounted(() => {
   applyFiltersFromQuery()
   load()
 })

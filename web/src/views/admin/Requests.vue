@@ -263,8 +263,8 @@ async function load() {
   }
 }
 
-onMounted(() => {
 onUnmounted(() => { requestsLoadSeq++ })
+onMounted(() => {
   applyFromQuery()
   load()
 })

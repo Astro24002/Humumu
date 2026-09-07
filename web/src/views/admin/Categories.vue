@@ -373,8 +373,8 @@ watch(
   },
 )
 
-onMounted(() => {
 onUnmounted(() => { categoriesLoadSeq++ })
+onMounted(() => {
   applyYearFromQuery()
   load()
 })
