@@ -57,7 +57,7 @@
         v-for="a in items"
         :key="a.id"
         class="card"
-        :class="{ busy: loading }"
+        :class="{ busy: loading || originalClickBusy.has(a.id) }"
         @click="goDetail(a.id)"
       >
         <view class="meta">
@@ -322,6 +322,7 @@ const originalClickBusy = ref(new Set<string>())
 
 function goDetail(id: string) {
   if (loading.value) return
+  if (originalClickBusy.value.has(id)) return
   uni.navigateTo({ url: `/pages/article/detail?id=${id}` })
 }
 
