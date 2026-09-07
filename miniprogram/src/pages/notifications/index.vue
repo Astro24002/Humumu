@@ -24,8 +24,8 @@
       <view v-if="loading && !notifications.length" class="loading"><text>加载中...</text></view>
       <view v-else-if="!notifications.length" class="empty">
         <text>{{ emptyHint }}</text>
-        <button v-if="hasActiveFilters" size="mini" class="btn-empty" @click="clearFilters">清除筛选</button>
-        <button v-else size="mini" class="btn-empty" @click="goSubscriptions">管理订阅</button>
+        <button v-if="hasActiveFilters" size="mini" class="btn-empty" :disabled="loading" @click="clearFilters">清除筛选</button>
+        <button v-else size="mini" class="btn-empty" :disabled="loading" @click="goSubscriptions">管理订阅</button>
       </view>
       <scroll-view v-else scroll-y @scrolltolower="loadMore" class="scroll-view">
         <view v-for="n in notifications" :key="n.id" class="notif-item" @click="goArticle(n.article_id)">
@@ -77,6 +77,7 @@ const emptyHint = computed(() => {
 })
 
 function goSubscriptions() {
+  if (loading.value) return
   uni.switchTab({ url: '/pages/subscriptions/index' })
 }
 
@@ -197,4 +198,5 @@ function goArticle(articleId: string) {
 .error { font-size: 24rpx; color: #e74c3c; margin-top: 8rpx; display: block; }
 .time { font-size: 24rpx; color: #ccc; margin-top: 8rpx; display: block; }
 .loading-more { text-align: center; padding: 20rpx; color: #999; }
+button:disabled { opacity: 0.55; }
 </style>

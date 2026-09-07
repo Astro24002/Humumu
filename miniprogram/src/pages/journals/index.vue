@@ -53,8 +53,8 @@
     <view v-if="loading" class="loading"><text>加载中...</text></view>
     <view v-else-if="!total && !journals.length" class="empty">
       <text>{{ emptyHint }}</text>
-      <button v-if="hasActiveFilters" size="mini" class="btn-empty" @click="clearFilters">清除筛选</button>
-      <button v-else size="mini" class="btn-empty" @click="goEmptyCta">{{ emptyCtaLabel }}</button>
+      <button v-if="hasActiveFilters" size="mini" class="btn-empty" :disabled="loading" @click="clearFilters">清除筛选</button>
+      <button v-else size="mini" class="btn-empty" :disabled="loading" @click="goEmptyCta">{{ emptyCtaLabel }}</button>
     </view>
     <scroll-view v-else scroll-y class="scroll-view" @scrolltolower="loadMore">
       <JournalCard v-for="j in journals" :key="j.id" :journal="j" />
@@ -253,6 +253,7 @@ async function reload() {
 }
 
 function goEmptyCta() {
+  if (loading.value) return
   if (auth.isLoggedIn) {
     uni.switchTab({ url: '/pages/subscriptions/index' })
   } else {
@@ -314,4 +315,5 @@ onPullDownRefresh(async () => {
 .btn-empty { margin-top: 24rpx; background: #e8f8e0; color: #3cc51f; border: none; }
 .scroll-view { height: calc(100vh - 360rpx); }
 .loading-more { text-align: center; padding: 24rpx; color: #999; font-size: 24rpx; }
+button:disabled { opacity: 0.55; }
 </style>

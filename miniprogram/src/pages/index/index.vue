@@ -20,30 +20,35 @@
         v-if="tab === 'updates' && auth.isLoggedIn && !filter"
         size="mini"
         class="btn-empty"
+        :disabled="loading"
         @click="goJournals"
       >去订阅期刊</button>
       <button
         v-if="tab === 'updates' && auth.isLoggedIn && !filter"
         size="mini"
         class="btn-empty ghost"
+        :disabled="loading"
         @click="goSubscriptions"
       >管理订阅</button>
       <button
         v-else-if="tab === 'updates' && auth.isLoggedIn && filter"
         size="mini"
         class="btn-empty"
+        :disabled="loading"
         @click="clearFilter"
       >查看全部更新</button>
       <button
         v-else-if="tab === 'all' && (contentType || sourceType)"
         size="mini"
         class="btn-empty"
+        :disabled="loading"
         @click="clearContentType"
       >清除筛选</button>
       <button
         v-else-if="tab === 'all'"
         size="mini"
         class="btn-empty"
+        :disabled="loading"
         @click="goJournals"
       >浏览期刊</button>
     </view>
@@ -164,10 +169,12 @@ onPullDownRefresh(async () => {
 
 
 function goJournals() {
+  if (loading.value) return
   uni.switchTab({ url: '/pages/journals/index' })
 }
 
 function goSubscriptions() {
+  if (loading.value) return
   uni.switchTab({ url: '/pages/subscriptions/index' })
 }
 
@@ -359,4 +366,5 @@ async function copyLink(url: string, item?: FeedItem) {
 .snippet { font-size: 24rpx; color: #999; margin-top: 10rpx; display: block; line-height: 1.5; }
 .actions { display: flex; gap: 24rpx; margin-top: 12rpx; }
 .action-link { font-size: 24rpx; color: #3cc51f; }
+button:disabled { opacity: 0.55; }
 </style>

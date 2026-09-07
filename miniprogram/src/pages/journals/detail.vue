@@ -39,7 +39,7 @@
         <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
         <view v-if="articles.length === 0" class="empty">
           <text>{{ journal.health_status === 'paused' ? '暂无论文（抓取已暂停）' : '暂无论文' }}</text>
-          <button size="mini" class="btn-more" @click="goPlaza">返回期刊广场</button>
+          <button size="mini" class="btn-more" :disabled="articlesLoading || subBusy" @click="goPlaza">返回期刊广场</button>
         </view>
         <view v-if="hasMore" class="more-wrap">
           <button class="btn-more" size="mini" :loading="loadingMore" :disabled="loadingMore || articlesLoading || subBusy" @click="loadMore">
@@ -82,6 +82,7 @@ const articlesTotal = ref(0)
 let articlesLoadSeq = 0
 
 function goPlaza() {
+  if (articlesLoading.value || subBusy.value) return
   uni.switchTab({ url: '/pages/journals/index' })
 }
 

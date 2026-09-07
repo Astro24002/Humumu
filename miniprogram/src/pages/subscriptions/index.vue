@@ -36,7 +36,7 @@
         <view v-if="loadingJournals" class="loading"><text>加载中...</text></view>
         <view v-else-if="journals.length === 0" class="empty">
           <text>尚未订阅任何期刊</text>
-          <button size="mini" class="btn-empty-cta" @click="goJournalsPlaza">浏览期刊</button>
+          <button size="mini" class="btn-empty-cta" :disabled="tabsBusy" @click="goJournalsPlaza">浏览期刊</button>
         </view>
         <view v-else class="list">
           <view v-for="j in journals" :key="j.id" class="list-item-block">
@@ -224,6 +224,7 @@ async function loadData() {
 
 
 function goJournalsPlaza() {
+  if (tabsBusy.value) return
   uni.switchTab({ url: '/pages/journals/index' })
 }
 
@@ -451,4 +452,5 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
 .channel-row.disabled { opacity: 0.45; pointer-events: none; }
 .vis-opt.disabled { opacity: 0.45; pointer-events: none; }
 .tag-item.disabled { opacity: 0.55; pointer-events: none; }
+button:disabled { opacity: 0.55; }
 </style>
