@@ -115,7 +115,8 @@
             <a
               :href="j.homepage_url || j.source_url"
               target="_blank" rel="noopener noreferrer"
-              @click.stop
+              :style="listBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined"
+              @click.stop="(e: MouseEvent) => { if (listBusy) e.preventDefault() }"
             >{{ shortUrl(j.homepage_url || j.source_url) }}</a>
           </p>
 
