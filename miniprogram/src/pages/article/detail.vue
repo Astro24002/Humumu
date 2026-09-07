@@ -30,7 +30,7 @@
         <text v-else class="abstract muted">暂无摘要</text>
       </view>
 
-      <view class="status-row" v-if="auth.isLoggedIn">
+      <view class="status-row" v-if="auth.isLoggedIn" :class="{ 'status-busy': !!statusBusy }">
         <text
           :class="['chip', status.is_read && 'on', statusBusy === 'is_read' && 'busy']"
           @click="toggle('is_read')"
@@ -208,6 +208,7 @@ async function copyLink() {
 }
 .chip.on { background: #e8f8e0; color: #3cc51f; }
 .chip.busy { opacity: 0.55; }
+.status-busy { opacity: 0.7; pointer-events: none; }
 .chip.login { background: #e8f3ff; color: #2080f0; }
 .actions { margin-top: 40rpx; display: flex; flex-direction: column; gap: 16rpx; }
 .btn-link {

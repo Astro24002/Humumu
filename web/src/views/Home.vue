@@ -258,10 +258,12 @@ async function fetchJournalOptions(q = '') {
 }
 
 function onJournalSearch(q: string) {
+  if (loading.value) return
   fetchJournalOptions(q)
 }
 
 function onJournalFocus() {
+  if (loading.value) return
   if (!journals.value.length) fetchJournalOptions('')
 }
 

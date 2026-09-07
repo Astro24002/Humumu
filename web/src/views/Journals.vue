@@ -154,7 +154,7 @@
             >
               登录后订阅
             </n-button>
-            <n-button size="small" quaternary @click.stop="router.push(`/journals/${j.id}`)">
+            <n-button size="small" quaternary :disabled="listBusy" @click.stop="router.push(`/journals/${j.id}`)">
               浏览论文
             </n-button>
           </template>
