@@ -51,7 +51,7 @@
               size="tiny"
               :bordered="false"
             >{{ sourceTypeLabel(u.journal_source_type) }}</n-tag>
-            <n-tag v-for="r in u.reasons" :key="r" size="tiny" type="warning" :bordered="false">{{ reasonLabel(r) }}</n-tag>
+            <n-tag v-for="r in (u.reasons || [])" :key="r" size="tiny" type="warning" :bordered="false">{{ reasonLabel(r) }}</n-tag>
             <span style="color: #888; font-size: 12px;">{{ formatDate(u.publish_date) }}</span>
           </n-space>
           <div v-if="u.authors?.length" style="color: #666; font-size: 13px; margin-top: 4px;">
