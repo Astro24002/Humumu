@@ -1,6 +1,6 @@
-export function formatDate(d: string): string {
+export function formatDate(d?: string | null): string {
   if (!d) return ''
-  return d.slice(0, 10)
+  return String(d).slice(0, 10)
 }
 
 /** Compact local datetime: YYYY-MM-DD HH:mm */
@@ -35,7 +35,7 @@ export function shortUrl(url: string, max = 40): string {
 }
 
 /** Normalize bare DOI to https://doi.org/...; pass through full URLs. */
-export function doiUrl(doi: string): string {
+export function doiUrl(doi?: string | null): string {
   if (!doi) return ''
   const s = String(doi).trim()
   if (!s) return ''

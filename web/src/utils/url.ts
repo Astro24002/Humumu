@@ -12,9 +12,9 @@ export function shortUrl(url: string, max = 48): string {
 }
 
 /** Normalize bare DOI to https://doi.org/...; pass through full URLs. */
-export function doiUrl(doi: string): string {
+export function doiUrl(doi?: string | null): string {
   if (!doi) return ''
-  const s = doi.trim()
+  const s = String(doi).trim()
   if (!s) return ''
   if (/^https?:\/\//i.test(s)) return s
   return `https://doi.org/${s.replace(/^doi:\s*/i, '')}`
