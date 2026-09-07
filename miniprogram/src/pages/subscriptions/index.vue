@@ -116,7 +116,7 @@
 <script setup lang="ts">
 import { dirStatusLabel, sourceTypeLabel, contentTypeLabel, freqLabel, healthStatusLabel, channelLabel } from '@/utils/format'
 import { ref, computed } from 'vue'
-import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh, onUnload } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
 import {
@@ -408,6 +408,7 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
     },
   })
 }
+onUnload(() => { subsLoadSeq++ })
 </script>
 
 <style scoped>

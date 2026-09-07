@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh, onUnload } from '@dcloudio/uni-app'
 import { getJournals, type Journal } from '@/api/journals'
 import { getCasCategories, type CasCategory } from '@/api/categories'
 import { useAuthStore } from '@/stores/auth'
@@ -281,6 +281,7 @@ onPullDownRefresh(async () => {
     uni.stopPullDownRefresh()
   }
 })
+onUnload(() => { journalsLoadSeq++ })
 </script>
 
 <style scoped>

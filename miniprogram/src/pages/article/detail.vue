@@ -64,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+import { onUnload } from '@dcloudio/uni-app'
 import { ref, computed, onMounted } from 'vue'
 import { getArticle, type Article } from '@/api/articles'
 import {
@@ -212,6 +213,7 @@ async function copyLink() {
   await markOriginalClicked()
   uni.setClipboardData({ data: url, success: () => uni.showToast({ title: '链接已复制', icon: 'none' }) })
 }
+onUnload(() => { articleLoadSeq++ })
 </script>
 
 <style scoped>

@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { onUnload } from '@dcloudio/uni-app'
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
@@ -241,6 +242,7 @@ function unsubscribe() {
     },
   })
 }
+onUnload(() => { journalLoadSeq++; articlesLoadSeq++ })
 </script>
 
 <style scoped>

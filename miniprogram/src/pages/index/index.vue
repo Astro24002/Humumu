@@ -102,7 +102,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh, onUnload } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { getArticles } from '@/api/articles'
 import { getMyUpdates } from '@/api/myUpdates'
@@ -359,6 +359,7 @@ async function copyLink(url: string, item?: FeedItem) {
     success: () => uni.showToast({ title: '链接已复制', icon: 'none' }),
   })
 }
+onUnload(() => { feedLoadSeq++ })
 </script>
 
 <style scoped>

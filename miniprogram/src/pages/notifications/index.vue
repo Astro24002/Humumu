@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh, onUnload } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
 import { getNotifications, type Notification } from '@/api/notifications'
@@ -166,6 +166,7 @@ function goArticle(articleId: string) {
   if (loading.value || !articleId) return
   uni.navigateTo({ url: `/pages/article/detail?id=${articleId}` })
 }
+onUnload(() => { notifLoadSeq++ })
 </script>
 
 <style scoped>

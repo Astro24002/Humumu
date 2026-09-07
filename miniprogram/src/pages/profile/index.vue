@@ -53,7 +53,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { onShow, onPullDownRefresh } from '@dcloudio/uni-app'
+import { onShow, onPullDownRefresh, onUnload } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
 import { freqLabel, isWechatPlaceholderEmail } from '@/utils/format'
@@ -197,6 +197,7 @@ function handleLogout() {
     },
   })
 }
+onUnload(() => { profileLoadSeq++ })
 </script>
 
 <style scoped>
