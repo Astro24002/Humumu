@@ -23,7 +23,14 @@ export const useAuthStore = defineStore('auth', () => {
         : typeof u.has_email === 'boolean'
           ? u.has_email
           : !!(u.email && !u.email.endsWith('@wechat.user')) // keep inline to avoid circular util import in store bootstrap
-    return { ...u, has_email: derived }
+    return {
+      ...u,
+      has_email: derived,
+      // Old localStorage profiles may omit newer required flags.
+      is_admin: !!u.is_admin,
+      wechat_template_subscribed: !!u.wechat_template_subscribed,
+      push_frequency: u.push_frequency || 'daily',
+    }
   }
 
   function setUser(u: AuthUser, hasEmail?: boolean) {
@@ -41,7 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
   try {
     const raw = localStorage.getItem('user')
     if (token.value && raw) {
-      user.value = JSON.parse(raw) as AuthUser
+      user.value = withHasEmail(JSON.parse(raw) as AuthUser)
     }
   } catch {
     /* ignore corrupt cache */

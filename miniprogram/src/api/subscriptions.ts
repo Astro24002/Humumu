@@ -16,9 +16,9 @@ export interface KeywordSubscription {
 }
 
 export interface SubscribedJournal extends Journal {
-  push_frequency?: string
-  email_enabled?: boolean
-  wechat_enabled?: boolean
+  push_frequency: string
+  email_enabled: boolean
+  wechat_enabled: boolean
 }
 
 export interface JournalSubscriptionPrefs {

@@ -22,7 +22,14 @@ export const useAuthStore = defineStore('auth', () => {
         : typeof u.has_email === 'boolean'
           ? u.has_email
           : !!(u.email && !isWechatPlaceholderEmail(u.email))
-    return { ...u, has_email: derived }
+    return {
+      ...u,
+      has_email: derived,
+      // Old storage profiles may omit newer required flags.
+      is_admin: !!u.is_admin,
+      wechat_template_subscribed: !!u.wechat_template_subscribed,
+      push_frequency: u.push_frequency || 'daily',
+    }
   }
 
   function save(t: string, u: User, hasEmailFlag?: boolean) {
