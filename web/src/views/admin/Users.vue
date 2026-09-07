@@ -17,7 +17,7 @@
       <n-button :loading="loading" :disabled="loading || !!busyId" @click="reload">刷新</n-button>
     </n-space>
   </div>
-  <n-data-table :columns="columns" :data="users" :loading="loading" :pagination="false" />
+  <n-data-table :columns="columns" :data="users" :loading="loading" :pagination="false"  :style="(loading || !!busyId) ? { opacity: 0.55, pointerEvents: 'none' } : undefined" />
   <n-empty
     v-if="!loading && !users.length"
     style="margin-top: 24px;"

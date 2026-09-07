@@ -64,7 +64,7 @@
     <span style="color: #888; font-size: 13px;">{{ total }} 源</span>
   </n-space>
 
-  <n-data-table :columns="columns" :data="journals" :loading="loading" :pagination="false" />
+  <n-data-table :columns="columns" :data="journals" :loading="loading" :pagination="false"  :style="(loading || saving || !!busyId) ? { opacity: 0.55, pointerEvents: 'none' } : undefined" />
   <n-empty
     v-if="!loading && !journals.length"
     style="margin-top: 24px;"

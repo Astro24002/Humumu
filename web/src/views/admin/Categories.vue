@@ -22,7 +22,7 @@
     <n-tag v-if="!loading" size="small" :bordered="false">{{ categories.length }} 条</n-tag>
   </n-space>
 
-  <n-data-table :columns="columns" :data="categories" :loading="loading" :pagination="{ pageSize: 20 }" />
+  <n-data-table :columns="columns" :data="categories" :loading="loading" :pagination="{ pageSize: 20 }"  :style="(loading || saving || attaching) ? { opacity: 0.55, pointerEvents: 'none' } : undefined" />
   <n-empty
     v-if="!loading && !categories.length"
     style="margin-top: 24px;"
