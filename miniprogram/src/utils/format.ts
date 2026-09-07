@@ -44,7 +44,8 @@ export function doiUrl(doi?: string | null): string {
 }
 
 /** Human label for match reason codes from my-updates / notifications. */
-export function reasonLabel(r: string): string {
+export function reasonLabel(r?: string | null): string {
+  if (!r) return ''
   if (r === 'journal') return '期刊'
   if (r === 'author') return '作者'
   if (r === 'keyword') return '关键词'

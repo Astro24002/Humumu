@@ -53,7 +53,7 @@ export function getJournal(id: string): Promise<Journal> {
 export interface PreviewItem {
   title: string
   url: string
-  published?: string | null
+  published: string
 }
 
 export interface PreviewResult {
