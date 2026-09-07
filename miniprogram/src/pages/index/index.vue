@@ -64,7 +64,8 @@
           <text
             v-if="a.journal_id"
             class="journal link"
-            @click.stop="goJournal(a.journal_id)"
+            :class="{ busy: loading || originalClickBusy.has(a.id) }"
+            @click.stop="goJournal(a.journal_id, a.id)"
           >{{ a.journal_name }}</text>
           <text v-else class="journal">{{ a.journal_name }}</text>
           <text v-if="a.content_type === 'preprint'" class="badge">{{ contentTypeLabel(a.content_type) }}</text>
@@ -317,18 +318,19 @@ function loadMore() {
   fetchItems(true)
 }
 
+const originalClickBusy = ref(new Set<string>())
+
 function goDetail(id: string) {
   if (loading.value) return
   uni.navigateTo({ url: `/pages/article/detail?id=${id}` })
 }
 
-function goJournal(id?: string) {
+function goJournal(id?: string, articleId?: string) {
   if (loading.value) return
+  if (articleId && originalClickBusy.value.has(articleId)) return
   if (!id) return
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
 }
-
-const originalClickBusy = ref(new Set<string>())
 
 async function copyLink(url: string, item?: FeedItem) {
   if (loading.value) return
@@ -373,6 +375,7 @@ async function copyLink(url: string, item?: FeedItem) {
 .meta { display: flex; flex-wrap: wrap; gap: 12rpx; margin-bottom: 8rpx; align-items: center; }
 .journal { font-size: 24rpx; color: #3cc51f; }
 .journal.link { text-decoration: underline; text-underline-offset: 4rpx; }
+.journal.link.busy { opacity: 0.45; pointer-events: none; }
 .badge { font-size: 20rpx; background: #eef6ff; color: #3a7bd5; padding: 2rpx 10rpx; border-radius: 6rpx; }
 .badge.source { color: #666; background: #f0f0f0; }
 .badge.reason { background: #fff7e6; color: #d48806; }

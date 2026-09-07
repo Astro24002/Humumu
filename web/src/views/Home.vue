@@ -64,7 +64,8 @@
               <router-link
                 v-if="a.journal_id && a.journal_name"
                 :to="`/journals/${a.journal_id}`"
-                style="text-decoration: none; margin-right: 6px;"
+                :style="homeJournalNavStyle(a.id)"
+                @click="(e: MouseEvent) => { if (loading || originalClickBusy.has(a.id)) e.preventDefault() }"
               >
                 <n-tag size="tiny" :bordered="false">{{ a.journal_name }}</n-tag>
               </router-link>
@@ -174,6 +175,15 @@ let suppressQueryApply = false
 /** Skip journal-id watcher side effects while hydrating from the URL. */
 let applyingFromQuery = false
 const originalClickBusy = ref(new Set<string>())
+
+function homeJournalNavStyle(articleId: string) {
+  const base: Record<string, string> = { textDecoration: 'none', marginRight: '6px' }
+  if (loading.value || originalClickBusy.value.has(articleId)) {
+    base.opacity = '0.55'
+    base.pointerEvents = 'none'
+  }
+  return base
+}
 /** Session-local: list cards lack status payload; skip re-mark after first success. */
 const knownReadIds = new Set<string>()
 

@@ -116,5 +116,5 @@ function copyLink(url: string) {
 .actions { display: flex; gap: 24rpx; margin-top: 16rpx; }
 .action-link { font-size: 24rpx; color: #3cc51f; }
 .action-link.disabled { opacity: 0.45; pointer-events: none; }
-</style>
 .card.busy { opacity: 0.55; pointer-events: none; }
+</style>

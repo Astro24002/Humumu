@@ -39,7 +39,8 @@
             <router-link
               v-if="u.journal_id"
               :to="`/journals/${u.journal_id}`"
-              style="text-decoration: none;"
+              :style="journalNavStyle(u.article_id)"
+              @click="(e: MouseEvent) => { if (loading || originalClickBusy.has(u.article_id) || busyMap[u.article_id]) e.preventDefault() }"
             >
               <n-tag size="tiny" :bordered="false">{{ u.journal_name }}</n-tag>
             </router-link>
@@ -231,6 +232,16 @@ async function loadMore() {
 function isBusy(id: string, field: 'is_read' | 'is_starred' | 'is_later') {
   return busyMap.value[id] === field
 }
+
+function journalNavStyle(articleId: string) {
+  const base: Record<string, string> = { textDecoration: 'none' }
+  if (loading.value || originalClickBusy.value.has(articleId) || busyMap.value[articleId]) {
+    base.opacity = '0.55'
+    base.pointerEvents = 'none'
+  }
+  return base
+}
+
 
 
 const originalClickBusy = ref(new Set<string>())

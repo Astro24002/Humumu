@@ -66,5 +66,5 @@ function openLink() {
 .stats { display: flex; gap: 30rpx; font-size: 26rpx; color: #999; margin-top: 16rpx; }
 .desc { font-size: 26rpx; color: #666; margin-top: 12rpx; display: block; line-height: 1.5; overflow: hidden; }
 .link { font-size: 22rpx; color: #18a058; margin-top: 10rpx; display: block; }
-</style>
 .card.busy { opacity: 0.55; pointer-events: none; }
+</style>

@@ -13,7 +13,7 @@
         <text v-if="auth.user?.wechat_openid" class="user-meta">微信已关联</text>
         <view v-if="!auth.hasEmail" class="bind-email-hint">
           <text class="bind-email-text">邮件推送需绑定真实邮箱</text>
-          <text class="bind-email-link" @click="goBindEmail">去绑定</text>
+          <text class="bind-email-link" :class="{ busy: freqBusy || templateBusy }" @click="goBindEmail">去绑定</text>
         </view>
       </view>
 
@@ -35,7 +35,7 @@
       </view>
 
       <!-- Notification history link -->
-      <view class="nav-item" @click="goNotifications">
+      <view class="nav-item" :class="{ busy: freqBusy || templateBusy }" @click="goNotifications">
         <text>通知历史</text>
         <text class="nav-arrow">›</text>
       </view>
@@ -109,6 +109,7 @@ async function loadTemplateSetting() {
 
 
 function goNotifications() {
+  if (freqBusy.value || templateBusy.value) return
   uni.navigateTo({ url: '/pages/notifications/index' })
 }
 
@@ -173,6 +174,7 @@ async function onTemplateChange(e: any) {
 }
 
 function goBindEmail() {
+  if (freqBusy.value || templateBusy.value) return
   uni.navigateTo({ url: '/pages/login/index?mode=bind' })
 }
 
@@ -212,4 +214,6 @@ function handleLogout() {
 .nav-arrow { color: #ccc; font-size: 36rpx; }
 .btn-logout { width: 90%; margin: 60rpx auto 0; padding: 24rpx; background: #fff; color: #e74c3c; border: 2rpx solid #e74c3c; border-radius: 12rpx; font-size: 30rpx; display: block; text-align: center; }
 .btn-logout.disabled { opacity: 0.45; }
+.nav-item.busy { opacity: 0.45; pointer-events: none; }
+.bind-email-link.busy { opacity: 0.45; pointer-events: none; }
 </style>
