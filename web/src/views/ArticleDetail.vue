@@ -13,6 +13,8 @@
         v-if="article.journal_id && article.journal_name"
         :to="`/journals/${article.journal_id}`"
         style="text-decoration: none;"
+        :style="(statusBusy || originalClickBusy) ? { opacity: 0.55, pointerEvents: 'none' } : undefined"
+        @click="(e: MouseEvent) => { if (statusBusy || originalClickBusy) e.preventDefault() }"
       >
         <n-tag :bordered="false" style="margin-right: 6px;">{{ article.journal_name }}</n-tag>
       </router-link>

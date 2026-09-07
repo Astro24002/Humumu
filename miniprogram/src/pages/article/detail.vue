@@ -10,6 +10,7 @@
         <text
           v-if="article.journal_id"
           class="journal-link"
+          :class="{ busy: !!statusBusy || originalClickBusy }"
           @click="goJournal"
         >{{ article.journal_name }}</text>
         <text v-else>{{ article.journal_name }}</text>
@@ -80,6 +81,7 @@ const auth = useAuthStore()
 const article = ref<Article | null>(null)
 const loading = ref(true)
 const statusBusy = ref<'is_read' | 'is_starred' | 'is_later' | null>(null)
+const originalClickBusy = ref(false)
 const loadError = ref('')
 const status = ref<ArticleStatus>({
   user_id: '',
@@ -98,6 +100,7 @@ function goBack() {
 }
 
 function goJournal() {
+  if (statusBusy.value || originalClickBusy.value) return
   const id = article.value?.journal_id
   if (!id) return
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
@@ -161,8 +164,6 @@ onMounted(() => {
   loadArticle(id)
 })
 
-const originalClickBusy = ref(false)
-
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
   if (!article.value || !auth.isLoggedIn || statusBusy.value || originalClickBusy.value) return
   statusBusy.value = field
@@ -217,6 +218,7 @@ async function copyLink() {
 .container { padding: 30rpx; }
 .journal-name { font-size: 26rpx; color: #3cc51f; display: flex; align-items: center; gap: 12rpx; flex-wrap: wrap; }
 .journal-link { color: #3cc51f; text-decoration: underline; text-underline-offset: 4rpx; }
+.journal-link.busy { opacity: 0.45; pointer-events: none; }
 .tag { font-size: 22rpx; color: #3cc51f; background: #e8f8e0; padding: 4rpx 12rpx; border-radius: 8rpx; }
 .tag.preprint { color: #2080f0; background: #e8f3ff; }
 .tag.source { color: #666; background: #f0f0f0; margin-left: 8rpx; }
