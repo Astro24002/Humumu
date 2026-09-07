@@ -546,7 +546,20 @@ async function handleAdd() {
 }
 
 async function reloadAll() {
-  if (tabsBusy.value) return
+  // Don't gate on loadingJournals — it starts true on mount, which would
+  // deadlock the first load (tabsBusy includes loading). Match mini: only
+  // skip while a mutation is in flight; in-flight loads use subsLoadSeq.
+  if (
+    prefsSaving.value
+    || addLoading.value
+    || previewLoading.value
+    || authorBusy.value
+    || keywordBusy.value
+    || unsubBusyId.value
+    || removeBusyId.value
+  ) {
+    return
+  }
   const seq = ++subsLoadSeq
   loadingJournals.value = true
   try {
