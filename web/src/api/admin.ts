@@ -29,6 +29,7 @@ export interface User {
   wechat_template_subscribed?: boolean
   is_admin?: boolean
   created_at: string
+  updated_at?: string | null
 }
 
 export function getStats(): Promise<AdminStats> {
