@@ -205,15 +205,12 @@ function homeJournalNavStyle(articleId: string) {
   return base
 }
 /** Session-local: list cards lack status payload; skip re-mark after first success. */
-const knownReadIds = new Set<string>()
-
 async function onOriginalClick(articleId: string) {
   if (!auth.isLoggedIn || !articleId || originalClickBusy.value.has(articleId)) return
   originalClickBusy.value = new Set([...originalClickBusy.value, articleId])
   try {
     // Server marks read + original_clicked_at; skip a second status PUT.
     await recordOriginalClick(articleId)
-    knownReadIds.add(articleId)
   } catch {
     // non-blocking
   } finally {

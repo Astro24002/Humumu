@@ -47,8 +47,6 @@ import { cleanAbstract } from '@/utils/abstract'
 
 const props = defineProps<{ article: Article; busy?: boolean }>()
 const auth = useAuthStore()
-/** Module-level: shared across card instances (no status on Article payload). */
-const knownReadIds = new Set<string>()
 const originalClickBusyIds = ref(new Set<string>())
 
 const authorsLabel = computed(() => formatAuthors(props.article.authors || []))
@@ -72,7 +70,6 @@ async function onOriginalClick() {
   try {
     // Server marks read + original_clicked_at; skip a second status PUT.
     await recordOriginalClick(articleId)
-    knownReadIds.add(articleId)
   } catch {
     // non-blocking
   } finally {
