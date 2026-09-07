@@ -55,7 +55,11 @@
       <n-list-item v-for="a in articles" :key="a.id">
         <n-thing>
           <template #header>
-            <router-link :to="`/articles/${a.id}`" style="text-decoration: none; color: inherit;">
+                        <router-link
+              :to="`/articles/${a.id}`"
+              :style="homeTitleStyle(a.id)"
+              @click="(e: MouseEvent) => { if (loading || originalClickBusy.has(a.id)) e.preventDefault() }"
+            >
               {{ a.title }}
             </router-link>
           </template>
@@ -92,7 +96,14 @@
           </template>
           <template #action>
             <div style="display: flex; gap: 4px;">
-              <n-button size="tiny" quaternary tag="a" :href="`/articles/${a.id}`" @click.prevent="router.push(`/articles/${a.id}`)">详情</n-button>
+              <n-button
+                size="tiny"
+                quaternary
+                tag="a"
+                :href="`/articles/${a.id}`"
+                :disabled="loading || originalClickBusy.has(a.id)"
+                @click.prevent="!(loading || originalClickBusy.has(a.id)) && router.push(`/articles/${a.id}`)"
+              >详情</n-button>
               <n-button
                 v-if="a.doi"
                 size="tiny"
@@ -175,6 +186,15 @@ let suppressQueryApply = false
 /** Skip journal-id watcher side effects while hydrating from the URL. */
 let applyingFromQuery = false
 const originalClickBusy = ref(new Set<string>())
+
+function homeTitleStyle(articleId: string) {
+  const base: Record<string, string> = { textDecoration: 'none', color: 'inherit' }
+  if (loading.value || originalClickBusy.value.has(articleId)) {
+    base.opacity = '0.55'
+    base.pointerEvents = 'none'
+  }
+  return base
+}
 
 function homeJournalNavStyle(articleId: string) {
   const base: Record<string, string> = { textDecoration: 'none', marginRight: '6px' }

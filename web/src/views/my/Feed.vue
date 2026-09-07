@@ -30,7 +30,11 @@
     <n-list-item v-for="u in updates" :key="u.article_id">
       <n-thing>
         <template #header>
-          <router-link :to="`/articles/${u.article_id}`" style="text-decoration: none; color: inherit;">
+          <router-link
+            :to="`/articles/${u.article_id}`"
+            :style="feedTitleStyle(u)"
+            @click="(e: MouseEvent) => { if (loading || originalClickBusy.has(u.article_id) || busyMap[u.article_id]) e.preventDefault() }"
+          >
             <span :style="{ fontWeight: u.status.is_read ? 400 : 600 }">{{ u.title }}</span>
           </router-link>
         </template>
@@ -76,7 +80,11 @@
             <n-button size="tiny" quaternary :type="u.status.is_later ? 'info' : 'default'" :loading="isBusy(u.article_id, 'is_later')" :disabled="listBusy || originalClickBusy.has(u.article_id)" @click="toggle(u, 'is_later')">
               {{ u.status.is_later ? '取消稍后再看' : '稍后再看' }}
             </n-button>
-            <router-link :to="`/articles/${u.article_id}`">详情</router-link>
+            <router-link
+              :to="`/articles/${u.article_id}`"
+              :style="(loading || originalClickBusy.has(u.article_id) || busyMap[u.article_id]) ? { opacity: 0.55, pointerEvents: 'none' } : undefined"
+              @click="(e: MouseEvent) => { if (loading || originalClickBusy.has(u.article_id) || busyMap[u.article_id]) e.preventDefault() }"
+            >详情</router-link>
             <n-button
               v-if="u.doi"
               size="tiny"
@@ -231,6 +239,15 @@ async function loadMore() {
 
 function isBusy(id: string, field: 'is_read' | 'is_starred' | 'is_later') {
   return busyMap.value[id] === field
+}
+
+function feedTitleStyle(u: { article_id: string }) {
+  const base: Record<string, string> = { textDecoration: 'none', color: 'inherit' }
+  if (loading.value || originalClickBusy.value.has(u.article_id) || busyMap.value[u.article_id]) {
+    base.opacity = '0.55'
+    base.pointerEvents = 'none'
+  }
+  return base
 }
 
 function journalNavStyle(articleId: string) {
