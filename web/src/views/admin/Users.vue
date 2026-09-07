@@ -130,6 +130,23 @@ const columns = [
       : h('span', { style: 'color:#bbb' }, '—'),
   },
   {
+    title: '模板消息',
+    key: 'wechat_template_subscribed',
+    width: 100,
+    render: (row: User) => {
+      if (!row.wechat_openid) return h('span', { style: 'color:#bbb' }, '—')
+      return h(
+        NTag,
+        {
+          size: 'small',
+          type: row.wechat_template_subscribed ? 'success' : 'warning',
+          bordered: false,
+        },
+        { default: () => (row.wechat_template_subscribed ? '已开启' : '未开启') },
+      )
+    },
+  },
+  {
     title: '推送频率', key: 'push_frequency',
     render: (row: User) => h(NTag, { size: 'small' }, {
       default: () => freqLabel(row.push_frequency || 'daily'),
