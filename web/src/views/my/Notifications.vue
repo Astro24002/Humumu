@@ -35,7 +35,8 @@
               <router-link
                 v-if="n.article_id"
                 :to="`/articles/${n.article_id}`"
-                style="text-decoration: none; color: inherit;"
+                :style="loading ? { textDecoration: 'none', color: 'inherit', opacity: '0.55', pointerEvents: 'none' } : { textDecoration: 'none', color: 'inherit' }"
+                @click="(e: MouseEvent) => { if (loading) e.preventDefault() }"
               >{{ n.article_title }}</router-link>
               <template v-else>{{ n.article_title }}</template>
             </div>
@@ -63,7 +64,12 @@
           <span v-if="n.error_message" style="color: #d03050; margin-left: 8px; font-size: 12px;">{{ n.error_message }}</span>
         </template>
         <template #footer>
-          <router-link v-if="n.article_id" :to="`/articles/${n.article_id}`">查看文章</router-link>
+          <router-link
+            v-if="n.article_id"
+            :to="`/articles/${n.article_id}`"
+            :style="loading ? { opacity: 0.55, pointerEvents: 'none' } : undefined"
+            @click="(e: MouseEvent) => { if (loading) e.preventDefault() }"
+          >查看文章</router-link>
         </template>
       </n-thing>
     </n-list-item>

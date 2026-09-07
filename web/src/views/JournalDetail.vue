@@ -127,7 +127,11 @@
       <n-list-item v-for="a in articles" :key="a.id">
         <n-thing>
           <template #header>
-            <router-link :to="`/articles/${a.id}`" style="text-decoration: none; color: inherit;">
+            <router-link
+              :to="`/articles/${a.id}`"
+              :style="articlesBusy ? { textDecoration: 'none', color: 'inherit', opacity: '0.55', pointerEvents: 'none' } : { textDecoration: 'none', color: 'inherit' }"
+              @click="(e: MouseEvent) => { if (articlesBusy) e.preventDefault() }"
+            >
               {{ a.title }}
             </router-link>
           </template>
@@ -149,7 +153,11 @@
           </template>
           <template #footer>
             <n-space size="small">
-              <router-link :to="`/articles/${a.id}`">查看详情</router-link>
+              <router-link
+                :to="`/articles/${a.id}`"
+                :style="articlesBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined"
+                @click="(e: MouseEvent) => { if (articlesBusy) e.preventDefault() }"
+              >查看详情</router-link>
               <n-button
                 v-if="a.doi"
                 size="tiny"

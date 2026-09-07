@@ -147,6 +147,8 @@ onMounted(() => {
 })
 onUnmounted(() => {
   window.removeEventListener('resize', updateViewport)
+  // Drop any in-flight badge refresh after teardown.
+  pendingLoadSeq++
 })
 
 // Refresh queue badges when moving between admin sections (e.g. after review).
