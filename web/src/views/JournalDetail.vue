@@ -61,7 +61,7 @@
           type="error"
           ghost
           :loading="subBusy"
-          :disabled="subBusy"
+          :disabled="articlesBusy"
           @click="handleUnsubscribe"
         >
           取消订阅
@@ -71,7 +71,7 @@
           type="primary"
           ghost
           :loading="subBusy"
-          :disabled="subBusy"
+          :disabled="articlesBusy"
           @click="handleSubscribe"
         >
           订阅此期刊
@@ -81,7 +81,7 @@
         v-else
         type="primary"
         ghost
-        :disabled="subBusy"
+        :disabled="articlesBusy"
         @click="router.push({ path: '/login', query: { redirect: route.fullPath } })"
       >
         登录后订阅
@@ -274,7 +274,7 @@ watch(articlesPageCount, (n) => {
 })
 
 async function handleSubscribe() {
-  if (!journal.value || subBusy.value) return
+  if (!journal.value || subBusy.value || articlesLoading.value) return
   subBusy.value = true
   try {
     await subscribeJournal(journal.value.id)
@@ -288,7 +288,7 @@ async function handleSubscribe() {
 }
 
 function handleUnsubscribe() {
-  if (!journal.value || subBusy.value) return
+  if (!journal.value || subBusy.value || articlesLoading.value) return
   const name = journal.value.name
   dialog.warning({
     title: '取消订阅',
@@ -300,7 +300,7 @@ function handleUnsubscribe() {
 }
 
 async function doUnsubscribe() {
-  if (!journal.value || subBusy.value) return
+  if (!journal.value || subBusy.value || articlesLoading.value) return
   subBusy.value = true
   try {
     await unsubscribeJournal(journal.value.id)

@@ -6,7 +6,7 @@ export interface Journal {
   slug: string
   source_type: string
   source_url: string
-  description: string
+  description?: string
   fetch_interval?: number
   is_active: boolean
   created_by?: string | null

@@ -24,8 +24,8 @@
 
       <view class="subscribe-bar">
         <template v-if="auth.isLoggedIn">
-          <button v-if="isSubscribed" class="btn-unsub" :disabled="subBusy" @click="unsubscribe">取消订阅</button>
-          <button v-else class="btn-sub" :disabled="subBusy" @click="subscribe">{{ subBusy ? '处理中...' : '订阅' }}</button>
+          <button v-if="isSubscribed" class="btn-unsub" :disabled="subBusy || articlesLoading" @click="unsubscribe">取消订阅</button>
+          <button v-else class="btn-sub" :disabled="subBusy || articlesLoading" @click="subscribe">{{ subBusy ? '处理中...' : '订阅' }}</button>
         </template>
         <button v-else class="btn-sub" :disabled="loading || subBusy" @click="goLogin">登录后订阅</button>
       </view>
@@ -187,7 +187,7 @@ async function subscribe() {
     goLogin()
     return
   }
-  if (subBusy.value) return
+  if (subBusy.value || articlesLoading.value) return
   subBusy.value = true
   try {
     await subscribeJournal(journal.value!.id)
@@ -213,7 +213,7 @@ function openHome() {
 }
 
 function unsubscribe() {
-  if (!journal.value || subBusy.value) return
+  if (!journal.value || subBusy.value || articlesLoading.value) return
   const name = journal.value.name
   uni.showModal({
     title: '取消订阅',
@@ -221,7 +221,7 @@ function unsubscribe() {
     confirmText: '取消订阅',
     cancelText: '返回',
     success: async (res) => {
-      if (!res.confirm || !journal.value || subBusy.value) return
+      if (!res.confirm || !journal.value || subBusy.value || articlesLoading.value) return
       subBusy.value = true
       try {
         await unsubscribeJournal(journal.value.id)
