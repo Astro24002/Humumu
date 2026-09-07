@@ -17,7 +17,7 @@ export interface Article {
 
 export interface ArticlesResponse {
   articles: Article[]
-  total?: number
+  total: number
 }
 
 export function getArticles(params: {

@@ -24,7 +24,7 @@ export interface Journal {
 
 export interface JournalsResponse {
   journals: Journal[]
-  total?: number
+  total: number
 }
 
 export interface JournalListParams {

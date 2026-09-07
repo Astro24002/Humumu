@@ -48,7 +48,7 @@ export interface AdminJournalListParams {
 
 export function getAllJournals(
   params?: AdminJournalListParams,
-): Promise<{ journals: Journal[]; total?: number }> {
+): Promise<{ journals: Journal[]; total: number }> {
   const qs = new URLSearchParams()
   if (params?.q) qs.set('q', params.q)
   if (params?.content_type) qs.set('content_type', params.content_type)
@@ -85,7 +85,7 @@ export interface AdminRequestListParams {
 
 export function getRequests(
   params?: AdminRequestListParams,
-): Promise<{ requests: JournalRequest[]; total?: number }> {
+): Promise<{ requests: JournalRequest[]; total: number }> {
   const qs = new URLSearchParams()
   if (params?.status) qs.set('status', params.status)
   if (params?.limit != null) qs.set('limit', String(params.limit))
@@ -106,7 +106,7 @@ export interface AdminUserListParams {
 
 export function getUsers(
   params?: AdminUserListParams,
-): Promise<{ users: User[]; total?: number }> {
+): Promise<{ users: User[]; total: number }> {
   const qs = new URLSearchParams()
   if (params?.q) qs.set('q', params.q)
   if (params?.limit != null) qs.set('limit', String(params.limit))
