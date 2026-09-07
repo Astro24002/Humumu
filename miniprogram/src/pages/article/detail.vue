@@ -102,7 +102,53 @@ function goJournal() {
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
 }
 
-onMounted(async () => {
+/** Drop stale article detail responses if navigation races. */
+let articleLoadSeq = 0
+
+async function loadArticle(id: string) {
+  const seq = ++articleLoadSeq
+  loading.value = true
+  loadError.value = ''
+  article.value = null
+  status.value = {
+    user_id: '',
+    article_id: '',
+    is_read: false,
+    is_starred: false,
+    is_later: false,
+    original_clicked_at: null,
+  }
+  try {
+    const art = await getArticle(id)
+    if (seq !== articleLoadSeq) return
+    article.value = art
+    if (art?.title) {
+      const title = art.title
+      uni.setNavigationBarTitle({ title: title.length > 18 ? `${title.slice(0, 18)}…` : title })
+    }
+    if (auth.isLoggedIn) {
+      try {
+        const st = await getArticleStatus(id)
+        if (seq !== articleLoadSeq) return
+        status.value = st
+        if (!st.is_read) {
+          const next = await updateArticleStatus(id, { is_read: true })
+          if (seq !== articleLoadSeq) return
+          status.value = next
+        }
+      } catch {
+        // optional
+      }
+    }
+  } catch (e: any) {
+    if (seq !== articleLoadSeq) return
+    loadError.value = e?.message || '文章不存在或无权查看'
+  } finally {
+    if (seq === articleLoadSeq) loading.value = false
+  }
+}
+
+onMounted(() => {
   const pages = getCurrentPages()
   const page = pages[pages.length - 1] as any
   const id = page.$page?.options?.id || page.options?.id
@@ -111,29 +157,10 @@ onMounted(async () => {
     loading.value = false
     return
   }
-
-  try {
-    article.value = await getArticle(id)
-    if (article.value?.title) {
-      const t = article.value.title
-      uni.setNavigationBarTitle({ title: t.length > 18 ? `${t.slice(0, 18)}…` : t })
-    }
-    if (auth.isLoggedIn) {
-      try {
-        status.value = await getArticleStatus(id)
-        if (!status.value.is_read) {
-          status.value = await updateArticleStatus(id, { is_read: true })
-        }
-      } catch {
-        // optional
-      }
-    }
-  } catch (e: any) {
-    loadError.value = e?.message || '文章不存在或无权查看'
-  } finally {
-    loading.value = false
-  }
+  loadArticle(id)
 })
+
+const originalClickBusy = ref(false)
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
   if (!article.value || !auth.isLoggedIn || statusBusy.value || originalClickBusy.value) return
@@ -155,8 +182,6 @@ function originalUrl(): string {
   if (article.value.doi) return doiUrl(article.value.doi)
   return ''
 }
-
-const originalClickBusy = ref(false)
 
 async function markOriginalClicked() {
   if (!auth.isLoggedIn || !article.value || originalClickBusy.value || statusBusy.value) return

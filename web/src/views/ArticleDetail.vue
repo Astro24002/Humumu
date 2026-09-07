@@ -153,6 +153,7 @@ const authorsLabel = computed(() => formatAuthors(article.value?.authors || [], 
 const loading = ref(true)
 const loadError = ref('')
 const statusBusy = ref<'is_read' | 'is_starred' | 'is_later' | null>(null)
+const originalClickBusy = ref(false)
 /** Drop stale detail responses when route id changes mid-flight. */
 let articleLoadSeq = 0
 const status = ref<ArticleStatus>({
@@ -177,7 +178,6 @@ async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
   }
 }
 
-const originalClickBusy = ref(false)
 
 async function onOriginalClick() {
   if (!isLoggedIn.value || !article.value || originalClickBusy.value || statusBusy.value) return
