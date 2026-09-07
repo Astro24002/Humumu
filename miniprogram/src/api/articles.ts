@@ -9,7 +9,7 @@ export interface Article {
   journal_id: string
   journal_name?: string | null
   journal_source_type?: string | null
-  content_type?: string
+  content_type: string
   publish_date?: string | null
   url?: string
   fetched_at: string

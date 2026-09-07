@@ -7,16 +7,16 @@ export interface Journal {
   source_type: string
   source_url: string
   description?: string
-  fetch_interval?: number
-  is_active?: boolean
+  fetch_interval?: number | null
+  is_active: boolean
   created_by?: string | null
   created_at: string
   article_count?: number | null
   last_article_date?: string | null
-  content_type?: string
-  directory_status?: string
+  content_type: string
+  directory_status: string
   homepage_url?: string
-  consecutive_failures?: number
+  consecutive_failures: number
   last_error?: string | null
   last_success_at?: string | null
   health_status?: string | null
