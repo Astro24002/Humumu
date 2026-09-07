@@ -28,13 +28,18 @@ POST /api/v1/auth/register
     "id": "uuid",
     "email": "user@example.com",
     "name": "用户名",
+    "wechat_openid": null,
     "push_frequency": "daily",
+    "wechat_template_subscribed": false,
     "is_admin": false,
     "created_at": "2026-01-01T00:00:00Z",
     "updated_at": "2026-01-01T00:00:00Z"
-  }
+  },
+  "has_email": true
 }
 ```
+
+`has_email`：邮箱非空且非 `*@wechat.user` 占位时为 `true`。密码最少 6 位。
 
 ### 邮箱登录
 
@@ -49,7 +54,7 @@ POST /api/v1/auth/login
 }
 ```
 
-**响应** `200 OK`: 同注册格式。
+**响应** `200 OK`: 同注册格式（含 `has_email`）。
 
 ### 当前用户资料
 
@@ -57,7 +62,7 @@ POST /api/v1/auth/login
 GET /api/v1/auth/me
 ```
 
-需要 `Authorization: Bearer <token>`。用于页面刷新后同步 `is_admin`、推送偏好等。
+需要 `Authorization: Bearer <token>`。用于页面刷新后同步 `is_admin`、推送偏好、微信绑定与模板订阅等。
 
 **响应** `200 OK`:
 ```json
@@ -66,9 +71,12 @@ GET /api/v1/auth/me
     "id": "uuid",
     "email": "user@example.com",
     "name": "用户名",
+    "wechat_openid": null,
     "push_frequency": "daily",
+    "wechat_template_subscribed": false,
     "is_admin": false,
-    "created_at": "2026-01-01T00:00:00Z"
+    "created_at": "2026-01-01T00:00:00Z",
+    "updated_at": "2026-01-01T00:00:00Z"
   },
   "has_email": true
 }
@@ -86,7 +94,25 @@ POST /api/v1/auth/wechat
 }
 ```
 
-**响应** `200 OK`: 同注册格式。首次微信登录自动创建账号。
+**响应** `200 OK`: 同注册格式。首次微信登录自动创建账号（`email` 为 `{openid}@wechat.user` 占位，`has_email=false`）。
+
+### 绑定邮箱账号（小程序）
+
+```
+POST /api/v1/auth/bind-account
+```
+
+将当前微信 `code` 解析出的 openid 挂到已有邮箱账号（校验邮箱+密码）。成功后返回新 token 与用户（`has_email=true`，`user.wechat_openid` 已写入）。
+
+```json
+{
+  "code": "微信小程序 wx.login() 返回的 code",
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**响应** `200 OK`: 同注册格式。密码错误 401；openid 冲突等服务端错误 500。
 
 ---
 
@@ -341,6 +367,30 @@ Query（均可选）:
 ```
 
 可选值: `realtime`（实时推送）、`daily`（每日汇总）
+
+---
+
+## 微信模板消息
+
+需 `Authorization: Bearer <token>`。Web 设置页与小程序个人页共用；小程序另用 `requestSubscribeMessage` + `template-ids` 向用户拉授权。
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/wechat/template-ids | 返回已配置的 realtime/daily 模板 ID 列表（空项省略） |
+| GET | /api/v1/wechat/template-setting | 当前用户模板订阅开关 |
+| PUT | /api/v1/wechat/template-setting | 更新模板订阅开关 |
+
+**GET template-ids 响应:**
+```json
+{ "template_ids": ["TMPL_REALTIME", "TMPL_DAILY"] }
+```
+
+**GET/PUT template-setting:**
+```json
+{ "subscribed": true }
+```
+
+PUT body: `{ "subscribed": true | false }`。写入用户 `wechat_template_subscribed`；`GET /auth/me` 与登录响应中的同名字段保持一致。
 
 ---
 
