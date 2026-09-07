@@ -83,7 +83,7 @@
     <div v-if="loading" style="padding: 48px 0; text-align: center;"><n-spin /></div>
     <n-grid v-else-if="pageJournals.length" :cols="2" :y-gap="16" :x-gap="16">
       <n-gi v-for="j in pageJournals" :key="j.id">
-        <n-card :title="j.name" hoverable @click="router.push(`/journals/${j.id}`)">
+        <n-card :title="j.name" hoverable @click="!listBusy && router.push(`/journals/${j.id}`)">
           <template #header-extra>
             <n-space size="small">
               <n-tag v-if="j.content_type === 'preprint'" type="info" size="small" :bordered="false">{{ contentTypeLabel(j.content_type) }}</n-tag>

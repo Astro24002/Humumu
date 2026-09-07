@@ -80,6 +80,8 @@ const hasMore = ref(false)
 const articlesTotal = ref(0)
 /** Drop stale article-list responses when reset races loadMore mid-flight. */
 let articlesLoadSeq = 0
+/** Drop stale journal header responses if navigation races. */
+let journalLoadSeq = 0
 
 function goPlaza() {
   if (articlesLoading.value || subBusy.value) return
@@ -142,7 +144,16 @@ onMounted(async () => {
     loading.value = false
     return
   }
+  const seq = ++journalLoadSeq
+  // Invalidate any in-flight article list from a prior journal id.
+  articlesLoadSeq++
   journalId.value = id
+  loading.value = true
+  loadError.value = ''
+  journal.value = null
+  articles.value = []
+  articlesTotal.value = 0
+  isSubscribed.value = false
 
   try {
     const [jr, , subRes] = await Promise.all([
@@ -150,6 +161,7 @@ onMounted(async () => {
       loadArticles(true),
       auth.isLoggedIn ? getSubscribedJournals() : Promise.resolve(null),
     ])
+    if (seq !== journalLoadSeq) return
     journal.value = jr
     // Prefer journal.article_count until the paged list reports total.
     if (typeof jr?.article_count === 'number' && jr.article_count > 0 && !articlesTotal.value) {
@@ -162,9 +174,10 @@ onMounted(async () => {
       isSubscribed.value = subRes.journals.some(j => j.id === id)
     }
   } catch (e: any) {
+    if (seq !== journalLoadSeq) return
     loadError.value = e?.message || '期刊不存在或无权查看'
   } finally {
-    loading.value = false
+    if (seq === journalLoadSeq) loading.value = false
   }
 })
 
