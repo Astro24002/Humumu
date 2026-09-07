@@ -1,5 +1,5 @@
 /** Compact host+path label for display; keeps full URL for hrefs. */
-export function shortUrl(url: string, max = 48): string {
+export function shortUrl(url?: string | null, max = 48): string {
   if (!url) return ''
   try {
     const u = new URL(url)

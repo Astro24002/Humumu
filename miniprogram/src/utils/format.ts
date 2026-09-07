@@ -22,7 +22,7 @@ export function formatDateTime(d?: string | null): string {
 }
 
 /** Compact host+path label for display; keeps full URL for actions. */
-export function shortUrl(url: string, max = 40): string {
+export function shortUrl(url?: string | null, max = 40): string {
   if (!url) return ''
   try {
     const u = new URL(url)
@@ -59,9 +59,10 @@ export function formatAuthors(authors?: string[] | null, max = 3): string {
   return list.length > max ? `${head} 等` : head
 }
 
-export function truncate(s: string, max: number): string {
+export function truncate(s?: string | null, max = 40): string {
+  if (!s) return ''
   if (s.length <= max) return s
-  return s.slice(0, max) + '...'
+  return s.slice(0, max) + '…'
 }
 
 export function timeAgo(d: string): string {
