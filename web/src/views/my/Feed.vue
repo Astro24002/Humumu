@@ -57,6 +57,7 @@
               :bordered="false"
             >{{ sourceTypeLabel(u.journal_source_type) }}</n-tag>
             <n-tag v-for="r in (u.reasons || [])" :key="r" size="tiny" type="warning" :bordered="false">{{ reasonLabel(r) }}</n-tag>
+            <n-tag v-if="u.status.original_clicked_at" size="tiny" type="success" :bordered="false">已点原文</n-tag>
             <span style="color: #888; font-size: 12px;">{{ formatDate(u.publish_date) }}</span>
           </n-space>
           <div v-if="u.authors?.length" style="color: #666; font-size: 13px; margin-top: 4px;">
@@ -285,10 +286,13 @@ async function onOriginalClick(u: MyUpdateItem) {
   originalClickBusy.value = new Set([...originalClickBusy.value, u.article_id])
   try {
     await recordOriginalClick(u.article_id)
+    if (!u.status.original_clicked_at) {
+      u.status.original_clicked_at = new Date().toISOString()
+    }
     if (!u.status.is_read) {
       const status = await updateArticleStatus(u.article_id, { is_read: true })
       u.status.is_read = status.is_read
-      u.status.original_clicked_at = status.original_clicked_at
+      u.status.original_clicked_at = status.original_clicked_at || u.status.original_clicked_at
     }
   } catch {
     // non-blocking

@@ -71,6 +71,7 @@
           <text v-if="a.content_type === 'preprint'" class="badge">{{ contentTypeLabel(a.content_type) }}</text>
           <text v-if="a.journal_source_type" class="badge source">{{ sourceTypeLabel(a.journal_source_type) }}</text>
           <text v-for="r in (a.reasons || [])" :key="r" class="badge reason">{{ reasonLabel(r) }}</text>
+          <text v-if="a.original_clicked" class="badge clicked">已点原文</text>
         </view>
         <text class="title" :class="{ unread: a.unread }">{{ a.title }}</text>
         <text class="authors" v-if="a.authors?.length">
@@ -121,6 +122,7 @@ interface FeedItem {
   journal_source_type?: string
   reasons: string[]
   unread?: boolean
+  original_clicked?: boolean
   abstract: string
   doi?: string | null
   url: string
@@ -264,6 +266,7 @@ async function fetchItems(isLoadMore = false) {
         journal_source_type: u.journal_source_type || undefined,
         reasons: u.reasons || [],
         unread: !u.status?.is_read,
+        original_clicked: !!u.status?.original_clicked_at,
         abstract: u.abstract || '',
         doi: u.doi,
         url: u.url || '',
@@ -341,6 +344,7 @@ async function copyLink(url: string, item?: FeedItem) {
     originalClickBusy.value = new Set([...originalClickBusy.value, item.id])
     try {
       await recordOriginalClick(item.id)
+      item.original_clicked = true
       // My-updates items carry unread; plaza "all" cards lack status — still mark once.
       if (item.unread !== false) {
         await updateArticleStatus(item.id, { is_read: true })
@@ -381,6 +385,7 @@ onUnload(() => { feedLoadSeq++ })
 .badge { font-size: 20rpx; background: #eef6ff; color: #3a7bd5; padding: 2rpx 10rpx; border-radius: 6rpx; }
 .badge.source { color: #666; background: #f0f0f0; }
 .badge.reason { background: #fff7e6; color: #d48806; }
+.badge.clicked { background: #e8f8e0; color: #3cc51f; }
 .title { font-size: 30rpx; color: #333; line-height: 1.4; display: block; }
 .title.unread { font-weight: 600; }
 .authors { font-size: 24rpx; color: #888; margin-top: 8rpx; display: block; }
