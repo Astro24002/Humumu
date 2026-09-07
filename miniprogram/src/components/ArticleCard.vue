@@ -1,5 +1,5 @@
 <template>
-  <view class="card" @click="goDetail">
+  <view class="card" :class="{ busy }" @click="goDetail">
     <view class="meta">
       <view class="meta-left">
         <text
@@ -45,7 +45,7 @@ import { useAuthStore } from '@/stores/auth'
 import { formatDate, formatAuthors, contentTypeLabel, sourceTypeLabel, doiUrl } from '@/utils/format'
 import { cleanAbstract } from '@/utils/abstract'
 
-const props = defineProps<{ article: Article }>()
+const props = defineProps<{ article: Article; busy?: boolean }>()
 const auth = useAuthStore()
 /** Module-level: shared across card instances (no status on Article payload). */
 const knownReadIds = new Set<string>()
@@ -55,15 +55,17 @@ const authorsLabel = computed(() => formatAuthors(props.article.authors || []))
 const originalBusy = computed(() => originalClickBusyIds.value.has(props.article.id))
 
 function goDetail() {
+  if (props.busy) return
   uni.navigateTo({ url: `/pages/article/detail?id=${props.article.id}` })
 }
 
 function goJournal() {
-  if (!props.article.journal_id) return
+  if (props.busy || !props.article.journal_id) return
   uni.navigateTo({ url: `/pages/journals/detail?id=${props.article.journal_id}` })
 }
 
 async function onOriginalClick() {
+  if (props.busy) return
   const articleId = props.article.id
   if (!auth.isLoggedIn || !articleId || originalClickBusyIds.value.has(articleId)) return
   originalClickBusyIds.value = new Set([...originalClickBusyIds.value, articleId])
@@ -115,3 +117,4 @@ function copyLink(url: string) {
 .action-link { font-size: 24rpx; color: #3cc51f; }
 .action-link.disabled { opacity: 0.45; pointer-events: none; }
 </style>
+.card.busy { opacity: 0.55; pointer-events: none; }

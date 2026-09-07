@@ -17,7 +17,7 @@ export interface AuthUser {
 export interface AuthResponse {
   token: string
   user: AuthUser
-  has_email?: boolean
+  has_email: boolean
 }
 
 export interface MeResponse {

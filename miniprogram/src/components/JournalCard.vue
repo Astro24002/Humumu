@@ -1,5 +1,5 @@
 <template>
-  <view class="card" @click="goDetail">
+  <view class="card" :class="{ busy }" @click="goDetail">
     <view class="header">
       <text class="name">{{ journal.name }}</text>
       <view class="tags">
@@ -22,17 +22,19 @@ import { computed } from 'vue'
 import type { Journal } from '@/api/journals'
 import { formatDate, shortUrl, sourceTypeLabel, contentTypeLabel, healthStatusLabel } from '@/utils/format'
 
-const props = defineProps<{ journal: Journal }>()
+const props = defineProps<{ journal: Journal; busy?: boolean }>()
 
 const linkUrl = computed(() => props.journal.homepage_url || props.journal.source_url || '')
 
 const linkLabel = computed(() => shortUrl(linkUrl.value))
 
 function goDetail() {
+  if (props.busy) return
   uni.navigateTo({ url: `/pages/journals/detail?id=${props.journal.id}` })
 }
 
 function openLink() {
+  if (props.busy) return
   const url = linkUrl.value
   if (!url) return
   // #ifdef H5
@@ -65,3 +67,4 @@ function openLink() {
 .desc { font-size: 26rpx; color: #666; margin-top: 12rpx; display: block; line-height: 1.5; overflow: hidden; }
 .link { font-size: 22rpx; color: #18a058; margin-top: 10rpx; display: block; }
 </style>
+.card.busy { opacity: 0.55; pointer-events: none; }

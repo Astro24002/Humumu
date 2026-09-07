@@ -57,6 +57,7 @@
         v-for="a in items"
         :key="a.id"
         class="card"
+        :class="{ busy: loading }"
         @click="goDetail(a.id)"
       >
         <view class="meta">
@@ -68,7 +69,7 @@
           <text v-else class="journal">{{ a.journal_name }}</text>
           <text v-if="a.content_type === 'preprint'" class="badge">{{ contentTypeLabel(a.content_type) }}</text>
           <text v-if="a.journal_source_type" class="badge source">{{ sourceTypeLabel(a.journal_source_type) }}</text>
-          <text v-for="r in a.reasons" :key="r" class="badge reason">{{ reasonLabel(r) }}</text>
+          <text v-for="r in (a.reasons || [])" :key="r" class="badge reason">{{ reasonLabel(r) }}</text>
         </view>
         <text class="title" :class="{ unread: a.unread }">{{ a.title }}</text>
         <text class="authors" v-if="a.authors?.length">
@@ -307,10 +308,12 @@ function loadMore() {
 }
 
 function goDetail(id: string) {
+  if (loading.value) return
   uni.navigateTo({ url: `/pages/article/detail?id=${id}` })
 }
 
 function goJournal(id?: string) {
+  if (loading.value) return
   if (!id) return
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
 }
@@ -318,6 +321,7 @@ function goJournal(id?: string) {
 const originalClickBusy = new Set<string>()
 
 async function copyLink(url: string, item?: FeedItem) {
+  if (loading.value) return
   if (!url) return
   if (auth.isLoggedIn && item?.id && !originalClickBusy.has(item.id)) {
     originalClickBusy.add(item.id)
@@ -367,4 +371,5 @@ async function copyLink(url: string, item?: FeedItem) {
 .actions { display: flex; gap: 24rpx; margin-top: 12rpx; }
 .action-link { font-size: 24rpx; color: #3cc51f; }
 button:disabled { opacity: 0.55; }
+.card.busy { opacity: 0.55; pointer-events: none; }
 </style>

@@ -36,7 +36,7 @@
       </view>
       <view v-if="articlesLoading && !articles.length" class="loading"><text>加载论文...</text></view>
       <template v-else>
-        <ArticleCard v-for="a in articles" :key="a.id" :article="a" />
+        <ArticleCard v-for="a in articles" :key="a.id" :article="a" :busy="articlesLoading || subBusy" />
         <view v-if="articles.length === 0" class="empty">
           <text>{{ journal.health_status === 'paused' ? '暂无文章（抓取已暂停）' : '暂无文章' }}</text>
           <button size="mini" class="btn-more" :disabled="articlesLoading || subBusy" @click="goPlaza">返回期刊广场</button>

@@ -57,7 +57,7 @@
       <button v-else size="mini" class="btn-empty" :disabled="loading" @click="goEmptyCta">{{ emptyCtaLabel }}</button>
     </view>
     <scroll-view v-else scroll-y class="scroll-view" @scrolltolower="loadMore">
-      <JournalCard v-for="j in journals" :key="j.id" :journal="j" />
+      <JournalCard v-for="j in journals" :key="j.id" :journal="j" :busy="loading" />
       <view v-if="loadingMore" class="loading-more"><text>加载中...</text></view>
       <view v-else-if="hasMore" class="loading-more"><text>上拉加载更多</text></view>
       <view v-else-if="journals.length" class="loading-more"><text>已显示全部</text></view>
