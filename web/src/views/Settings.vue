@@ -1,7 +1,7 @@
 <template>
   <n-h2>个人设置</n-h2>
 
-  <n-card title="账号" style="margin-bottom: 16px;">
+  <n-card title="账号" style="margin-bottom: 16px;" :style="hydrateBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined">
     <n-descriptions label-placement="left" :column="1" size="small" bordered>
       <n-descriptions-item label="昵称">
         {{ auth.user?.name || '—' }}
@@ -24,7 +24,7 @@
           <n-switch
             :value="templateSubscribed"
             :loading="templateBusy"
-            :disabled="templateBusy || saving || !auth.user?.wechat_openid"
+            :disabled="settingsBusy || !auth.user?.wechat_openid"
             @update:value="onTemplateChange"
           />
           <n-tag
@@ -46,18 +46,18 @@
     </p>
   </n-card>
 
-  <n-card title="默认推送频率" style="margin-bottom: 16px;">
+  <n-card title="默认推送频率" style="margin-bottom: 16px;" :style="hydrateBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined">
     <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
       新订阅默认跟随此设置；可在「订阅管理」中按期刊覆盖。
     </p>
-    <n-radio-group v-model:value="frequency" :disabled="saving || templateBusy">
+    <n-radio-group v-model:value="frequency" :disabled="settingsBusy">
       <n-radio value="daily">{{ freqLabel('daily') }}汇总（推荐）</n-radio>
       <n-radio value="realtime">{{ freqLabel('realtime') }}推送</n-radio>
     </n-radio-group>
     <n-button
       style="margin-top: 16px;"
       type="primary"
-      :disabled="!frequencyDirty || saving || templateBusy"
+      :disabled="!frequencyDirty || settingsBusy"
       :loading="saving"
       @click="saveFrequency"
     >
@@ -65,8 +65,43 @@
     </n-button>
   </n-card>
 
+  <n-card title="我的期刊申请" style="margin-bottom: 16px;" :style="hydrateBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined">
+    <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
+      通过「添加 RSS」并选择申请公开后会出现在此；也可在订阅管理中继续添加。
+    </p>
+    <div v-if="requestsLoading && !myRequests.length" style="padding: 12px 0;"><n-spin size="small" /></div>
+    <n-empty v-else-if="!myRequests.length" description="暂无申请记录" size="small">
+      <template #extra>
+        <n-button size="small" :disabled="settingsBusy" @click="router.push('/my/subscriptions')">去添加 RSS</n-button>
+      </template>
+    </n-empty>
+    <n-list v-else :style="requestsLoading ? { opacity: 0.55, pointerEvents: 'none' } : undefined">
+      <n-list-item v-for="r in myRequests" :key="r.id">
+        <n-thing :title="r.journal_name">
+          <template #description>
+            <n-space size="small" align="center" style="flex-wrap: wrap;">
+              <n-tag size="small" :type="requestStatusTagType(r.status)" :bordered="false">
+                {{ requestStatusLabel(r.status) }}
+              </n-tag>
+              <span style="color: #888; font-size: 12px;">{{ formatDateTime(r.created_at) }}</span>
+              <span v-if="r.source_url" style="color: #999; font-size: 12px;">{{ shortUrl(r.source_url) }}</span>
+            </n-space>
+          </template>
+        </n-thing>
+      </n-list-item>
+    </n-list>
+    <n-button
+      style="margin-top: 12px;"
+      size="small"
+      quaternary
+      :loading="requestsLoading"
+      :disabled="settingsBusy"
+      @click="loadMyRequests"
+    >刷新申请</n-button>
+  </n-card>
+
   <n-card title="会话">
-    <n-button type="error" ghost :disabled="saving || templateBusy" @click="handleLogout">退出登录</n-button>
+    <n-button type="error" ghost :disabled="settingsBusy" @click="handleLogout">退出登录</n-button>
   </n-card>
 </template>
 
@@ -76,9 +111,13 @@ import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { updatePushFrequency } from '@/api/subscriptions'
 import { getTemplateSetting, updateTemplateSetting } from '@/api/wechat'
-import { freqLabel, isWechatPlaceholderEmail } from '@/utils/labels'
+import { getMyJournalRequests, type JournalRequest } from '@/api/journals'
+import { freqLabel, isWechatPlaceholderEmail, requestStatusLabel, requestStatusTagType } from '@/utils/labels'
+import { formatDateTime } from '@/utils/datetime'
+import { shortUrl } from '@/utils/url'
 import {
-  NH2, NCard, NRadio, NRadioGroup, NButton, NDescriptions, NDescriptionsItem, NTag, NSwitch, useMessage, useDialog,
+  NH2, NCard, NRadio, NRadioGroup, NButton, NDescriptions, NDescriptionsItem, NTag, NSwitch,
+  NList, NListItem, NThing, NSpace, NEmpty, NSpin, useMessage, useDialog,
 } from 'naive-ui'
 
 const router = useRouter()
@@ -95,8 +134,12 @@ const saving = ref(false)
 const leaveArmed = ref(false)
 const templateSubscribed = ref(!!auth.user?.wechat_template_subscribed)
 const templateBusy = ref(false)
+const hydrateBusy = ref(true)
+const myRequests = ref<JournalRequest[]>([])
+const requestsLoading = ref(false)
 /** Drop stale settings hydrations if the page unmounts mid-flight. */
 let settingsLoadSeq = 0
+let requestsLoadSeq = 0
 
 const accountHasEmail = computed(() => {
   const u = auth.user
@@ -106,14 +149,40 @@ const accountHasEmail = computed(() => {
 })
 
 const frequencyDirty = computed(() => frequency.value !== savedFrequency.value)
+const settingsBusy = computed(
+  () => saving.value || templateBusy.value || hydrateBusy.value || requestsLoading.value,
+)
 
 function persistUser() {
   if (auth.user) localStorage.setItem('user', JSON.stringify(auth.user))
 }
 
+async function loadMyRequests() {
+  if (!auth.isLoggedIn) {
+    myRequests.value = []
+    return
+  }
+  const seq = ++requestsLoadSeq
+  requestsLoading.value = true
+  try {
+    const res = await getMyJournalRequests()
+    if (seq !== requestsLoadSeq) return
+    myRequests.value = res.requests || []
+  } catch {
+    if (seq !== requestsLoadSeq) return
+    // non-blocking: keep prior list
+  } finally {
+    if (seq === requestsLoadSeq) requestsLoading.value = false
+  }
+}
+
 async function hydrateSettings() {
-  if (!auth.isLoggedIn) return
+  if (!auth.isLoggedIn) {
+    hydrateBusy.value = false
+    return
+  }
   const seq = ++settingsLoadSeq
+  hydrateBusy.value = true
   try {
     await auth.refreshMe()
   } catch {
@@ -134,13 +203,18 @@ async function hydrateSettings() {
       // keep seeded value
     }
   }
+  await loadMyRequests()
+  if (seq === settingsLoadSeq) hydrateBusy.value = false
 }
 
 onMounted(() => { void hydrateSettings() })
-onUnmounted(() => { settingsLoadSeq++ })
+onUnmounted(() => {
+  settingsLoadSeq++
+  requestsLoadSeq++
+})
 
 async function saveFrequency() {
-  if (saving.value || templateBusy.value || !frequencyDirty.value) return
+  if (settingsBusy.value || !frequencyDirty.value) return
   saving.value = true
   try {
     await updatePushFrequency(frequency.value)
@@ -158,7 +232,7 @@ async function saveFrequency() {
 }
 
 async function onTemplateChange(val: boolean) {
-  if (templateBusy.value || saving.value || !auth.user?.wechat_openid) return
+  if (settingsBusy.value || !auth.user?.wechat_openid) return
   const prev = templateSubscribed.value
   templateBusy.value = true
   try {
@@ -178,14 +252,14 @@ async function onTemplateChange(val: boolean) {
 }
 
 function handleLogout() {
-  if (saving.value || templateBusy.value) return
+  if (settingsBusy.value) return
   dialog.warning({
     title: '确认退出',
     content: '退出后需要重新登录才能管理订阅与阅读状态。',
     positiveText: '退出',
     negativeText: '取消',
     onPositiveClick: () => {
-      if (saving.value || templateBusy.value) return
+      if (settingsBusy.value) return
       leaveArmed.value = true
       auth.logout()
       message.success('已退出')

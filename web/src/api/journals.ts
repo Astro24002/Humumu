@@ -57,8 +57,30 @@ export function getJournal(id: string): Promise<Journal> {
   return get<Journal>(`/journals/${id}`)
 }
 
-export function requestJournal(journalName: string, sourceUrl: string): Promise<void> {
+export interface JournalRequest {
+  id: string
+  user_id: string
+  journal_name: string
+  source_url: string
+  status: string
+  created_at: string
+  reviewed_at: string | null
+}
+
+export interface JournalRequestsResponse {
+  requests: JournalRequest[]
+  total: number
+}
+
+export function requestJournal(
+  journalName: string,
+  sourceUrl: string,
+): Promise<JournalRequest> {
   return post('/journals/requests', { journal_name: journalName, source_url: sourceUrl })
+}
+
+export function getMyJournalRequests(): Promise<JournalRequestsResponse> {
+  return get('/journals/requests')
 }
 
 export interface PreviewItem {

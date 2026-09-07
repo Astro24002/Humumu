@@ -13,7 +13,7 @@
         <text v-if="auth.user?.wechat_openid" class="user-meta">微信已关联</text>
         <view v-if="!auth.hasEmail" class="bind-email-hint">
           <text class="bind-email-text">邮件推送需绑定真实邮箱</text>
-          <text class="bind-email-link" :class="{ busy: freqBusy || templateBusy }" @click="goBindEmail">去绑定</text>
+          <text class="bind-email-link" :class="{ busy: profileBusy }" @click="goBindEmail">去绑定</text>
         </view>
       </view>
 
@@ -23,19 +23,38 @@
 
         <view class="setting-item">
           <text>推送频率</text>
-          <picker :value="freqIndex" :range="freqOptions" :disabled="freqBusy || templateBusy" @change="onFreqChange">
+          <picker :value="freqIndex" :range="freqOptions" :disabled="profileBusy" @change="onFreqChange">
             <text class="setting-value">{{ freqOptions[freqIndex] }}</text>
           </picker>
         </view>
 
         <view class="setting-item">
           <text>微信订阅消息</text>
-          <switch :checked="templateSubscribed" :disabled="templateBusy || freqBusy" @change="onTemplateChange" />
+          <switch :checked="templateSubscribed" :disabled="profileBusy" @change="onTemplateChange" />
+        </view>
+      </view>
+
+      <!-- My journal requests -->
+      <view class="section">
+        <view class="section-title">我的期刊申请</view>
+        <view v-if="requestsLoading && !myRequests.length" class="req-empty"><text>加载中...</text></view>
+        <view v-else-if="!myRequests.length" class="req-empty">
+          <text>暂无申请记录</text>
+          <text class="req-cta" :class="{ busy: profileBusy }" @click="goSubscriptions">去添加 RSS</text>
+        </view>
+        <view v-else class="req-list" :class="{ busy: requestsLoading || profileBusy }">
+          <view v-for="r in myRequests" :key="r.id" class="req-item">
+            <text class="req-name">{{ r.journal_name }}</text>
+            <view class="req-meta">
+              <text class="req-status">{{ requestStatusLabel(r.status) }}</text>
+              <text class="req-time">{{ formatDateTime(r.created_at) }}</text>
+            </view>
+          </view>
         </view>
       </view>
 
       <!-- Notification history link -->
-      <view class="nav-item" :class="{ busy: freqBusy || templateBusy }" @click="goNotifications">
+      <view class="nav-item" :class="{ busy: profileBusy }" @click="goNotifications">
         <text>通知历史</text>
         <text class="nav-arrow">›</text>
       </view>
@@ -43,8 +62,8 @@
       <!-- Logout -->
       <button
         class="btn-logout"
-        :disabled="freqBusy || templateBusy"
-        :class="{ disabled: freqBusy || templateBusy }"
+        :disabled="profileBusy"
+        :class="{ disabled: profileBusy }"
         @click="handleLogout"
       >退出登录</button>
     </template>
@@ -56,8 +75,9 @@ import { ref, computed } from 'vue'
 import { onShow, onPullDownRefresh, onUnload } from '@dcloudio/uni-app'
 import { useAuthStore } from '@/stores/auth'
 import { goLogin } from '@/utils/nav'
-import { freqLabel, isWechatPlaceholderEmail } from '@/utils/format'
+import { freqLabel, isWechatPlaceholderEmail, requestStatusLabel, formatDateTime } from '@/utils/format'
 import { getTemplateSetting, updateTemplateSetting, getTemplateIds } from '@/api/wechat'
+import { getMyJournalRequests, type JournalRequest } from '@/api/journals'
 
 const auth = useAuthStore()
 const templateSubscribed = ref(false)
@@ -65,8 +85,13 @@ const freqOptions = [`${freqLabel('daily')}汇总`, `${freqLabel('realtime')}推
 const freqIndex = ref(0)
 const freqBusy = ref(false)
 const templateBusy = ref(false)
+const myRequests = ref<JournalRequest[]>([])
+const requestsLoading = ref(false)
 /** Drop stale profile hydrations when onShow/pull races mid-flight. */
 let profileLoadSeq = 0
+let requestsLoadSeq = 0
+
+const profileBusy = computed(() => freqBusy.value || templateBusy.value || requestsLoading.value)
 
 const accountEmailLabel = computed(() => {
   if (!auth.user) return ''
@@ -75,6 +100,24 @@ const accountEmailLabel = computed(() => {
   }
   return '未绑定邮箱（微信登录）'
 })
+
+async function loadMyRequests() {
+  if (!auth.isLoggedIn) {
+    myRequests.value = []
+    return
+  }
+  const seq = ++requestsLoadSeq
+  requestsLoading.value = true
+  try {
+    const res = await getMyJournalRequests()
+    if (seq !== requestsLoadSeq) return
+    myRequests.value = res.requests || []
+  } catch {
+    if (seq !== requestsLoadSeq) return
+  } finally {
+    if (seq === requestsLoadSeq) requestsLoading.value = false
+  }
+}
 
 async function hydrateProfile() {
   if (!auth.isLoggedIn) return
@@ -92,6 +135,7 @@ async function hydrateProfile() {
     templateSubscribed.value = auth.user.wechat_template_subscribed
   }
   loadTemplateSetting()
+  void loadMyRequests()
 }
 
 onShow(() => { hydrateProfile() })
@@ -113,8 +157,13 @@ async function loadTemplateSetting() {
 
 
 function goNotifications() {
-  if (freqBusy.value || templateBusy.value) return
+  if (profileBusy.value) return
   uni.navigateTo({ url: '/pages/notifications/index' })
+}
+
+function goSubscriptions() {
+  if (profileBusy.value) return
+  uni.switchTab({ url: '/pages/subscriptions/index' })
 }
 
 function persistUser() {
@@ -122,7 +171,7 @@ function persistUser() {
 }
 
 async function onFreqChange(e: any) {
-  if (freqBusy.value || templateBusy.value) return
+  if (profileBusy.value) return
   const prev = freqIndex.value
   const val = Number(e.detail.value)
   freqIndex.value = val
@@ -145,7 +194,7 @@ async function onFreqChange(e: any) {
 }
 
 async function onTemplateChange(e: any) {
-  if (templateBusy.value || freqBusy.value) return
+  if (profileBusy.value) return
   const val = e.detail.value as boolean
   const prev = templateSubscribed.value
   templateBusy.value = true
@@ -189,12 +238,12 @@ async function onTemplateChange(e: any) {
 }
 
 function goBindEmail() {
-  if (freqBusy.value || templateBusy.value) return
+  if (profileBusy.value) return
   uni.navigateTo({ url: '/pages/login/index?mode=bind' })
 }
 
 function handleLogout() {
-  if (freqBusy.value || templateBusy.value) return
+  if (profileBusy.value) return
   uni.showModal({
     title: '确认退出',
     content: '退出后需要重新登录才能管理订阅与阅读状态',
@@ -202,13 +251,13 @@ function handleLogout() {
     cancelText: '取消',
     success: (res) => {
       if (!res.confirm) return
-      if (freqBusy.value || templateBusy.value) return
+      if (profileBusy.value) return
       auth.logout()
       uni.showToast({ title: '已退出', icon: 'none' })
     },
   })
 }
-onUnload(() => { profileLoadSeq++ })
+onUnload(() => { profileLoadSeq++; requestsLoadSeq++ })
 </script>
 
 <style scoped>
@@ -232,4 +281,14 @@ onUnload(() => { profileLoadSeq++ })
 .btn-logout.disabled { opacity: 0.45; }
 .nav-item.busy { opacity: 0.45; pointer-events: none; }
 .bind-email-link.busy { opacity: 0.45; pointer-events: none; }
+.req-empty { padding: 24rpx 0 32rpx; color: #999; font-size: 26rpx; display: flex; flex-direction: column; gap: 12rpx; }
+.req-cta { color: #3cc51f; font-size: 26rpx; }
+.req-cta.busy { opacity: 0.45; pointer-events: none; }
+.req-list { padding-bottom: 16rpx; }
+.req-list.busy { opacity: 0.55; pointer-events: none; }
+.req-item { padding: 20rpx 0; border-bottom: 1rpx solid #f5f5f5; }
+.req-name { font-size: 28rpx; color: #333; display: block; }
+.req-meta { display: flex; gap: 16rpx; margin-top: 8rpx; align-items: center; }
+.req-status { font-size: 22rpx; color: #3cc51f; background: #e8f8e0; padding: 2rpx 12rpx; border-radius: 8rpx; }
+.req-time { font-size: 22rpx; color: #bbb; }
 </style>
