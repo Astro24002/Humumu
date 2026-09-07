@@ -138,8 +138,8 @@ const emptyHint = computed(() => {
     if (filter.value === 'later') return '稍后再看列表为空'
     return '暂无更新，去订阅期刊或关键词吧'
   }
-  if (contentType.value || sourceType.value) return '当前筛选下暂无论文'
-  return '暂无论文'
+  if (contentType.value || sourceType.value) return '当前筛选下暂无文章'
+  return '暂无文章'
 })
 
 // Tab page stays alive; re-sync when returning from login or other tabs.

@@ -113,10 +113,10 @@ const hasActiveFilters = computed(() =>
   ),
 )
 const emptyHint = computed(() =>
-  hasActiveFilters.value ? '当前筛选下暂无期刊' : '暂无期刊',
+  hasActiveFilters.value ? '当前筛选下暂无期刊' : '暂无可浏览的期刊',
 )
 const emptyCtaLabel = computed(() =>
-  auth.isLoggedIn ? '去添加源' : '登录后添加源',
+  auth.isLoggedIn ? '添加 RSS 源' : '登录后添加源',
 )
 
 function listParams(extra: { limit?: number; offset?: number } = {}) {
