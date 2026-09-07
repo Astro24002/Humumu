@@ -19,6 +19,18 @@
         <n-tag v-if="auth.user?.wechat_openid" size="small" type="success" :bordered="false">已关联</n-tag>
         <span v-else style="color: #888;">未关联</span>
       </n-descriptions-item>
+      <n-descriptions-item v-if="auth.user?.wechat_openid" label="模板消息">
+        <n-tag
+          v-if="auth.user?.wechat_template_subscribed"
+          size="small"
+          type="success"
+          :bordered="false"
+        >已开启</n-tag>
+        <template v-else>
+          <n-tag size="small" type="warning" :bordered="false">未开启</n-tag>
+          <span style="color: #888; font-size: 12px; margin-left: 8px;">请在小程序内开启</span>
+        </template>
+      </n-descriptions-item>
       <n-descriptions-item v-if="auth.isAdmin" label="角色">
         <n-tag size="small" type="info" :bordered="false">管理员</n-tag>
       </n-descriptions-item>
