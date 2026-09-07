@@ -51,7 +51,7 @@
       </template>
     </n-empty>
 
-    <n-list v-else>
+    <n-list v-else :style="loading ? { opacity: 0.55, pointerEvents: 'none' } : undefined">
       <n-list-item v-for="a in articles" :key="a.id">
         <n-thing>
           <template #header>

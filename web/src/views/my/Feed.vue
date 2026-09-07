@@ -26,7 +26,7 @@
       <n-button v-else :disabled="listBusy" @click="clearFilter">查看全部更新</n-button>
     </template>
   </n-empty>
-  <n-list v-else>
+  <n-list v-else :style="loading ? { opacity: 0.55, pointerEvents: 'none' } : undefined">
     <n-list-item v-for="u in updates" :key="u.article_id">
       <n-thing>
         <template #header>

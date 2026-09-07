@@ -26,7 +26,7 @@
       <n-button v-else :disabled="loading" @click="router.push('/my/subscriptions')">管理订阅</n-button>
     </template>
   </n-empty>
-  <n-list v-else>
+  <n-list v-else :style="loading ? { opacity: 0.55, pointerEvents: 'none' } : undefined">
     <n-list-item v-for="n in notifs" :key="n.id">
       <n-thing>
         <template #header>
