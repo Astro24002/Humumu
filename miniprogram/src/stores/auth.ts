@@ -1,18 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { getMe } from '@/api/auth'
-
-interface User {
-  id: string
-  email: string
-  name: string
-  wechat_openid: string
-  push_frequency: string
-  wechat_template_subscribed: boolean
-  is_admin?: boolean
-  created_at: string
-  updated_at: string
-}
+import { getMe, type User } from '@/api/auth'
+import { isWechatPlaceholderEmail } from '@/utils/format'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref('')
@@ -20,15 +9,27 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isLoggedIn = computed(() => !!token.value)
   const hasEmail = computed(() => {
-    const email = user.value?.email
-    return email ? !email.endsWith('@wechat.user') : false
+    const u = user.value
+    if (!u) return false
+    if (typeof u.has_email === 'boolean') return u.has_email
+    return !!(u.email && !isWechatPlaceholderEmail(u.email))
   })
 
-  function save(t: string, u: User) {
+  function withHasEmail(u: User, hasEmailFlag?: boolean): User {
+    const derived =
+      typeof hasEmailFlag === 'boolean'
+        ? hasEmailFlag
+        : typeof u.has_email === 'boolean'
+          ? u.has_email
+          : !!(u.email && !isWechatPlaceholderEmail(u.email))
+    return { ...u, has_email: derived }
+  }
+
+  function save(t: string, u: User, hasEmailFlag?: boolean) {
     token.value = t
-    user.value = u
+    user.value = withHasEmail(u, hasEmailFlag)
     uni.setStorageSync('token', t)
-    uni.setStorageSync('user', JSON.stringify(u))
+    uni.setStorageSync('user', JSON.stringify(user.value))
   }
 
   function restore() {
@@ -36,7 +37,11 @@ export const useAuthStore = defineStore('auth', () => {
     const u = uni.getStorageSync('user')
     if (t && u) {
       token.value = t as string
-      user.value = JSON.parse(u as string) as User
+      try {
+        user.value = withHasEmail(JSON.parse(u as string) as User)
+      } catch {
+        user.value = null
+      }
     }
   }
 
@@ -44,8 +49,8 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return
     try {
       const res = await getMe()
-      user.value = res.user
-      uni.setStorageSync('user', JSON.stringify(res.user))
+      user.value = withHasEmail(res.user, res.has_email)
+      uni.setStorageSync('user', JSON.stringify(user.value))
     } catch {
       logout()
     }

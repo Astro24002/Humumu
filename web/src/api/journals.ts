@@ -64,7 +64,7 @@ export function requestJournal(journalName: string, sourceUrl: string): Promise<
 export interface PreviewItem {
   title: string
   url: string
-  published: string
+  published?: string | null
 }
 
 export interface PreviewResult {

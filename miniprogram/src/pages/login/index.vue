@@ -135,7 +135,7 @@ async function handleWeChatLogin() {
   try {
     await ensureWxCode()
     const res = await wechatLogin(wxCode.value)
-    auth.save(res.token, res.user)
+    auth.save(res.token, res.user, res.has_email)
     if (!res.has_email) {
       needsBind.value = true
     } else {
@@ -163,7 +163,7 @@ async function handleBind() {
   try {
     await ensureWxCode()
     const res = await bindAccount(wxCode.value, form.value.email, form.value.password)
-    auth.save(res.token, res.user)
+    auth.save(res.token, res.user, res.has_email)
     goAfterLogin()
   } catch (e: any) {
     error.value = e.message || '绑定失败'

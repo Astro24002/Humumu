@@ -4,12 +4,14 @@ export interface User {
   id: string
   email: string
   name: string
-  wechat_openid: string
+  wechat_openid?: string | null
   push_frequency: string
-  wechat_template_subscribed: boolean
+  wechat_template_subscribed?: boolean
   is_admin?: boolean
   created_at: string
-  updated_at: string
+  updated_at?: string | null
+  /** Client-side: true email (not synthetic @wechat.user). Set from /auth/me or login. */
+  has_email?: boolean
 }
 
 export interface AuthResponse {
