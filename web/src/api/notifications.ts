@@ -7,7 +7,7 @@ export interface Notification {
   channel: string
   status: string
   error_message: string | null
-  match_reasons?: string[]
+  match_reasons: string[]
   created_at: string
   sent_at: string | null
   article_title?: string | null

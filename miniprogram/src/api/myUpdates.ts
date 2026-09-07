@@ -21,7 +21,7 @@ export interface MyUpdateItem {
   journal_name: string
   journal_source_type?: string | null
   content_type: string
-  reasons?: string[]
+  reasons: string[]
   status: UpdateStatusFlags
 }
 
