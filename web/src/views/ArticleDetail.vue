@@ -86,6 +86,13 @@
         复制链接
       </n-button>
       <template v-if="isLoggedIn">
+        <n-tag
+          v-if="status.original_clicked_at"
+          size="small"
+          type="success"
+          :bordered="false"
+          style="align-self: center;"
+        >已点原文 · {{ formatDateTime(status.original_clicked_at) }}</n-tag>
         <n-button
           :type="status.is_read ? 'success' : 'default'"
           ghost
@@ -133,7 +140,7 @@ import { getArticleStatus, updateArticleStatus, recordOriginalClick, type Articl
 import { useAuthStore } from '@/stores/auth'
 import { cleanAbstract } from '@/utils/abstract'
 import { shortUrl, doiUrl } from '@/utils/url'
-import { formatDate } from '@/utils/datetime'
+import { formatDate, formatDateTime } from '@/utils/datetime'
 import { formatAuthors, sourceTypeLabel, sourceTypeTagType, contentTypeLabel } from '@/utils/labels'
 import {
   NH2, NH4, NButton, NSpin, NTag, NResult,
@@ -188,6 +195,12 @@ async function onOriginalClick() {
   originalClickBusy.value = true
   try {
     await recordOriginalClick(article.value.id)
+    if (!status.value.original_clicked_at) {
+      status.value = {
+        ...status.value,
+        original_clicked_at: new Date().toISOString(),
+      }
+    }
     if (!status.value.is_read) {
       status.value = await updateArticleStatus(article.value.id, { is_read: true })
     }

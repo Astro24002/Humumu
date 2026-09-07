@@ -32,6 +32,7 @@
       </view>
 
       <view class="status-row" v-if="auth.isLoggedIn" :class="{ 'status-busy': !!statusBusy || originalClickBusy }">
+        <text v-if="status.original_clicked_at" class="chip on clicked">已点原文</text>
         <text
           :class="['chip', status.is_read && 'on', statusBusy === 'is_read' && 'busy']"
           @click="toggle('is_read')"
@@ -191,6 +192,12 @@ async function markOriginalClicked() {
   originalClickBusy.value = true
   try {
     await recordOriginalClick(article.value.id)
+    if (!status.value.original_clicked_at) {
+      status.value = {
+        ...status.value,
+        original_clicked_at: new Date().toISOString(),
+      }
+    }
     if (!status.value.is_read) {
       status.value = await updateArticleStatus(article.value.id, { is_read: true })
     }
