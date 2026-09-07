@@ -86,7 +86,7 @@
           :type="status.is_read ? 'success' : 'default'"
           ghost
           :loading="statusBusy === 'is_read'"
-          :disabled="!!statusBusy"
+          :disabled="!!statusBusy || originalClickBusy"
           @click="toggle('is_read')"
         >
           {{ status.is_read ? '已读' : '标为已读' }}
@@ -95,7 +95,7 @@
           :type="status.is_starred ? 'warning' : 'default'"
           ghost
           :loading="statusBusy === 'is_starred'"
-          :disabled="!!statusBusy"
+          :disabled="!!statusBusy || originalClickBusy"
           @click="toggle('is_starred')"
         >
           {{ status.is_starred ? '已星标' : '星标' }}
@@ -104,7 +104,7 @@
           :type="status.is_later ? 'info' : 'default'"
           ghost
           :loading="statusBusy === 'is_later'"
-          :disabled="!!statusBusy"
+          :disabled="!!statusBusy || originalClickBusy"
           @click="toggle('is_later')"
         >
           {{ status.is_later ? '稍后再看中' : '稍后再看' }}
@@ -166,7 +166,7 @@ const status = ref<ArticleStatus>({
 
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
-  if (!article.value || statusBusy.value) return
+  if (!article.value || statusBusy.value || originalClickBusy.value) return
   statusBusy.value = field
   try {
     status.value = await updateArticleStatus(article.value.id, { [field]: !status.value[field] })
@@ -177,11 +177,11 @@ async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
   }
 }
 
-let originalClickBusy = false
+const originalClickBusy = ref(false)
 
 async function onOriginalClick() {
-  if (!isLoggedIn.value || !article.value || originalClickBusy) return
-  originalClickBusy = true
+  if (!isLoggedIn.value || !article.value || originalClickBusy.value || statusBusy.value) return
+  originalClickBusy.value = true
   try {
     await recordOriginalClick(article.value.id)
     if (!status.value.is_read) {
@@ -190,7 +190,7 @@ async function onOriginalClick() {
   } catch {
     // non-blocking
   } finally {
-    originalClickBusy = false
+    originalClickBusy.value = false
   }
 }
 

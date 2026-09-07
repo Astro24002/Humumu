@@ -30,7 +30,7 @@
         <text v-else class="abstract muted">暂无摘要</text>
       </view>
 
-      <view class="status-row" v-if="auth.isLoggedIn" :class="{ 'status-busy': !!statusBusy }">
+      <view class="status-row" v-if="auth.isLoggedIn" :class="{ 'status-busy': !!statusBusy || originalClickBusy }">
         <text
           :class="['chip', status.is_read && 'on', statusBusy === 'is_read' && 'busy']"
           @click="toggle('is_read')"
@@ -49,8 +49,8 @@
       </view>
 
       <view class="actions">
-        <button class="btn-link" v-if="article.doi" @click="openOriginal(doiUrl(article.doi))">DOI</button>
-        <button class="btn-link" v-if="article.url" @click="openOriginal(article.url)">原文</button>
+        <button class="btn-link" v-if="article.doi" :disabled="!!statusBusy || originalClickBusy" @click="openOriginal(doiUrl(article.doi))">DOI</button>
+        <button class="btn-link" v-if="article.url" :disabled="!!statusBusy || originalClickBusy" @click="openOriginal(article.url)">原文</button>
         <button
           v-if="article.doi || article.url"
           class="btn-copy"
@@ -136,7 +136,7 @@ onMounted(async () => {
 })
 
 async function toggle(field: 'is_read' | 'is_starred' | 'is_later') {
-  if (!article.value || !auth.isLoggedIn || statusBusy.value) return
+  if (!article.value || !auth.isLoggedIn || statusBusy.value || originalClickBusy.value) return
   statusBusy.value = field
   try {
     status.value = await updateArticleStatus(article.value.id, {
@@ -156,11 +156,11 @@ function originalUrl(): string {
   return ''
 }
 
-let originalClickBusy = false
+const originalClickBusy = ref(false)
 
 async function markOriginalClicked() {
-  if (!auth.isLoggedIn || !article.value || originalClickBusy) return
-  originalClickBusy = true
+  if (!auth.isLoggedIn || !article.value || originalClickBusy.value || statusBusy.value) return
+  originalClickBusy.value = true
   try {
     await recordOriginalClick(article.value.id)
     if (!status.value.is_read) {
@@ -169,7 +169,7 @@ async function markOriginalClicked() {
   } catch {
     // non-blocking
   } finally {
-    originalClickBusy = false
+    originalClickBusy.value = false
   }
 }
 
