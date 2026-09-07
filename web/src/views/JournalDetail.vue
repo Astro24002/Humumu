@@ -36,7 +36,7 @@
 
     <n-descriptions label-placement="left" :column="3" size="small" bordered style="margin-bottom: 16px;">
       <n-descriptions-item label="论文总数">
-        <n-number-animation :from="0" :to="journal.article_count" />
+        <n-number-animation :from="0" :to="journal.article_count ?? 0" />
       </n-descriptions-item>
       <n-descriptions-item label="数据源">
         <a :href="journal.source_url" target="_blank" rel="noopener noreferrer" style="word-break: break-all;">{{ shortUrl(journal.source_url) }}</a>

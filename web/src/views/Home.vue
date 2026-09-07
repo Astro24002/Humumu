@@ -234,7 +234,7 @@ function syncFiltersToQuery() {
 const pageCount = computed(() => Math.ceil(total.value / limit) || 1)
 
 const journalOptions = computed(() =>
-  journals.value.map(j => ({ label: `${j.name} (${j.article_count}篇)`, value: j.id }))
+  journals.value.map(j => ({ label: `${j.name} (${j.article_count ?? 0}篇)`, value: j.id }))
 )
 
 async function fetchJournalOptions(q = '') {

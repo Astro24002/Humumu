@@ -11,7 +11,7 @@ export interface Journal {
   is_active: boolean
   created_by?: string | null
   created_at: string
-  article_count: number
+  article_count?: number | null
   last_article_date: string | null
   content_type?: string
   directory_status?: string

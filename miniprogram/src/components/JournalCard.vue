@@ -9,7 +9,7 @@
       </view>
     </view>
     <view class="stats">
-      <text>论文 {{ journal.article_count }}</text>
+      <text>论文 {{ journal.article_count ?? 0 }}</text>
       <text>更新 {{ journal.last_article_date ? formatDate(journal.last_article_date) : '暂无' }}</text>
     </view>
     <text v-if="journal.description" class="desc" line-clamp="2">{{ journal.description }}</text>

@@ -103,7 +103,7 @@
           </template>
 
           <div style="display: flex; gap: 16px; margin-bottom: 8px;">
-            <n-statistic label="论文" :value="j.article_count" />
+            <n-statistic label="论文" :value="j.article_count ?? 0" />
             <n-statistic label="更新" :value="j.last_article_date ? formatDate(j.last_article_date) : '暂无'" />
           </div>
 
