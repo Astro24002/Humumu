@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, watch, onMounted } from 'vue'
+import { ref, h, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, NPagination,
@@ -278,6 +278,7 @@ watch(
 )
 
 onMounted(() => {
+onUnmounted(() => { usersLoadSeq++ })
   applyFiltersFromQuery()
   load()
 })

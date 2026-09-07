@@ -215,7 +215,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
@@ -587,6 +587,7 @@ watch(
 )
 
 onMounted(() => {
+onUnmounted(() => { subsLoadSeq++ })
   applyTabFromQuery()
   reloadAll()
 })

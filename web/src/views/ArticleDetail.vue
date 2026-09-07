@@ -126,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getArticle, type Article } from '@/api/articles'
 import { getArticleStatus, updateArticleStatus, recordOriginalClick, type ArticleStatus } from '@/api/reading'
@@ -268,6 +268,7 @@ watch(
 )
 
 onMounted(() => {
+onUnmounted(() => { articleLoadSeq++ })
   const id = route.params.id as string
   if (id) loadArticle(id)
 })

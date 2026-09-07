@@ -121,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, watch, onMounted, inject } from 'vue'
+import { ref, h, computed, watch, onMounted, inject, onUnmounted } from 'vue'
 import { dirStatusLabel, dirStatusType, contentTypeLabel, sourceTypeLabel, sourceTypeTagType, healthStatusLabel } from '@/utils/labels'
 import { useRoute, useRouter } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
@@ -518,6 +518,7 @@ async function load() {
 }
 
 onMounted(() => {
+onUnmounted(() => { journalsLoadSeq++ })
   applyFiltersFromQuery()
   load()
 })

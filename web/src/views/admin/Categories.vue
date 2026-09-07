@@ -107,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, ref, watch } from 'vue'
+import { computed, h, onMounted, ref, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import {
@@ -374,6 +374,7 @@ watch(
 )
 
 onMounted(() => {
+onUnmounted(() => { categoriesLoadSeq++ })
   applyYearFromQuery()
   load()
 })

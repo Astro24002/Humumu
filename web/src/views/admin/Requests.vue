@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed, watch, onMounted, inject } from 'vue'
+import { ref, h, computed, watch, onMounted, inject, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMessage, useDialog } from 'naive-ui'
 import {
@@ -264,6 +264,7 @@ async function load() {
 }
 
 onMounted(() => {
+onUnmounted(() => { requestsLoadSeq++ })
   applyFromQuery()
   load()
 })

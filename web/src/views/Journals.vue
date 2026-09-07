@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getJournals, type Journal } from '@/api/journals'
 import { getCasCategories, type CasCategory } from '@/api/categories'
@@ -484,6 +484,7 @@ watch(
 )
 
 onMounted(async () => {
+onUnmounted(() => { journalsLoadSeq++ })
   applyFiltersFromQuery()
   try {
     // Prefer latest CAS year so major/minor options aren't a mix of outdated labels.

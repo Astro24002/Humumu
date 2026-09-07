@@ -126,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getMyUpdates, type MyUpdateItem } from '@/api/myUpdates'
 import { updateArticleStatus, recordOriginalClick } from '@/api/reading'
@@ -312,6 +312,7 @@ watch(
 )
 
 onMounted(() => {
+onUnmounted(() => { feedLoadSeq++ })
   applyFilterFromQuery()
   fetchPage(true)
 })

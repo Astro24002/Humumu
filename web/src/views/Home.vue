@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getArticles, type Article } from '@/api/articles'
 import { getJournal, getJournals, type Journal } from '@/api/journals'
@@ -388,6 +388,7 @@ watch(
 )
 
 onMounted(async () => {
+onUnmounted(() => { articlesLoadSeq++ })
   applyFiltersFromQuery()
   // Remote-search dropdown; seed first page so the control isn't empty on open.
   await fetchJournalOptions('')

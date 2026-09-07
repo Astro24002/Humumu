@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getNotifications, type Notification } from '@/api/notifications'
 import { formatDateTime } from '@/utils/datetime'
@@ -217,6 +217,7 @@ watch(
 )
 
 onMounted(() => {
+onUnmounted(() => { notifLoadSeq++ })
   applyFiltersFromQuery()
   fetchPage(true)
 })

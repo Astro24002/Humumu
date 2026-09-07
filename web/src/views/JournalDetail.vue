@@ -197,7 +197,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getJournal, type Journal } from '@/api/journals'
 import { getArticles, type Article } from '@/api/articles'
@@ -426,6 +426,7 @@ watch(
 )
 
 onMounted(() => {
+onUnmounted(() => { journalLoadSeq++; articlesLoadSeq++ })
   const id = route.params.id as string
   if (id) loadJournal(id)
 })
