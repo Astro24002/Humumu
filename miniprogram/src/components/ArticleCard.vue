@@ -38,8 +38,8 @@ import { cleanAbstract } from '@/utils/abstract'
 const props = defineProps<{ article: Article }>()
 const auth = useAuthStore()
 let originalClickBusy = false
-/** Module-level: survives card re-mounts in plaza lists (no status on Article payload). */
-const knownReadIds: Set<string> = ((globalThis as any).__humumuKnownReadIds ||= new Set())
+/** Module-level Set: shared across card instances (no status on Article payload). */
+const knownReadIds = new Set<string>()
 
 const authorsLabel = computed(() => formatAuthors(props.article.authors || []))
 

@@ -164,8 +164,8 @@
       <template #extra>
         <n-button v-if="hasActiveFilters" :disabled="listBusy" @click="clearFilters">清除筛选</n-button>
         <template v-else>
-          <n-button v-if="isLoggedIn" @click="router.push('/my/subscriptions')">添加 RSS 源</n-button>
-          <n-button v-else @click="router.push('/login')">登录后添加源</n-button>
+          <n-button v-if="isLoggedIn" :disabled="listBusy" @click="router.push('/my/subscriptions')">添加 RSS 源</n-button>
+          <n-button v-else :disabled="listBusy" @click="router.push('/login')">登录后添加源</n-button>
         </template>
       </template>
     </n-empty>

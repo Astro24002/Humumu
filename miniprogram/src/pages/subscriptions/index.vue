@@ -192,13 +192,16 @@ onShow(() => {
 
 onPullDownRefresh(async () => {
   try {
-    if (auth.isLoggedIn) await loadData()
+    // Don't thrash list reload over an in-flight row/add mutation.
+    if (auth.isLoggedIn && !tabsBusy.value) await loadData()
   } finally {
     uni.stopPullDownRefresh()
   }
 })
 
 async function loadData() {
+  // User-driven reload only when idle; mount/onShow still calls this while loadingJournals false.
+  if (addingFeed.value || authorBusy.value || keywordBusy.value || removeBusyId.value != null || busyIds.value.size > 0) return
   const seq = ++subsLoadSeq
   loadingJournals.value = true
   try {
