@@ -41,7 +41,7 @@
         <view v-else class="list">
           <view v-for="j in journals" :key="j.id" class="list-item-block">
             <view class="list-item">
-              <view class="item-main" @click="goJournal(j.id)">
+              <view class="item-main" :class="{ disabled: tabsBusy || busyIds.has(j.id) }" @click="goJournal(j.id)">
                 <text class="item-name">{{ j.name }}</text>
                 <text class="item-meta">
                   {{ sourceTypeLabel(j.source_type) }}
@@ -176,6 +176,7 @@ let subsLoadSeq = 0
 const FREQ_CYCLE = ['default', 'realtime', 'daily'] as const
 
 function goJournal(id: string) {
+  if (tabsBusy.value || busyIds.value.has(id)) return
   uni.navigateTo({ url: `/pages/journals/detail?id=${id}` })
 }
 
@@ -420,6 +421,7 @@ function confirmRemoveKeyword(k: KeywordSubscription) {
 .hint { display: block; margin-top: 12rpx; font-size: 24rpx; color: #bbb; }
 .list-item-block { background: #fff; border-bottom: 1rpx solid #f0f0f0; }
 .list-item { display: flex; align-items: center; padding: 24rpx 30rpx 8rpx; gap: 16rpx; }
+.item-main.disabled { opacity: 0.55; pointer-events: none; }
 .item-main { flex: 1; min-width: 0; }
 .item-name { font-size: 28rpx; display: block; }
 .item-meta { font-size: 22rpx; color: #999; margin-top: 4rpx; display: block; }

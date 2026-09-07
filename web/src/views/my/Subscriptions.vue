@@ -19,7 +19,12 @@
         <n-list-item v-for="j in journals" :key="j.id">
           <n-thing>
             <template #header>
-              <router-link :to="`/journals/${j.id}`" style="color: inherit; text-decoration: none;">
+              <router-link
+                :to="`/journals/${j.id}`"
+                style="color: inherit; text-decoration: none;"
+                :style="tabsBusy ? { opacity: 0.55, pointerEvents: 'none' } : undefined"
+                @click="(e: MouseEvent) => { if (tabsBusy) e.preventDefault() }"
+              >
                 {{ j.name }}
               </router-link>
             </template>
