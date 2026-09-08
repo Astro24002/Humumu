@@ -97,6 +97,8 @@ git push origin master
 
 确认 `.env` 中 `JWT_SECRET`、`SMTP_*`、`WECHAT_*`、`DB_DSN` / `DB_DSN_SYNC`、`REDIS_ADDR` 正确。async DSN **不要**带 `?sslmode=`。
 
+可选：`DIGEST_HOUR` / `DIGEST_MINUTE` / `DIGEST_TIMEZONE`（默认 08:00 `Asia/Shanghai`）控制每日摘要 cron。
+
 ## 与通用 docker-compose.yml 的差异
 
 仓库根目录 `docker-compose.yml` 面向本地全栈（自带 postgres:16）。**现网** compose 精简为 app+redis、外部 PG、端口 18080、`env_file: .env`、外部 `1panel-network`。不要把本地 compose 直接覆盖生产文件。

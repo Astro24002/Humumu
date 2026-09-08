@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import logging
 import os
+from zoneinfo import ZoneInfo
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 
 from app.config import Settings, get_settings
 from app.db import get_session_factory
@@ -31,6 +33,20 @@ def get_scheduler() -> AsyncIOScheduler | None:
     return _scheduler
 
 
+def _digest_cron(settings: Settings) -> CronTrigger:
+    """Build daily-summary cron from DIGEST_HOUR / DIGEST_MINUTE / DIGEST_TIMEZONE."""
+    hour = int(settings.digest_hour)
+    minute = int(settings.digest_minute)
+    tz_name = (settings.digest_timezone or "Asia/Shanghai").strip()
+    try:
+        tz = ZoneInfo(tz_name)
+    except Exception:  # noqa: BLE001
+        logger.warning("invalid DIGEST_TIMEZONE %r; falling back to Asia/Shanghai", tz_name)
+        tz = ZoneInfo("Asia/Shanghai")
+        tz_name = "Asia/Shanghai"
+    return CronTrigger(hour=hour, minute=minute, timezone=tz)
+
+
 def start_scheduler(settings: Settings | None = None) -> AsyncIOScheduler | None:
     """
     Start AsyncIOScheduler if enabled via env.
@@ -38,7 +54,7 @@ def start_scheduler(settings: Settings | None = None) -> AsyncIOScheduler | None
     Jobs:
       - interval fetch every ``fetch_interval_minutes``
       - interval notify dispatch every 2 minutes
-      - cron daily summary at 08:00 local
+      - cron daily summary at DIGEST_HOUR:DIGEST_MINUTE in DIGEST_TIMEZONE
     """
     global _scheduler
     if not scheduler_enabled():
@@ -56,9 +72,17 @@ def start_scheduler(settings: Settings | None = None) -> AsyncIOScheduler | None
         logger.warning("scheduler: session factory not initialized; skip start")
         return None
 
-    sched = AsyncIOScheduler()
+    tz_name = (settings.digest_timezone or "Asia/Shanghai").strip()
+    try:
+        ZoneInfo(tz_name)
+    except Exception:  # noqa: BLE001
+        tz_name = "Asia/Shanghai"
+
+    sched = AsyncIOScheduler(timezone=ZoneInfo(tz_name))
 
     interval_min = max(int(settings.fetch_interval_minutes or 30), 1)
+    digest_hour = int(settings.digest_hour)
+    digest_minute = int(settings.digest_minute)
 
     async def _fetch_job() -> None:
         await run_fetch_pipeline(session_factory, settings)
@@ -89,9 +113,7 @@ def start_scheduler(settings: Settings | None = None) -> AsyncIOScheduler | None
     )
     sched.add_job(
         _summary_job,
-        trigger="cron",
-        hour=8,
-        minute=0,
+        trigger=_digest_cron(settings),
         id="daily_summary",
         replace_existing=True,
         max_instances=1,
@@ -100,8 +122,12 @@ def start_scheduler(settings: Settings | None = None) -> AsyncIOScheduler | None
     sched.start()
     _scheduler = sched
     logger.info(
-        "scheduler started: fetch every %d min, notify every 2 min, daily summary at 08:00",
+        "scheduler started: fetch every %d min, notify every 2 min, "
+        "daily summary at %02d:%02d %s",
         interval_min,
+        digest_hour,
+        digest_minute,
+        tz_name,
     )
     return _scheduler
 

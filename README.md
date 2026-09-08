@@ -166,6 +166,8 @@ make docker-build
 | `WECHAT_APPID` / `WECHAT_SECRET` | 微信小程序凭证 | — |
 | `JWT_SECRET` | JWT 签名密钥 | `change-me-to-something-secure` |
 | `FETCH_INTERVAL_MINUTES` | 抓取间隔（分钟） | `30` |
+| `DIGEST_HOUR` / `DIGEST_MINUTE` | 每日摘要本地时刻 | `8` / `0` |
+| `DIGEST_TIMEZONE` | 每日摘要时区（IANA） | `Asia/Shanghai` |
 | `HUMUMU_ENABLE_SCHEDULER` | 是否启用后台调度器（`1`=开） | 代码默认关；Docker entrypoint 默认开 |
 | `HUMUMU_SEED_JOURNALS` | 启动时是否 upsert 内置期刊 + CAS facet（`1`=开） | `0` |
 | `WEB_DIST` | 前端静态资源目录 | `web/dist` |

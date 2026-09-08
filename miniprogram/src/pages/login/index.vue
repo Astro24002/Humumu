@@ -7,7 +7,11 @@
 
     <!-- Already logged in via wx but has no email -->
     <view v-if="needsBind">
-      <view class="bind-hint">绑定已有账号以同步订阅数据</view>
+      <view class="bind-hint">{{
+        bindMode === 'email'
+          ? '为当前微信账号设置邮箱与密码，用于邮件推送与网页登录'
+          : '将微信挂到已有邮箱账号，合并订阅数据'
+      }}</view>
       <uni-forms ref="formRef" :model="form">
         <uni-forms-item label="邮箱" name="email">
           <uni-easyinput
@@ -20,14 +24,21 @@
         <uni-forms-item label="密码" name="password">
           <uni-easyinput
             v-model="form.password"
-            placeholder="请输入密码"
+            :placeholder="bindMode === 'email' ? '设置密码（至少6位）' : '邮箱账号密码'"
             type="password"
             :disabled="loading"
           />
         </uni-forms-item>
       </uni-forms>
       <button class="btn-primary" :loading="loading" :disabled="loading" @click="handleBind">
-        绑定账号
+        {{ bindMode === 'email' ? '绑定邮箱' : '合并到已有账号' }}
+      </button>
+      <button
+        class="btn-text"
+        :disabled="loading"
+        @click="toggleBindMode"
+      >
+        {{ bindMode === 'email' ? '已有邮箱账号？合并绑定' : '改为给当前账号设邮箱' }}
       </button>
       <button class="btn-text" :disabled="loading" @click="skipBind">跳过，直接使用</button>
     </view>
@@ -53,6 +64,8 @@ const auth = useAuthStore()
 const loading = ref(false)
 const error = ref('')
 const needsBind = ref(false)
+/** email = attach to current stub; merge = bind-account onto existing email user */
+const bindMode = ref<'email' | 'merge'>('email')
 const wxCode = ref('')
 const form = ref({ email: '', password: '' })
 /** Optional return path (no leading slash), e.g. pages/article/detail?id=... */
@@ -107,6 +120,12 @@ async function ensureWxCode() {
   return code
 }
 
+function toggleBindMode() {
+  if (loading.value) return
+  bindMode.value = bindMode.value === 'email' ? 'merge' : 'email'
+  error.value = ''
+}
+
 onMounted(async () => {
   const pages = getCurrentPages()
   const cur = pages[pages.length - 1] as any
@@ -116,11 +135,7 @@ onMounted(async () => {
   // Profile "去绑定" deep-link: logged-in wechat user without email.
   if (mode === 'bind' && auth.isLoggedIn && !auth.hasEmail) {
     needsBind.value = true
-    try {
-      await ensureWxCode()
-    } catch {
-      // bind will retry
-    }
+    bindMode.value = 'email'
     return
   }
   if (auth.isLoggedIn) {
@@ -138,6 +153,7 @@ async function handleWeChatLogin() {
     auth.save(res.token, res.user, res.has_email)
     if (!res.has_email) {
       needsBind.value = true
+      bindMode.value = 'email'
     } else {
       goAfterLogin()
     }
@@ -161,9 +177,15 @@ async function handleBind() {
   loading.value = true
   error.value = ''
   try {
-    await ensureWxCode()
-    const res = await bindAccount(wxCode.value, form.value.email, form.value.password)
-    auth.save(res.token, res.user, res.has_email)
+    if (bindMode.value === 'email') {
+      // Current WeChat stub ← real email (Bearer bind-email)
+      await auth.bindEmail(form.value.email.trim(), form.value.password)
+    } else {
+      // Existing email account ← this WeChat openid
+      await ensureWxCode()
+      const res = await bindAccount(wxCode.value, form.value.email.trim(), form.value.password)
+      auth.save(res.token, res.user, res.has_email)
+    }
     goAfterLogin()
   } catch (e: any) {
     error.value = e.message || '绑定失败'
@@ -207,6 +229,6 @@ function skipBind() {
   font-size: 28rpx;
   margin-top: 16rpx;
 }
-.bind-hint { color: #666; font-size: 28rpx; margin-bottom: 30rpx; }
+.bind-hint { color: #666; font-size: 28rpx; margin-bottom: 30rpx; line-height: 1.5; }
 .error-msg { color: #e74c3c; font-size: 28rpx; margin-top: 20rpx; }
 </style>

@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     wechat_template_daily: str = ""
     jwt_secret: str = "change-me-to-something-secure"
     fetch_interval_minutes: int = 30
+    # Daily digest cron (local wall-clock in digest_timezone)
+    digest_hour: int = 8
+    digest_minute: int = 0
+    digest_timezone: str = "Asia/Shanghai"
     web_dist: str = "web/dist"
 
     def sync_dsn(self) -> str:
@@ -29,6 +33,19 @@ class Settings(BaseSettings):
     def validate_for_run(self) -> None:
         if not self.jwt_secret:
             raise ValueError("JWT_SECRET must not be empty")
+        if not (0 <= int(self.digest_hour) <= 23):
+            raise ValueError("DIGEST_HOUR must be 0-23")
+        if not (0 <= int(self.digest_minute) <= 59):
+            raise ValueError("DIGEST_MINUTE must be 0-59")
+        tz = (self.digest_timezone or "").strip()
+        if not tz:
+            raise ValueError("DIGEST_TIMEZONE must not be empty")
+        try:
+            from zoneinfo import ZoneInfo
+
+            ZoneInfo(tz)
+        except Exception as exc:  # noqa: BLE001
+            raise ValueError(f"DIGEST_TIMEZONE invalid: {tz}") from exc
 
     def redis_host_port(self) -> tuple[str, int]:
         host, _, port = self.redis_addr.partition(":")

@@ -166,6 +166,9 @@ POST /api/v1/admin/users/{user_id}/admin
 | 变量 | 说明 |
 |------|------|
 | `HUMUMU_ENABLE_SCHEDULER` | `1` 开启抓取/推送调度。应用默认关闭（测试安全）；`entrypoint.sh` 默认设为 `1` |
+| `DIGEST_HOUR` | 每日摘要小时（0–23），默认 `8` |
+| `DIGEST_MINUTE` | 每日摘要分钟（0–59），默认 `0` |
+| `DIGEST_TIMEZONE` | 每日摘要时区（IANA，如 `Asia/Shanghai`），默认 `Asia/Shanghai` |
 
 ### 推送渠道（至少配置一个）
 

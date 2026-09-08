@@ -134,6 +134,8 @@ POST /api/v1/auth/bind-email
 
 与 `bind-account` 方向相反：本接口是「当前用户 ← 邮箱」，不需要微信 code；`bind-account` 是「邮箱账号 ← 微信 openid」。
 
+**客户端：** Web「设置」与小程序登录页绑定模式默认走本接口；小程序另可切换「合并到已有邮箱账号」调用 `bind-account`。
+
 ---
 
 ## 期刊

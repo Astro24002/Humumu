@@ -28,6 +28,11 @@ export function bindAccount(code: string, email: string, password: string): Prom
   return post('/auth/bind-account', { code, email, password })
 }
 
+/** Logged-in WeChat stub attaches a real email + password (Bearer; no code). */
+export function bindEmail(email: string, password: string): Promise<AuthResponse> {
+  return post('/auth/bind-email', { email, password })
+}
+
 export function getMe(): Promise<{ user: User; has_email: boolean }> {
   return get('/auth/me')
 }

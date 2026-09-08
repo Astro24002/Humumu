@@ -11,6 +11,9 @@ def test_defaults(monkeypatch):
         "DB_DSN_SYNC",
         "REDIS_ADDR",
         "WEB_DIST",
+        "DIGEST_HOUR",
+        "DIGEST_MINUTE",
+        "DIGEST_TIMEZONE",
     ):
         monkeypatch.delenv(key, raising=False)
     monkeypatch.setenv("JWT_SECRET", "test-secret")
@@ -19,6 +22,9 @@ def test_defaults(monkeypatch):
     assert s.server_port == 8080
     assert s.fetch_interval_minutes == 30
     assert s.jwt_secret == "test-secret"
+    assert s.digest_hour == 8
+    assert s.digest_minute == 0
+    assert s.digest_timezone == "Asia/Shanghai"
 
 
 def test_jwt_required(monkeypatch):
@@ -30,3 +36,25 @@ def test_jwt_required(monkeypatch):
         assert False, "expected ValueError"
     except ValueError as e:
         assert "JWT_SECRET" in str(e)
+
+
+def test_digest_hour_out_of_range(monkeypatch):
+    monkeypatch.setenv("JWT_SECRET", "test-secret")
+    get_settings.cache_clear()
+    s = Settings(_env_file=None, jwt_secret="test-secret", digest_hour=24)
+    try:
+        s.validate_for_run()
+        assert False, "expected ValueError"
+    except ValueError as e:
+        assert "DIGEST_HOUR" in str(e)
+
+
+def test_digest_timezone_invalid(monkeypatch):
+    monkeypatch.setenv("JWT_SECRET", "test-secret")
+    get_settings.cache_clear()
+    s = Settings(_env_file=None, jwt_secret="test-secret", digest_timezone="Not/AZone")
+    try:
+        s.validate_for_run()
+        assert False, "expected ValueError"
+    except ValueError as e:
+        assert "DIGEST_TIMEZONE" in str(e)
