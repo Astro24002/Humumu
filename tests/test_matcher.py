@@ -129,3 +129,39 @@ def test_effective_push_frequency():
     assert effective_push_frequency("default", "realtime") == "realtime"
     assert effective_push_frequency("default", "daily") == "daily"
     assert effective_push_frequency(None, None) == "daily"
+
+
+def test_expand_channels_skips_wechat_stub_email_and_unsubscribed():
+    from app.services.matcher import expand_channels
+
+    base = [MatchResult(user_id="u1", article_id="a1", reasons=("journal",))]
+    # stub email + openid but template off → no channels (or none deliverable)
+    out = expand_channels(
+        base,
+        user_openid={"u1": "ox1"},
+        user_email={"u1": "ox1@wechat.user"},
+        channel_prefs={"u1": (True, True)},
+        user_wechat_subscribed={"u1": False},
+    )
+    assert out == []
+
+    # real email + wechat subscribed → both
+    out2 = expand_channels(
+        base,
+        user_openid={"u1": "ox1"},
+        user_email={"u1": "a@example.com"},
+        channel_prefs={"u1": (True, True)},
+        user_wechat_subscribed={"u1": True},
+    )
+    ch = {r.channel for r in out2}
+    assert ch == {"email", "wechat"}
+
+    # wechat on but not subscribed; email real → email only
+    out3 = expand_channels(
+        base,
+        user_openid={"u1": "ox1"},
+        user_email={"u1": "a@example.com"},
+        channel_prefs={"u1": (True, True)},
+        user_wechat_subscribed={"u1": False},
+    )
+    assert [r.channel for r in out3] == ["email"]

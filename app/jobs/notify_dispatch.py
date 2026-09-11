@@ -14,6 +14,7 @@ from app.models.article import Article
 from app.models.journal import Journal
 from app.models.notification import Notification
 from app.models.user import User
+from app.services import notify_content as nc
 from app.services.notifier_email import EmailNotifier
 from app.services.notifier_wechat import WeChatNotifier
 
@@ -40,8 +41,12 @@ async def _send_notification(
     wechat_ntfr: WeChatNotifier,
 ) -> None:
     doi = article.doi or ""
+    reasons = getattr(notif, "match_reasons", None) or ""
+    article_id = str(article.id) if article.id is not None else None
     if notif.channel == "email":
         to_email = (user.email if user else "") or ""
+        if not nc.is_real_email(to_email):
+            raise RuntimeError("email not configured or user has no real email")
         sent = email_ntfr.send_article(
             to_email=to_email,
             journal_name=journal_name,
@@ -50,11 +55,15 @@ async def _send_notification(
             abstract=article.abstract or "",
             url=article.url or "",
             doi=doi,
+            match_reasons=reasons,
+            article_id=article_id,
         )
         if not sent:
             raise RuntimeError("email not configured or user has no email")
     elif notif.channel == "wechat":
         openid = (user.wechat_openid if user else None) or ""
+        if user is not None and not bool(getattr(user, "wechat_template_subscribed", False)):
+            raise RuntimeError("wechat template not subscribed")
         sent = await wechat_ntfr.send_article(
             openid=openid,
             journal_name=journal_name,
@@ -62,6 +71,9 @@ async def _send_notification(
             authors=list(article.authors or []),
             abstract=article.abstract or "",
             doi=doi,
+            url=article.url or "",
+            match_reasons=reasons,
+            article_id=article_id,
         )
         if not sent:
             raise RuntimeError("wechat not configured or user has no openid")

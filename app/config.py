@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     digest_minute: int = 0
     digest_timezone: str = "Asia/Shanghai"
     web_dist: str = "web/dist"
+    # Public web origin for email deep links (e.g. https://humumu.example.com)
+    public_app_url: str = ""
 
     def sync_dsn(self) -> str:
         if self.db_dsn_sync:

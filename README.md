@@ -168,6 +168,7 @@ make docker-build
 | `FETCH_INTERVAL_MINUTES` | 抓取间隔（分钟） | `30` |
 | `DIGEST_HOUR` / `DIGEST_MINUTE` | 每日摘要本地时刻 | `8` / `0` |
 | `DIGEST_TIMEZONE` | 每日摘要时区（IANA） | `Asia/Shanghai` |
+| `PUBLIC_APP_URL` | 邮件深链用的对外 Web 根地址 | 空（仅文案，无设置/文章链接） |
 | `HUMUMU_ENABLE_SCHEDULER` | 是否启用后台调度器（`1`=开） | 代码默认关；Docker entrypoint 默认开 |
 | `HUMUMU_SEED_JOURNALS` | 启动时是否 upsert 内置期刊 + CAS facet（`1`=开） | `0` |
 | `WEB_DIST` | 前端静态资源目录 | `web/dist` |

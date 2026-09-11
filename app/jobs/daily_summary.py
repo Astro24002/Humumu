@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import date as date_cls
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
@@ -16,6 +17,7 @@ from app.models.journal import Journal
 from app.models.notification import Notification
 from app.models.subscription import JournalSubscription
 from app.models.user import User
+from app.services import notify_content as nc
 from app.services.notifier_email import EmailNotifier
 from app.services.notifier_wechat import WeChatNotifier
 
@@ -65,6 +67,7 @@ async def run_daily_summary(
 
     logger.info("daily summary: starting")
     since = datetime.now(timezone.utc) - timedelta(hours=24)
+    today_label = date_cls.today().isoformat()
 
     async with session_factory() as session:
         users = list(
@@ -87,32 +90,43 @@ async def run_daily_summary(
                 if not articles:
                     continue
 
-                channel = "wechat" if (user.wechat_openid or "").strip() else "email"
+                openid = (user.wechat_openid or "").strip()
+                wechat_ok = bool(openid) and bool(
+                    getattr(user, "wechat_template_subscribed", False)
+                )
+                email_ok = nc.is_real_email(user.email or "")
+                # Prefer WeChat when template-subscribed; else email.
+                channel = "wechat" if wechat_ok else "email"
                 sent = False
                 send_err: str | None = None
                 try:
                     if channel == "wechat":
                         sent = await wechat_ntfr.send_summary(
-                            openid=user.wechat_openid or "",
+                            openid=openid,
                             articles=articles,
+                            date_label=today_label,
                         )
-                        if not sent:
+                        if not sent and email_ok:
                             # fall back to email if wechat skipped
                             sent = email_ntfr.send_summary(
                                 to_email=user.email or "",
                                 articles=articles,
+                                date_label=today_label,
                             )
                             if sent:
                                 channel = "email"
                             else:
                                 send_err = "wechat/email not configured"
+                        elif not sent:
+                            send_err = "wechat not configured or not subscribed"
                     else:
                         sent = email_ntfr.send_summary(
                             to_email=user.email or "",
                             articles=articles,
+                            date_label=today_label,
                         )
                         if not sent:
-                            send_err = "email not configured or user has no email"
+                            send_err = "email not configured or user has no real email"
                 except Exception as exc:  # noqa: BLE001
                     logger.warning(
                         "daily summary: send error for user %s: %s", user.id, exc

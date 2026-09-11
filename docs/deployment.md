@@ -178,6 +178,8 @@ POST /api/v1/admin/users/{user_id}/admin
 | `SMTP_USER` / `SMTP_PASS` | SMTP 认证 |
 | `SMTP_FROM` | 发件人地址 |
 | `WECHAT_APPID` / `WECHAT_SECRET` | 微信小程序凭证 |
+| `WECHAT_TEMPLATE_REALTIME` / `WECHAT_TEMPLATE_DAILY` | 订阅消息模板 ID（字段名需与代码中 `journal/title/authors/abstract/doi` 与 `date/summary/count` 对齐） |
+| `PUBLIC_APP_URL` | 对外 Web 根地址（邮件内「管理推送 / 打开文章」深链，如 `https://humumu.example.com`） |
 
 ## DSN 注意事项
 

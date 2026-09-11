@@ -344,6 +344,13 @@ Query（均可选）:
 
 ## 通知
 
+推送内容（Email / 微信）由调度器发送，不经本列表接口：
+
+- **实时邮件**：中文主题 `【期刊】新论文：标题`，含作者、摘要、匹配原因、阅读全文链接；multipart 纯文本+HTML。
+- **每日汇总邮件**：`Humumu 每日汇总：N 篇新论文`，列表最多 40 条。
+- **微信订阅消息**：realtime 模板字段 `journal/title/authors/abstract/doi`，点击跳转小程序 `pages/article/detail?id=…`；daily 字段 `date/summary/count`，跳转「我的更新」。需用户 `wechat_template_subscribed=true`。
+- 占位邮箱 `*@wechat.user` 不会发信；配置 `PUBLIC_APP_URL` 后邮件脚注含「管理推送设置」链接。
+
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | /api/v1/notifications | 通知历史 |

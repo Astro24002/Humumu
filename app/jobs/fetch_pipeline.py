@@ -63,17 +63,26 @@ async def _load_match_context(session: AsyncSession) -> dict[str, Any]:
 
     user_rows = (
         await session.execute(
-            select(User.id, User.wechat_openid, User.email, User.push_frequency)
+            select(
+                User.id,
+                User.wechat_openid,
+                User.email,
+                User.push_frequency,
+                User.wechat_template_subscribed,
+            )
         )
     ).all()
     user_openid: dict[str, str | None] = {
-        str(uid): openid for uid, openid, _email, _freq in user_rows
+        str(uid): openid for uid, openid, _email, _freq, _sub in user_rows
     }
     user_email: dict[str, str] = {
-        str(uid): (email or "") for uid, _openid, email, _freq in user_rows
+        str(uid): (email or "") for uid, _openid, email, _freq, _sub in user_rows
     }
     user_push_freq: dict[str, str] = {
-        str(uid): (freq or "daily") for uid, _openid, _email, freq in user_rows
+        str(uid): (freq or "daily") for uid, _openid, _email, freq, _sub in user_rows
+    }
+    user_wechat_subscribed: dict[str, bool] = {
+        str(uid): bool(sub) for uid, _openid, _email, _freq, sub in user_rows
     }
     return {
         "tracked_authors": tracked_authors,
@@ -81,6 +90,7 @@ async def _load_match_context(session: AsyncSession) -> dict[str, Any]:
         "user_openid": user_openid,
         "user_email": user_email,
         "user_push_freq": user_push_freq,
+        "user_wechat_subscribed": user_wechat_subscribed,
     }
 
 
@@ -234,6 +244,7 @@ async def process_raw_article(
         user_openid=match_ctx["user_openid"],
         user_email=match_ctx.get("user_email") or {},
         channel_prefs=channel_prefs,
+        user_wechat_subscribed=match_ctx.get("user_wechat_subscribed") or {},
     )
 
     for m in matches:

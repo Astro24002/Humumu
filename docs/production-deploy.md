@@ -95,7 +95,7 @@ git push origin master
 # docker compose exec app python -m scripts.seed_cas_categories --attach
 ```
 
-确认 `.env` 中 `JWT_SECRET`、`SMTP_*`、`WECHAT_*`、`DB_DSN` / `DB_DSN_SYNC`、`REDIS_ADDR` 正确。async DSN **不要**带 `?sslmode=`。
+确认 `.env` 中 `JWT_SECRET`、`SMTP_*`、`WECHAT_*`、`PUBLIC_APP_URL`（邮件深链，如 `https://你的域名`）、`DB_DSN` / `DB_DSN_SYNC`、`REDIS_ADDR` 正确。async DSN **不要**带 `?sslmode=`。
 
 可选：`DIGEST_HOUR` / `DIGEST_MINUTE` / `DIGEST_TIMEZONE`（默认 08:00 `Asia/Shanghai`）控制每日摘要 cron。
 

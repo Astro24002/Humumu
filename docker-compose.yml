@@ -49,6 +49,7 @@ services:
       WECHAT_SECRET: "${WECHAT_SECRET:-}"
       WECHAT_TEMPLATE_REALTIME: "${WECHAT_TEMPLATE_REALTIME:-}"
       WECHAT_TEMPLATE_DAILY: "${WECHAT_TEMPLATE_DAILY:-}"
+      PUBLIC_APP_URL: "${PUBLIC_APP_URL:-}"
     depends_on:
       postgres:
         condition: service_healthy
