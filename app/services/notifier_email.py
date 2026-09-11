@@ -170,9 +170,12 @@ def _render_summary_html(
         title = nc.esc(a.get("title") or "（无标题）")
         link = nc.article_link(a.get("url"), a.get("doi"))
         authors_s = nc.esc(nc.format_authors(a.get("authors") or [], max_n=2))
+        reasons_s = nc.esc(nc.format_reasons(a.get("match_reasons")))
         meta = jn
         if authors_s:
             meta = f"{jn} · {authors_s}" if jn else authors_s
+        if reasons_s:
+            meta = f"{meta} · {reasons_s}" if meta else reasons_s
         if link:
             title_html = f'<a href="{nc.esc(link)}" style="color:#0f172a;text-decoration:none;font-weight:600;">{title}</a>'
         else:
@@ -242,6 +245,9 @@ def _render_summary_text(
         link = nc.article_link(a.get("url"), a.get("doi"))
         head = f"{i}. [{jn}] {title}" if jn else f"{i}. {title}"
         lines.append(head)
+        reasons = nc.format_reasons(a.get("match_reasons"))
+        if reasons:
+            lines.append(f"   匹配：{reasons}")
         if link:
             lines.append(f"   {link}")
     if total > len(shown):

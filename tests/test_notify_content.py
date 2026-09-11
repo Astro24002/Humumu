@@ -96,6 +96,18 @@ def test_render_summary_caps_and_zh():
     assert "每日汇总" in html
     assert "还有 5 篇" in html
     assert html.count("<li") == 40
+    with_reason = _render_summary_html(
+        [
+            {
+                "title": "T",
+                "journal_name": "J",
+                "url": "https://ex.com/1",
+                "authors": ["A"],
+                "match_reasons": ["journal", "keyword"],
+            }
+        ]
+    )
+    assert "期刊、关键词" in with_reason
 
 
 def test_email_notifier_skips_stub_and_sends_multipart():
