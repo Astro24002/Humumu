@@ -118,3 +118,31 @@ def test_digest_user_realtime_still_honors_daily_journal_override():
         keywords=[],
     )
     assert [x["id"] for x in out] == ["a1"]
+
+
+def test_digest_realtime_user_skips_author_keyword_already_sent_live():
+    journal_daily = _art(id="a-j", journal_id="j1", title="Daily journal")
+    author_hit = _art(
+        id="a-auth",
+        journal_id="j-other",
+        title="Unrelated",
+        authors=["Bob Jones"],
+        abstract="",
+    )
+    kw_hit = _art(
+        id="a-kw",
+        journal_id="j-other",
+        title="Advances in Quantum Computing",
+        authors=["Carol"],
+        abstract="",
+    )
+    out = select_digest_articles(
+        user_id="u1",
+        user_push_freq="realtime",
+        articles=[journal_daily, author_hit, kw_hit],
+        journal_subs=[("j1", "daily")],
+        tracked_authors=["bob jones"],
+        keywords=["quantum"],
+    )
+    assert [a["id"] for a in out] == ["a-j"]
+    assert out[0]["match_reasons"] == ["journal"]

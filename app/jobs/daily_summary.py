@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Sequence
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import exists, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.config import Settings, get_settings
@@ -35,18 +35,20 @@ def select_digest_articles(
     keywords: Sequence[str],
 ) -> list[dict[str, Any]]:
     """
-    Pick digest items: daily journal subs ∪ author hits ∪ keyword hits.
+    Pick digest items: daily journal subs ∪ (author/keyword if user default is daily).
 
     Journal hits only when effective frequency is daily (realtime override skipped).
-    Author/keyword hits are included for daily-frequency users (caller gates users).
+    Author/keyword hits go to digest only for daily-default users; realtime-default
+    users already get those via notify_dispatch.
     """
     daily_journals: set[str] = set()
     for jid, freq in journal_subs:
         if effective_push_frequency(freq, user_push_freq) == "daily":
             daily_journals.add(str(jid))
 
-    tracked = [(user_id, name) for name in tracked_authors]
-    kws = [(user_id, kw) for kw in keywords]
+    author_kw_ok = effective_push_frequency("default", user_push_freq) == "daily"
+    tracked = [(user_id, name) for name in tracked_authors] if author_kw_ok else []
+    kws = [(user_id, kw) for kw in keywords] if author_kw_ok else []
 
     out: list[dict[str, Any]] = []
     for a in articles:
@@ -54,13 +56,13 @@ def select_digest_articles(
         jid = str(a.get("journal_id") or "")
         if jid and jid in daily_journals:
             reasons.append("journal")
-        if match_authors(
+        if tracked and match_authors(
             article_id="x",
             article_authors=list(a.get("authors") or []),
             tracked=tracked,
         ):
             reasons.append("author")
-        if match_keywords(
+        if kws and match_keywords(
             article_id="x",
             title=a.get("title") or "",
             abstract=a.get("abstract") or "",
@@ -158,7 +160,7 @@ async def run_daily_summary(
     session_factory: async_sessionmaker[AsyncSession],
     settings: Settings | None = None,
 ) -> None:
-    """Send daily digests to users with push_frequency=daily."""
+    """Send daily digests to users with daily default or a daily journal override."""
     settings = settings or get_settings()
     email_ntfr = EmailNotifier(settings)
     wechat_ntfr = WeChatNotifier(settings)
@@ -168,10 +170,21 @@ async def run_daily_summary(
     today_label = date_cls.today().isoformat()
 
     async with session_factory() as session:
+        daily_journal_override = exists(
+            select(1).where(
+                JournalSubscription.user_id == User.id,
+                JournalSubscription.push_frequency == "daily",
+            )
+        )
         users = list(
             (
                 await session.execute(
-                    select(User).where(User.push_frequency == "daily")
+                    select(User).where(
+                        or_(
+                            User.push_frequency == "daily",
+                            daily_journal_override,
+                        )
+                    )
                 )
             )
             .scalars()
@@ -179,7 +192,7 @@ async def run_daily_summary(
         )
 
         if not users:
-            logger.info("daily summary: no daily users")
+            logger.info("daily summary: no digest users")
             return
 
         articles, subs_by_user, authors_by_user, kws_by_user = await _load_digest_inputs(
