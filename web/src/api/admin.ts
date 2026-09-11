@@ -8,6 +8,8 @@ export interface AdminStats {
   pending_requests: number
   pending_directory_reviews: number
   cas_category_count: number
+  stub_user_count?: number
+  wechat_unbound_count?: number
 }
 
 export interface JournalRequest {
@@ -30,6 +32,7 @@ export interface User {
   is_admin: boolean
   created_at: string
   updated_at?: string | null
+  has_email?: boolean
 }
 
 export function getStats(): Promise<AdminStats> {
@@ -100,6 +103,9 @@ export function reviewRequest(id: string, status: string): Promise<void> {
 
 export interface AdminUserListParams {
   q?: string
+  has_email?: boolean
+  wechat_bound?: boolean
+  is_admin?: boolean
   limit?: number
   offset?: number
 }
@@ -109,6 +115,9 @@ export function getUsers(
 ): Promise<{ users: User[]; total: number }> {
   const qs = new URLSearchParams()
   if (params?.q) qs.set('q', params.q)
+  if (params?.has_email != null) qs.set('has_email', String(params.has_email))
+  if (params?.wechat_bound != null) qs.set('wechat_bound', String(params.wechat_bound))
+  if (params?.is_admin != null) qs.set('is_admin', String(params.is_admin))
   if (params?.limit != null) qs.set('limit', String(params.limit))
   if (params?.offset != null) qs.set('offset', String(params.offset))
   const suffix = qs.toString() ? `?${qs.toString()}` : ''

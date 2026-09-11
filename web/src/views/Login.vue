@@ -1,5 +1,8 @@
 <template>
-  <n-card title="登录" style="max-width: 400px; margin: 80px auto;">
+  <n-card title="邮箱登录" style="max-width: 400px; margin: 80px auto;">
+    <p style="color: #666; font-size: 13px; margin: 0 0 16px; line-height: 1.6;">
+      使用注册邮箱登录。微信绑定请在小程序内用同一邮箱完成。
+    </p>
     <n-form
       ref="formRef"
       :model="form"

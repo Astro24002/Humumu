@@ -4,7 +4,7 @@
       <n-h2 style="margin: 0;">用户管理</n-h2>
       <n-tag v-if="!loading" size="small" :bordered="false">{{ total }} 人</n-tag>
     </n-space>
-    <n-space align="center">
+    <n-space align="center" style="flex-wrap: wrap;">
       <n-input
         v-model:value="nameFilter"
         clearable
@@ -14,6 +14,45 @@
         @keyup.enter="reload"
         @clear="reload"
       />
+      <n-select
+        v-model:value="emailFilter"
+        clearable
+        placeholder="邮箱"
+        style="width: 140px"
+        :disabled="loading || !!busyId"
+        :options="[
+          { label: '全部邮箱', value: '' },
+          { label: '已绑邮箱', value: 'true' },
+          { label: '未绑邮箱', value: 'false' },
+        ]"
+        @update:value="reload"
+      />
+      <n-select
+        v-model:value="wechatFilter"
+        clearable
+        placeholder="微信"
+        style="width: 140px"
+        :disabled="loading || !!busyId"
+        :options="[
+          { label: '全部微信', value: '' },
+          { label: '已绑微信', value: 'true' },
+          { label: '未绑微信', value: 'false' },
+        ]"
+        @update:value="reload"
+      />
+      <n-select
+        v-model:value="adminFilter"
+        clearable
+        placeholder="角色"
+        style="width: 130px"
+        :disabled="loading || !!busyId"
+        :options="[
+          { label: '全部角色', value: '' },
+          { label: '管理员', value: 'true' },
+          { label: '普通用户', value: 'false' },
+        ]"
+        @update:value="reload"
+      />
       <n-button :loading="loading" :disabled="loading || !!busyId" @click="reload">刷新</n-button>
     </n-space>
   </div>
@@ -21,10 +60,10 @@
   <n-empty
     v-if="!loading && !users.length"
     style="margin-top: 24px;"
-    :description="nameFilter.trim() ? '没有匹配的用户' : '暂无用户'"
+    :description="hasFilters ? '没有匹配的用户' : '暂无用户'"
   >
     <template #extra>
-      <n-button v-if="nameFilter.trim()" :disabled="loading || !!busyId" @click="clearFilter">清除搜索</n-button>
+      <n-button v-if="hasFilters" :disabled="loading || !!busyId" @click="clearFilter">清除筛选</n-button>
     </template>
   </n-empty>
   <n-pagination
@@ -41,7 +80,7 @@
 import { ref, h, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, NPagination,
+  NTag, NDataTable, NH2, NButton, NSpace, NInput, NEmpty, NPagination, NSelect,
   useMessage, useDialog,
 } from 'naive-ui'
 import { getUsers, setUserAdmin, type User } from '@/api/admin'
@@ -63,8 +102,19 @@ let usersLoadSeq = 0
 let suppressQueryApply = false
 const busyId = ref<string | null>(null)
 const nameFilter = ref('')
+const emailFilter = ref<string>('')
+const wechatFilter = ref<string>('')
+const adminFilter = ref<string>('')
 const page = ref(1)
 const pageSize = 20
+const hasFilters = computed(
+  () => !!(nameFilter.value.trim() || emailFilter.value || wechatFilter.value || adminFilter.value),
+)
+
+function boolFromQuery(raw: unknown): string {
+  if (raw === 'true' || raw === 'false') return raw
+  return ''
+}
 
 function pageFromQuery(): number {
   const raw = route.query.page
@@ -75,16 +125,25 @@ function pageFromQuery(): number {
 function applyFiltersFromQuery() {
   const qq = route.query
   nameFilter.value = typeof qq.q === 'string' ? qq.q : ''
+  emailFilter.value = boolFromQuery(qq.has_email)
+  wechatFilter.value = boolFromQuery(qq.wechat)
+  adminFilter.value = boolFromQuery(qq.role)
   page.value = pageFromQuery()
 }
 
 function syncFiltersToQuery() {
   const next: Record<string, string> = {}
   if (nameFilter.value.trim()) next.q = nameFilter.value.trim()
+  if (emailFilter.value) next.has_email = emailFilter.value
+  if (wechatFilter.value) next.wechat = wechatFilter.value
+  if (adminFilter.value) next.role = adminFilter.value
   if (page.value > 1) next.page = String(page.value)
   const cur = route.query
   const same =
     (cur.q || undefined) === next.q
+    && (cur.has_email || undefined) === next.has_email
+    && (cur.wechat || undefined) === next.wechat
+    && (cur.role || undefined) === next.role
     && (cur.page || undefined) === next.page
   if (same) return
   suppressQueryApply = true
@@ -226,6 +285,9 @@ async function toggleAdmin(row: User, isAdmin: boolean) {
 function clearFilter() {
   if (loading.value || busyId.value) return
   nameFilter.value = ''
+  emailFilter.value = ''
+  wechatFilter.value = ''
+  adminFilter.value = ''
   page.value = 1
   syncFiltersToQuery()
   load()
@@ -251,6 +313,9 @@ async function load() {
   try {
     const res = await getUsers({
       q: nameFilter.value.trim() || undefined,
+      has_email: emailFilter.value === '' ? undefined : emailFilter.value === 'true',
+      wechat_bound: wechatFilter.value === '' ? undefined : wechatFilter.value === 'true',
+      is_admin: adminFilter.value === '' ? undefined : adminFilter.value === 'true',
       limit: pageSize,
       offset: (page.value - 1) * pageSize,
     })
@@ -266,7 +331,7 @@ async function load() {
 }
 
 watch(
-  () => [route.query.q, route.query.page],
+  () => [route.query.q, route.query.has_email, route.query.wechat, route.query.role, route.query.page],
   () => {
     if (suppressQueryApply) {
       suppressQueryApply = false

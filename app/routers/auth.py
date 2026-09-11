@@ -143,12 +143,28 @@ async def bind_account(
     if user is None or not verify_password(body.password, user.password_hash):
         raise HTTPException(status_code=401, detail="invalid email or password")
 
+    existing_wx = await user_service.get_by_wechat_openid(session, openid)
+    if existing_wx is not None and str(existing_wx.id) == str(user.id):
+        settings = get_settings()
+        token = create_access_token(str(user.id), user.email, settings.jwt_secret)
+        return _auth_response(user, token)
+    if existing_wx is not None:
+        raise HTTPException(
+            status_code=409, detail="wechat already bound to another account"
+        )
+    if user.wechat_openid and user.wechat_openid != openid:
+        raise HTTPException(
+            status_code=409, detail="account already bound to another wechat"
+        )
+
     try:
         await user_service.link_wechat(session, user.id, openid)
         await session.commit()
     except IntegrityError:
         await session.rollback()
-        raise HTTPException(status_code=500, detail="server error") from None
+        raise HTTPException(
+            status_code=409, detail="wechat already bound to another account"
+        ) from None
 
     user = await user_service.get_by_id(session, user.id)
     if user is None:

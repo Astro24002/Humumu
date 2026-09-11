@@ -47,6 +47,8 @@ async def admin_stats(
         journal_count = await journal_service.count_journals(session)
         article_count = await article_service.count_articles(session)
         user_count = await user_service.count_users(session)
+        stub_user_count = await user_service.count_stub_users(session)
+        wechat_unbound_count = await user_service.count_wechat_unbound(session)
         pending_requests = await journal_service.count_pending_requests(session)
         pending_directory_reviews = await journal_service.count_pending_directory_reviews(
             session
@@ -61,6 +63,8 @@ async def admin_stats(
         pending_requests=pending_requests,
         pending_directory_reviews=pending_directory_reviews,
         cas_category_count=cas_category_count,
+        stub_user_count=stub_user_count,
+        wechat_unbound_count=wechat_unbound_count,
     )
 
 
@@ -236,12 +240,21 @@ async def admin_list_users(
     _user_id: str = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
     q: str | None = Query(default=None),
+    has_email: bool | None = Query(default=None),
+    wechat_bound: bool | None = Query(default=None),
+    is_admin: bool | None = Query(default=None),
     limit: int | None = Query(default=None, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ) -> AdminUsersResponse:
     try:
         users, total = await user_service.list_all_users(
-            session, q=q, limit=limit, offset=offset
+            session,
+            q=q,
+            has_email=has_email,
+            wechat_bound=wechat_bound,
+            is_admin=is_admin,
+            limit=limit,
+            offset=offset,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail="failed to fetch users") from exc

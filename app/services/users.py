@@ -127,8 +127,29 @@ async def update_push_frequency(
     return bool(result.rowcount)
 
 
+_WECHAT_STUB_SUFFIX = "%@wechat.user"
+
+
 async def count_users(session: AsyncSession) -> int:
     result = await session.execute(select(func.count()).select_from(User))
+    return int(result.scalar_one() or 0)
+
+
+async def count_stub_users(session: AsyncSession) -> int:
+    """Accounts whose email is the WeChat placeholder (`*@wechat.user`)."""
+    result = await session.execute(
+        select(func.count())
+        .select_from(User)
+        .where(User.email.ilike(_WECHAT_STUB_SUFFIX))
+    )
+    return int(result.scalar_one() or 0)
+
+
+async def count_wechat_unbound(session: AsyncSession) -> int:
+    """Accounts with no wechat_openid (email-first users who have not bound mini)."""
+    result = await session.execute(
+        select(func.count()).select_from(User).where(User.wechat_openid.is_(None))
+    )
     return int(result.scalar_one() or 0)
 
 
@@ -136,6 +157,9 @@ async def list_all_users(
     session: AsyncSession,
     *,
     q: str | None = None,
+    has_email: bool | None = None,
+    wechat_bound: bool | None = None,
+    is_admin: bool | None = None,
     limit: int | None = None,
     offset: int = 0,
 ) -> tuple[list[User], int]:
@@ -152,6 +176,18 @@ async def list_all_users(
     if q and q.strip():
         term = f"%{q.strip()}%"
         conditions.append(or_(User.email.ilike(term), User.name.ilike(term)))
+    if has_email is True:
+        conditions.append(~User.email.ilike(_WECHAT_STUB_SUFFIX))
+    elif has_email is False:
+        conditions.append(User.email.ilike(_WECHAT_STUB_SUFFIX))
+    if wechat_bound is True:
+        conditions.append(User.wechat_openid.is_not(None))
+    elif wechat_bound is False:
+        conditions.append(User.wechat_openid.is_(None))
+    if is_admin is True:
+        conditions.append(User.is_admin.is_(True))
+    elif is_admin is False:
+        conditions.append(User.is_admin.is_(False))
 
     count_stmt = select(func.count()).select_from(User)
     if conditions:

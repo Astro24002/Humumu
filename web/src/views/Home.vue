@@ -10,9 +10,11 @@
       查看订阅命中与阅读状态。
     </n-alert>
     <n-alert v-else type="default" style="margin-bottom: 16px;" :bordered="false">
-      浏览公开论文与期刊；
+      浏览公开论文与期刊。请先
+      <n-button text type="primary" @click="router.push('/register')">用邮箱注册</n-button>
+      或
       <n-button text type="primary" @click="router.push('/login')">登录</n-button>
-      后可订阅、标记已读并接收推送。
+      ，再订阅并接收邮件推送；微信小程序可用同一邮箱绑定微信。
     </n-alert>
     <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
       <n-radio-group v-model:value="filterContentType" size="small" :disabled="loading" @update:value="onFilterChange">

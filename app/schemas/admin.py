@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, computed_field, field_validator
+
+from app.schemas.auth import has_email as email_is_real
 
 from app.schemas.journal import (
     AdminJournalCreate,
@@ -20,6 +22,8 @@ class AdminStatsResponse(BaseModel):
     pending_requests: int
     pending_directory_reviews: int = 0
     cas_category_count: int = 0
+    stub_user_count: int = 0
+    wechat_unbound_count: int = 0
 
 
 class AdminUserOut(BaseModel):
@@ -39,6 +43,11 @@ class AdminUserOut(BaseModel):
     @classmethod
     def _uuid_to_str(cls, v: Any) -> Any:
         return str(v)
+
+    @computed_field
+    @property
+    def has_email(self) -> bool:
+        return email_is_real(self.email)
 
 
 class AdminUsersResponse(BaseModel):

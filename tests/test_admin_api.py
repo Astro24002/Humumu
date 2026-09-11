@@ -123,6 +123,16 @@ async def test_admin_stats_shape(client, authed_user_id):
             return_value=5,
         ),
         patch(
+            "app.routers.admin.user_service.count_stub_users",
+            new_callable=AsyncMock,
+            return_value=2,
+        ),
+        patch(
+            "app.routers.admin.user_service.count_wechat_unbound",
+            new_callable=AsyncMock,
+            return_value=3,
+        ),
+        patch(
             "app.routers.admin.journal_service.count_pending_requests",
             new_callable=AsyncMock,
             return_value=1,
@@ -147,6 +157,8 @@ async def test_admin_stats_shape(client, authed_user_id):
         "pending_requests": 1,
         "pending_directory_reviews": 3,
         "cas_category_count": 24,
+        "stub_user_count": 2,
+        "wechat_unbound_count": 3,
     }
 
 
@@ -390,6 +402,7 @@ async def test_admin_users_omit_password_hash(client, authed_user_id):
     u = body["users"][0]
     assert u["email"] == "admin@example.com"
     assert u["name"] == "Admin"
+    assert u["has_email"] is True
     assert "password_hash" not in u
     assert "password" not in u
 
@@ -411,6 +424,29 @@ async def test_admin_users_pagination_and_q(client, authed_user_id):
     assert kwargs.get("q") == "admin"
     assert kwargs.get("limit") == 10
     assert kwargs.get("offset") == 20
+    assert kwargs.get("has_email") is None
+    assert kwargs.get("wechat_bound") is None
+    assert kwargs.get("is_admin") is None
+
+
+@pytest.mark.asyncio
+async def test_admin_users_channel_filters(client, authed_user_id):
+    stub = _sample_user(email="ox@wechat.user", wechat_openid="ox1")
+    with patch(
+        "app.routers.admin.user_service.list_all_users",
+        new_callable=AsyncMock,
+        return_value=([stub], 1),
+    ) as mock_list:
+        r = await client.get(
+            "/api/v1/admin/users?has_email=false&wechat_bound=true&is_admin=false"
+        )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["users"][0]["has_email"] is False
+    kwargs = mock_list.await_args.kwargs
+    assert kwargs.get("has_email") is False
+    assert kwargs.get("wechat_bound") is True
+    assert kwargs.get("is_admin") is False
 
 
 @pytest.mark.asyncio

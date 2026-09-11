@@ -11,9 +11,14 @@
         <text class="user-name">{{ auth.user?.name || '用户' }}</text>
         <text class="user-email">{{ accountEmailLabel }}</text>
         <text v-if="auth.user?.wechat_openid" class="user-meta">微信已关联</text>
+        <text v-else-if="auth.hasEmail" class="user-meta muted">微信未关联</text>
         <view v-if="!auth.hasEmail" class="bind-email-hint">
-          <text class="bind-email-text">邮件推送需绑定真实邮箱</text>
+          <text class="bind-email-text">邮件推送需绑定真实邮箱。推荐先在网页用邮箱注册，再用本页合并绑定。</text>
           <text class="bind-email-link" :class="{ busy: profileBusy }" @click="goBindEmail">去绑定</text>
+        </view>
+        <view v-else-if="!auth.user?.wechat_openid" class="bind-email-hint">
+          <text class="bind-email-text">用当前邮箱重新登录即可绑定微信，用于订阅消息</text>
+          <text class="bind-email-link" :class="{ busy: profileBusy }" @click="goBindWechat">去绑定微信</text>
         </view>
       </view>
 
@@ -242,6 +247,11 @@ function goBindEmail() {
   uni.navigateTo({ url: '/pages/login/index?mode=bind' })
 }
 
+function goBindWechat() {
+  if (profileBusy.value) return
+  uni.navigateTo({ url: '/pages/login/index?mode=bind-wechat' })
+}
+
 function handleLogout() {
   if (profileBusy.value) return
   uni.showModal({
@@ -271,6 +281,7 @@ onUnload(() => { profileLoadSeq++; requestsLoadSeq++ })
 .bind-email-text { font-size: 24rpx; color: #888; }
 .bind-email-link { font-size: 24rpx; color: #3cc51f; }
 .user-meta { font-size: 24rpx; color: #3cc51f; margin-top: 8rpx; display: block; }
+.user-meta.muted { color: #999; }
 .section { background: #fff; margin-bottom: 16rpx; padding: 0 30rpx; }
 .section-title { font-size: 28rpx; color: #999; padding: 20rpx 0; border-bottom: 1rpx solid #f0f0f0; }
 .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 24rpx 0; border-bottom: 1rpx solid #f8f8f8; font-size: 28rpx; }

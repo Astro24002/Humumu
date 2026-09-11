@@ -5,33 +5,55 @@
   </div>
   <n-spin :show="loading">
     <n-grid
-      :cols="6"
+      :cols="8"
       :x-gap="16"
+      :y-gap="16"
       responsive="screen"
       item-responsive
       :class="{ 'stats-busy': loading }"
     >
-      <n-gi span="6 m:1">
+      <n-gi span="8 m:1">
         <n-card size="small" hoverable style="cursor: pointer" @click="goJournals">
           <n-statistic title="期刊数" :value="stats.journal_count" />
         </n-card>
       </n-gi>
-      <n-gi span="6 m:1">
+      <n-gi span="8 m:1">
         <n-card size="small">
           <n-statistic title="文章数" :value="stats.article_count" />
         </n-card>
       </n-gi>
-      <n-gi span="6 m:1">
+      <n-gi span="8 m:1">
         <n-card size="small" hoverable style="cursor: pointer" @click="goUsers">
           <n-statistic title="用户数" :value="stats.user_count" />
         </n-card>
       </n-gi>
-      <n-gi span="6 m:1">
+      <n-gi span="8 m:1">
+        <n-card
+          size="small"
+          hoverable
+          style="cursor: pointer"
+          :class="{ 'stat-attention': (stats.stub_user_count || 0) > 0 }"
+          @click="goStubUsers"
+        >
+          <n-statistic title="未绑邮箱" :value="stats.stub_user_count || 0" />
+        </n-card>
+      </n-gi>
+      <n-gi span="8 m:1">
+        <n-card
+          size="small"
+          hoverable
+          style="cursor: pointer"
+          @click="goWechatUnbound"
+        >
+          <n-statistic title="未绑微信" :value="stats.wechat_unbound_count || 0" />
+        </n-card>
+      </n-gi>
+      <n-gi span="8 m:1">
         <n-card size="small" hoverable style="cursor: pointer" @click="goCategories">
           <n-statistic title="CAS 分类" :value="stats.cas_category_count || 0" />
         </n-card>
       </n-gi>
-      <n-gi span="6 m:1">
+      <n-gi span="8 m:1">
         <n-card
           size="small"
           hoverable
@@ -42,7 +64,7 @@
           <n-statistic title="待审公开源" :value="stats.pending_directory_reviews || 0" />
         </n-card>
       </n-gi>
-      <n-gi span="6 m:1">
+      <n-gi span="8 m:1">
         <n-card
           size="small"
           hoverable
@@ -69,6 +91,17 @@
       导入示例，或在
       <n-button text type="primary" @click="router.push('/admin/categories')">CAS 分类</n-button>
       中手动新增。
+    </n-alert>
+    <n-alert
+      v-if="!loading && (stats.stub_user_count || 0) > 0"
+      type="warning"
+      style="margin-top: 16px;"
+      :bordered="false"
+      title="存在未绑定邮箱的微信占位账号"
+    >
+      推荐用户先用邮箱注册，再在小程序绑定微信。可在
+      <n-button text type="primary" @click="goStubUsers">用户管理</n-button>
+      筛选「未绑邮箱」查看。
     </n-alert>
     <n-alert
       v-if="!loading && stats.journal_count === 0"
@@ -106,6 +139,8 @@ const stats = ref<AdminStats>({
   pending_requests: 0,
   pending_directory_reviews: 0,
   cas_category_count: 0,
+  stub_user_count: 0,
+  wechat_unbound_count: 0,
 })
 
 function goJournals() {
@@ -116,6 +151,16 @@ function goJournals() {
 function goUsers() {
   if (loading.value) return
   router.push('/admin/users')
+}
+
+function goStubUsers() {
+  if (loading.value) return
+  router.push({ path: '/admin/users', query: { has_email: 'false' } })
+}
+
+function goWechatUnbound() {
+  if (loading.value) return
+  router.push({ path: '/admin/users', query: { wechat: 'false' } })
 }
 
 function goCategories() {

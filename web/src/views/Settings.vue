@@ -41,9 +41,18 @@
         <n-tag size="small" type="info" :bordered="false">管理员</n-tag>
       </n-descriptions-item>
     </n-descriptions>
+    <n-alert
+      v-if="accountHasEmail && !auth.user?.wechat_openid"
+      type="info"
+      :bordered="false"
+      style="margin-top: 16px;"
+      title="绑定微信小程序"
+    >
+      打开 Humumu 小程序，用当前邮箱登录即可将微信挂到本账号，用于订阅消息推送。
+    </n-alert>
     <div v-if="!accountHasEmail" style="margin-top: 16px;">
       <p style="color: #666; font-size: 13px; margin: 0 0 12px;">
-        微信登录账号尚无真实邮箱。绑定后可用邮箱登录，并启用邮件推送。
+        当前为微信登录占位账号，尚无真实邮箱。绑定后可用邮箱登录网页，并启用邮件推送。推荐路径是先在网页用邮箱注册，再在小程序绑定微信。
       </p>
       <n-form
         ref="bindFormRef"
@@ -167,7 +176,7 @@ import { shortUrl } from '@/utils/url'
 import type { FormInst, FormRules } from 'naive-ui'
 import {
   NH2, NCard, NRadio, NRadioGroup, NButton, NDescriptions, NDescriptionsItem, NTag, NSwitch,
-  NList, NListItem, NThing, NSpace, NEmpty, NSpin, NForm, NFormItem, NInput,
+  NList, NListItem, NThing, NSpace, NEmpty, NSpin, NForm, NFormItem, NInput, NAlert,
   useMessage, useDialog,
 } from 'naive-ui'
 

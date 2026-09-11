@@ -214,6 +214,11 @@ async def test_bind_account_success(client, wechat_settings):
             return_value=user,
         ),
         patch(
+            "app.routers.auth.user_service.get_by_wechat_openid",
+            new_callable=AsyncMock,
+            return_value=None,
+        ),
+        patch(
             "app.routers.auth.user_service.link_wechat",
             new_callable=AsyncMock,
             return_value=True,
@@ -281,6 +286,91 @@ async def test_bind_account_wechat_fail_502(client, wechat_settings):
 
     assert r.status_code == 502
     assert r.json() == {"error": "wechat login failed"}
+
+
+@pytest.mark.asyncio
+async def test_bind_account_openid_taken_409(client, wechat_settings):
+    openid = "ox_taken"
+    target = FakeUser(
+        email="bind@example.com",
+        password_hash=hash_password("secret1"),
+        name="Bind Me",
+    )
+    other = FakeUser(
+        email="other@example.com",
+        password_hash=hash_password("secret1"),
+        name="Other",
+        wechat_openid=openid,
+    )
+    with (
+        patch(
+            "app.routers.auth.code_to_openid",
+            new_callable=AsyncMock,
+            return_value=openid,
+        ),
+        patch(
+            "app.routers.auth.user_service.get_by_email",
+            new_callable=AsyncMock,
+            return_value=target,
+        ),
+        patch(
+            "app.routers.auth.user_service.get_by_wechat_openid",
+            new_callable=AsyncMock,
+            return_value=other,
+        ),
+        patch(
+            "app.routers.auth.user_service.link_wechat",
+            new_callable=AsyncMock,
+        ) as mock_link,
+    ):
+        r = await client.post(
+            "/api/v1/auth/bind-account",
+            json={"code": "wx-bind", "email": "bind@example.com", "password": "secret1"},
+        )
+    assert r.status_code == 409
+    assert r.json() == {"error": "wechat already bound to another account"}
+    mock_link.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_bind_account_already_linked_idempotent(client, wechat_settings):
+    openid = "ox_same"
+    user = FakeUser(
+        email="bind@example.com",
+        password_hash=hash_password("secret1"),
+        name="Bind Me",
+        wechat_openid=openid,
+    )
+    with (
+        patch(
+            "app.routers.auth.code_to_openid",
+            new_callable=AsyncMock,
+            return_value=openid,
+        ),
+        patch(
+            "app.routers.auth.user_service.get_by_email",
+            new_callable=AsyncMock,
+            return_value=user,
+        ),
+        patch(
+            "app.routers.auth.user_service.get_by_wechat_openid",
+            new_callable=AsyncMock,
+            return_value=user,
+        ),
+        patch(
+            "app.routers.auth.user_service.link_wechat",
+            new_callable=AsyncMock,
+        ) as mock_link,
+    ):
+        r = await client.post(
+            "/api/v1/auth/bind-account",
+            json={"code": "wx-bind", "email": "bind@example.com", "password": "secret1"},
+        )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["has_email"] is True
+    assert body["user"]["wechat_openid"] == openid
+    mock_link.assert_not_awaited()
 
 
 @pytest.mark.asyncio

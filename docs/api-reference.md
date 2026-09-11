@@ -41,6 +41,8 @@ POST /api/v1/auth/register
 
 `has_email`：邮箱非空且非 `*@wechat.user` 占位时为 `true`。密码最少 6 位。
 
+**产品路径：** Web 用邮箱注册/登录是主路径；微信小程序再用同一邮箱调用 `bind-account` 绑定微信。`POST /auth/wechat` 仍会为首次微信登录创建占位账号，但不作为推荐入口。
+
 ### 邮箱登录
 
 ```
@@ -94,7 +96,7 @@ POST /api/v1/auth/wechat
 }
 ```
 
-**响应** `200 OK`: 同注册格式。首次微信登录自动创建账号（`email` 为 `{openid}@wechat.user` 占位，`has_email=false`）。
+**响应** `200 OK`: 同注册格式。首次微信登录自动创建账号（`email` 为 `{openid}@wechat.user` 占位，`has_email=false`）。推荐用户先在 Web 用邮箱注册，再走 `bind-account`；本接口保留给未注册邮箱的兼容路径。
 
 ### 绑定邮箱账号（小程序：微信 code → 已有邮箱）
 
@@ -112,7 +114,7 @@ POST /api/v1/auth/bind-account
 }
 ```
 
-**响应** `200 OK`: 同注册格式。密码错误 401；openid 冲突等服务端错误 500。
+**响应** `200 OK`: 同注册格式。密码错误 401；openid 已挂到其他账号或本账号已绑其他微信 **409**（`wechat already bound to another account` / `account already bound to another wechat`）；同一账号重复绑定幂等返回 200。
 
 ### 当前用户绑定邮箱（Web / 任意 Bearer）
 
@@ -134,7 +136,7 @@ POST /api/v1/auth/bind-email
 
 与 `bind-account` 方向相反：本接口是「当前用户 ← 邮箱」，不需要微信 code；`bind-account` 是「邮箱账号 ← 微信 openid」。
 
-**客户端：** Web「设置」与小程序登录页绑定模式默认走本接口；小程序另可切换「合并到已有邮箱账号」调用 `bind-account`。
+**客户端：** 兼容路径——微信占位账号在 Web「设置」或小程序登录页补绑邮箱。推荐路径是先邮箱注册，再在小程序用 `bind-account` 绑定微信。
 
 ---
 
@@ -479,12 +481,12 @@ GET /api/v1/my/updates
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/admin/stats | 概览计数（`journal_count` / `article_count` / `user_count` / `pending_requests` / `pending_directory_reviews` 待审公开源 / `cas_category_count` CAS 分类） |
+| GET | /api/v1/admin/stats | 概览计数（`journal_count` / `article_count` / `user_count` / `stub_user_count` 微信占位未绑邮箱 / `wechat_unbound_count` 未绑微信 / `pending_requests` / `pending_directory_reviews` 待审公开源 / `cas_category_count` CAS 分类） |
 | GET/POST | /api/v1/admin/journals | 列表（`q`/`content_type`/`source_type`/`directory_status`/`sort`/`limit`/`offset`，带 `limit` 时含 `total`）/ 创建 |
 | PUT/DELETE | /api/v1/admin/journals/{id} | 更新 / 删除 |
 | POST | /api/v1/admin/journals/{id}/directory_status | 设置 public/private/pending_review/rejected/hidden |
 | GET/PUT | /api/v1/admin/requests | 申请队列与审核（GET 可选 `status`/`limit`/`offset`，带 `limit` 时含 `total`；`approved` 会创建/复用公开期刊并订阅申请人） |
-| GET | /api/v1/admin/users | 用户列表（含 is_admin；可选 `q`/`limit`/`offset`，带 `limit` 时含 `total`） |
+| GET | /api/v1/admin/users | 用户列表（含 is_admin、`has_email`；可选 `q`/`has_email`/`wechat_bound`/`is_admin`/`limit`/`offset`，带 `limit` 时含 `total`） |
 | POST | /api/v1/admin/users/{id}/admin | 授予/撤销管理员（`{"is_admin": true\|false}`；不可撤销自己） |
 | POST | /api/v1/admin/cas/categories | 创建 CAS 分类 |
 | POST | /api/v1/admin/journals/{id}/cas | 挂载 CAS 分类到期刊 |

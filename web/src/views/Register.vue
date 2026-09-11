@@ -1,5 +1,8 @@
 <template>
-  <n-card title="注册" style="max-width: 400px; margin: 80px auto;">
+  <n-card title="邮箱注册" style="max-width: 400px; margin: 80px auto;">
+    <p style="color: #666; font-size: 13px; margin: 0 0 16px; line-height: 1.6;">
+      请用邮箱注册（主路径）。注册后可在微信小程序用同一邮箱绑定微信，接收订阅消息。
+    </p>
     <n-form
       ref="formRef"
       :model="form"
@@ -77,7 +80,7 @@ async function handleRegister() {
   loading.value = true
   try {
     await auth.register(form.email, form.password, form.name)
-    message.success('注册成功')
+    message.success('注册成功。可在微信小程序用同一邮箱绑定微信。')
     const redirect = safeRedirect(route.query.redirect)
     router.push(redirect)
   } catch (e: any) {

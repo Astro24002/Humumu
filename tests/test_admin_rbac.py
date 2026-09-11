@@ -80,6 +80,16 @@ async def test_admin_stats_200_for_admin(client):
             return_value=3,
         ),
         patch(
+            "app.routers.admin.user_service.count_stub_users",
+            new_callable=AsyncMock,
+            return_value=0,
+        ),
+        patch(
+            "app.routers.admin.user_service.count_wechat_unbound",
+            new_callable=AsyncMock,
+            return_value=0,
+        ),
+        patch(
             "app.routers.admin.journal_service.count_pending_requests",
             new_callable=AsyncMock,
             return_value=0,
